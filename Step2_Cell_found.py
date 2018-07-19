@@ -39,7 +39,7 @@ cell_label = skimage.measure.label(bw_clear)# 找到不同的连通区域，并�
 cell_group = skimage.measure.regionprops(cell_label)# 将这些细胞分别得出来。
 #关于cell_group操作的注释：a[i].coords:得到连通区域i的坐标,y,x；a[i].convex_area:得到连通区域的面积；a[i].centroid:得到连通区域的中心坐标y,x
 import pickle
-fw = open(r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py\cell_group.txt','wb')
+fw = open((save_folder+'\\cell_group'),'wb')
 pickle.dump(cell_group,fw)#保存细胞连通性质的变量。 
 #%%绘图，并把细胞的编号画出来。
 thres_graph = np.uint8(bw_clear)*255 #二值化图像的表示化为RGB

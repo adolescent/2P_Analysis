@@ -69,6 +69,16 @@ def show_cell(base_graph_path,cell_group):
     for i in range(0,len(cell_group)):
         y,x = cell_group[i].centroid
         draw = ImageDraw.Draw(im)
-        draw.text((x*2,y*2),str(i+1),(0,255,100),font = font,align = 'center')#图像放大一倍
+        draw.text((x*2,y*2),str(i),(0,255,100),font = font,align = 'center')#图像放大一倍
     save_path = base_graph_path[0:(len(base_graph_path)-4)]+'_Labeled.tif'
     im.save(save_path)
+#%% 第六个功能是计算一帧上,这个细胞面积的亮度加和。
+def sum_a_frame(frame,cell_index):#输入这一帧和cell_group[i]
+    cell_location = cell_index.coords#
+    x_list = cell_location[:,1] #这个细胞的全部X坐标
+    y_list = cell_location[:,0] #这个细胞的全部Y坐标
+    frame_sum = 0
+    for i in range(0,len(x_list)):
+        frame_sum = frame_sum +frame[y_list[i],x_list[i]]
+    return frame_sum
+    

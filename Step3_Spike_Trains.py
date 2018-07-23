@@ -7,17 +7,20 @@ Created on Mon Jul 16 16:15:08 2018
 这一步操作之后，希望得到一个list，结构是Cell_Reaction(Cell_Index,dR/R of different frames)
 由于一些变量未重新声称，这一步骤应该在Step1/Step2之后进行。
 dF/F算法是：（对齐之后的细胞亮度之和-目标图片的亮度）/对齐之后的细胞亮度之和
+
+使用的前文变量：
+save_folder/aligned_tif_name/graph_after_align
 """
 
 #%% Read in
 import cv2
-save_folder = r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py'#这一行最后要改
+import numpy as np
+#save_folder = r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py'#这一行最后要改
 import pickle
 import function_in_2p as pp
 fr = open(save_folder+'\\cell_group','rb')
 cell_group = pickle.load(fr)
 aligned_frame_folder = save_folder+'\Aligned_Frames' #保存对齐过后图片的文件夹
-
 #%% 整个流程由大循环完成，第一层循环是不同的细胞区域
 ''' 旧代码
 import numpy as np

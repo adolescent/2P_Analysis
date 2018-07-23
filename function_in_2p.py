@@ -81,4 +81,29 @@ def sum_a_frame(frame,cell_index):#输入这一帧和cell_group[i]
     for i in range(0,len(x_list)):
         frame_sum = frame_sum +frame[y_list[i],x_list[i]]
     return frame_sum
-    
+#%% 第七个功能来自https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/，是scipy聚类画图的美化。
+def fancy_dendrogram(*args, **kwargs):
+    import scipy.cluster.hierarchy as clus_h
+    import matplotlib.pyplot as plt
+    max_d = kwargs.pop('max_d', None)
+    if max_d and 'color_threshold' not in kwargs:
+        kwargs['color_threshold'] = max_d
+    annotate_above = kwargs.pop('annotate_above', 0)
+
+    ddata = clus_h.dendrogram(*args, **kwargs)
+
+    if not kwargs.get('no_plot', False):
+        plt.title('Hierarchical Clustering Dendrogram (truncated)')
+        plt.xlabel('sample index or (cluster size)')
+        plt.ylabel('distance')
+        for i, d, c in zip(ddata['icoord'], ddata['dcoord'], ddata['color_list']):
+            x = 0.5 * sum(i[1:3])
+            y = d[1]
+            if y > annotate_above:
+                plt.plot(x, y, 'o', c=c)
+                plt.annotate("%.3g" % y, (x, y), xytext=(0, -5),
+                             textcoords='offset points',
+                             va='top', ha='center')
+        if max_d:
+            plt.axhline(y=max_d, c='k')
+    return ddata

@@ -66,10 +66,10 @@ def show_cell(base_graph_path,cell_group):
     from PIL import ImageDraw
     font = ImageFont.truetype('arial.ttf',11)
     im = Image.open(base_graph_path)
-    for i in range(0,len(cell_group)):
-        y,x = cell_group[i].centroid
+    for N in range(0,len(cell_group)):
+        y,x = cell_group[N].centroid
         draw = ImageDraw.Draw(im)
-        draw.text((x*2,y*2),str(i),(0,255,100),font = font,align = 'center')#图像放大一倍
+        draw.text((x*2,y*2),str(N),(0,255,100),font = font,align = 'center')#图像放大一倍
     save_path = base_graph_path[0:(len(base_graph_path)-4)]+'_Labeled.tif'
     im.save(save_path)
 #%% 第六个功能是计算一帧上,这个细胞面积的亮度加和。
@@ -81,7 +81,13 @@ def sum_a_frame(frame,cell_index):#输入这一帧和cell_group[i]
     for i in range(0,len(x_list)):
         frame_sum = frame_sum +frame[y_list[i],x_list[i]]
     return frame_sum
-#%% 第七个功能来自https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/，是scipy聚类画图的美化。
+#%% 第七个功能是把特定细胞的位置坐标得到，并以列表形式返回。返回值先x后y
+def cell_location(cell_index):#输入cell_group[i]
+    cell_location = cell_index.coords#
+    x_list = cell_location[:,1] #这个细胞的全部X坐标
+    y_list = cell_location[:,0] #这个细胞的全部Y坐标
+    return x_list,y_list
+#%% 第八个功能来自https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/，是scipy聚类画图的美化。
 def fancy_dendrogram(*args, **kwargs):
     import scipy.cluster.hierarchy as clus_h
     import matplotlib.pyplot as plt
@@ -107,5 +113,3 @@ def fancy_dendrogram(*args, **kwargs):
         if max_d:
             plt.axhline(y=max_d, c='k')
     return ddata
-   
-   

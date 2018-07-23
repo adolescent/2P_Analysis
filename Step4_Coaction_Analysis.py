@@ -69,17 +69,17 @@ plt.figure(figsize = (25,10))
 pp.fancy_dendrogram(
     Z,
     truncate_mode='lastp',
-    p=16, #plot最后多少个节点
+    p=8, #plot最后多少个节点
     leaf_rotation=90.,
     leaf_font_size=12.,
     show_contracted=True,
     annotate_above=10,  # 最小标注的距离
-    max_d = 11.5 #水平截止线
+    max_d = 15 #水平截止线
 )
 plt.savefig(save_folder+r'\\Dendrogram(Distance Determination).png')
 plt.show()
 #%%确定聚类分类,并得到每个cluster的发放pattern。
-clusters = clusters = clus_h.fcluster(Z, 11.5, criterion='distance')
+clusters = clusters = clus_h.fcluster(Z, 15, criterion='distance')
 fw = open((save_folder+'\\Clusters'),'wb')
 pickle.dump(clusters,fw)#保存细胞连通性质的变量。
 averaged_graph = np.zeros(shape = (np.max(clusters),cell_Num))#从这里开始注意加1

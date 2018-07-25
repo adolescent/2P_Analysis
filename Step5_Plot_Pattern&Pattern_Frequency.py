@@ -49,4 +49,18 @@ for i in range(0,len(counts)):
     f.write('Patterm ID:'+str(i+1)+', Frame Count:'+str(counts[i])+'\n')
 f.close()
 #%% 第三步，对每个pattern做fft，并画出热谱图（plt.spectrogram）。
+#将各个patterm的发放分到不同的序列里，每个横行代表一个模式的响应。
 pattern_separation = np.zeros(shape = (np.max(clusters),len(clusters)))
+for i in range(0,len(clusters)):
+     pattern_id = clusters[i]-1
+     pattern_separation[pattern_id,i] = 1
+#之后对每个横行画图，分两个subplot，得到热谱图。
+axprops = dict(xticks=[], yticks=[])
+barprops = dict(aspect='auto', cmap=plt.cm.binary, interpolation='nearest')
+fig = plt.figure(figsize = (25,20))
+# a horizontal barcode
+for i in range(0,pattern_Num):
+    ax = fig.add_axes([0,1-(i+1)*0.98/pattern_Num,0.99,1/(pattern_Num+1)], **axprops)#最后两位是bar的长度和高度，前两位是这个bar在图片中心点的坐标 
+    ax.imshow(pattern_separation[i].reshape((1,-1)), **barprops)
+plt.savefig(save_folder+'\Pattern_Trains.png')
+plt.show()

@@ -18,6 +18,7 @@ import numpy as np
 #save_folder = r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py'#这一行最后要改
 import pickle
 import function_in_2p as pp
+save_folder = save_folder
 fr = open(save_folder+'\\cell_group','rb')
 cell_group = pickle.load(fr)
 aligned_frame_folder = save_folder+'\Aligned_Frames' #保存对齐过后图片的文件夹
@@ -61,3 +62,46 @@ for i in range(0,len(aligned_tif_name)):# 减少读取次数，每次将一张�
 #%% 保存变量
 fw = open((save_folder+'\\Spike_Train'),'wb')
 pickle.dump(spike_train,fw)#保存细胞连通性质的变量。
+
+#%% 绘图，将每个单独cell的spike_train画出来
+#调试部分
+'''save_folder = (r'D:\datatemp\L63_LL_OI_2P\180810_L63_2P\Run01_V4_L8910_D240_RG_Spon\for_python')
+import pickle
+import numpy as np
+import function_in_2p as pp
+fr = open(save_folder+'\\spike_train','rb')
+spike_train = pickle.load(fr)'''
+#%%
+spike_train_folder = save_folder+'\Spike_Trains'
+pp.mkdir(spike_train_folder)
+import matplotlib.pyplot as plt
+cell_Num,frame_Num = np.shape(spike_train)
+
+for i in range(0,cell_Num):
+    plt.figure(figsize = (20,3))
+    plt.ylim(-1,6)
+    plt.xlim(0,frame_Num*1.06)
+    plt.title('Spike_Train of Cell '+str(i))
+    plt.plot(spike_train[i,:])
+    #接下来标注均值和两倍、三倍标准差的线。
+    mean = np.mean(spike_train[i,:])
+    std = np.std(spike_train[i,:])
+    plt.axhline(y = mean,color = '#d62728')#红色
+    plt.annotate('Average', xy = (frame_Num,mean),xytext=(frame_Num*1.03,mean+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注均值
+    plt.axhline(y = mean+std*2,color = '#00ff00')#绿色
+    plt.annotate('Means+2std', xy = (frame_Num,std*2),xytext=(frame_Num*1.03,std*2+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注阈值
+    plt.axhline(y = mean+std*3,color = '#66fff2')#水蓝色
+    plt.annotate('Means+3std', xy = (frame_Num,std*3),xytext=(frame_Num*1.03,std*3+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注阈值
+    #%接下来计算超过2std和3std的帧数比例
+    over2std = str(round(np.sum(spike_train[i,:]>mean+std*2)/frame_Num*100,5))+'%'
+    over3std = str(round(np.sum(spike_train[i,:]>mean+std*3)/frame_Num*100,5))+'%'#百分数形式保留五位小数并转换为str
+    plt.annotate((over2std+' Over2std,'+over3std+' Over3std'),xy = (frame_Num*0.75,0), xytext=(frame_Num*0.75,6.1))
+    plt.savefig(spike_train_folder+'\Cell'+str(i)+'.png')
+    plt.show()
+    plt.close('all')
+print('Plot Spike Train Done!')
+#%%
+plt.figure()
+plt.plot()
+plt.savefig()
+plt.close('all')

@@ -67,7 +67,7 @@ pp.fancy_dendrogram(
     leaf_rotation=90.,
     leaf_font_size=12.,
     show_contracted=True,
-    annotate_above=10,  # 最小标注的距离
+    annotate_above=7,  # 最小标注的距离
     #max_d = 10 #水平截止线
 )
 plt.savefig(save_folder+r'\\Dendrogram(Last 20 Nodes).png')

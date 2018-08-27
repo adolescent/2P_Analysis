@@ -3,6 +3,11 @@
 Created on Mon Jul 16 10:34:23 2018
 
 @author: LvLab_ZR
+
+
+使用的变量
+save_folder
+show_gain
 """
 #%% 第一节，将图像二值化，方便后续操作,基准是对齐之后的平均图。
 import numpy as np
@@ -12,9 +17,9 @@ import function_in_2p as pp
 import skimage.morphology
 import skimage.measure
 #%% Initializing
-show_gain = 32 #由于是重新读取了前面的图，所以show_gain要和之前保持一致
+show_gain = show_gain #由于是重新读取了前面的图，所以show_gain要和之前保持一致
 thren = 1 # 分细胞的阈值，高过分布多少个标准差的认为是细胞？
-save_folder = r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py'#这一行最后要改
+save_folder = save_folder#这一行最后要改
 model_frame = cv2.imread((save_folder+'\\Graph_Afrer_Align.tif'),-1)
 model = np.float64(model_frame/show_gain)
 H1 = pp.normalized_gauss2D([7,7],1.5)

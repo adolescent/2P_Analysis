@@ -10,10 +10,10 @@ import function_in_2p as pp
 import cv2
 import numpy as np
 
-all_tif_name = pp.tif_name(r'D:\datatemp\180508_L14\Run02_spon\1-002')#输入数据所在的路径，并保存全部的tif
-save_folder = (r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py') #这里输入保存路径，所有的计算结果都会在这个路径里保存。
+all_tif_name = pp.tif_name(r'D:\datatemp\L63_LL_OI_2P\180810_L63_2P\Run01_V4_L8910_D240_RG_Spon')#输入数据所在的路径，并保存全部的tif
+save_folder = (r'D:\datatemp\L63_LL_OI_2P\180810_L63_2P\Run01_V4_L8910_D240_RG_Spon\for_python') #这里输入保存路径，所有的计算结果都会在这个路径里保存。
 aligned_frame_folder = save_folder+'\Aligned_Frames' #保存对齐过后图片的文件夹
-show_gain = 32 #这个是保存图片时候的增益，用来提高图片亮度使可以看清。
+show_gain = 256 #这个是保存图片时候的增益，用来提高图片亮度使可以看清。GA取32，RG取256
 pp.mkdir(aligned_frame_folder)
 frame_Num = len(all_tif_name)
 print('There are ',frame_Num,'tifs in total.\n')

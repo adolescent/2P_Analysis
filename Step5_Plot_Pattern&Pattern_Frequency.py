@@ -21,7 +21,7 @@ import cv2
 import matplotlib.pyplot as plt
 save_folder = save_folder
 averaged_graph = averaged_graph
-capture_freq = 0.7 #采样频率，0.7Hz/s
+#capture_freq = 0.7 #采样频率，0.7Hz/s
 fr = open(save_folder+'\\cell_group','rb')
 cell_group = pickle.load(fr)
 fr = open(save_folder+'\\Clusters','rb')
@@ -46,10 +46,9 @@ for i in range(0,len(averaged_graph)):#循环各个patterm
 unique, counts = np.unique(clusters, return_counts=True)
 f = open(pattern_folder+'\\Frame_Count.txt','w')
 for i in range(0,len(counts)):
-    f.write('Patterm ID:'+str(i+1)+', Frame Count:'+str(counts[i])+'\n')
+    f.write('Pattern ID:'+str(i+1)+', Frame Count:'+str(counts[i])+'\n')
 f.close()
-#%% 第三步，对每个pattern做fft，并画出热谱图（plt.spectrogram）。
-#将各个patterm的发放分到不同的序列里，每个横行代表一个模式的响应。
+#%% 第三步,将各个patterm的发放分到不同的序列里，每个横行代表一个模式的响应。
 pattern_separation = np.zeros(shape = (np.max(clusters),len(clusters)))
 for i in range(0,len(clusters)):
      pattern_id = clusters[i]-1

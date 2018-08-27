@@ -25,7 +25,7 @@ for cell_id in range(0,cell_Num):
     temp_spike = spike_train[cell_id,:]
     temp_average = np.mean(temp_spike)
     temp_std = np.std(temp_spike)
-    single_unit_spike_train = np.bool_(temp_spike*(temp_spike>(temp_average+2*temp_std)))
+    single_unit_spike_train = np.bool_(temp_spike*(temp_spike>(temp_average+2*temp_std)))#得到的是布尔数组，只有超过和没超过阈值
     binary_spike_train[cell_id,:] =single_unit_spike_train 
 #%% 去除不想要的cell序列，将这些序列的二值化spike_train全都置为零。
 zero_list = np.zeros(shape = Frame_Num)

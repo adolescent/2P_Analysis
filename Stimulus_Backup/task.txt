@@ -1,0 +1,2 @@
+Codes in this folder are accomplished by MATLAB, which aims at communicating with ViSaGe.
+Every file shall be notated what kind of stimulation it will perform.

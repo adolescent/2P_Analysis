@@ -10,7 +10,7 @@ Created on Mon Jul 23 13:17:38 2018
 
 使用的变量
 save_folder
-averaged_graph
+averaged_graph(上一步平均得到的pattern集合)
 
 """
 #%% Initializing
@@ -29,7 +29,7 @@ clusters = pickle.load(fr)
 pattern_folder = save_folder+r'\\Patterns'
 pp.mkdir(pattern_folder)
 pattern_Num,Cell_Num = np.shape(averaged_graph)
-#%% 第一步，逐个还原发放的pattern。
+#%% 第一步，逐个还原发放的pattern。注意这里对最亮的一个细胞做了归一化。
 for i in range(0,len(averaged_graph)):#循环各个patterm
     current_graph = np.zeros(shape = (512,512))
     weight = averaged_graph[i,:]
@@ -39,7 +39,7 @@ for i in range(0,len(averaged_graph)):#循环各个patterm
     pattern_Name = pattern_folder+'\Pattern'+str(i+1)
     #cv2.imwrite(pattern_Name+'.png',np.uint8(current_graph*255))
     #图片放大一倍，标注cell_Number
-    current_graph_labled = cv2.cvtColor(np.uint8(current_graph*255),cv2.COLOR_GRAY2BGR)
+    current_graph_labled = cv2.cvtColor(np.uint8(current_graph/np.max(averaged_graph)*255),cv2.COLOR_GRAY2BGR)
     cv2.imwrite(pattern_Name+'.png',np.uint8(cv2.resize(current_graph_labled,(1024,1024))))
     pp.show_cell(pattern_Name+'.png',cell_group)# 在细胞图上标上细胞的编号。
 #%% 第二步，Count Clusters 数出来各个cluster的帧数（这个基本上是之前的图的统计）

@@ -56,7 +56,7 @@ for i in range(0,len(clusters)):
 #之后对每个横行画图，分两个subplot，得到热谱图。
 axprops = dict(xticks=[], yticks=[])
 barprops = dict(aspect='auto', cmap=plt.cm.binary, interpolation='nearest')
-fig = plt.figure(figsize = (25,20))
+fig = plt.figure(figsize = (160,40))
 # a horizontal barcode
 for i in range(0,pattern_Num):
     ax = fig.add_axes([0,1-(i+1)*0.98/pattern_Num,0.99,1/(pattern_Num+1)], **axprops)#最后两位是bar的长度和高度，前两位是这个bar在图片中心点的坐标 

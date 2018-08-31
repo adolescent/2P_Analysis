@@ -19,18 +19,23 @@ fr = open(save_folder+'\\spike_train','rb')
 spike_train = pickle.load(fr)
 cell_Num,Frame_Num = np.shape(spike_train)
 unwanted_cell_index = [0,1,2,3,5,52,113,151,256,327,328]
+#%% 去除不想要的cell序列，将这些序列的二值化spike_train全都置为零。
+zero_list = np.zeros(shape = Frame_Num)
+for i in range(0,len(unwanted_cell_index)):
+    spike_train[unwanted_cell_index[i],:] = zero_list
+#%%取bin，把几帧的data平均起来，从而避免时序上的响应而漏记
+bin_num =8
+binned_spike_train = np.zeros(shape = (cell_Num,Frame_Num//bin_num))
+for i in range(0,Frame_Num//bin_num):
+    binned_spike_train[:,i] = np.mean(spike_train[:,i*8:(i+1)*8],axis = 1)
 #%% 将 spike_Train二值化 
-binary_spike_train = np.zeros(shape = (cell_Num,Frame_Num))
+binary_spike_train = np.zeros(shape = (cell_Num,Frame_Num//bin_num))
 for cell_id in range(0,cell_Num):
-    temp_spike = spike_train[cell_id,:]
+    temp_spike = binned_spike_train[cell_id,:]
     temp_average = np.mean(temp_spike)
     temp_std = np.std(temp_spike)
     single_unit_spike_train = np.bool_(temp_spike*(temp_spike>(temp_average+3*temp_std)))#得到的是布尔数组，只有超过和没超过阈值
     binary_spike_train[cell_id,:] =single_unit_spike_train 
-#%% 去除不想要的cell序列，将这些序列的二值化spike_train全都置为零。
-zero_list = np.zeros(shape = Frame_Num)
-for i in range(0,len(unwanted_cell_index)):
-    binary_spike_train[unwanted_cell_index[i],:] = zero_list
 #%% 尝试聚类，分出来合适的patterm
 binary_spike_train = np.transpose(binary_spike_train) #每个横行是一个case，纵列是不同case
 import matplotlib.pyplot as plt
@@ -57,11 +62,11 @@ plt.figure(figsize = (25,10))
 pp.fancy_dendrogram(
     Z,
     truncate_mode='lastp',
-    p=100, #plot最后多少个节点
+    p=200, #plot最后多少个节点
     leaf_rotation=90.,
     leaf_font_size=12.,
     show_contracted=True,
-    annotate_above=10,  # 最小标注的距离
+    annotate_above=5.5,  # 最小标注的距离
     #max_d = 10 #水平截止线
 )
 plt.savefig(save_folder+r'\\Dendrogram(Last 100 Nodes).png')
@@ -71,17 +76,17 @@ plt.figure(figsize = (25,10))
 pp.fancy_dendrogram(
     Z,
     truncate_mode='lastp',
-    p=50, #plot最后多少个节点
+    p=100, #plot最后多少个节点
     leaf_rotation=90.,
     leaf_font_size=12.,
     show_contracted=True,
-    annotate_above=17.5,  # 最小标注的距离
-    max_d = 17.5 #水平截止线
+    annotate_above=6,  # 最小标注的距离
+    max_d = 6 #水平截止线
 )
 plt.savefig(save_folder+r'\\Dendrogram(Distance Determination).png')
 plt.show()
 #%%确定聚类分类,并得到每个cluster的发放pattern。
-clusters = clusters = clus_h.fcluster(Z, 17.5, criterion='distance')#这里的数字是分类的距离截至
+clusters = clusters = clus_h.fcluster(Z, 6, criterion='distance')#这里的数字是分类的距离截至
 fw = open((save_folder+'\\Clusters'),'wb')
 pickle.dump(clusters,fw)#保存细胞连通性质的变量。
 averaged_graph = np.zeros(shape = (np.max(clusters),cell_Num))#从这里开始注意加1

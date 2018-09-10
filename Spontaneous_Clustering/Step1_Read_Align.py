@@ -6,7 +6,7 @@ Created on Tue Jul 10 12:38:41 2018
 """
 "This File can read in All tif graph and align them in an average way."
 #%% Walk through the file folder, get all tif files need to be dealt with.
-import function_in_2p as pp
+import functions_cluster as pp
 import cv2
 import numpy as np
 

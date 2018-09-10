@@ -13,7 +13,7 @@ cell_group
 """
 #%% 读入spike_train
 import pickle
-import function_in_2p as pp
+import functions_cluster as pp
 import numpy as np
 fr = open(save_folder+'\\spike_train','rb')
 spike_train = pickle.load(fr)

@@ -15,7 +15,7 @@ averaged_graph(上一步平均得到的pattern集合)
 """
 #%% Initializing
 import pickle
-import function_in_2p as pp
+import functions_cluster as pp
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt

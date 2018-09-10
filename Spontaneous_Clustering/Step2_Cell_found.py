@@ -13,7 +13,7 @@ show_gain
 import numpy as np
 import cv2
 import scipy.ndimage
-import function_in_2p as pp
+import functions_cluster as pp
 import skimage.morphology
 import skimage.measure
 #%% Initializing

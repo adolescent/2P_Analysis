@@ -17,7 +17,7 @@ import cv2
 import numpy as np
 #save_folder = r'D:\datatemp\180508_L14\Run02_spon\1-002\save_folder_for_py'#这一行最后要改
 import pickle
-import function_in_2p as pp
+import functions_cluster as pp
 save_folder = save_folder
 fr = open(save_folder+'\\cell_group','rb')
 cell_group = pickle.load(fr)

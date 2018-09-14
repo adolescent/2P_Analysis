@@ -1,0 +1,2 @@
+This folder is used to do the clustering work.
+Step1-3 is similar to MATLAB ways, while others do a cluster for frames to get specific patterm.

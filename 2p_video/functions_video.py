@@ -59,5 +59,23 @@ def normalized_gauss2D(shape,sigma): #e.g. shape = [7,7],sigma = 1.5
     if sumh != 0:
         h /= sumh
     return h
-#%% 第五个功能是对图中细胞进行标号。
-    
+#%% 第五个功能是将细胞编号画出来，把连通区域编号画在区域中心上。
+def show_cell(base_graph_path,cell_group):
+    from PIL import ImageFont
+    from PIL import Image
+    from PIL import ImageDraw
+    font = ImageFont.truetype('arial.ttf',11)
+    im = Image.open(base_graph_path)
+    for N in range(0,len(cell_group)):
+        y,x = cell_group[N].centroid
+        draw = ImageDraw.Draw(im)
+        draw.text((x*2,y*2),str(N),(0,255,100),font = font,align = 'center')#图像放大一倍
+    save_path = base_graph_path[0:(len(base_graph_path)-4)]+'_Labeled.tif'
+    im.save(save_path)
+#%% 第六个功能是归一化，把输入向量归一化成为0-1的数组。
+def normalize_vector(vector):
+    import numpy as np
+    max_num = np.max(vector)
+    min_num = np.min(vector)
+    vector = (vector-min_num)/(max_num-min_num)
+    return vector

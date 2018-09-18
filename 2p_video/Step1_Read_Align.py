@@ -33,7 +33,7 @@ graph_before_align = averaged_frame
 #%%
 #Show the graph before align
 cv2.imshow('Graph_Before_Align',np.uint16(np.clip(graph_before_align*show_gain,0,65535)))#做一个clip，防止超过65535的回到0
-cv2.waitKey()
+cv2.waitKey(10000)
 cv2.destroyAllWindows()
 # and save the graph into the save folder as Graph_Before_Align.tif, all 16bit depth.
 cv2.imwrite((save_folder+'\Graph_Before_Align.tif'),np.uint16(np.clip(graph_before_align*show_gain,0,65535)))
@@ -63,7 +63,7 @@ graph_after_align = np.uint16(averaged_frame)
 #%%Show the graph before align
 #
 cv2.imshow('Graph_After_Align',np.uint16(np.clip(np.float64(graph_after_align)*show_gain,0,65535)))
-cv2.waitKey()
+cv2.waitKey(10000)
 cv2.destroyAllWindows()
 cv2.imwrite((save_folder+'\Graph_Afrer_Align.tif'),np.uint16(np.clip(np.float64(graph_after_align)*show_gain,0,65535)))
 #%% 把所有对齐之后图片组成的向量保存下来

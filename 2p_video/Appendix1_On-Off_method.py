@@ -9,7 +9,7 @@ save_folder
 """
 #%% 首先是初始化和输入载入。
 import numpy as np
-import function_video as pp
+import functions_video as pp
 import pickle
 import gc
 import matplotlib.pyplot as plt 
@@ -47,9 +47,35 @@ gc.collect()#释放内存
 Spike_thres = dF_mean+0.5*dF_std
 Spike_prop = np.float64(np.sum(sub_matrix>Spike_thres,axis=2)/np.shape(sub_matrix)[2])
 #Spike_prop = np.float64(np.sum(sub_matrix>1,axis = 2)/np.shape(sub_matrix)[2])
-On_Off_Graph = np.uint8(np.clip(pp.normalize_vector(Spike_prop)*255,0,255))
+On_Off_Graph = np.uint16(np.clip(pp.normalize_vector(Spike_prop)*65535,0,65535))
 cv2.imshow('On-Off Data',On_Off_Graph)
 cv2.waitKey(5000)#图片出现的毫秒数
 cv2.destroyAllWindows()
 cv2.imwrite(save_folder+r'\\On-Off_Graph.png',On_Off_Graph)#这个图就是用On-Off得到的相应地图。
 #%%这里对以上图片进行找细胞的操作，具体和Step1的找细胞方法类似。
+Cell_thres = 2#分细胞阈值，以一个标准差以上作为细胞的依据。
+H1 = pp.normalized_gauss2D([7,7],1.5)
+H2 = pp.normalized_gauss2D([15,15],7)
+im_sharp = np.float64(scipy.ndimage.correlate(On_Off_Graph,H1,mode = 'nearest'))
+im_back =  np.float64(scipy.ndimage.correlate(On_Off_Graph,H2,mode = 'nearest'))#化成float64以免相减的时候负数溢出变得巨亮
+im_cell = np.clip((im_sharp-im_back)/np.max(im_sharp-im_back),0,1)
+level = np.mean(im_cell)+Cell_thres*np.std(im_cell)
+ret,bw = cv2.threshold(im_cell,level,255,cv2.THRESH_BINARY)
+bw = np.bool_(bw)#将图像二值化
+bw_clear = skimage.morphology.remove_small_objects(bw,20,connectivity = 1)#去掉面积小于20个像素的区域
+blank = np.zeros(shape = (512,512),dtype = bool)
+blank[19:493,19:493] = bw_clear
+bw_clear = blank
+#%%找到连通区域，即细胞的位置。
+cell_label = skimage.measure.label(bw_clear)# 找到不同的连通区域，并用数字标注区域编号。
+cell_group = skimage.measure.regionprops(cell_label)# 将这些细胞分别得出来。
+#关于cell_group操作的注释：a[i].coords:得到连通区域i的坐标,y,x；a[i].convex_area:得到连通区域的面积；a[i].centroid:得到连通区域的中心坐标y,x
+import pickle
+fw = open((save_folder+'\\On_Off_cell_group'),'wb')
+pickle.dump(cell_group,fw)#保存细胞连通性质的变量。 
+#%%绘图，并把细胞的编号画出来。
+thres_graph = np.uint8(bw_clear)*255 #二值化图像的表示化为RGB
+RGB_graph = cv2.cvtColor(thres_graph,cv2.COLOR_GRAY2BGR)
+base_graph_path = save_folder+'\\On_Off_cell_graph.tif'
+cv2.imwrite(base_graph_path,cv2.resize(RGB_graph,(1024,1024))) #把细胞图放大一倍并保存起来
+pp.show_cell(base_graph_path,cell_group)# 在细胞图上标上细胞的编号。

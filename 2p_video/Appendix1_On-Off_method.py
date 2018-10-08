@@ -45,13 +45,13 @@ del flat_dF
 gc.collect()#释放内存
 #%%到这里选定发放与否的阈值，统计每个像素的发放概率。
 Spike_thres = dF_mean+0.5*dF_std
-Spike_prop = np.float64(np.sum(sub_matrix>Spike_thres,axis=2)/np.shape(sub_matrix)[2])
+Spike_prop = np.float64(np.sum(sub_matrix>Spike_thres,axis=2)/np.shape(sub_matrix)[2])#每个像素发放帧所占的比例
 #Spike_prop = np.float64(np.sum(sub_matrix>1,axis = 2)/np.shape(sub_matrix)[2])
 On_Off_Graph = np.uint16(np.clip(pp.normalize_vector(Spike_prop)*65535,0,65535))
 cv2.imshow('On-Off Data',On_Off_Graph)
 cv2.waitKey(5000)#图片出现的毫秒数
 cv2.destroyAllWindows()
-cv2.imwrite(save_folder+r'\\On-Off_Graph.png',On_Off_Graph)#这个图就是用On-Off得到的相应地图。
+cv2.imwrite(save_folder+r'\\On-Off_Graph_0.5std.png',On_Off_Graph)#这个图就是用On-Off得到的相应地图。
 #%%这里对以上图片进行找细胞的操作，具体和Step1的找细胞方法类似。
 Cell_thres = 2#分细胞阈值，以一个标准差以上作为细胞的依据。
 H1 = pp.normalized_gauss2D([7,7],1.5)
@@ -79,3 +79,4 @@ RGB_graph = cv2.cvtColor(thres_graph,cv2.COLOR_GRAY2BGR)
 base_graph_path = save_folder+'\\On_Off_cell_graph.tif'
 cv2.imwrite(base_graph_path,cv2.resize(RGB_graph,(1024,1024))) #把细胞图放大一倍并保存起来
 pp.show_cell(base_graph_path,cell_group)# 在细胞图上标上细胞的编号。
+cv2.imwrite(save_folder+r'\On_Off_cell_Origin.png',thres_graph)

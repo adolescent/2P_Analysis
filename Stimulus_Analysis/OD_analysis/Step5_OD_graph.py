@@ -9,8 +9,8 @@ Created on Tue Apr  2 16:24:05 2019
 import cv2
 import numpy as np
 stim_set_A = ['1','3','5','7']
-stim_set_B = ['2','4','6','8']
-graph_name = 'OD'
+stim_set_B = ['0']
+graph_name = 'L-0'
 frame_set_A = []#把两个刺激态里的frameid整理出来
 frame_set_B = []
 for i in range(0,len(stim_set_A)):
@@ -103,7 +103,7 @@ for i in range(0,len(preference_index)):
         #index_graph[y_list,x_list,2] = norm_preference_index[i]*255
     else:
         x_list,y_list = pp.cell_location(cell_group[i])
-        index_graph[y_list,x_list,0] = norm_preference_index[i]*255
+        index_graph[y_list,x_list,0] = abs(norm_preference_index[i])*255
 #绘图
 cv2.imshow('Cell_Tuning_Graph',index_graph)
 cv2.imwrite(save_folder+'\\'+graph_name+'_cell_tuning_index.png',index_graph)

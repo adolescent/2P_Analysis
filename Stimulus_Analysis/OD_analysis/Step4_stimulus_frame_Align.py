@@ -9,9 +9,15 @@ import neo
 import numpy as np
 
 # create a reader
-reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190322_L74_LM\190322_L74_LM_stimuli\Run14_2P_OD8\14.smr')
+reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run03_2P_manual_OD8\3.smr')
 # read the block
 data = reader.read( lazy=False)[0]
+#%%读取stim的id顺序
+f = open(r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run03_2P_manual_OD8\Runxx_OD8_manual_27.5689.txt','r')
+stim_id = f.read().split()
+f.close()
+pre_stim_frame = 2#这里指的是方波开始刺激没放，需要删除的帧数。
+after_stim_drift = 0#这里指的是锯齿波消失之后，再计算几帧属于其中。
 #%%读取两个spike2的数据序列，并保存为字典。
 Stimuli = {}
 twoP = {}#将两个序列存入字典，包括了时间、信号序列、采样频率。
@@ -31,10 +37,7 @@ for i, asig in enumerate(data.segments[0].analogsignals):
         twoP['times'] = times
         twoP['signal'] = np.array(asig)
         twoP['fs'] = fs
-#%%读取stim的id顺序
-f = open(r'G:\ZR\data_processing\190322_L74_LM\190322_L74_LM_stimuli\Run14_2P_OD8\Run01_OD8_6.8329.txt','r')
-stim_id = f.read().split()
-f.close()
+
 #%%确定stimOn的序列。
 all_stim_time = [x for x in range(len(Stimuli['signal'])) if Stimuli['signal'][x] > 2] # 一次获得所有刺激态的坐标,认为大于2的是刺激ON
 #接下来将以上序列进行分割，根据时间连续性分割成了n个序列。
@@ -59,11 +62,15 @@ for i in range(0,len(stim_set)):
 frame_time = []#定义空列表，记录每一帧播放时在spike2上记录的时间。
 i = 20
 while i<(len(times)-20):
-    if (twoP['signal'][i-20]<0 and twoP['signal'][i+20]>1):
+    if (twoP['signal'][i-20]<0 and twoP['signal'][i+20]>1.2):
         frame_time.append(i)
-        i = i+1000
-    i = i+5
-frame_time = frame_time[0:len(frame_time)-1]#最后一帧不要了
+        i = i+3000
+    i = i+5   
+#%%检查阈值
+for i in range(1,len(frame_time)):
+    if frame_time[i]-frame_time[i-1]<5500:
+        raise Exception('Frame find Error! Please recheck the threshold!\n')
+frame_time = frame_time[0:(len(frame_time)-1)]#最后1帧不要了
 #以上方法可以得到每一个刺激对应的时间，注意20和5这样的参数都是调出来的，对RG可能就不能用了
 #%%接下来，把每一帧属于哪个序列做出来，分配frame_time于Stim_ID_Time
 Frame_Stim_Check = {}
@@ -87,6 +94,25 @@ for i in range(0,len(frame_time)):
         temp_frame_list.append(i)
 Frame_Stim_Check['Stim_Off'] = temp_frame_list
 #到这里，我们可以得到每一帧对应的stimID。
+#%%对Frame进行调整，每一个condition截掉前面几个，加入后面几个。
+for i in range(0,len(stim_set)):
+    current_condition = Frame_Stim_Check[stim_set[i]]
+    all_conditions = [list(group) for group in mit.consecutive_groups(current_condition)]#把当前的condition分开，进行一些操作。
+    all_conditions_adjusted = []#把调整之后的all_condition计入新的列表。
+    for j in range(0,len(all_conditions)):
+        all_conditions[j] = all_conditions[j][pre_stim_frame:]#截掉prestim的几帧
+        for k in range(0,after_stim_drift):
+            all_conditions[j].append(max(all_conditions[j])+1)#在后面加上多数的几帧。
+        all_conditions_adjusted.extend(all_conditions[j])
+    Frame_Stim_Check[stim_set[i]] = all_conditions_adjusted
+#接下来处理Stim_Off,每个减掉开始的n个。
+current_condition = Frame_Stim_Check['Stim_Off']
+all_conditions = [list(group) for group in mit.consecutive_groups(current_condition)]#把当前的condition分开，进行一些操作。
+all_conditions_adjusted = []#把调整之后的all_condition计入新的列表。
+for j in range(0,len(all_conditions)):
+    all_conditions[j] = all_conditions[j][after_stim_drift:]#截掉每个stimOff的最前面几个的几帧
+    all_conditions_adjusted.extend(all_conditions[j])
+Frame_Stim_Check['Stim_Off'] = all_conditions_adjusted
 #%%
 import pickle
 fw = open((save_folder+'\\Frame_Stim_Check'),'wb')

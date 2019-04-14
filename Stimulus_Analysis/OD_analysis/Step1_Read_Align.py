@@ -10,8 +10,11 @@ import functions_OD as pp
 import cv2
 import numpy as np
 
-all_tif_name = pp.tif_name(r'G:\ZR\data_processing\190322_L74_LM\1-014')#输入数据所在的路径，并保存全部的tif
-save_folder = (r'G:\ZR\data_processing\190322_L74_LM\1-014\results') #这里输入保存路径，所有的计算结果都会在这个路径里保存。
+
+data_folder =r'G:\ZR\data_processing\190412_L74_LM\1-003'
+all_tif_name = pp.tif_name(data_folder)#输入数据所在的路径，并保存全部的tif
+save_folder = data_folder+r'\results' #这里输入保存路径，所有的计算结果都会在这个路径里保存。
+pp.mkdir(save_folder)
 aligned_frame_folder = save_folder+'\Aligned_Frames' #保存对齐过后图片的文件夹
 show_gain = 32 #这个是保存图片时候的增益，用来提高图片亮度使可以看清。GA取32，RG取256
 pp.mkdir(aligned_frame_folder)

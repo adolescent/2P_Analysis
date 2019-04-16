@@ -9,11 +9,11 @@ import neo
 import numpy as np
 
 # create a reader
-reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run03_2P_manual_OD8\3.smr')
+reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8\2.smr')
 # read the block
 data = reader.read( lazy=False)[0]
 #%%读取stim的id顺序
-f = open(r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run03_2P_manual_OD8\Runxx_OD8_manual_27.5689.txt','r')
+f = open(r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8\Runxx_G8_27.5378.txt','r')
 stim_id = f.read().split()
 f.close()
 pre_stim_frame = 2#这里指的是方波开始刺激没放，需要删除的帧数。
@@ -117,3 +117,4 @@ Frame_Stim_Check['Stim_Off'] = all_conditions_adjusted
 import pickle
 fw = open((save_folder+'\\Frame_Stim_Check'),'wb')
 pickle.dump(Frame_Stim_Check,fw)
+fw.close()

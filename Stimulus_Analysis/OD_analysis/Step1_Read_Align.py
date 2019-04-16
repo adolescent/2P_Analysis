@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 
 
-data_folder =r'G:\ZR\data_processing\190412_L74_LM\1-003'
+data_folder =r'G:\ZR\data_processing\190412_L74_LM\1-002'
 all_tif_name = pp.tif_name(data_folder)#输入数据所在的路径，并保存全部的tif
 save_folder = data_folder+r'\results' #这里输入保存路径，所有的计算结果都会在这个路径里保存。
 pp.mkdir(save_folder)

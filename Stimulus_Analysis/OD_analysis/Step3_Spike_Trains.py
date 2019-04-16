@@ -100,8 +100,10 @@ for i in range(0,cell_Num):
     plt.show()
     plt.close('all')
 print('Plot Spike Train Done!')
-#%%
-plt.figure()
+'''plt.figure()
 plt.plot()
 plt.savefig()
-plt.close('all')
+plt.close('all')'''
+#%%保存spike_train为mat文件
+import scipy.io
+scipy.io.savemat(save_folder+r'\Spike_train.mat', mdict={'Spike_Train': spike_train})

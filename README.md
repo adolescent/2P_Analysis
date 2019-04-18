@@ -1,7 +1,7 @@
 # 2P_Spon
 A project for spontaneous data analysis, done in Python.
 
-NOTE: COMMENT IS MADE IN CHINESE!
+NOTE: Chinese comment can be found here.
 
   The data get through two-photon microscope usually converted to type '.tif', as graphs are captured in a constant frequency, it's easy for us to analysis the cell spike through different times.
 

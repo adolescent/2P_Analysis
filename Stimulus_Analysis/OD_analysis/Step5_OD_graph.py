@@ -8,9 +8,9 @@ Created on Tue Apr  2 16:24:05 2019
 #%% 在这里输入刺激ID,我们可以做出dF/F的减图。
 import cv2
 import numpy as np
-stim_set_A = ['3','4','5']
-stim_set_B = ['1','7','8']
-graph_name = 'Dir135-(-45)'
+stim_set_A = ['1','2']
+stim_set_B = ['0']
+graph_name = 'Gray-0'
 frame_set_A = []#把两个刺激态里的frameid整理出来
 frame_set_B = []
 for i in range(0,len(stim_set_A)):
@@ -37,7 +37,7 @@ clip_max = sub_graph.mean()+3*sub_graph.std()
 sub_graph_clipped = np.clip(sub_graph,clip_min,clip_max)#对减图进行最大和最小值的clip
 norm_sub_graph = (sub_graph_clipped-sub_graph_clipped.min())/(sub_graph_clipped.max()-sub_graph_clipped.min())
 #%%保存OD图
-OD_map = np.uint8(norm_sub_graph*256)
+OD_map = np.uint8(np.clip(norm_sub_graph*255,0,255))
 cv2.imshow('Sub_Frame',OD_map)
 cv2.imwrite(save_folder+r'\\'+graph_name+'.png',OD_map)
 cv2.waitKey(2500)

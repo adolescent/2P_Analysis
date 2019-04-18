@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 
 
-data_folder =r'G:\ZR\data_processing\190412_L74_LM\1-002'
+data_folder =r'G:\ZR\data_processing\190412_L74_LM\1-004'
 all_tif_name = pp.tif_name(data_folder)#输入数据所在的路径，并保存全部的tif
 save_folder = data_folder+r'\results' #这里输入保存路径，所有的计算结果都会在这个路径里保存。
 pp.mkdir(save_folder)
@@ -35,11 +35,11 @@ for i in range(100,last_graph_count):
 graph_before_align = np.uint16(averaged_frame)
 #%%
 #Show the graph before align
-cv2.imshow('Graph_Before_Align',graph_before_align*show_gain)
-cv2.waitKey(5000)
+cv2.imshow('Graph_Before_Align',np.uint16(np.clip(np.float64(graph_before_align)*show_gain,0,65535)))#加了clip
+cv2.waitKey(2500)
 cv2.destroyAllWindows()
 # and save the graph into the save folder as Graph_Before_Align.tif, all 16bit depth.
-cv2.imwrite((save_folder+'\Graph_Before_Align.tif'),graph_before_align*show_gain)
+cv2.imwrite((save_folder+'\Graph_Before_Align.tif'),np.uint16(np.clip(np.float64(graph_before_align)*show_gain,0,65535)))
 #%% Do the Align,method same as the MATLAB way.
 print('Start Align...')
 aligned_tif_name = []
@@ -57,10 +57,10 @@ averaged_frame = np.empty(shape = [512,512])
 for i in range(0,len(all_tif_name)):
     temp_frame = cv2.imread(aligned_tif_name[i],-1)
     averaged_frame += (temp_frame/len(all_tif_name))
-graph_after_align = np.uint16(averaged_frame)
-#%%Show the graph before align
+graph_after_align = np.uint16(np.clip(averaged_frame,0,65535))#加了clip
+#%%Show the graph after align
 #
-cv2.imshow('Graph_After_Align',graph_after_align*show_gain)
-cv2.waitKey(5000)
+cv2.imshow('Graph_After_Align',np.uint16(np.clip(np.float64(graph_after_align)*show_gain,0,65535)))
+cv2.waitKey(2500)
 cv2.destroyAllWindows()
-cv2.imwrite((save_folder+'\Graph_Afrer_Align.tif'),graph_after_align*show_gain)
+cv2.imwrite((save_folder+'\Graph_After_Align.tif'),np.uint16(np.clip(np.float64(graph_after_align)*show_gain,0,65535)))

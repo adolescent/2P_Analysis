@@ -97,7 +97,7 @@ for i in range(0,cell_Num):
     over3std = str(round(np.sum(spike_train[i,:]>mean+std*3)/frame_Num*100,5))+'%'#百分数形式保留五位小数并转换为str
     plt.annotate((over2std+' Over2std,'+over3std+' Over3std'),xy = (frame_Num*0.75,0), xytext=(frame_Num*0.75,1.6))
     plt.savefig(spike_train_folder+'\Cell'+str(i)+'.png')
-    plt.show()
+    #plt.show()
     plt.close('all')
 print('Plot Spike Train Done!')
 '''plt.figure()

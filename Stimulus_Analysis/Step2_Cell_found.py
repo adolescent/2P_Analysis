@@ -8,15 +8,24 @@ import numpy as np
 import cv2
 import scipy.ndimage
 import functions_OD as pp
-import dill
+import pickle
 import skimage.morphology
 import skimage.measure
 import time
 
-dill.load_session('Step1_Variable.pkl')#载入前一个任务的变量，方便变量继承
+def read_variable(name):
+    with open(name, 'rb') as file:
+        variable = pickle.load(file)
+    file.close()
+    return variable
+
+show_gain = read_variable('show_gain.pkl')
+save_folder = read_variable('save_folder.pkl')
+
 #%%
 class Cell_Found():#定义类
     name =r'Cell_Found'#定义class的属性，如果没有__init__的内容就会以这里的作为类属性。
+    
     def __init__(self,show_gain,save_folder,thres):
         self.save_folder = save_folder#保存目录
         self.show_gain = show_gain#show gain
@@ -70,16 +79,21 @@ class Cell_Found():#定义类
         self.graph_binary()
         self.cell_wash()
         self.show_cell()
+    def save_variable(self,variable,name):
+        fw = open(name,'wb')
+        pickle.dump(variable,fw)#保存细胞连通性质的变量。 
+        fw.close()
         
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
-    show_gain = 32
-    save_folder = r'D:\datatemp\190412_L74\test_data\results'
+#    show_gain = 32
+#    save_folder = r'D:\datatemp\190412_L74\test_data\results'
     cf = Cell_Found(show_gain,save_folder,1)#这两个变量可以从上一步里读出来
     cf.main()
     cell_group = cf.cell_group
-    variable_name = 'Step2_Variable.pkl'
-    dill.dump_session(variable_name)
+    cf.save_variable(cell_group,'cell_group.pkl')
+#    variable_name = 'Step2_Variable.pkl'
+#    dill.dump_session(variable_name)
     finish_time = time.time()
     print('Task Time Cost:'+str(finish_time-start_time)+'s')
     

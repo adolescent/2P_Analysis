@@ -12,7 +12,7 @@ import numpy as np
 import time
 import multiprocessing as mp
 from functools import partial
-import dill
+import pickle
 
 class Align_Tifs:#定义类，即align
     name =r'Align_All_Frames'#定义class的属性，如果没有__init__的内容就会以这里的作为类属性。
@@ -65,6 +65,11 @@ class Align_Tifs:#定义类，即align
     def __setstate__(self, state):
         self.__dict__.update(state)
     
+    def save_variable(self,variable,name):
+        fw = open(name,'wb')
+        pickle.dump(variable,fw)#保存细胞连通性质的变量。 
+        fw.close()
+        
     def main(self):
         self.path_cycle()
         graph_before_align = self.frame_average(self.all_tif_name)
@@ -73,23 +78,27 @@ class Align_Tifs:#定义类，即align
         partial_align = partial(self.align,base_frame = graph_before_align)
         self.pool_set()
         self.pool.map(partial_align,range(len(self.all_tif_name)))
+        self.pool.close()
+        self.pool.join()
         print('Frame_Align_Done!')
         self.aligned_frame_name = pp.tif_name(self.aligned_frame_folder)#定义类变量，方便提取
         self.graph_after_align = self.frame_average(self.aligned_frame_name)
         self.show_graph('Graph_After_Align',self.graph_after_align)
+    
 #%%运行部分
-'''有时间可以把以下运行内容包入这个class的函数，然后写一个主函数文件'''
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
     show_gain = 32#图片增益
     data_folder = r'D:\datatemp\190412_L74\test_data'
     run = Align_Tifs(data_folder,show_gain,3)
     run.main()
-    finish_time = time.time()
-    print('Task Time Cost:'+str(finish_time-start_time)+'s')
+    graph_after_align = run.graph_after_align
     save_folder = run.save_folder
     aligned_frame_name = run.aligned_frame_name
     #%%接下来将变量保存下来,保存在代码所在目录
-    variable_name = 'Step1_Variable.pkl'
-    dill.dump_session(variable_name)
-    
+    run.save_variable(aligned_frame_name,'aligned_frame_name.pkl')
+    run.save_variable(show_gain,'show_gain.pkl')
+    run.save_variable(save_folder,'save_folder.pkl')  
+    run.save_variable(graph_after_align,'graph_after_align.pkl') 
+    finish_time = time.time()
+    print('Task Time Cost:'+str(finish_time-start_time)+'s')

@@ -1,7 +1,0 @@
-This folder contains codes for data prcess. 
-As most codes for different data process are the same, we can use the model Common&Different.
-Remember to annotate what stim is every file for.
-Common1:Align_Graph
-Common2:Find_Cell
-Common3:Align_Stim
-Common4:Spike_Train_With_StimID

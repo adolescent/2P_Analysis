@@ -58,7 +58,8 @@ class Align_Tifs:#定义类，即align
         self.pool = mp.Pool(self.core_Num)
     def __getstate__(self):
         self_dict = self.__dict__.copy()
-        del self_dict['pool']
+        if 'pool' in self_dict:
+            del self_dict['pool']
         return self_dict
 
     def __setstate__(self, state):

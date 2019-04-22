@@ -21,7 +21,7 @@ import skimage.measure
 show_gain = show_gain #由于是重新读取了前面的图，所以show_gain要和之前保持一致
 thren = 1 # 分细胞的阈值，高过分布多少个标准差的认为是细胞？
 save_folder = save_folder#这一行最后要改
-model_frame = cv2.imread((save_folder+'\\Graph_Afrer_Align.tif'),-1)
+model_frame = cv2.imread((save_folder+'\\Graph_After_Align.tif'),-1)
 model = np.float64(model_frame/show_gain)
 H1 = pp.normalized_gauss2D([7,7],1.5)
 H2 = pp.normalized_gauss2D([15,15],7)

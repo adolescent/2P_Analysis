@@ -81,7 +81,8 @@ if __name__ == '__main__':
     run.show_graph('Graph_After_Align',graph_after_align)
     finish_time = time.time()
     print('Task Time Cost:'+str(finish_time-start_time)+'s')
-    #%%接下来将变量保存下来。
-    variable_name = run.save_folder+'\Step1_Variable.pkl'
+    save_folder = run.save_folder
+    #%%接下来将变量保存下来,保存在代码所在目录
+    variable_name = 'Step1_Variable.pkl'
     dill.dump_session(variable_name)
     

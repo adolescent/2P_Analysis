@@ -74,6 +74,9 @@ class Cluster():
             self.averaged_patterns[i,:] = np.mean(cluster_temp,axis = 0)
         self.save_variable(self.averaged_patterns,'averaged_patterns.pkl')
         
+    def correlation_calculate(self):#计算每个pattren相对spike trian 的相关曲线。
+        for i in range
+        
  #%%   
 if __name__ == '__main__':
     start_time = time.time()
@@ -89,3 +92,6 @@ if __name__ == '__main__':
     cl.pattern_average()
     averaged_patterns = cl.averaged_patterns
     
+    
+    finish_time = time.time()
+    print('Task Time Cost:'+str(finish_time-start_time)+'s')

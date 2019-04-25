@@ -7,7 +7,7 @@ Created on Mon Apr 22 15:49:10 2019
 
 import cv2
 import numpy as np
-import functions_OD as pp
+import functions_cluster as pp
 import pickle
 import time
 import multiprocessing as mp
@@ -65,10 +65,10 @@ class Spike_Train():
         std = np.std(self.spike_train[i,:])
         plt.axhline(y = mean,color = '#d62728')#红色
         plt.annotate('Average', xy = (self.frame_Num,mean),xytext=(self.frame_Num*1.03,mean+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注均值
-        plt.axhline(y = mean+std*2,color = '#00ff00')#绿色
+        plt.axhline(y = mean+std*1,color = '#00ff00')#绿色
+        plt.annotate('Means+1std', xy = (self.frame_Num,std*1),xytext=(self.frame_Num*1.03,std*1+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注阈值
+        plt.axhline(y = mean+std*2,color = '#66fff2')#水蓝色
         plt.annotate('Means+2std', xy = (self.frame_Num,std*2),xytext=(self.frame_Num*1.03,std*2+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注阈值
-        plt.axhline(y = mean+std*3,color = '#66fff2')#水蓝色
-        plt.annotate('Means+3std', xy = (self.frame_Num,std*3),xytext=(self.frame_Num*1.03,std*3+0.5),arrowprops=dict(facecolor='black',width = 1,shrink = 0.05,headwidth = 5))#标注阈值
         #%接下来计算超过2std和3std的帧数比例
         over1std = str(round(np.sum(self.spike_train[i,:]>mean+std*1)/self.frame_Num*100,5))+'%'
         over2std = str(round(np.sum(self.spike_train[i,:]>mean+std*2)/self.frame_Num*100,5))+'%'#百分数形式保留五位小数并转换为str
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     aligned_frame_name = read_variable('aligned_frame_name.pkl')
     graph_after_align = read_variable('graph_after_align.pkl')
     save_folder = read_variable('save_folder.pkl')
-    st = Spike_Train(cell_group,aligned_frame_name,graph_after_align,save_folder,3)
+    st = Spike_Train(cell_group,aligned_frame_name,graph_after_align,save_folder,5)
     st.main()
     spike_train = st.spike_train
     st.save_variable(spike_train,'spike_train.pkl')  

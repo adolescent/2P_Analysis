@@ -7,7 +7,7 @@ Created on Mon Apr 22 12:29:22 2019
 import numpy as np
 import cv2
 import scipy.ndimage
-import functions_OD as pp
+import functions_cluster as pp
 import pickle
 import skimage.morphology
 import skimage.measure
@@ -71,9 +71,9 @@ class Cell_Found():#定义类
         RGB_graph = cv2.cvtColor(thres_graph,cv2.COLOR_GRAY2BGR)#转灰度为RGB
         base_graph_path = self.save_folder+'\\cell_graph'
         cv2.imwrite(base_graph_path+'.tif',RGB_graph)
-        cv2.imwrite(base_graph_path+'resized.tif',cv2.resize(RGB_graph,(1024,1024))) #把细胞图放大一倍并保存起来
+        cv2.imwrite(base_graph_path+'_resized.tif',cv2.resize(RGB_graph,(1024,1024))) #把细胞图放大一倍并保存起来
        # pp.show_cell(base_graph_path+'.tif',self.cell_group)# 在细胞图上标上细胞的编号。
-        pp.show_cell(base_graph_path+'resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
+        pp.show_cell(base_graph_path+'_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
     def main(self):#主函数，一次完成执行工作。
         self.Gauss_generation()
         self.graph_binary()

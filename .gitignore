@@ -2,3 +2,4 @@
 *.pkl
 Stimulus_Analysis/test.py
 *.pyc
+*.png

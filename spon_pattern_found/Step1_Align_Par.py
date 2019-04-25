@@ -6,7 +6,7 @@ Created on Fri Apr 19 12:39:30 2019
 一个工程化的代码方式，利用定义类等模式进行了这一步操作。
 self开头的变量是类变量，可以被函数外调用
 """
-import functions_OD as pp
+import functions_cluster as pp
 import cv2
 import numpy as np
 import time
@@ -89,8 +89,8 @@ class Align_Tifs:#定义类，即align
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
     show_gain = 32#图片增益
-    data_folder = r'D:\datatemp\190412_L74\test_data'
-    run = Align_Tifs(data_folder,show_gain,3)
+    data_folder = r'G:\ZR\data_processing\190412_L74_LM\1-001'
+    run = Align_Tifs(data_folder,show_gain,5)
     run.main()
     graph_after_align = run.graph_after_align
     save_folder = run.save_folder

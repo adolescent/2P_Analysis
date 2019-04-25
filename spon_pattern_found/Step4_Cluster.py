@@ -29,6 +29,11 @@ class Cluster():
         self.bins = bins
         self.cell_Num,self.Frame_Num = np.shape(self.spike_train)
         
+    def save_variable(self,variable,name):
+        fw = open(name,'wb')
+        pickle.dump(variable,fw)#保存细胞连通性质的变量。 
+        fw.close()
+        
     def bin_spike_data(self):#对结果做bin
         if self.bins ==1:
             self.binned_spike_train = self.spike_train
@@ -40,6 +45,8 @@ class Cluster():
     def cluster_main(self):#这个是聚类主程序
         self.binned_spike_train = np.transpose(self.binned_spike_train) #转置，每个横行是一个case的不同维度，纵列是不同case
         self.Z = clus_h.linkage(self.binned_spike_train,method = 'ward')#聚类运算,这一步小心内存= =
+        self.save_variable(Z,'Cluster_Detail.pkl')
+        
     def plot_dendrogram(self,p,max_d,annotate_above):
         plt.figure(figsize = (25,10))
         pp.fancy_dendrogram(
@@ -54,10 +61,19 @@ class Cluster():
         )
         plt.savefig(r'Dendrogram_Node='+str(p)+'.png')
         plt.show()
-    def cluster_determination(self,d):#确定最终的截至距离
         
-    
-    
+    def cluster_determination(self,d):#确定最终的截至距离，得到
+        self.clusters = clus_h.fcluster(Z, d, criterion='distance')#根据类间距确定截止距离
+        self.save_variable(self.clusters,'Frame_Cluster_Information.pkl')#这个文件里包含了每一帧归属的类。
+        
+    def pattern_average(self):#根据以上聚类的结果，得到每个类的平均向量。
+        self.averaged_patterns = np.zeros(shape = (np.max(self.clusters),self.cell_Num))#从这里开始注意加1
+        for i in range(0,np.max(self.clusters)):
+            frame_id = np.where(self.clusters ==(i+1))[0]#cluster是从1开始的
+            cluster_temp =self.binned_spike_train[frame_id,:]
+            self.averaged_patterns[i,:] = np.mean(cluster_temp,axis = 0)
+        self.save_variable(self.averaged_patterns,'averaged_patterns.pkl')
+        
  #%%   
 if __name__ == '__main__':
     start_time = time.time()
@@ -67,4 +83,9 @@ if __name__ == '__main__':
     cl.bin_spike_data()
     cl.cluster_main()
     Z = cl.Z
-    cl.plot_dendrogram(500,0,0)
+    cl.plot_dendrogram(500,0,0)#注意这里需要试几次确定
+    #%%断点，实验准备
+    cl.cluster_determination(10)
+    cl.pattern_average()
+    averaged_patterns = cl.averaged_patterns
+    

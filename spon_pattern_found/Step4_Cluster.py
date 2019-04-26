@@ -45,7 +45,7 @@ class Cluster():
     def cluster_main(self):#这个是聚类主程序
         self.binned_spike_train = np.transpose(self.binned_spike_train) #转置，每个横行是一个case的不同维度，纵列是不同case
         self.Z = clus_h.linkage(self.binned_spike_train,method = 'ward')#聚类运算,这一步小心内存= =
-        self.save_variable(Z,'Cluster_Detail.pkl')
+        self.save_variable(self.Z,'Cluster_Detail.pkl')
         
     def plot_dendrogram(self,p,max_d,annotate_above):
         plt.figure(figsize = (25,10))
@@ -75,23 +75,49 @@ class Cluster():
         self.save_variable(self.averaged_patterns,'averaged_patterns.pkl')
         
     def correlation_calculate(self):#计算每个pattren相对spike trian 的相关曲线。
-        for i in range
+        self.correlation_plots = np.zeros(shape = (np.max(self.clusters),np.shape(self.spike_train)[1]),dtype = np.float64)#定义空数组
+        for i in range(np.shape(self.correlation_plots)[0]):#循环全部pattern
+            temp_pattern = self.averaged_patterns[i,:]
+            for j in range(np.shape(self.spike_train)[1]):#计算每一帧的相关系数之后赋值
+                self.correlation_plots[i,j] = np.corrcoef(self.spike_train[:,j],temp_pattern)[0][1]
+        self.save_variable(self.correlation_plots,'correlation_plots.pkl')
+    def plot_correlation(self):#把上一步得到的相关曲线画出来。
+        correlation_folder = r'Correlation_Plots'
+        pp.mkdir(correlation_folder)#新文件夹
+        for i in range(0,np.shape(correlation_plots)[0]):#先分别画
+            plt.figure(figsize = (20,7))
+            #plt.ylim(-0.5,1.5)
+            #plt.xlim(0,self.frame_Num*1.06)
+            plt.title('Correlation Between Spon and Pattern '+str(i+1))
+            plt.plot(self.correlation_plots[i,:])
+            plt.savefig(correlation_folder+'\Pattern'+str(i+1)+'.png')
+            #plt.show()
+            plt.close('all')
+        #再画一个在一起的
+        plt.figure(figsize = (20,20))
+        plt.title('Correlation Between Spon and Patterns')
+        for i in range(0,np.shape(correlation_plots)[0]):
+            plt.plot(self.correlation_plots[i,:])
+        plt.savefig(correlation_folder+'\Pattern_All.png')
+        plt.close('all')
         
  #%%   
 if __name__ == '__main__':
     start_time = time.time()
     print('Clustering Start...\n')
     spike_train = read_variable('spike_train.pkl')
-    cl = Cluster(spike_train,1)
+    cl = Cluster(spike_train,1)#spike——train，bins
     cl.bin_spike_data()
     cl.cluster_main()
     Z = cl.Z
-    cl.plot_dendrogram(500,0,0)#注意这里需要试几次确定
+    cl.plot_dendrogram(10,17.5,15)#注意这里需要试几次确定，变量顺序是：最后几个节点，水平截至线，标注阈值
     #%%断点，实验准备
-    cl.cluster_determination(10)
+    cl.cluster_determination(17.5)
     cl.pattern_average()
     averaged_patterns = cl.averaged_patterns
-    
+    cl.correlation_calculate()
+    correlation_plots = cl.correlation_plots
+    cl.plot_correlation()
     
     finish_time = time.time()
     print('Task Time Cost:'+str(finish_time-start_time)+'s')

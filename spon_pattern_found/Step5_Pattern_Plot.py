@@ -62,10 +62,27 @@ class Pattern_Plot():
             cv2.imwrite(pattern_Name+'.png',np.uint8(cv2.resize(current_graph_labled,(1024,1024))))
             pp.show_cell(pattern_Name+'.png',self.cell_group)
     def frame_count(self):#这个函数用来数每个pattern中的帧数目，用于参考pattern代表性。
-        
+        unique, counts = np.unique(self.Frame_Cluster_Information, return_counts=True)
+        f = open(self.pattern_folder+'\\Frame_Count.txt','w')
+        for i in range(0,len(counts)):
+            f.write('Pattern ID:'+str(i+1)+', Frame Count:'+str(counts[i])+'\n')
+        f.close()
     def bar_prop_plot(self):#绘制一个简单的箱型图，用来简要描述pattern出现的时间信息。
-        
-    
+        pattern_separation = np.zeros(shape = (self.pattern_Num,len(self.Frame_Cluster_Information)))
+        for i in range(0,len(self.Frame_Cluster_Information)):
+             pattern_id = self.Frame_Cluster_Information[i]-1
+             pattern_separation[pattern_id,i] = 1
+        #之后对每个横行画图，分两个subplot，得到箱图。
+        axprops = dict(xticks=[], yticks=[])
+        barprops = dict(aspect='auto', cmap=plt.cm.binary, interpolation='nearest')
+        fig = plt.figure(figsize = (80,10))
+        # a horizontal barcode
+        for i in range(0,self.pattern_Num):
+            ax = fig.add_axes([0,1-(i+1)*0.98/self.pattern_Num,0.99,1/(self.pattern_Num+1)], **axprops)#最后两位是bar的长度和高度，前两位是这个bar在图片中心点的坐标 
+            ax.imshow(pattern_separation[i].reshape((1,-1)), **barprops)
+        plt.savefig(save_folder+'\Pattern_Trains.png')
+        #plt.show()
+            
         
 if __name__ == '__main__':
     start_time = time.time()
@@ -75,10 +92,12 @@ if __name__ == '__main__':
     Frame_Cluster_Information = read_variable('Frame_Cluster_Information.pkl')#读入每帧归属的pattern文件
     
     pa = Pattern_Plot(save_folder,averaged_patterns,cell_group,Frame_Cluster_Information)
-    pa.pattern_normalization()
-    pa.pattern_threshold(0.5)
-    pa.pattern_reduction()
-    
+    pa.pattern_normalization()#归一化
+    pa.pattern_threshold(0.5)#得到阈值后的pattern
+    pa.pattern_reduction()#还原成图片
+    #%%
+    pa.frame_count()
+    pa.bar_prop_plot()
     
     
     

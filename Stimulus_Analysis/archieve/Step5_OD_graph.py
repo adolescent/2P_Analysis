@@ -3,6 +3,7 @@
 Created on Tue Apr  2 16:24:05 2019
 
 @author: ZR
+不只需要图。。。应该考虑把graphdata和细胞data也存出来
 """
 
 #%% 在这里输入刺激ID,我们可以做出dF/F的减图。

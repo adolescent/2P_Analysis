@@ -9,14 +9,14 @@ import neo
 import numpy as np
 
 # create a reader
-reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run04_2P_RGLum4\4.smr')
+reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190329_L74_LM\190329_L74_LM_stimuli\Run04_2P_G8\4.smr')
 # read the block
 data = reader.read( lazy=False)[0]
 #%%读取stim的id顺序
-f = open(r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run04_2P_RGLum4\Runxx_RGLum4_27.5991.txt','r')
+f = open(r'G:\ZR\data_processing\190329_L74_LM\190329_L74_LM_stimuli\Run04_2P_G8\Run01_G8_13.6297.txt','r')
 stim_id = f.read().split()
 f.close()
-pre_stim_frame = 2#这里指的是方波开始刺激没放，需要删除的帧数。
+pre_stim_frame = 0#这里指的是方波开始刺激没放，需要删除的帧数。
 after_stim_drift = 0#这里指的是锯齿波消失之后，再计算几帧属于其中。
 #%%读取两个spike2的数据序列，并保存为字典。
 Stimuli = {}

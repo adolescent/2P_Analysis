@@ -88,9 +88,9 @@ class Align_Tifs:#定义类，即align
 #%%运行部分
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
-    show_gain = 32#图片增益
-    data_folder = r'G:\ZR\data_processing\190412_L74_LM\1-001'
-    run = Align_Tifs(data_folder,show_gain,5)
+    show_gain = 32#图片增益,RG256,GA32
+    data_folder = r'G:\ZR\data_processing\190412_L74_LM\1-015'
+    run = Align_Tifs(data_folder,show_gain,1)
     run.main()
     graph_after_align = run.graph_after_align
     save_folder = run.save_folder

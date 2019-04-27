@@ -19,7 +19,7 @@ def read_variable(name):#读取变量用的题头，希望这个可以在后续�
         variable = pickle.load(file)
     file.close()
     return variable
-#%%
+#%
 class Cluster():
     
     name = r'Cluster For Spike Trains'#
@@ -101,7 +101,7 @@ class Cluster():
         plt.savefig(correlation_folder+'\Pattern_All.png')
         plt.close('all')
         
- #%%   
+    
 if __name__ == '__main__':
     start_time = time.time()
     print('Clustering Start...\n')
@@ -110,9 +110,10 @@ if __name__ == '__main__':
     cl.bin_spike_data()
     cl.cluster_main()
     Z = cl.Z
-    cl.plot_dendrogram(10,17.5,15)#注意这里需要试几次确定，变量顺序是：最后几个节点，水平截至线，标注阈值
+    #%%
+    cl.plot_dendrogram(15,15,8)#注意这里需要试几次确定，变量顺序是：最后几个节点，水平截至线，标注阈值
     #%%断点，实验准备
-    cl.cluster_determination(17.5)
+    cl.cluster_determination(15)
     cl.pattern_average()
     averaged_patterns = cl.averaged_patterns
     cl.correlation_calculate()

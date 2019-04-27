@@ -93,7 +93,7 @@ if __name__ == '__main__':
     
     pa = Pattern_Plot(save_folder,averaged_patterns,cell_group,Frame_Cluster_Information)
     pa.pattern_normalization()#归一化
-    pa.pattern_threshold(0.5)#得到阈值后的pattern
+    pa.pattern_threshold(0)#得到阈值后的pattern
     pa.pattern_reduction()#还原成图片
     #%%
     pa.frame_count()

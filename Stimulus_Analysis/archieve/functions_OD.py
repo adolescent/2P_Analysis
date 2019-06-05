@@ -113,3 +113,10 @@ def fancy_dendrogram(*args, **kwargs):
         if max_d:
             plt.axhline(y=max_d, c='k')
     return ddata
+
+#第九个功能，用pickle保存文件。
+import pickle
+def save_variable(variable,name):
+    fw = open(name,'wb')
+    pickle.dump(variable,fw)#保存细胞连通性质的变量。 
+    fw.close()

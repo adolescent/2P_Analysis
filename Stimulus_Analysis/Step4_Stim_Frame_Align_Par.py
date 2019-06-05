@@ -10,6 +10,8 @@ import numpy as np
 import pickle
 import time
 import multiprocessing as mp
+import more_itertools as mit
+import functions_OD as pp
 
 def read_variable(name):#读取变量用的题头，希望这个可以在后续删掉
     with open(name, 'rb') as file:
@@ -22,9 +24,8 @@ class Stim_Frame_Align():
     
     name =r'Frame_Stim_Align'
     
-    def __init__(self,stim_folder,save_folder,pre_stim_frame,after_stim_drift):
+    def __init__(self,stim_folder,pre_stim_frame,after_stim_drift):
         self.stim_folder = stim_folder
-        self.save_folder = save_folder 
         self.pre_stim_frame = pre_stim_frame
         self.after_stim_drift = after_stim_drift
         self.Frame_Stim_Check = {}
@@ -67,7 +68,7 @@ class Stim_Frame_Align():
                 self.twoP['fs'] = fs  #采样频率
     def Stim_Time_Align(self):#将txt文件的id对应的stim time进行对齐
         all_stim_time = [x for x in range(len(self.Stimuli['signal'])) if self.Stimuli['signal'][x] > 2]#将信号大于2V的认为是刺激ON
-        import more_itertools as mit
+#        import more_itertools as mit
         stim_lists = [list(group) for group in mit.consecutive_groups(all_stim_time)]
         #定义一个异常，以免出现计算错误
         if len(stim_lists)!=len(self.stim_id):
@@ -113,7 +114,7 @@ class Stim_Frame_Align():
        # Frame_Stim_Check[self.stim_set[i]] = temp_frame_lists
        
     def run_Stim_Frame_find(self):
-        self.pool_set(3)
+        self.pool_set(9)
         frame_lists = self.pool.map(self.Stim_Frame_find,range(0,len(self.stim_set)))#跑成一个列表，从头到尾是每个stim对应的id
         self.pool.close()
         self.pool.join()
@@ -121,8 +122,35 @@ class Stim_Frame_Align():
             self.Frame_Stim_Check[self.stim_set[i]] = frame_lists[i]
    
     def Stim_Off_Get(self):#在以上ID 的情况下找到stim_Off 对应的帧，并写入文件。
-        #%%截止到原来的85行
-    
+        all_frame_lists = list(range(len(self.frame_time)))#这个是全部的帧,从中去掉属于至少一个condition的就是isi的
+        stim_frames_temp = list(self.Frame_Stim_Check.values())
+        stim_frame = []
+        for i in range(0,len(stim_frames_temp)):
+            stim_frame.extend(stim_frames_temp[i])
+        no_stim_frame = [x for x in all_frame_lists if x not in stim_frame] #这里定义没有刺激的帧
+        self.Frame_Stim_Check['Stim_Off'] = no_stim_frame
+        #%%到原来98行
+    def Frame_adjust(self):
+        #%%对Frame进行调整，每一个condition截掉前面几个，加入后面几个。
+        for i in range(0,len(self.stim_set)):
+            current_condition = self.Frame_Stim_Check[self.stim_set[i]]
+            all_conditions = [list(group) for group in mit.consecutive_groups(current_condition)]#把当前的condition分开，进行一些操作。
+            all_conditions_adjusted = []#把调整之后的all_condition计入新的列表。
+            for j in range(0,len(all_conditions)):
+                all_conditions[j] = all_conditions[j][self.pre_stim_frame:]#截掉prestim的几帧
+                for k in range(0,after_stim_drift):
+                    all_conditions[j].append(max(all_conditions[j])+1)#在后面加上多数的几帧。
+                all_conditions_adjusted.extend(all_conditions[j])
+            self.Frame_Stim_Check[self.stim_set[i]] = all_conditions_adjusted
+        #接下来处理Stim_Off,每个减掉开始的n个。
+        current_condition = self.Frame_Stim_Check['Stim_Off']
+        all_conditions = [list(group) for group in mit.consecutive_groups(current_condition)]#把当前的condition分开，进行一些操作。
+        all_conditions_adjusted = []#把调整之后的all_condition计入新的列表。
+        for j in range(0,len(all_conditions)):
+            all_conditions[j] = all_conditions[j][after_stim_drift:]#截掉每个stimOff的最前面几个的几帧
+            all_conditions_adjusted.extend(all_conditions[j])
+        self.Frame_Stim_Check['Stim_Off'] = all_conditions_adjusted
+        
     def __getstate__(self):#为避免pickle出错必须要写
         self_dict = self.__dict__.copy()
         if 'pool' in self_dict:
@@ -142,10 +170,11 @@ class Stim_Frame_Align():
 if __name__ == '__main__':
     start_time = time.time()
     save_folder = read_variable('save_folder.pkl')
-    stim_folder = r'G:\ZR\data_processing\190412_L74_LM\190412_L74_stimuli\Run03_2P_manual_OD8'
+    #save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8\test'
+    stim_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8'
     pre_stim_frame = 2#这里指的是方波开始刺激没放，需要删除的帧数。
     after_stim_drift = 0#这里指的是锯齿波消失之后，再计算几帧属于其中。
-    sf= Stim_Frame_Align(stim_folder,save_folder,pre_stim_frame,after_stim_drift)
+    sf= Stim_Frame_Align(stim_folder,pre_stim_frame,after_stim_drift)
     sf.stim_file_name()
     sf.spike2_series_extract()
     smr_data_2p = sf.twoP
@@ -155,9 +184,11 @@ if __name__ == '__main__':
     sf.Frame_Time_Align()
     Stim_ID_Time = sf.Stim_ID_Time
     Frame_time = sf.frame_time
-    print('Pool Test Starts...\n')
+    print('Stim Frame Aligning...\n')
     sf.run_Stim_Frame_find()
-    sf.save_variable(sf.Frame_Stim_Check,'Frame_Stim_Check.pkl')
+    sf.Stim_Off_Get()
+    sf.Frame_adjust()
+    pp.save_variable(sf.Frame_Stim_Check,save_folder+r'\Frame_Stim_Check.pkl')
     
     finish_time = time.time()
     print('Task Time Cost:'+str(finish_time-start_time)+'s')

@@ -12,7 +12,7 @@ import numpy as np
 import time
 
 
-data_folder =r'F:\2P_Data\190412_L74_LM\1-004'
+data_folder =r'E:\ZR\Data_Temp\190528_L73_LM\1-003'
 all_tif_name = pp.tif_name(data_folder)#输入数据所在的路径，并保存全部的tif
 save_folder = data_folder+r'\results' #这里输入保存路径，所有的计算结果都会在这个路径里保存。
 pp.mkdir(save_folder)
@@ -50,8 +50,8 @@ for i in range(0,len(all_tif_name)):
         [x_bias,y_bias] = pp.bias_correlation(temp_tif,averaged_tif)
         temp_biased_graph = np.pad(temp_tif,((20+y_bias,20-y_bias),(20+x_bias,20-x_bias)),'constant')
         biased_graph = temp_biased_graph[20:532,20:532]
-        aligned_tif_name.append((aligned_frame_folder+'\\'+all_tif_name[i].split('\\')[4]))
-        cv2.imwrite((aligned_frame_folder+'\\'+all_tif_name[i].split('\\')[4]),biased_graph)
+        aligned_tif_name.append((aligned_frame_folder+'\\'+all_tif_name[i].split('\\')[5]))
+        cv2.imwrite((aligned_frame_folder+'\\'+all_tif_name[i].split('\\')[5]),biased_graph)
 #%% 产生Align之后的图像的平均    
 print('Done! \nProducing Aligned Graphs')
 averaged_frame = np.empty(shape = [512,512])

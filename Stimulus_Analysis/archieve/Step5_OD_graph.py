@@ -11,9 +11,9 @@ import cv2
 import numpy as np
 import functions_OD as pp
 
-stim_set_A = ['4','8']
-stim_set_B = ['0']
-graph_name = 'Orien135-0'
+stim_set_A = ['1','3']
+stim_set_B = ['2','4']
+graph_name = 'OA'
 frame_set_A = []#把两个刺激态里的frameid整理出来
 frame_set_B = []
 for i in range(0,len(stim_set_A)):

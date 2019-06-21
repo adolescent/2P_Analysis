@@ -9,11 +9,11 @@ import neo
 import numpy as np
 
 # create a reader
-reader = neo.io.Spike2IO(filename=r'G:\ZR\data_processing\190329_L74_LM\190329_L74_LM_stimuli\Run04_2P_G8\4.smr')
+reader = neo.io.Spike2IO(filename=r'E:\ZR\Data_Temp\190528_L73_LM\190528_L73_LM_stimuli\Run03_Loc4_RGLum4\3.smr')
 # read the block
 data = reader.read( lazy=False)[0]
 #%%读取stim的id顺序
-f = open(r'G:\ZR\data_processing\190329_L74_LM\190329_L74_LM_stimuli\Run04_2P_G8\Run01_G8_13.6297.txt','r')
+f = open(r'E:\ZR\Data_Temp\190528_L73_LM\190528_L73_LM_stimuli\Run03_Loc4_RGLum4\Runxx_RGLum4_73.5644.txt','r')
 stim_id = f.read().split()
 f.close()
 pre_stim_frame = 0#这里指的是方波开始刺激没放，需要删除的帧数。

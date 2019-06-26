@@ -10,8 +10,8 @@ import General_Functions.my_tools as pp
 import cv2
 import numpy as np
 import time
-import multiprocessing as mp
-from functools import partial
+#import multiprocessing as mp
+#from functools import partial
 
 class Align_In_A_Day():
     
@@ -89,16 +89,17 @@ class Align_In_A_Day():
         for i in range(len(self.aligned_frame_folder)):#把每个run里的tif_name存到各自文件夹里
             self.aligned_tif_name.append(pp.tif_name(self.aligned_frame_folder[i]))
             global_aligned_tif_name.extend(self.aligned_tif_name[i]) 
-            temp_aligned_tif_name = self.aligned_frame_folder[i]+r'\\aligned_tif_name.pkl'
+            temp_aligned_tif_name = self.save_folder[i]+r'\\aligned_tif_name.pkl'
             pp.save_variable(self.aligned_tif_name[i],temp_aligned_tif_name)
             run_average = self.frame_average(self.aligned_tif_name[i])
+            pp.save_variable(run_average,self.save_folder[i]+r'\\Run_Average_graph.pkl')
             self.save_graph('After_Align_Run'+run_lists[i],run_average,self.save_folder[i])
         #接下来保存全局平均，也存在每个文件里
         global_average_graph = self.frame_average(global_aligned_tif_name)
         for i in range(len(self.save_folder)):
             self.save_graph('After_Align_Global',global_average_graph,self.save_folder[i])
             pp.save_variable(global_average_graph,self.save_folder[i]+r'\\Global_Average_graph.pkl')
-        
+            #注意这里保存的变量是没有增益的，是原始变量
             
 #%%
         
@@ -110,10 +111,12 @@ if __name__ == '__main__':
     show_gain = 32  #GA Mode
     AIA = Align_In_A_Day(root_data_folder,show_gain,run_lists)
     AIA.path_cycle()
-    run_tif_name = AIA.run_tif_name
-    save_folder = AIA.save_folder
-    aligned_frame_folder = AIA.aligned_frame_folder
-    global_tif_name = AIA.global_tif_name
+# =============================================================================
+#     run_tif_name = AIA.run_tif_name
+#     save_folder = AIA.save_folder
+#     aligned_frame_folder = AIA.aligned_frame_folder
+#     global_tif_name = AIA.global_tif_name
+# =============================================================================
     global_average_before = AIA.before_align()
     AIA.Align(global_average_before)
     AIA.after_align()

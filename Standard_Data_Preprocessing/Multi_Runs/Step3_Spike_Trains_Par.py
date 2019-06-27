@@ -99,7 +99,7 @@ class Spike_Train():
     #%%    
 if __name__ == '__main__':
     
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'
     
     
     start_time = time.time()

@@ -11,13 +11,9 @@ import pickle
 import time
 import multiprocessing as mp
 import more_itertools as mit
-import functions_OD as pp
+import General_Functions.my_tools as pp
 
-def read_variable(name):#读取变量用的题头，希望这个可以在后续删掉
-    with open(name, 'rb') as file:
-        variable = pickle.load(file)
-    file.close()
-    return variable
+
 #%%
 
 class Stim_Frame_Align():
@@ -166,13 +162,15 @@ class Stim_Frame_Align():
             
         
         
-        
+#%%        
 if __name__ == '__main__':
+    
+    #Attention! Only 1 txt file in stim folder is acceptable.
     start_time = time.time()
-    save_folder = read_variable('save_folder.pkl')
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'
     #save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8\test'
-    stim_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8'
-    pre_stim_frame = 2#这里指的是方波开始刺激没放，需要删除的帧数。
+    stim_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run04_2P_RGLum4'
+    pre_stim_frame = 0#这里指的是方波开始刺激没放，需要删除的帧数。
     after_stim_drift = 0#这里指的是锯齿波消失之后，再计算几帧属于其中。
     sf= Stim_Frame_Align(stim_folder,pre_stim_frame,after_stim_drift)
     sf.stim_file_name()

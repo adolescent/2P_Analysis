@@ -28,4 +28,4 @@ for i in range(np.shape(spike_train)[0]):
     filtered_temp = signal.sosfilt(sos, spike_train[i,:])
     spike_train_filtered[i,:] = filtered_temp
     
-
+pp.save_variable(spike_train_filtered,save_folder+r'\\spike_train_filtered.pkl')

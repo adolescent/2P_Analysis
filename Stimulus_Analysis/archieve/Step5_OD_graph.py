@@ -68,8 +68,8 @@ sub_graph_cell = np.zeros(shape = (512,512),dtype = np.float64)
 for i in range(0,len(norm_cell_tuning)):
     x_list,y_list = pp.cell_location(cell_group[i])
     sub_graph_cell[y_list,x_list] = norm_cell_tuning[i]
-clip_min_cell = sub_graph_cell.mean()-3*sub_graph.std()
-clip_max_cell = sub_graph_cell.mean()+3*sub_graph.std()
+clip_min_cell = sub_graph_cell.mean()-3*sub_graph_cell.std()
+clip_max_cell = sub_graph_cell.mean()+3*sub_graph_cell.std()
 sub_graph_cell_clipped = np.clip(sub_graph_cell,clip_min_cell,clip_max_cell)#对减图进行最大和最小值的clip
 norm_sub_graph_cell = (sub_graph_cell_clipped-sub_graph_cell_clipped.min())/(sub_graph_cell_clipped.max()-sub_graph_cell_clipped.min())
 OD_map_cell = np.uint8(norm_sub_graph_cell*256)

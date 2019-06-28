@@ -61,12 +61,30 @@ class Graph_Generation():
         
     def Cell_Graph(self):
         
-        self.spike_train = pp.read_variable(save_folder+r'spike_train.pkl')
+        self.spike_train = pp.read_variable(save_folder+r'\\spike_train.pkl')
+        self.cell_group = pp.read_variable(save_folder+r'\\Cell_Group.pkl')
         cell_tuning = np.zeros(shape = (np.shape(self.spike_train)[0],1),dtype = np.float64)
-        
-        
-        
-        
+        for i in range(np.shape(self.spike_train)[0]):#全部细胞循环
+            temp_cell_A = 0
+            for j in range(len(self.frame_set_A)):#叠加平均刺激setA下的细胞反应
+                temp_cell_A = temp_cell_A+self.spike_train[i,self.frame_set_A[j]]/len(self.frame_set_A)
+            temp_cell_B = 0
+            for j in range(len(self.frame_set_B)):
+                temp_cell_B = temp_cell_B+self.spike_train[i,self.frame_set_B[j]]/len(self.frame_set_B)
+            cell_tuning[i] = temp_cell_A-temp_cell_B
+        pp.save_variable(cell_tuning,self.map_folder+r'\\'+self.map_name+'_Cells.pkl')#把这个刺激的cell data存下来
+        #至此得到的cell tuning是有正负的，我们按照绝对值最大把它放到-1~1的范围里
+        norm_cell_tuning = cell_tuning/abs(cell_tuning).max()
+        clip_min_cell = norm_cell_tuning.mean()-3*norm_cell_tuning.std()
+        clip_max_cell = norm_cell_tuning.mean()+3*norm_cell_tuning.std()
+        cell_clipped = np.clip(norm_cell_tuning,clip_min_cell,clip_max_cell)#对减图进行最大和最小值的clip
+        #接下来plot出来细胞减图
+        sub_graph_cell = np.ones(shape = (512,512),dtype = np.float64)*127
+        for i in range(len(cell_clipped)):
+            x_list,y_list = pp.cell_location(self.cell_group[i])
+            sub_graph_cell[y_list,x_list] = (cell_clipped[i]+1)*127
+        pp.save_graph(self.map_name+'_Cell',sub_graph_cell,self.map_folder,'.png',8,1)
+    ###########################截止到85行########################
         
         
 if __name__ =='__main__':
@@ -77,3 +95,4 @@ if __name__ =='__main__':
     GG = Graph_Generation(set_A,set_B,map_name,save_folder)
     GG.ID_Configuration()
     GG.Sub_Map()
+    GG.Cell_Graph()

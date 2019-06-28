@@ -128,3 +128,20 @@ def read_variable(name):#读取变量用的题头，希望这个可以在后续�
         variable = pickle.load(file)
     file.close()
     return variable
+
+#%%功能11-保存灰度图片，给入路径和图像，就show出来然后保存。
+import numpy as np
+import cv2
+def save_graph(graph_name,graph,folder,graph_type,bits,gain):
+    if bits == 8:
+        cv2.imshow(graph_name,np.uint8(np.clip(np.float64(graph)*gain,0,255)))#加了clip
+        cv2.waitKey(2500)
+        cv2.destroyAllWindows()
+        cv2.imwrite(folder+r'\\'+graph_name+graph_type,np.uint8(np.clip(np.float64(graph)*gain,0,255)))
+    elif bits ==16:
+        cv2.imshow(graph_name,np.uint16(np.clip(np.float64(graph)*gain,0,65535)))#加了clip
+        cv2.waitKey(2500)
+        cv2.destroyAllWindows()
+        cv2.imwrite(folder+r'\\'+graph_name+graph_type,np.uint8(np.clip(np.float64(graph)*gain,0,65535)))
+    else:
+        raise Exception('Only 8bit or 16bit map is acceptable!')

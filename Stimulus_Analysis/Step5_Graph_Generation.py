@@ -7,11 +7,11 @@ Created on Wed Jun  5 17:07:16 2019
 
 import cv2
 import numpy as np
-import functions_OD as pp
+import General_Functions.my_tools as pp
 from scipy import stats
 import random
 class Graph_Generation():
-    
+
     name = 'Generate functional map'
     
     def __init__(self,stim_set_A,stim_set_B,map_name,save_folder):
@@ -49,14 +49,31 @@ class Graph_Generation():
         clip_max = sub_graph.mean()+3*sub_graph.std()
         sub_graph_clipped = np.clip(sub_graph,clip_min,clip_max)#对减图进行最大和最小值的clip
         norm_sub_graph = (sub_graph_clipped-sub_graph_clipped.min())/(sub_graph_clipped.max()-sub_graph_clipped.min())
+        #保存原始图片
+        pp.save_variable(norm_sub_graph,self.map_folder+r'\\'+self.map_name+'_Graph.pkl')
         #以上得到了clip且归一化了的map
+        real_sub_map = np.uint8(np.clip(norm_sub_graph*255,0,255))
+        pp.save_graph(map_name,real_sub_map,self.map_folder,'.png',8,1)
+        #接下来画滤波后的
+        sub_map_filtered = cv2.bilateralFilter(real_sub_map,9,41,41)
+        pp.save_graph(map_name+'_Filtered',sub_map_filtered,self.map_folder,'.png',8,1)
+
+        
+    def Cell_Graph(self):
+        
+        self.spike_train = pp.read_variable(save_folder+r'spike_train.pkl')
+        cell_tuning = np.zeros(shape = (np.shape(self.spike_train)[0],1),dtype = np.float64)
+        
         
         
         
         
         
 if __name__ =='__main__':
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
-    set_A = []#这里画图画的是A-B
-    set_B = []
-    GG = 
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+    set_A = ['3','7']#这里画图画的是A-B
+    set_B = ['1','5']
+    map_name = 'H-V'
+    GG = Graph_Generation(set_A,set_B,map_name,save_folder)
+    GG.ID_Configuration()
+    GG.Sub_Map()

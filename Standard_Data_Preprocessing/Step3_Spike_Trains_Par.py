@@ -16,12 +16,13 @@ import matplotlib.pyplot as plt
 class Spike_Train():
     name =r'dF/F Train Calculation'
     
-    def __init__(self,cell_group,aligned_frame_name,graph_after_align,save_folder,core_Num):
+    def __init__(self,cell_group,aligned_frame_name,graph_after_align,save_folder,core_Num,cell_find_type):
         self.cell_group = cell_group
         self.aligned_frame_name = aligned_frame_name
         self.graph_after_align = graph_after_align
         self.core_Num = core_Num
         self.save_folder = save_folder
+        self.cell_find_type = cell_find_type
         
     def base_define(self):#得到基准F值，用来计算dF/F
         self.base_F = np.zeros(shape = len(self.cell_group))
@@ -44,7 +45,7 @@ class Spike_Train():
         #print(dF_per_frame[4])
         
     def plot_initialize(self):#进行绘图的初始化准备
-        self.spike_train_folder = self.save_folder+'\Spike_Trains'
+        self.spike_train_folder = self.save_folder+'\Spike_Trains_'+self.cell_find_type
         pp.mkdir(self.spike_train_folder)
         self.cell_Num,self.frame_Num = np.shape(self.spike_train)
     def plot_spike_train(self,i):#对每个细胞画图，是OI操作
@@ -83,7 +84,7 @@ class Spike_Train():
         self.base_define()
         self.pool_set()
         print('Calculating dF/F ...\n')
-        dF_lists = st.pool.map(st.dF_calculation,range(0,len(st.aligned_frame_name)))
+        dF_lists = self.pool.map(self.dF_calculation,range(0,len(self.aligned_frame_name)))
         for i in range(0,np.shape(self.spike_train)[1]):
             self.spike_train[:,i] = dF_lists[i]
         self.pool.close()
@@ -107,10 +108,11 @@ if __name__ == '__main__':
     cell_group = pp.read_variable(save_folder+r'\\Cell_Group.pkl')
     aligned_frame_name = pp.tif_name(save_folder+r'\\Aligned_Frames')
     graph_after_align = pp.read_variable(save_folder+r'\Run_Average_graph.pkl')
-    st = Spike_Train(cell_group,aligned_frame_name,graph_after_align,save_folder,5)
+    cell_find_type = 'Morphology'
+    st = Spike_Train(cell_group,aligned_frame_name,graph_after_align,save_folder,5,cell_find_type)
     st.main()
     spike_train = st.spike_train
-    pp.save_variable(spike_train,save_folder+r'\spike_train.pkl')  
+    pp.save_variable(spike_train,save_folder+r'\spike_train_'+cell_find_type+'.pkl')  
     print('Calculation Done!\n')
     finish_time = time.time()
     print('Task Time Cost:'+str(finish_time-start_time)+'s')

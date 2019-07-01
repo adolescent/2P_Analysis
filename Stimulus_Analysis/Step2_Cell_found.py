@@ -7,20 +7,12 @@ Created on Mon Apr 22 12:29:22 2019
 import numpy as np
 import cv2
 import scipy.ndimage
-import functions_OD as pp
+import General_Functions.my_tools as pp
 import pickle
 import skimage.morphology
 import skimage.measure
 import time
 
-def read_variable(name):
-    with open(name, 'rb') as file:
-        variable = pickle.load(file)
-    file.close()
-    return variable
-
-show_gain = read_variable('show_gain.pkl')
-save_folder = read_variable('save_folder.pkl')
 
 #%%
 class Cell_Found():#定义类
@@ -86,8 +78,8 @@ class Cell_Found():#定义类
         
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
-#    show_gain = 32
-#    save_folder = r'D:\datatemp\190412_L74\test_data\results'
+    show_gain = 32
+    save_folder = r'D:\datatemp\190412_L74\test_data\results'
     cf = Cell_Found(show_gain,save_folder,1)#这两个变量可以从上一步里读出来
     cf.main()
     cell_group = cf.cell_group

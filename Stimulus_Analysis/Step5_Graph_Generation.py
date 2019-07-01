@@ -84,15 +84,68 @@ class Graph_Generation():
             x_list,y_list = pp.cell_location(self.cell_group[i])
             sub_graph_cell[y_list,x_list] = (cell_clipped[i]+1)*127
         pp.save_graph(self.map_name+'_Cell',sub_graph_cell,self.map_folder,'.png',8,1)
-    ###########################截止到85行########################
+        
+    def Tuning_Index(self):
+        
+        preference_index = np.zeros(shape = (np.shape(self.spike_train)[0],1),dtype = np.float64)
+        for i in range(0,np.shape(self.spike_train)[0]):#全部细胞循环
+            temp_cell_A = 0
+            for j in range(0,len(self.frame_set_A)):#叠加平均刺激setA下的细胞反应
+                temp_cell_A = temp_cell_A+self.spike_train[i,self.frame_set_A[j]]/len(self.frame_set_A)
+            temp_cell_B = 0
+            for j in range(0,len(self.frame_set_B)):
+                temp_cell_B = temp_cell_B+self.spike_train[i,self.frame_set_B[j]]/len(self.frame_set_B)
+            preference_index[i] = temp_cell_A-temp_cell_B
+            norm_preference_index = preference_index/abs(preference_index).max()
+        index_graph = np.zeros(shape = (512,512,3),dtype = np.uint8)
+        for i in range(0,len(preference_index)):
+            if preference_index[i]>0:
+                x_list,y_list = pp.cell_location(self.cell_group[i])
+                index_graph[y_list,x_list,2] = norm_preference_index[i]*255#注意CV2读写颜色顺序是BGR= =
+                #index_graph[y_list,x_list,2] = norm_preference_index[i]*255
+            else:
+                x_list,y_list = pp.cell_location(self.cell_group[i])
+                index_graph[y_list,x_list,0] = abs(norm_preference_index[i])*255
+        #绘图
+        pp.save_graph(self.map_name+r'_Tuning_Index',index_graph,self.map_folder,'.png',8,1)
+        
+    def T_Test_Map(self):
+        t_graph = np.zeros(shape = (512,512,3),dtype = np.uint8)
+        cell_t = []#定义每个细胞的AB之差t值。效应量= t/sqrt(N)t值越大A越强，为负则越小B越强。
+        cell_p = []#定义每个细胞AB差异的显著性p
+        cell_effect_size = []#定义每个细胞的AB效应量。
+        for i in range(0,np.shape(self.spike_train)[0]):#全部细胞循环
+            set_size = min(len(self.frame_set_A),len(self.frame_set_B))#先定义配对的样本大小
+            temp_A_set = random.sample(list(self.spike_train[i,self.frame_set_A[:]]),set_size)#在两个刺激下，都随机选择N个
+            temp_B_set = random.sample(list(self.spike_train[i,self.frame_set_B[:]]),set_size)
+            [temp_t,temp_p] = stats.ttest_rel(temp_A_set,temp_B_set)
+            cell_t.append(temp_t)
+            cell_p.append(temp_p)#按顺序把p和t加进来
+            if temp_p<0.05:#显著检验
+                    cell_effect_size.append(temp_t/np.sqrt(set_size))
+            else:
+                    cell_effect_size.append(0)
+        norm_cell_effect_size = cell_effect_size/abs(np.asarray(cell_effect_size)).max()
+        for i in range(0,len(norm_cell_effect_size)):
+            if norm_cell_effect_size[i]>0:#大于零为红，小于零为蓝
+                x_list,y_list = pp.cell_location(self.cell_group[i])
+                t_graph[y_list,x_list,2] = norm_cell_effect_size[i]*255#注意CV2读写颜色顺序是BGR= =
+                #index_graph[y_list,x_list,2] = norm_preference_index[i]*255
+            else:
+                x_list,y_list = pp.cell_location(self.cell_group[i])
+                t_graph[y_list,x_list,0] = abs(norm_cell_effect_size[i])*255
+        pp.save_graph(self.map_name+r'_T_Graph',t_graph,self.map_folder,'.png',8,1)
+        
         
         
 if __name__ =='__main__':
     save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
-    set_A = ['3','7']#这里画图画的是A-B
-    set_B = ['1','5']
-    map_name = 'H-V'
+    set_A = ['1','2','3','4','5','6','7','8']#这里画图画的是A-B
+    set_B = ['0']
+    map_name = 'On-Off'
     GG = Graph_Generation(set_A,set_B,map_name,save_folder)
     GG.ID_Configuration()
     GG.Sub_Map()
     GG.Cell_Graph()
+    GG.Tuning_Index()
+    GG.T_Test_Map()

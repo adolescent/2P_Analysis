@@ -8,6 +8,13 @@ This function is used to generate an On-Off Cell graph for stimulus situation, w
 """
 
 import General_Functions.my_tools as pp
+import Step2_Cell_found as CF
 
+save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+model_frame = r'Stim_Graphs\On-Off.png'
+save_name = 'Cell_Graph_On-Off'
 
-class
+cf = CF.Cell_Found(32,save_folder,1.5,model_frame,save_name)
+cf.main()
+cell_group_On_Off = cf.cell_group
+pp.save_variable(cell_group_On_Off,save_folder+r'\cell_group_On_Off.pkl')

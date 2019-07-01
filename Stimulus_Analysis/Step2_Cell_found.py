@@ -18,14 +18,16 @@ import time
 class Cell_Found():#定义类
     name =r'Cell_Found'#定义class的属性，如果没有__init__的内容就会以这里的作为类属性。
     
-    def __init__(self,show_gain,save_folder,thres):
+    def __init__(self,show_gain,save_folder,thres,model_frame_name,save_name):
         self.save_folder = save_folder#保存目录
         self.show_gain = show_gain#show gain
         self.thres = thres#分细胞阈值
+        self.model_frame_name = model_frame_name
+        self.save_name = save_name
         
     def Gauss_generation(self):#生成一些初始变量
-        model_frame = cv2.imread((self.save_folder+'\\Graph_After_Align.tif'),-1)#以对齐后平均作为标准
-        self.model = np.float64(model_frame)/self.show_gain#这是平均图
+        self.model_frame = cv2.imread((self.save_folder+'\\'+self.model_frame_name),-1)#以对齐后平均作为标准
+        self.model = np.float64(self.model_frame)/self.show_gain#这是平均图
         self.H1 = pp.normalized_gauss2D([7,7],1.5)
         self.H2 = pp.normalized_gauss2D([15,15],7)
         self.bouder = np.mean(self.model)#以平均亮度作为边界的填充值
@@ -61,29 +63,27 @@ class Cell_Found():#定义类
             x_list,y_list = pp.cell_location(self.cell_group[i])
             thres_graph[y_list,x_list] = 255
         RGB_graph = cv2.cvtColor(thres_graph,cv2.COLOR_GRAY2BGR)#转灰度为RGB
-        base_graph_path = self.save_folder+'\\cell_graph'
+        base_graph_path = self.save_folder+'\\'+self.save_name
         cv2.imwrite(base_graph_path+'.tif',RGB_graph)
-        cv2.imwrite(base_graph_path+'resized.tif',cv2.resize(RGB_graph,(1024,1024))) #把细胞图放大一倍并保存起来
+        cv2.imwrite(base_graph_path+'_resized.tif',cv2.resize(RGB_graph,(1024,1024))) #把细胞图放大一倍并保存起来
        # pp.show_cell(base_graph_path+'.tif',self.cell_group)# 在细胞图上标上细胞的编号。
-        pp.show_cell(base_graph_path+'resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
+        pp.show_cell(base_graph_path+'_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
     def main(self):#主函数，一次完成执行工作。
         self.Gauss_generation()
         self.graph_binary()
         self.cell_wash()
         self.show_cell()
-    def save_variable(self,variable,name):
-        fw = open(name,'wb')
-        pickle.dump(variable,fw)#保存细胞连通性质的变量。 
-        fw.close()
         
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
     show_gain = 32
     save_folder = r'D:\datatemp\190412_L74\test_data\results'
-    cf = Cell_Found(show_gain,save_folder,1)#这两个变量可以从上一步里读出来
+    model_frame_name = 'After_Align_Global.tif'
+    save_name = 'Cell_Graph_On_Off'
+    cf = Cell_Found(show_gain,save_folder,1.5,model_frame_name,save_name)#这两个变量可以从上一步里读出来
     cf.main()
     cell_group = cf.cell_group
-    cf.save_variable(cell_group,'cell_group.pkl')
+    pp.save_variable(cell_group,save_name+'.pkl')
 #    variable_name = 'Step2_Variable.pkl'
 #    dill.dump_session(variable_name)
     finish_time = time.time()

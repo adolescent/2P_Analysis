@@ -106,8 +106,8 @@ class Align_In_A_Day():
         
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
-    root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
-    run_lists = ['001','002','003','004']
+    root_data_folder = r'E:\ZR\Data_Temp\190514_L74_LM'
+    run_lists = ['002']
     show_gain = 32  #GA Mode
     AIA = Align_In_A_Day(root_data_folder,show_gain,run_lists)
     AIA.path_cycle()

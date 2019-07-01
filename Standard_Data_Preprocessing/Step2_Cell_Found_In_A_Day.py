@@ -14,17 +14,21 @@ import time
 
 class Cell_Find_A_Day():
     
-    def __init__(self,root_data_folder,run_lists,thres):#不写并行，似乎不能提高计算速度？
+    def __init__(self,show_gain,root_data_folder,run_lists,thres,model_frame_name,save_name):#不写并行，似乎不能提高计算速度？
         self.thres = thres
         self.data_folder = []
         self.save_folder = []
+        self.show_gain = show_gain
+        self.model_frame_name = model_frame_name
+        self.save_name = save_name
         for i in range(len(run_lists)):#把每一个datafolder拼接在一起
             self.data_folder.append(root_data_folder+'\\1-'+run_lists[i]) #这里是数据子文件夹的结构
             self.save_folder.append(self.data_folder[i]+r'\\results')
             
     def Gauss_generation(self):#生成一些初始变量
-        self.model = pp.read_variable(self.save_folder[0]+'\\Global_Average_graph.pkl')#都一样，就选第一个了
-        #self.model = np.float64(model_frame)/self.show_gain#pkl文件没有增益，不用除
+        model_frame = cv2.imread((self.save_folder[0]+'\\'+self.model_frame_name),-1)
+        #model = pp.read_variable(self.save_folder[0]+'\\Global_Average_graph.pkl')#都一样，就选第一个了
+        self.model = np.float64(model_frame)/self.show_gain#pkl文件没有增益，不用除
         self.H1 = pp.normalized_gauss2D([7,7],1.5)
         self.H2 = pp.normalized_gauss2D([15,15],7)
         self.bouder = np.mean(self.model)#以平均亮度作为边界的填充值
@@ -61,17 +65,20 @@ class Cell_Find_A_Day():
             thres_graph[y_list,x_list] = 255
         RGB_graph = cv2.cvtColor(thres_graph,cv2.COLOR_GRAY2BGR)#转灰度为RGB
         for i in range(len(self.save_folder)):
-            cv2.imwrite(self.save_folder[i]+r'\\Cell_Graph.tif',RGB_graph)
-            cv2.imwrite(self.save_folder[i]+r'\\Cell_Graph_resized.tif',cv2.resize(RGB_graph,(1024,1024)))
-            pp.show_cell(self.save_folder[i]+r'\\Cell_Graph_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
-            pp.save_variable(self.cell_group,self.save_folder[i]+r'\\Cell_Group.pkl')
+            cv2.imwrite(self.save_folder[i]+r'\\'+self.save_name+'.tif',RGB_graph)
+            cv2.imwrite(self.save_folder[i]+r'\\'+self.save_name+'_resized.tif',cv2.resize(RGB_graph,(1024,1024)))
+            pp.show_cell(self.save_folder[i]+r'\\'+self.save_name+'_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
+            pp.save_variable(self.cell_group,self.save_folder[i]+r'\\'+self.save_name+'.pkl')
             
 if __name__ == '__main__':
     start_time = time.time()
-    root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
-    run_lists = ['001','002','003','004']
+    show_gain = 32
+    root_data_folder = r'E:\ZR\Data_Temp\190514_L74_LM'
+    run_lists = ['002']
+    model_frame_name = 'After_Align_Global.tif'
+    save_name = 'Cell_Graph_Morphology'
     thres = 1.5
-    CFA = Cell_Find_A_Day(root_data_folder,run_lists,thres)
+    CFA = Cell_Find_A_Day(show_gain,root_data_folder,run_lists,thres,model_frame_name,save_name)
     CFA.Gauss_generation()
     CFA.graph_binary()
     CFA.cell_wash()

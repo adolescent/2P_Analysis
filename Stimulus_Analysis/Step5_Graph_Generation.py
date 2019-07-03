@@ -14,13 +14,15 @@ class Graph_Generation():
 
     name = 'Generate functional map'
     
-    def __init__(self,stim_set_A,stim_set_B,map_name,save_folder):
+    def __init__(self,stim_set_A,stim_set_B,map_name,save_folder,cell_find_type,spike_train,cell_group):
         
-        self.map_folder = save_folder+r'\\Stim_Graphs'
+        self.map_folder = save_folder+r'\\Stim_Graphs_'+cell_find_type
         pp.mkdir(self.map_folder)
         self.stim_set_A = stim_set_A
         self.stim_set_B = stim_set_B
         self.map_name = map_name
+        self.spike_train = pp.read_variable(spike_train)
+        self.cell_group = pp.read_variable(cell_group)
     
     def ID_Configuration(self):
         
@@ -61,8 +63,11 @@ class Graph_Generation():
         
     def Cell_Graph(self):
         
-        self.spike_train = pp.read_variable(save_folder+r'\\spike_train.pkl')
-        self.cell_group = pp.read_variable(save_folder+r'\\Cell_Group.pkl')
+# =============================================================================
+#       定义在一开始进行         
+#         self.spike_train = pp.read_variable(save_folder+r'\\spike_train.pkl')
+#         self.cell_group = pp.read_variable(save_folder+r'\\Cell_Group.pkl')
+# =============================================================================
         cell_tuning = np.zeros(shape = (np.shape(self.spike_train)[0],1),dtype = np.float64)
         for i in range(np.shape(self.spike_train)[0]):#全部细胞循环
             temp_cell_A = 0
@@ -140,10 +145,17 @@ class Graph_Generation():
         
 if __name__ =='__main__':
     save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+    spike_train_name = 'spike_train_Morphology.pkl'
+    cell_group_name = 'Morphology_Cell_Groups.pkl'
     set_A = ['1','2','3','4','5','6','7','8']#这里画图画的是A-B
     set_B = ['0']
     map_name = 'On-Off'
-    GG = Graph_Generation(set_A,set_B,map_name,save_folder)
+    
+    
+    spike_train = save_folder+r'\\'+spike_train_name
+    cell_group = save_folder+r'\\'+cell_group_name
+    cell_find_type = 'Morphology'
+    GG = Graph_Generation(set_A,set_B,map_name,save_folder,cell_find_type,spike_train,cell_group)
     GG.ID_Configuration()
     GG.Sub_Map()
     GG.Cell_Graph()

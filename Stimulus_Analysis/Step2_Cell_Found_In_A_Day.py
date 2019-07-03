@@ -68,7 +68,7 @@ class Cell_Find_A_Day():
             cv2.imwrite(self.save_folder[i]+r'\\Cell_Graph_'+self.find_type+'.tif',RGB_graph)
             cv2.imwrite(self.save_folder[i]+r'\\Cell_Graph_'+self.find_type+'_resized.tif',cv2.resize(RGB_graph,(1024,1024)))
             pp.show_cell(self.save_folder[i]+r'\\Cell_Graph_'+self.find_type+'_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
-            pp.save_variable(self.cell_group,self.save_folder[i]+r'\\'+self.find_type+'_Cell_Groups.pkl')
+            pp.save_variable(self.cell_group,self.save_folder[i]+r'\\Cell_Groups_'+self.find_type+'.pkl')
             
     def main(self):
         self.Gauss_generation()
@@ -81,11 +81,11 @@ if __name__ == '__main__':
     start_time = time.time()
     show_gain = 32
     root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
-    run_lists = ['001']
+    run_lists = ['001','002','003','004']
     model_frame_name = 'After_Align_Global.tif'#朝细胞的帧
-    save_name = 'Morphology'
+    find_type = 'Morphology'
     thres = 1.5
-    CFA = Cell_Find_A_Day(show_gain,root_data_folder,run_lists,thres,model_frame_name,save_name)
+    CFA = Cell_Find_A_Day(show_gain,root_data_folder,run_lists,thres,model_frame_name,find_type)
     CFA.main()
 # =============================================================================
 #     CFA.Gauss_generation()

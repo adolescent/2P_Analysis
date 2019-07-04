@@ -144,17 +144,16 @@ class Graph_Generation():
         
         
 if __name__ =='__main__':
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
-    spike_train_name = 'spike_train_On-Off.pkl'
-    cell_group_name = 'Cell_Groups_On-Off.pkl'
-    set_A = ['2','6']#这里画图画的是A-B
+    
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-003\results'        
+    set_A = ['2','4','6','8']#这里画图画的是A-B
     set_B = ['0']
-    map_name = 'Orien135-0'
-    
-    
+    map_name = 'R-0'        
+    cell_find_type = 'Morphology'
+    spike_train_name = 'spike_train_'+cell_find_type+'.pkl'
+    cell_group_name = 'Cell_Groups_'+cell_find_type+'.pkl'
     spike_train = save_folder+r'\\'+spike_train_name
     cell_group = save_folder+r'\\'+cell_group_name
-    cell_find_type = 'On-Off'
     GG = Graph_Generation(set_A,set_B,map_name,save_folder,cell_find_type,spike_train,cell_group)
     GG.ID_Configuration()
     GG.Sub_Map()

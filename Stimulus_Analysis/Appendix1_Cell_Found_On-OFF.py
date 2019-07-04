@@ -12,7 +12,7 @@ import Step2_Cell_Found_In_A_Day as CF
 
 
 root_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
-run_lists = ['002']
+run_lists = ['003']
 model_frame = r'Stim_Graphs_Morphology\On-Off.png'
 find_type = 'On-Off'
 

@@ -14,13 +14,13 @@ import time
 
 class Cell_Find_A_Day():
     
-    def __init__(self,show_gain,root_data_folder,run_lists,thres,model_frame_name,save_name):#不写并行，似乎不能提高计算速度？
+    def __init__(self,show_gain,root_data_folder,run_lists,thres,model_frame_name,find_type):#不写并行，似乎不能提高计算速度？
         self.thres = thres
         self.data_folder = []
         self.save_folder = []
         self.show_gain = show_gain
         self.model_frame_name = model_frame_name
-        self.save_name = save_name
+        self.find_type = find_type
         for i in range(len(run_lists)):#把每一个datafolder拼接在一起
             self.data_folder.append(root_data_folder+'\\1-'+run_lists[i]) #这里是数据子文件夹的结构
             self.save_folder.append(self.data_folder[i]+r'\\results')
@@ -65,10 +65,10 @@ class Cell_Find_A_Day():
             thres_graph[y_list,x_list] = 255
         RGB_graph = cv2.cvtColor(thres_graph,cv2.COLOR_GRAY2BGR)#转灰度为RGB
         for i in range(len(self.save_folder)):
-            cv2.imwrite(self.save_folder[i]+r'\\'+self.save_name+'.tif',RGB_graph)
-            cv2.imwrite(self.save_folder[i]+r'\\'+self.save_name+'_resized.tif',cv2.resize(RGB_graph,(1024,1024)))
-            pp.show_cell(self.save_folder[i]+r'\\'+self.save_name+'_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
-            pp.save_variable(self.cell_group,self.save_folder[i]+r'\\'+self.save_name+'_Groups.pkl')
+            cv2.imwrite(self.save_folder[i]+r'\\Cell_Graph_'+self.find_type+'.tif',RGB_graph)
+            cv2.imwrite(self.save_folder[i]+r'\\Cell_Graph_'+self.find_type+'_resized.tif',cv2.resize(RGB_graph,(1024,1024)))
+            pp.show_cell(self.save_folder[i]+r'\\Cell_Graph_'+self.find_type+'_resized.tif',self.cell_group)# 在细胞图上标上细胞的编号。
+            pp.save_variable(self.cell_group,self.save_folder[i]+r'\\Cell_Groups_'+self.find_type+'.pkl')
             
     def main(self):
         self.Gauss_generation()
@@ -82,10 +82,10 @@ if __name__ == '__main__':
     show_gain = 32
     root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
     run_lists = ['001','002','003','004']
-    model_frame_name = 'After_Align_Global.tif'
-    save_name = 'Cell_Graph_Morphology'
+    model_frame_name = 'After_Align_Global.tif'#朝细胞的帧
+    find_type = 'Morphology'
     thres = 1.5
-    CFA = Cell_Find_A_Day(show_gain,root_data_folder,run_lists,thres,model_frame_name,save_name)
+    CFA = Cell_Find_A_Day(show_gain,root_data_folder,run_lists,thres,model_frame_name,find_type)
     CFA.main()
 # =============================================================================
 #     CFA.Gauss_generation()

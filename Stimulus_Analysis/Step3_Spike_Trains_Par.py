@@ -100,7 +100,7 @@ class Spike_Train():
     #%%    
 if __name__ == '__main__':
     
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-003\results'        
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'        
     start_time = time.time()
     print('Spike_Train Calculating...\n')
     cell_group = pp.read_variable(save_folder+r'\\Cell_Groups_On-Off.pkl')#画细胞的来源

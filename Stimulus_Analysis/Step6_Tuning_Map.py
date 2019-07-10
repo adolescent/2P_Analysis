@@ -99,9 +99,9 @@ class Radar_Map():
 if __name__ == '__main__':
     
     start_time = time.time()
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-003\results'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'
     have_blank = True
-    cell_type = 'On-Off'
+    cell_type = 'Morphology'
     spike_train = pp.read_variable(save_folder+r'\spike_train_'+cell_type+'.pkl')
     rm = Radar_Map(save_folder,spike_train,have_blank,cell_type)
     rm.main()

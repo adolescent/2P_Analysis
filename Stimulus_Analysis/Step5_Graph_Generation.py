@@ -146,10 +146,10 @@ class Graph_Generation():
 if __name__ =='__main__':
     
     save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'        
-    set_A = ['1','2']#这里画图画的是A-B
-    set_B = ['3','4']
-    map_name = 'RG-Lum'        
-    cell_find_type = 'On-Off'
+    set_A = ['1','2','3','4']#这里画图画的是A-B
+    set_B = ['0']
+    map_name = 'On-Off'        
+    cell_find_type = 'Morphology'
     spike_train_name = 'spike_train_'+cell_find_type+'.pkl'
     cell_group_name = 'Cell_Groups_'+cell_find_type+'.pkl'
     spike_train = save_folder+r'\\'+spike_train_name

@@ -11,6 +11,8 @@ import General_Functions.my_tools as pp
 import sklearn.decomposition as skdecomp
 import numpy as np
 import cv2
+import sklearn.cluster as skcluster
+
 
 class Alchemy_Cells(object):
     
@@ -39,7 +41,11 @@ class Alchemy_Cells(object):
         for i in range(np.shape(features)[0]):
             temp_graph = np.ones(shape = (512,512),dtype = np.uint8)*127#基底图
             temp_feature = features[i]
-            norm_temp_feature = (temp_feature/(abs(temp_feature).max())+1)/2#保持0不变，并拉伸至0-1的图
+            if temp_feature.max() !=0:
+                norm_temp_feature = (temp_feature/(abs(temp_feature).max())+1)/2#保持0不变，并拉伸至0-1的图
+            else:
+                norm_temp_feature = (temp_feature+1)/2
+            
             for j in range(len(self.cell_group)):#循环细胞
                 x_list,y_list = pp.cell_location(self.cell_group[j])
                 temp_graph[y_list,x_list] = norm_temp_feature[j]*255
@@ -68,17 +74,67 @@ class Alchemy_Cells(object):
             f.write('PC:'+str(i+1)+' expianed '+str(PC_variance_ratio[i])+'of all variance.\n')
         f.close()
         
-            
+    def ICA(self,N_component):
+        ICA_calculator = skdecomp.FastICA(N_component,max_iter=1500,tol=0.01,whiten=True)
+        self.ICAed_data = ICA_calculator.fit(self.vector_centered)
+        all_ICs = self.ICAed_data.components_
+        pp.save_variable(all_ICs,save_folder+r'\\ICAed_Data.pkl')
+        print('ICA calculation done, generating graphs')
+        self.cell_graph_plot('ICA',all_ICs)
         
+    def NMF(self,N_component):#Non-Negative Matrix Factorization
+        NMF_calculator = skdecomp.NMF(N_component,max_iter=1500,tol = 0.0001)
+        self.NMFed_data = NMF_calculator.fit(self.vector)
+        all_NMFs = self.NMFed_data.components_
+        pp.save_variable(all_NMFs,save_folder+r'\\NMFed_Data.pkl')
+        print('NMF calculation done, generating graphs')
+        self.cell_graph_plot('NMF',all_NMFs)
+        
+    def MiniBach_SparcePCA(self,N_component):
+        MiniPCA_calculator = skdecomp.MiniBatchSparsePCA(N_component,batch_size=2,normalize_components=True)
+        self.MiniPCs = MiniPCA_calculator.fit(self.vector_centered)
+        all_MiniPCs = self.MiniPCs.components_
+        pp.save_variable(all_MiniPCs,save_folder+r'\\MiniPCed_Data.pkl')
+        print('MiniBach Sparce PCA done, generating graphs')
+        self.cell_graph_plot('MINIPCA',all_MiniPCs)
+    
+    def MiniBach_DictionaryLearning(self,N_component):
+        MiniDL_calculator = skdecomp.MiniBatchDictionaryLearning(N_component,batch_size = 5)
+        self.MiniDLs = MiniDL_calculator.fit(self.vector_centered)
+        all_MiniDLs = self.MiniDLs.components_
+        pp.save_variable(all_MiniDLs,save_folder+r'\\Dictionary_Learning_Data.pkl')
+        print('MiniBach Dictionary Learning Done, generating graphs')
+        self.cell_graph_plot('Dictionary_Learning',all_MiniDLs)
+    def MiniBach_KMeans(self,N_component):
+        MiniKM_calculator = skcluster.MiniBatchKMeans(N_component,batch_size = 20)
+        self.MiniKM = MiniKM_calculator.fit(self.vector_centered)
+        all_MiniKMs = self.MiniKM.cluster_centers_
+        pp.save_variable(all_MiniKMs,save_folder+r'\\Mini_KMeans_Data.pkl')
+        print('Mini bach K-means done, generating graphs')
+        self.cell_graph_plot('MiniBach_KMeans',all_MiniKMs)
+        
+    def FactorAnalysis(self,N_component):
+        Factor_Analysis_calculator = skdecomp.FactorAnalysis(N_component)
+        self.Analysized_Factors = Factor_Analysis_calculator.fit(self.vector_centered)
+        all_FAs = self.Analysized_Factors.components_
+        pp.save_variable(all_FAs,save_folder+r'\\Factor_Analysis_Data.pkl')
+        print('Factor Analysis done, generating graphs')
+        self.cell_graph_plot('Analyzed Factors',all_FAs)
     
 if __name__ == '__main__':
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
-    spike_train_name = 'spike_train_Morphology.pkl'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+    spike_train_name = 'spike_train_Morphology_filtered.pkl'
     cell_group_name = 'Cell_Groups_Morphology.pkl'
     AC = Alchemy_Cells(save_folder,spike_train_name,cell_group_name)
     AC.preprocessing()
     AC.PCA(None,False)
+    #AC.ICA(20)
+    #AC.NMF(50)
+    #AC.MiniBach_SparcePCA(10)
+    #AC.MiniBach_DictionaryLearning(20)
+    #AC.MiniBach_KMeans(50)
+    #AC.FactorAnalysis(20)
     #%%
-    a = AC.PCAed_data.components_
-    b = AC.PCAed_data.explained_variance_ratio_
+   # a = AC.PCAed_data.components_2
+    #b = AC.PCAed_data.explained_variance_ratio_
     

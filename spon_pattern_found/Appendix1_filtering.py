@@ -14,7 +14,7 @@ import numpy as np
 
 #%% 这里是参数设定，决定了滤波的个性化设计
 critical_freq = 0.01#截止频率，即这个频率以上的信号可以通过
-save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
+save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'
 
 #%%这里是默认参数，一般不需要修改，不过仍要注意
 order = 10#滤波阶数

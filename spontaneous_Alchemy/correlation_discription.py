@@ -48,15 +48,14 @@ class Correlation_Description(object):
         #除了直方图之外，也写一个txt文本包含主要信息
         temp_std = self.r_value.std()
         temp_mean = self.r_value.mean()
-        thres = temp_std+2*temp_mean#作为相关图的阈值
+        thres = 2*temp_std+temp_mean#作为相关图的阈值
         find_list = abs(self.r_value)>thres
         similar_ids = list(np.where(find_list == True)[0])#这就是相似的成分ID
         f = open(self.correlation_folder+r'\\'+self.correlation_name+'_Discription.txt','w')
         f.write('General Discriptions:\n')
         f.write('Correlations have std = '+str(temp_std)+', mean = '+str(temp_mean)+'\n')
         f.write('Max correlation = '+str(self.r_value.max())+', Minimum = '+str(self.r_value.min())+'\n')
-        f.write('Correlation components above 3std are as below:\n')
-        self.test = similar_ids
+        f.write('Correlation components above 2std are as below:\n')
         for i in range(len(similar_ids)):
             f.write('Component '+str(similar_ids[i]+1)+', Pearson r = '+str(self.r_value[similar_ids[i]])+'\n')
         f.close()
@@ -66,11 +65,26 @@ class Correlation_Description(object):
         
         
 if __name__ == '__main__':
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
-    target_graph = pp.read_variable(r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02\A-O_Cells.pkl')
-    clustered_data = pp.read_variable(save_folder+r'\PCAed_Data.pkl')
-    correlation_name = 'PCA_vs_A-O'
-    CD = Correlation_Description(save_folder,target_graph,clustered_data,correlation_name)
-    CD.correlation_calculation()
-    CD.correlation_discription()
-    test = CD.test
+    #写成批处理形式
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
+    graph_folder = r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02'
+    clustered_data = pp.read_variable(save_folder+r'\Mini_KMeans_Data.pkl')
+    all_graph_name = pp.file_name(graph_folder,'.pkl')
+    cluster_type = 'KMeans'
+    for i in range(len(all_graph_name)):
+        correlation_name = cluster_type+'_vs_'+all_graph_name[i].split('\\')[-1][:-4]
+        target_graph = pp.read_variable(all_graph_name[i])
+        CD = Correlation_Description(save_folder,target_graph,clustered_data,correlation_name)
+        CD.correlation_calculation()
+        CD.correlation_discription()
+        
+        
+# =============================================================================
+#     target_graph = pp.read_variable(r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02\Orien90-0_Cells.pkl')
+#     clustered_data = pp.read_variable(save_folder+r'\ICAed_Data.pkl')
+#     correlation_name = 'PCA_vs_Orien90-0'
+#     CD = Correlation_Description(save_folder,target_graph,clustered_data,correlation_name)
+#     CD.correlation_calculation()
+#     CD.correlation_discription()
+#     test = pp.file_name(r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02','.pkl')
+# =============================================================================

@@ -75,7 +75,7 @@ class Alchemy_Cells(object):
         f.close()
         
     def ICA(self,N_component):
-        ICA_calculator = skdecomp.FastICA(N_component,max_iter=1500,tol=0.01,whiten=True)
+        ICA_calculator = skdecomp.FastICA(N_component,max_iter=1500,tol=0.03,whiten=True)
         self.ICAed_data = ICA_calculator.fit(self.vector_centered)
         all_ICs = self.ICAed_data.components_
         pp.save_variable(all_ICs,save_folder+r'\\ICAed_Data.pkl')
@@ -91,7 +91,7 @@ class Alchemy_Cells(object):
         self.cell_graph_plot('NMF',all_NMFs)
         
     def MiniBach_SparcePCA(self,N_component):
-        MiniPCA_calculator = skdecomp.MiniBatchSparsePCA(N_component,batch_size=2,normalize_components=True)
+        MiniPCA_calculator = skdecomp.MiniBatchSparsePCA(N_component,batch_size=15,normalize_components=True)
         self.MiniPCs = MiniPCA_calculator.fit(self.vector_centered)
         all_MiniPCs = self.MiniPCs.components_
         pp.save_variable(all_MiniPCs,save_folder+r'\\MiniPCed_Data.pkl')
@@ -99,14 +99,14 @@ class Alchemy_Cells(object):
         self.cell_graph_plot('MINIPCA',all_MiniPCs)
     
     def MiniBach_DictionaryLearning(self,N_component):
-        MiniDL_calculator = skdecomp.MiniBatchDictionaryLearning(N_component,batch_size = 5)
+        MiniDL_calculator = skdecomp.MiniBatchDictionaryLearning(N_component,batch_size = 25)
         self.MiniDLs = MiniDL_calculator.fit(self.vector_centered)
         all_MiniDLs = self.MiniDLs.components_
         pp.save_variable(all_MiniDLs,save_folder+r'\\Dictionary_Learning_Data.pkl')
         print('MiniBach Dictionary Learning Done, generating graphs')
         self.cell_graph_plot('Dictionary_Learning',all_MiniDLs)
     def MiniBach_KMeans(self,N_component):
-        MiniKM_calculator = skcluster.MiniBatchKMeans(N_component,batch_size = 20)
+        MiniKM_calculator = skcluster.MiniBatchKMeans(N_component,batch_size = 50)
         self.MiniKM = MiniKM_calculator.fit(self.vector_centered)
         all_MiniKMs = self.MiniKM.cluster_centers_
         pp.save_variable(all_MiniKMs,save_folder+r'\\Mini_KMeans_Data.pkl')
@@ -122,18 +122,18 @@ class Alchemy_Cells(object):
         self.cell_graph_plot('Analyzed Factors',all_FAs)
     
 if __name__ == '__main__':
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
     spike_train_name = 'spike_train_Morphology_filtered.pkl'
     cell_group_name = 'Cell_Groups_Morphology.pkl'
     AC = Alchemy_Cells(save_folder,spike_train_name,cell_group_name)
     AC.preprocessing()
-    AC.PCA(None,False)
-    #AC.ICA(20)
-    #AC.NMF(50)
+    #AC.PCA(None,False)
+    #AC.ICA(100)
+    #AC.NMF(100)
     #AC.MiniBach_SparcePCA(10)
-    #AC.MiniBach_DictionaryLearning(20)
-    #AC.MiniBach_KMeans(50)
-    #AC.FactorAnalysis(20)
+    #AC.MiniBach_DictionaryLearning(100)
+    #AC.MiniBach_KMeans(100)
+    AC.FactorAnalysis(50)
     #%%
    # a = AC.PCAed_data.components_2
     #b = AC.PCAed_data.explained_variance_ratio_

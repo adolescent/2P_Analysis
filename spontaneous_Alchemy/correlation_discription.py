@@ -68,9 +68,9 @@ if __name__ == '__main__':
     #写成批处理形式
     save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
     graph_folder = r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02'
-    clustered_data = pp.read_variable(save_folder+r'\Mini_KMeans_Data.pkl')
+    clustered_data = pp.read_variable(save_folder+r'\Factor_Analysis_Data.pkl')
     all_graph_name = pp.file_name(graph_folder,'.pkl')
-    cluster_type = 'KMeans'
+    cluster_type = 'Factor_Analysis'
     for i in range(len(all_graph_name)):
         correlation_name = cluster_type+'_vs_'+all_graph_name[i].split('\\')[-1][:-4]
         target_graph = pp.read_variable(all_graph_name[i])

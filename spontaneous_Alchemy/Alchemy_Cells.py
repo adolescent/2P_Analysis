@@ -122,18 +122,18 @@ class Alchemy_Cells(object):
         self.cell_graph_plot('Analyzed Factors',all_FAs)
     
 if __name__ == '__main__':
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
-    spike_train_name = 'spike_train_Morphology_filtered.pkl'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+    spike_train_name = 'spike_train_shuffle_cross_frames.pkl'
     cell_group_name = 'Cell_Groups_Morphology.pkl'
     AC = Alchemy_Cells(save_folder,spike_train_name,cell_group_name)
     AC.preprocessing()
-    #AC.PCA(None,False)
+    AC.PCA(None,False)
     #AC.ICA(100)
     #AC.NMF(100)
     #AC.MiniBach_SparcePCA(10)
     #AC.MiniBach_DictionaryLearning(100)
     #AC.MiniBach_KMeans(100)
-    AC.FactorAnalysis(50)
+    #AC.FactorAnalysis(50)
     #%%
    # a = AC.PCAed_data.components_2
     #b = AC.PCAed_data.explained_variance_ratio_

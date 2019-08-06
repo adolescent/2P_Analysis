@@ -7,7 +7,7 @@ This tool will calculate the person correlation between a stimulus map and a set
 """
 import General_Functions.my_tools as pp
 import numpy as np
-import cv2
+#import cv2
 import scipy.stats
 import matplotlib.pyplot as plt
 
@@ -66,11 +66,11 @@ class Correlation_Description(object):
         
 if __name__ == '__main__':
     #写成批处理形式
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
     graph_folder = r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02'
-    clustered_data = pp.read_variable(save_folder+r'\Factor_Analysis_Data.pkl')
+    clustered_data = pp.read_variable(save_folder+r'\PCAed_Data.pkl')
     all_graph_name = pp.file_name(graph_folder,'.pkl')
-    cluster_type = 'Factor_Analysis'
+    cluster_type = 'PCA_cross_frame_shuffle'
     for i in range(len(all_graph_name)):
         correlation_name = cluster_type+'_vs_'+all_graph_name[i].split('\\')[-1][:-4]
         target_graph = pp.read_variable(all_graph_name[i])

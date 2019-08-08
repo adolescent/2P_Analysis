@@ -43,7 +43,7 @@ class Correlation_Functions(object):
         
         all_keys = list(self.all_stim_graph.keys())
         for i in range(len(all_keys)):#cycle all stim graphs
-            plt.figure(figsize = (200,5))
+            plt.figure(figsize = (200,7))
             current_plot = self.correlation_calculator(self.all_stim_graph[all_keys[i]])
             plt.plot(current_plot,label=all_keys[i])
             plt.legend()
@@ -56,7 +56,7 @@ class Correlation_Functions(object):
             plt.xlim((0,self.N_frame))
             x_ticks = np.arange(0,self.N_frame,100)
             plt.xticks(x_ticks)
-            correlation_folder = save_folder+r'\\Correlation_Plots'
+            correlation_folder = save_folder+r'\\Correlation_vs_Stim_Maps'
             pp.mkdir(correlation_folder)
             plt.savefig(correlation_folder+r'\\'+all_keys[i]+'.png')
             plt.close('all')
@@ -64,7 +64,7 @@ class Correlation_Functions(object):
     def plot_all(self):
         
         all_keys = list(self.all_stim_graph.keys())
-        plt.figure(figsize = (200,5))
+        plt.figure(figsize = (200,7))
         plt.title('Correlation Plot of Spon & All plots Graph')
         plt.xlabel('Frames')
         plt.ylabel('Pearson R')
@@ -74,7 +74,7 @@ class Correlation_Functions(object):
         plt.xlim((0,self.N_frame))
         x_ticks = np.arange(0,self.N_frame,100)
         plt.xticks(x_ticks)
-        correlation_folder = save_folder+r'\\Correlation_Plots'
+        correlation_folder = save_folder+r'\\Correlation_vs_Stim_Maps'
         pp.mkdir(correlation_folder)
         all_colors = ['b','g','r','c','m','y','k','w']
   
@@ -85,13 +85,40 @@ class Correlation_Functions(object):
         plt.savefig(correlation_folder+r'\\All_plots.png')
         plt.close('all')
             
+        
+    def plot_target(self,**kwargs):#指定特定的序列plot在一起
+        
+        plot_graphs = list(kwargs.values())#Graphs need to be plotted
+        plt.figure(figsize = (200,7))
+        plt.title('Correlation Plot of Spon & All plots Graph')
+        plt.xlabel('Frames')
+        plt.ylabel('Pearson R')
+        plt.grid()#网格
+        plt.axhline(y = 0,color = '#d62728')#红色
+        plt.ylim((-0.4,0.4))
+        plt.xlim((0,self.N_frame))
+        x_ticks = np.arange(0,self.N_frame,100)
+        plt.xticks(x_ticks)
+        correlation_folder = save_folder+r'\\Correlation_vs_Stim_Maps'
+        pp.mkdir(correlation_folder)
+        all_colors = ['b','g','r','c','m','y','k','w']
+  
+        for i in range(len(plot_graphs)):#cycle all stim graphs
+            current_plot = self.correlation_calculator(self.all_stim_graph[plot_graphs[i]])
+            plt.plot(current_plot,color = all_colors[i],label=plot_graphs[i])
+        plt.legend()
+        plt.savefig(correlation_folder+r'\\Target_Plots.png')
+        plt.close('all')
+    
 if __name__ == '__main__':
     
     save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
-    spike_train = pp.read_variable(save_folder+r'\spike_train_Morphology.pkl')
+    spike_train = pp.read_variable(save_folder+r'\spike_train_Morphology_filtered.pkl')
     graph_folder = r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02'
     CF = Correlation_Functions(save_folder,graph_folder,spike_train)
     CF.stim_graph_cycle()
     CF.plot_correlation_single()
     CF.plot_all()
-    
+    all_stim_graph = CF.all_stim_graph
+    #%%Manual Plot, in need of comparation
+    CF.plot_target(graph_1 = 'Orien0-0',graph_2 = 'Orien90-0')

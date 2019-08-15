@@ -7,3 +7,4 @@ spon_pattern_found/test.py
 Standard_Data_Preprocessing/Multi_Runs/test.py
 spontaneous_ICA/test.py
 spontaneous_Alchemy/test.py
+2p_video/test.py

@@ -54,7 +54,7 @@ class Correlation_Functions(object):
             plt.axhline(y = 0,color = '#d62728')#红色
             plt.ylim((-0.4,0.4))
             plt.xlim((0,self.N_frame))
-            x_ticks = np.arange(0,self.N_frame,100)
+            x_ticks = np.arange(0,self.N_frame,50)
             plt.xticks(x_ticks)
             correlation_folder = save_folder+r'\\Correlation_vs_Stim_Maps'
             pp.mkdir(correlation_folder)
@@ -72,7 +72,7 @@ class Correlation_Functions(object):
         plt.axhline(y = 0,color = '#d62728')#红色
         plt.ylim((-0.4,0.4))
         plt.xlim((0,self.N_frame))
-        x_ticks = np.arange(0,self.N_frame,100)
+        x_ticks = np.arange(0,self.N_frame,50)
         plt.xticks(x_ticks)
         correlation_folder = save_folder+r'\\Correlation_vs_Stim_Maps'
         pp.mkdir(correlation_folder)
@@ -97,9 +97,9 @@ class Correlation_Functions(object):
         plt.axhline(y = 0,color = '#d62728')#红色
         plt.ylim((-0.4,0.4))
         plt.xlim((0,self.N_frame))
-        x_ticks = np.arange(0,self.N_frame,100)
+        x_ticks = np.arange(0,self.N_frame,50)
         plt.xticks(x_ticks)
-        correlation_folder = save_folder+r'\\Correlation_vs_Stim_Maps'
+        correlation_folder = save_folder+r'\\Specific Plot'
         pp.mkdir(correlation_folder)
         all_colors = ['b','g','r','c','m','y','k','w']
   
@@ -122,3 +122,4 @@ if __name__ == '__main__':
     all_stim_graph = CF.all_stim_graph
     #%%Manual Plot, in need of comparation
     CF.plot_target(graph_1 = 'Orien0-0',graph_2 = 'Orien90-0')
+    

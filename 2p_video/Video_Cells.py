@@ -80,8 +80,8 @@ class Cell_Video(object):
     
     def sub_video(self):#dF video is based on 0.5 graph, use 0 as gray.
         
-        #Clip First, use +-4std as standart to keep most data unchanged.
-        self.sub_series = np.clip(self.sub_series,self.sub_series.mean()-2*self.sub_series.std(),self.sub_series.mean()+2*self.sub_series.std())
+        #Clip First, Attention Here, data <0 is set as 0, with data >0 clip at 2std
+        self.sub_series = np.clip(self.sub_series,0,self.sub_series.mean()+2*self.sub_series.std())
         #Then normalize all data,keep 0 as 0 unchanged.
         self.sub_series = self.sub_series/abs(self.sub_series).max()
         #Recover cell data to frame
@@ -100,12 +100,12 @@ if __name__ == '__main__':
     save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
     cell_group = pp.read_variable(save_folder+r'\\Cell_Groups_Morphology.pkl')
     show_gain = 32
-    start_frame = 1000
-    stop_frame = 1500
+    start_frame = 0
+    stop_frame = 320
     CV = Cell_Video(cell_group,save_folder,show_gain,start_frame,stop_frame)
     CV.frame_sets_generation()
     CV.F_calculation()
-    #CV.F_video()
+    CV.F_video()
     CV.sub_video()
     b = CV.F_series
     

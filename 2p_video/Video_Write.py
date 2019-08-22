@@ -44,7 +44,7 @@ class Video_Write(object):
         
         img_root = aligned_tif_folder.split('\\')[:-1]
         save_folder = '\\'.join(img_root)
-        fps = 8
+        fps = 4
         size = (472,472)
         videoWriter = cv2.VideoWriter(save_folder+r'\\'+file_name,-1,fps,size,0)#last variance: is color
         for i in range(self.frame_Num):
@@ -103,9 +103,9 @@ class Video_Write(object):
 if __name__ == '__main__':
     
     filt = True# Whether filter is used to smoothing videos
-    aligned_tif_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-003\results\Aligned_Frames'
-    start_frame = 1000
-    stop_frame = 1600
+    aligned_tif_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results\Aligned_Frames'
+    start_frame = 0
+    stop_frame = 320
     show_gain = 32#Gain,32 for GA mode.
     VW = Video_Write(aligned_tif_folder,start_frame,stop_frame,show_gain,filt)
     VW.read_in()

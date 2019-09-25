@@ -113,7 +113,7 @@ class Correlation_Functions(object):
         
         plot_graphs = list(kwargs.values())#Graphs need to be plotted
         plt.figure(figsize = (200,7))
-        plt.title('Correlation Plot of Spon & All plots Graph')
+        plt.title('Correlation Plot of Spon & Target Graph')
         plt.xlabel('Frames')
         plt.ylabel('Pearson R')
         plt.grid()#网格
@@ -154,5 +154,6 @@ if __name__ == '__main__':
     CF.plot_all()
     all_stim_graph = CF.all_stim_graph
     #%%Manual Plot, in need of comparation
-    CF.plot_target(graph_1 = 'Orien0-0',graph_2 = 'Orien90-0')
+    CF.plot_target(graph_1 = 'Orien0-0',graph_2 = 'Orien90-0',graph_3 = 'Orien135-0',graph_4 ='Orien45-0' )
+
     

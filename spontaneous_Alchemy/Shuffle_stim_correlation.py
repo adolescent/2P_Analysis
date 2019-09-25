@@ -67,7 +67,7 @@ class Shuffle_Correlation(object):
 if __name__ == '__main__':
     
     graph_folder = r'E:\ZR\Data_Temp\190412_L74_LM\All-Stim-Maps\Run02'
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
     SC = Shuffle_Correlation(save_folder,graph_folder)
     SC.read_in()
     SC.main_calculation()

@@ -53,7 +53,7 @@ class Data_Shuffle(object):
     
 if __name__ == '__main__':
     
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
     spike_train_name = 'spike_train_Morphology_filtered.pkl'
     shuffle_times = 500
     shuffle_type = 'cross'#############'in' means in frame shuffle, 'cross' means cross frames shuffle

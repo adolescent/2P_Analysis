@@ -105,12 +105,12 @@ if __name__ == '__main__':
     filt = True# Whether filter is used to smoothing videos
     aligned_tif_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results\Aligned_Frames'
     start_frame = 0
-    stop_frame = 320
+    stop_frame = 2220
     show_gain = 32#Gain,32 for GA mode.
     VW = Video_Write(aligned_tif_folder,start_frame,stop_frame,show_gain,filt)
     VW.read_in()
     VW.F_video()
-    VW.dF_video()
-    VW.df_F_video()
+    #VW.dF_video()
+    #VW.df_F_video()
     test = VW.all_tif_name
     test_b = VW.frame_sets

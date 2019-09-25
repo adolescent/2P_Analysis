@@ -101,11 +101,11 @@ if __name__ == '__main__':
     cell_group = pp.read_variable(save_folder+r'\\Cell_Groups_Morphology.pkl')
     show_gain = 32
     start_frame = 0
-    stop_frame = 320
+    stop_frame = 2220
     CV = Cell_Video(cell_group,save_folder,show_gain,start_frame,stop_frame)
     CV.frame_sets_generation()
     CV.F_calculation()
     CV.F_video()
-    CV.sub_video()
+    #CV.sub_video()
     b = CV.F_series
     

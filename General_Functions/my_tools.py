@@ -48,6 +48,7 @@ def bias_correlation(temp_tif,averaged_tif):
     find_location = conv2[331:371,331:371]#由于对齐中心应该是(351，351),这里选取它上下20像素。
     y_bias = np.where(find_location ==np.max(find_location))[0][0] -20# 得到偏移的y量。
     x_bias = np.where(find_location ==np.max(find_location))[1][0] -20# 得到偏移的x量。
+    ##这里的返回值，y+意味着需要向下移动图；x+意味着需要向右移动图。
     return[x_bias,y_bias]
 #%% 第四个功能是生成高斯矩阵的掩模，用来进行滤波模糊运算。
 def normalized_gauss2D(shape,sigma): #e.g. shape = [7,7],sigma = 1.5

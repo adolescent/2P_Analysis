@@ -74,7 +74,11 @@ class Align_In_A_Day():
         for i in range(0,len(self.global_tif_name)):
             temp_tif = cv2.imread(self.global_tif_name[i],-1)
             [x_bias,y_bias] = pp.bias_correlation(temp_tif,base_frame)
-            temp_biased_graph = np.pad(temp_tif,((20+y_bias,20-y_bias),(20+x_bias,20-x_bias)),'constant')
+            #这里，x_bias为正则图片需要往下移动；y_bias为正则图片需要往右移动。
+            #rim_fill = np.mean(temp_tif)
+            temp_biased_graph = np.pad(temp_tif,((20+y_bias,20-y_bias),(20+x_bias,20-x_bias)),'median')
+            #temp_biased_graph = np.pad(temp_tif,((20+y_bias,20-y_bias),(20+x_bias,20-x_bias)),'constant',constant_values = (rim_fill,rim_fill))
+            #np.pad的填充模式是((a,b),(c,d)),分别意味着：上面a行，下面b行；左边c行，右边d行。可以加入 constant_values = ()来设定填充的数字。
             biased_graph = temp_biased_graph[20:532,20:532]#这个是移动后的图
             tif_address = self.global_tif_name[i].split('\\')
             tif_address.insert(-1,'results')
@@ -113,7 +117,8 @@ class Align_In_A_Day():
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
     root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
-    run_lists = ['001','002','003','004']
+    run_lists = ['004']
+    #run_lists = ['001','002','003','004']
     show_gain = 32  #GA Mode
     AIA = Align_In_A_Day(root_data_folder,show_gain,run_lists)
     AIA.main()

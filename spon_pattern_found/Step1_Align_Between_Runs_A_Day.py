@@ -74,7 +74,7 @@ class Align_In_A_Day():
         for i in range(0,len(self.global_tif_name)):
             temp_tif = cv2.imread(self.global_tif_name[i],-1)
             [x_bias,y_bias] = pp.bias_correlation(temp_tif,base_frame)
-            temp_biased_graph = np.pad(temp_tif,((20+y_bias,20-y_bias),(20+x_bias,20-x_bias)),'constant')
+            temp_biased_graph = np.pad(temp_tif,((20+y_bias,20-y_bias),(20+x_bias,20-x_bias)),'median')
             biased_graph = temp_biased_graph[20:532,20:532]#这个是移动后的图
             tif_address = self.global_tif_name[i].split('\\')
             tif_address.insert(-1,'results')

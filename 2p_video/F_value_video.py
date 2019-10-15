@@ -82,12 +82,13 @@ class Video_Write(object):
         fps = fps
         videoWriter = cv2.VideoWriter(self.save_folder+r'\\'+file_name,-1,fps,size,0)#last variance: is color
         for i in range(self.frame_Num):
-            #确认当前刺激id
-            current_id = self.Frame_Dics[start_frame+i]#这个是当前的刺激id            
+
             current_img = file_matrix[i,:,:]
             cv2.putText(current_img,'Frame'+str(start_frame+i),(10,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)#最后四项：字体-大小-颜色-粗细
-            if current_id>0:
-                cv2.putText(current_img,'Stim ID = '+str(current_id),(300,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
+            if self.stim_annotate == True:
+                current_id = self.Frame_Dics[start_frame+i]#这个是当前的刺激id
+                if current_id>0: 
+                    cv2.putText(current_img,'Stim ID = '+str(current_id),(300,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
             videoWriter.write(current_img)
         del videoWriter
    
@@ -109,16 +110,16 @@ class Video_Write(object):
 if __name__ == '__main__':
     
     filt_flag = True
-    stim_annotate = True
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-002\results'
+    stim_annotate = False
+    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-001\results'
     start_frame = 0
-    stop_frame = 500
-    clip_std = 3#决定做几个std的clip。
+    stop_frame = 1580
+    clip_std = 5#决定做几个std的clip。
     fps = 8
     VW = Video_Write(save_folder,filt_flag,start_frame,stop_frame,clip_std,fps,stim_annotate)
     VW.read_in()
     #VW.Stim_Dict_Generation()
     VW.F_video()
-    test = VW.Frame_Dics
+ #   test = VW.Frame_Dics
     
     

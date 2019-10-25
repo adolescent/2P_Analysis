@@ -23,6 +23,7 @@ class Align_In_A_Day():
             self.data_folder.append(root_data_folder+'\\1-'+self.run_lists[i]) #这里是数据子文件夹的结构
             
     def folder_generation(self,upper_folder):#给定特定目录，在其下级建立result和Aligned文件夹，并返回目录
+        
         result_folder = upper_folder+r'\results'
         pp.mkdir(result_folder)
         aligned_frame_folder = result_folder+'\Aligned_Frames' #保存对齐过后图片的文件夹

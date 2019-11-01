@@ -167,9 +167,9 @@ if __name__ == '__main__':
     
     #Attention! Only 1 txt file in stim folder is acceptable.
     start_time = time.time()
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'
+    save_folder = r'E:\ZR\Data_Temp\191026_L69_LM\1-010\results'
     #save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run02_2P_G8\test'
-    stim_folder = r'E:\ZR\Data_Temp\190412_L74_LM\190412_L74_stimuli\Run04_2P_RGLum4'
+    stim_folder = r'E:\ZR\Data_Temp\191026_L69_LM\191026_L69_Virus_Check\Run10_2P_G8'
     pre_stim_frame = 0#这里指的是方波开始刺激没放，需要删除的帧数。
     after_stim_drift = 0#这里指的是锯齿波消失之后，再计算几帧属于其中。
     sf= Stim_Frame_Align(stim_folder,pre_stim_frame,after_stim_drift)

@@ -47,7 +47,7 @@ class Align_In_A_Day(object):
              self.save_folders.append(temp_result)
              self.aligned_frame_folder.append(temp_frame)
              
-    def before_align(self):
+    def Before_Align_Average(self):
         #先平均整体，按照同一个标准对齐，之后再考虑如何
         print('Averaging global graph...')
         temp_graph = Graph_Tools.Graph_Processing.Graph_File_Average(self.global_tif_name[100:])#整体平均图，用作对齐标准于是去掉了前100帧
@@ -67,22 +67,54 @@ class Align_In_A_Day(object):
             Graph_Tools.Graph_Processing.Write_Graph(self.save_folders[i],temp_graph,temp_name)#当前Run的平均
             Graph_Tools.Graph_Processing.Write_Graph(self.save_folders[i],self.global_average_before,'Before_Align_Global',wait_time = 0)#整体平均，每个run存一个
     
-    
+    def Align(self):
+        print('Align starts...')
+        tamplate_graph = self.global_average_before
+        for i in range(len(self.global_average_before)):
+            current_graph = cv2.imread(self.global_tif_name[i],-1)
+            current_baised_graph = Graph_Tools.Alignment(current_graph,tamplate_graph,temple_boulder = 20,align_range = 20).baised_graph
+            tif_address = self.global_tif_name[i].split('\\')
+            tif_address.insert(-1,'results')
+            tif_address.insert(-1,'Aligned_Frames')#把tif_address定义为对齐后的地址
+            tif_address_writing = r'\\'.join(tif_address)                
+            cv2.imwrite(tif_address_writing,current_baised_graph)
+        print('Aligning Done!')
         
-    
-
-
-
-
-      
+    def After_Align(self):
+        
+        print('Generating Aligned Graphs...')
+        self.aligned_tif_name = []
+        global_aligned_tif_name = []
+        for i in range(len(self.aligned_frame_folder)):#把每个run里的tif_name存到各自文件夹里
+            self.aligned_tif_name.append(OS_Tools.Path_Control.file_name(self.aligned_frame_folder[i],file_type = '.tif'))#保留文件层级
+            global_aligned_tif_name.extend(self.aligned_tif_name[i])#存一个全部tif的变量
+            run_average = Graph_Tools.Graph_Processing.Graph_File_Average(self.aligned_tif_name[i],Formation = 'f8')
+            run_average = Graph_Tools.Graph_Processing.Graph_Clip(run_average,2.5)
+            OS_Tools.Save_And_Read.save_variable(run_average,self.save_folders[i]+r'\\Run_Average_graph.pkl')
+            run_average_graph = Graph_Tools.Graph_Processing.Graph_Normalization(run_average,bit = 'u2')
+            Graph_Tools.Graph_Processing.Write_Graph(self.save_folders[i],run_average_graph,'Run_Average_After',graph_formation = '.png',wait_time = 2500)
+        #接下来保存全局平均，也存在每个文件里
+        global_average = Graph_Tools.Graph_Processing.Graph_File_Average(global_aligned_tif_name,Formation = 'f8')
+        global_average = Graph_Tools.Graph_Processing.Graph_Clip(global_average,2.5,Formation = 'f8')
+        global_average_graph = Graph_Tools.Graph_Processing.Graph_Normalization(global_average,bit = 'u2') 
+        for i in range(len(self.save_folders)):
+            Graph_Tools.Graph_Processing.Write_Graph(self.save_folders[i],global_average_graph,'Global_Average_After',graph_formation = '.png',wait_time = 0)
+            OS_Tools.Save_And_Read.save_variable(global_average,self.save_folders[i]+r'\\Global_Average_graph.pkl')
+            #注意这里保存的变量是没有增益的，是原始变量
+    def main(self):
+        
+        self.path_cycle()
+        self.Before_Align_Average()
+        self.Align()
+        self.After_Align()
+        
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
     root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
     run_lists = ['001','002']
     #run_lists = ['001','002','003','004']
     AIA = Align_In_A_Day(root_data_folder,run_lists)
-    AIA.path_cycle()
-    AIA.before_align()
+    AIA.main()
     #AIA.main()
     finish_time = time.time()
     print('Aligning time cost:'+str(finish_time-start_time)+'s')

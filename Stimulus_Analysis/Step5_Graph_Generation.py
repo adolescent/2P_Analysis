@@ -10,6 +10,8 @@ import numpy as np
 import General_Functions.my_tools as pp
 from scipy import stats
 import random
+import scipy.ndimage as scimg
+
 class Graph_Generation():
 
     name = 'Generate functional map'
@@ -57,7 +59,7 @@ class Graph_Generation():
         real_sub_map = np.uint8(np.clip(norm_sub_graph*255,0,255))
         pp.save_graph(map_name,real_sub_map,self.map_folder,'.png',8,1)
         #接下来画滤波后的
-        sub_map_filtered = cv2.bilateralFilter(real_sub_map,9,41,41)
+        sub_map_filtered = scimg.filters.gaussian_filter(real_sub_map,1)
         pp.save_graph(map_name+'_Filtered',sub_map_filtered,self.map_folder,'.png',8,1)
 
         
@@ -145,10 +147,10 @@ class Graph_Generation():
         
 if __name__ =='__main__':
     
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'        
-    set_A = ['1','2','3','4']#这里画图画的是A-B
+    save_folder = r'E:\ZR\Data_Temp\191026_L69_LM\1-010\results'        
+    set_A = ['3','7']#这里画图画的是A-B
     set_B = ['0']
-    map_name = 'On-Off'        
+    map_name = 'Orien0-0'        
     cell_find_type = 'Morphology'
     spike_train_name = 'spike_train_'+cell_find_type+'.pkl'
     cell_group_name = 'Cell_Groups_'+cell_find_type+'.pkl'

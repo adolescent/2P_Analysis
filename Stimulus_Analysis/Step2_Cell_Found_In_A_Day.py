@@ -80,8 +80,8 @@ class Cell_Find_A_Day():
 if __name__ == '__main__':
     start_time = time.time()
     show_gain = 32
-    root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'
-    run_lists = ['001','002','003','004']
+    root_data_folder = r'E:\ZR\Data_Temp\191026_L69_LM'
+    run_lists = ['010','011']
     model_frame_name = 'After_Align_Global.tif'#朝细胞的帧
     find_type = 'Morphology'
     thres = 1.5

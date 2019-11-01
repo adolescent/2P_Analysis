@@ -7,10 +7,16 @@ Created on Wed Oct 23 15:55:26 2019
 This function provide multiple tools for graph processing.
 Usually used filter & Normalization are contained.
 
-F1：clip
-F2：基于图片文件的平均
-F3：归一化
-F4：写图片
+class Graph_Processing:
+    F1：clip
+    F2：基于图片文件的平均
+    F4：归一化
+    F5：写图片
+
+class Alignment:
+    主要用主函数，输入模板和要对齐的帧，并可制定对齐范围；输出对齐后的图，边界用中位数填充了
+    
+
 """
 import numpy as np
 import cv2
@@ -47,7 +53,13 @@ class Graph_Processing(object):
             temp_graph = cv2.imread(file_names[i],-1).astype('f8')
             averaged_frame += (temp_graph/graph_Nums)
         return averaged_frame.astype(Formation)#输出格式和输入一样。
-#%% F3 输出最大-最小拉伸过的图，一般用于处理clip后的结果。   
+#%% F3 用于平均输入矩阵里面的图片。
+    def Graph_Matrix_Average(graph_matrix,number_axis,Formation = 'f8'):#number_axis是：输入矩阵中的不同帧id所在的维度。
+        graph_matrix = graph_matrix.astype('f8')
+        averaged_graph = np.mean(graph_matrix,axis = number_axis).astype(Formation)
+        return averaged_graph
+        
+#%% F4 输出最大-最小拉伸过的图，一般用于处理clip后的结果。   
     def Graph_Normalization(graph,bit = 'u1'):
         
         max_value = graph.max()
@@ -61,20 +73,67 @@ class Graph_Processing(object):
             return normalized_graph
             print('Attention Here, 0~1 graph data produced here.')
         
-#%% F4 写图片，写入之前show一下，如果wait_time设置成0则跳过show的步骤。      
-    def Write_Graph(path,graph,name,wait_time = 2500):
+#%% F5 写图片，写入之前show一下，如果wait_time设置成0则跳过show的步骤。      
+    def Write_Graph(path,graph,name,graph_formation = '.tif',wait_time = 2500):
         
         if wait_time != 0: #等待时间不为0则show
             cv2.imshow(name,graph)
             cv2.waitKey(wait_time)
             cv2.destroyAllWindows()
-        cv2.imwrite(path+r'\\'+name+'.tif',graph)
+        cv2.imwrite(path+r'\\'+name+graph_formation,graph)
         
         
         
+#%%        
+class Alignment(object):
+    
+    name = r'Tools used for Graph Align.This class will input Graphs, then output aligned graph.'   
+    def __init__(self,target,tample,temple_boulder = 20,align_range = 20):#target是要对齐的图像；tample是目标模板        
+        self.baised_graph = self.main(target,tample,tample_boulder = 20,align_range = 20)
+
+    
+    def boulder_cut(self,graph,boulder):#切割边界，由于双光在xy方向的抖动是一样的，所以只切割同一个大小的了
+        length,width = np.shape(graph)
+        cutted_graph = graph[boulder:(length-boulder),boulder:(width-boulder)]
+        return cutted_graph
+            
+    def bais_calculation(self,padded_target,padded_tample,align_range):#输入pad过的目标和模板，返回x和y的偏移量。
         
+        target_fft = np.fft.fft2(padded_target)
+        tample_fft = np.fft.fft2(padded_tample)
+        conv2 = np.real(np.fft.ifft2(target_fft*tample_fft))
+        conv_height,conv_width = np.shape(conv2)
+        y_center,x_center = (int((conv_height-1)/2),int((conv_width-1)/2))
+        find_location = conv2[(y_center-align_range):(y_center+align_range),(x_center-align_range):(x_center+align_range)]
+        y_bais = np.where(find_location ==np.max(find_location))[0][0] -align_range# 得到偏移的y量。
+        x_bais = np.where(find_location ==np.max(find_location))[1][0] -align_range# 得到偏移的x量。
+        ##这里的返回值，y+意味着需要向下移动图；x+意味着需要向右移动图。
+        return[x_bais,y_bais]
+        
+    def main(self,target,tample,tample_boulder = 20,align_range = 20):
+        
+        target_boulder = int(tample_boulder+np.floor(align_range*1.5))
+        cutted_target = self.boulder_cut(target,target_boulder)
+        target_height,target_width = np.shape(cutted_target)
+        cutted_tample = self.boulder_cut(tample,tample_boulder)
+        tample_height,tample_width = np.shape(cutted_tample)
+        target_pad = np.pad(np.rot90(cutted_target,2),((0,tample_height-1),(0,tample_width-1)),'constant')
+        tample_pad = np.pad(cutted_tample,((0,target_height-1),(0,target_width-1)),'constant')#减一的目的是把矩阵奇数话，这样一定会有一个中心点。
+        [x_bais,y_bais] = self.bais_calculation(target_pad,tample_pad,align_range)
+        temp_baised_graph = np.pad(target,((align_range+y_bais,align_range-y_bais),(align_range+x_bais,align_range-x_bais)),'median')
+        baised_graph = temp_baised_graph[align_range:-align_range,align_range:-align_range]#这个是移动后的图
+        return baised_graph
+        
+    
+    
+    
+    
+    
+    
+
+
 #%% Test functions below.        
 if __name__ == '__main__':
-    
+
     #test = Graph_Processing.Graph_File_Average(global_tif_name[20:50])
     print('Test Run Ended.\n')

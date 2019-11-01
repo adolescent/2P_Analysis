@@ -100,13 +100,13 @@ class Spike_Train():
     #%%    
 if __name__ == '__main__':
     
-    save_folder = r'E:\ZR\Data_Temp\190412_L74_LM\1-004\results'        
+    save_folder = r'E:\ZR\Data_Temp\191026_L69_LM\1-010\results'        
     start_time = time.time()
     print('Spike_Train Calculating...\n')
-    cell_group = pp.read_variable(save_folder+r'\\Cell_Groups_On-Off.pkl')#画细胞的来源
+    cell_group = pp.read_variable(save_folder+r'\\Cell_Groups_Morphology.pkl')#画细胞的来源
     aligned_frame_name = pp.tif_name(save_folder+r'\\Aligned_Frames')
     graph_after_align = pp.read_variable(save_folder+r'\Run_Average_graph.pkl')#注意这个是df/f的基准帧
-    cell_find_type = 'On-Off'
+    cell_find_type = 'Morphology'
     st = Spike_Train(cell_group,aligned_frame_name,graph_after_align,save_folder,5,cell_find_type)
     st.main()
     spike_train = st.spike_train

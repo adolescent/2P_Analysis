@@ -6,6 +6,7 @@ Created on Thu Oct 24 13:38:11 2019
 """
 
 import os
+import pickle
 
 class Path_Control(object):
     
@@ -32,4 +33,19 @@ class Path_Control(object):
     
     
     
+    
+class Save_And_Read(object):
+    
+    name = r'Input/Output controller'
+    
+    def save_variable(variable,name):
+        fw = open(name,'wb')
+        pickle.dump(variable,fw)#保存细胞连通性质的变量。 
+        fw.close()
+        
+    def read_variable(path):
+            with open(path, 'rb') as file:
+                variable = pickle.load(file)
+            file.close()
+            return variable
     

@@ -17,7 +17,10 @@ norm_sample_fram = (sample_frame-sample_frame.min())/(sample_frame.max()-sample_
 test_graph = (norm_sample_fram*65535).astype('u2')
 #%%
 import cv2
-cv2.imshow('test',normed_filtered_graph)
+current_graph = test[2]+test[4]-test[6]-test[8]
+current_graph = Graph_Tools.Graph_Processing.Graph_Clip(current_graph,1.5)
+test_norm = Graph_Tools.Graph_Processing.Graph_Normalization(current_graph,bit = 'u2')
+cv2.imshow('test',test_norm)
 cv2.waitKey(7500)
 cv2.destroyAllWindows()
 #%% 

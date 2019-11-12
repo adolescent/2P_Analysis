@@ -4,7 +4,7 @@ Created on Fri Nov  1 15:05:09 2019
 
 @author: ZR
 
-出于数据分析的方便考虑，在此提前把使用的参数在此包装起来，在step2里直接读取进去就可以进行参数读取了。
+出于数据分析的方便考虑，在此提前把使用的参数在此包装起来,已经在General_Functions里有一些标准刺激了，如果想要修改减法参数，则可在这里重新指定。
 
 """
 
@@ -31,6 +31,17 @@ Sub_Sets['All-0'] = [[1,2,3,4,5,6,7,8],[9]]
 OI_Parameters['All_Graph_Sets'] = Sub_Sets
 OS_Tools.Save_And_Read.save_variable(OI_Parameters,'OD8_Parameters.pkl')
 
+
+#这一组是OD8的
+Sub_Sets = {}
+Sub_Sets['All-0'] = [[1,2,3,4,5,6,7,8],[9]]
+Sub_Sets['L-R'] = [[1,2,3,4],[5,6,7,8]]
+Sub_Sets['L-0'] = [[1,2,3,4],[9]]
+Sub_Sets['R-0'] = [[5,6,7,8],[9]]
+Sub_Sets['H-V'] = [[3,7],[1,5]]
+Sub_Sets['O-A'] = [[4,8],[2,6]]
+OI_Parameters['All_Graph_Sets'] = Sub_Sets
+OS_Tools.Save_And_Read.save_variable(OI_Parameters,'OD8_Parameters.pkl')
 
 # =============================================================================
 # #这一组参数是RGLum4的
@@ -62,3 +73,5 @@ OS_Tools.Save_And_Read.save_variable(OI_Parameters,'OD8_Parameters.pkl')
 # =============================================================================
 
 #%%
+import General_Functions.OI_Sub_Parameters.Standard_Stimulus as aa
+test = aa.OD8_Parameters

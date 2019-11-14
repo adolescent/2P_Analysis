@@ -67,7 +67,7 @@ class Condition_Data_Generate(object):
             A_sets = self.Condition_Selection(A_set_id,self.all_blk_names)
             B_sets = self.Condition_Selection(B_set_id,self.all_blk_names)
             self.Produced_data[graph_names[i]] = [A_sets,B_sets]
-        OS_Tools.Save_And_Read.save_variable(self.Produced_data,self.save_folder+r'\Produced_data.pkl')
+        #OS_Tools.Save_And_Read.save_variable(self.Produced_data,self.save_folder+r'\Produced_data.pkl')#不用保存了，太占空间
         
         
                 

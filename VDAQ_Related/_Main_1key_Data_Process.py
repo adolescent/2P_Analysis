@@ -12,13 +12,14 @@ Created on Mon Nov 11 14:11:21 2019
 
 import Step1_Data_Produce as Data_Produce
 import Step2_Sub_Map_Tool as Sub_Tool
+import Step3_Ttest_Maps as T_Test
 import General_Functions.OI_Sub_Parameters.Standard_Stimulus as Standard_Stimulus
 
 
 #%% User Input Here
 
 blk_folder = r'E:\ZR\Data_Temp\191106_L69_OI\Run01_OD8'
-Sub_parameter = Standard_Stimulus.G8_Parameters
+Sub_parameter = Standard_Stimulus.OD8_Parameters
 
 
 
@@ -26,13 +27,18 @@ Sub_parameter = Standard_Stimulus.G8_Parameters
 #%%Usually NO Need to change files below.
 
 # Step1 得到不同图的待减组合
-CDG = Data_Produce.Condition_Data_Generate(blk_folder,sub_parameter)
+CDG = Data_Produce.Condition_Data_Generate(blk_folder,Sub_parameter)
 CDG.Main()
 Head_Property = CDG.Head_Property#这个是blk头文件的属性。这里注明方便接下来使用。
 Produced_data = CDG.Produced_data
 save_path = CDG.save_folder
 
 # Step2,用以上的信息来生产减图。
-
 SMP = Sub_Tool.Sub_Map_Produce(Head_Property,Produced_data,Sub_parameter,save_path)
+SMP.Main()
+
+# Step3,做ttest，并保存结果
+TTM = T_Test.T_Test_Map(Head_Property,Produced_data,Sub_parameter,save_path)
+TTM.Main()
+# Step4,显著性分析，标注0.05和上色等。
 

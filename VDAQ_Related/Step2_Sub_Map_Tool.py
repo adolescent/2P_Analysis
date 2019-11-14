@@ -57,7 +57,7 @@ class Sub_Map_Produce(object):
             
 
 if __name__ =='__main__':
-    SMP = Sub_Map_Produce(Head_Property,Produced_data,Sub_Paratemers,save_path)
+    SMP = Sub_Map_Produce(Head_Property,Produced_data,Sub_parameter,save_path)
     SMP.Main()
     #%%
 # =============================================================================

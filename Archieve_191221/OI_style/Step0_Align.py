@@ -107,7 +107,7 @@ class Align_In_A_Day(object):
         self.Before_Align_Average()
         self.Align()
         self.After_Align()
-        
+   #%% Test Run
 if __name__ == '__main__':
     start_time = time.time()#任务开始时间
     root_data_folder = r'E:\ZR\Data_Temp\190412_L74_LM'

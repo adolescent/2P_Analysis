@@ -1,10 +1,9 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Created on Tue Jul 10 13:26:30 2018
 
 @author: LvLab_ZR
 This part include all function defined that will be used in 2p analysis
-通用函数，在这里作为一个模块方便调用
 """
 #%%首先是遍历文件夹的tif文件
 import os
@@ -48,7 +47,6 @@ def bias_correlation(temp_tif,averaged_tif):
     find_location = conv2[331:371,331:371]#由于对齐中心应该是(351，351),这里选取它上下20像素。
     y_bias = np.where(find_location ==np.max(find_location))[0][0] -20# 得到偏移的y量。
     x_bias = np.where(find_location ==np.max(find_location))[1][0] -20# 得到偏移的x量。
-    ##这里的返回值，y+意味着需要向下移动图；x+意味着需要向右移动图。
     return[x_bias,y_bias]
 #%% 第四个功能是生成高斯矩阵的掩模，用来进行滤波模糊运算。
 def normalized_gauss2D(shape,sigma): #e.g. shape = [7,7],sigma = 1.5
@@ -115,55 +113,10 @@ def fancy_dendrogram(*args, **kwargs):
         if max_d:
             plt.axhline(y=max_d, c='k')
     return ddata
-#%%
+
 #第九个功能，用pickle保存文件。
 import pickle
 def save_variable(variable,name):
     fw = open(name,'wb')
     pickle.dump(variable,fw)#保存细胞连通性质的变量。 
     fw.close()
-#%%    
-#功能10-读取变量。    
-def read_variable(name):#读取变量用的题头，希望这个可以在后续删掉
-    with open(name, 'rb') as file:
-        variable = pickle.load(file)
-    file.close()
-    return variable
-
-#%%功能11-保存灰度图片，给入路径和图像，就show出来然后保存。
-import numpy as np
-import cv2
-def save_graph(graph_name,graph,folder,graph_type,bits,gain):
-    if bits == 8:
-        cv2.imshow(graph_name,np.uint8(np.clip(np.float64(graph)*gain,0,255)))#加了clip
-        cv2.waitKey(2500)
-        cv2.destroyAllWindows()
-        cv2.imwrite(folder+r'\\'+graph_name+graph_type,np.uint8(np.clip(np.float64(graph)*gain,0,255)))
-    elif bits ==16:
-        cv2.imshow(graph_name,np.uint16(np.clip(np.float64(graph)*gain,0,65535)))#加了clip
-        cv2.waitKey(2500)
-        cv2.destroyAllWindows()
-        cv2.imwrite(folder+r'\\'+graph_name+graph_type,np.uint8(np.clip(np.float64(graph)*gain,0,65535)))
-    else:
-        raise Exception('Only 8bit or 16bit map is acceptable!')
-        
-        
-#%%功能12-读取同扩展名的全部文件名
-
-def file_name(file_dir,file_type): 
-    L=[] 
-    for root, dirs, files in os.walk(file_dir):
-        for file in files:
-            if root == file_dir:#只遍历根目录，不操作子目录的文件
-                if os.path.splitext(file)[1] == file_type:
-                    L.append(os.path.join(root, file))
-    return L
-
-#%% 功能13-归一化，把数组归一化到0-1
-def normalization(vector):
-    
-    max_value = vector.max()
-    min_value = vector.min()
-    vector_normalized = (vector-min_value)/(max_value-min_value)
-    
-    return vector_normalized

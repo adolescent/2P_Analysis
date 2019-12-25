@@ -18,8 +18,8 @@ import General_Functions.OI_Sub_Parameters.Standard_Stimulus as Standard_Stimulu
 
 #%% User Input Here
 
-blk_folder = r'E:\ZR\Data_Temp\191106_L69_OI\Run01_OD8'
-Sub_parameter = Standard_Stimulus.OD8_Parameters
+blk_folder = r'E:\ZR\Data_Temp\191106_L69_OI\Run14_G8'
+Sub_parameter = Standard_Stimulus.G8_Parameters
 
 
 

@@ -77,16 +77,19 @@ class T_Test_Map(object):
     def Main(self):#主函数，做每幅图的ttest，并把结果保存下来
         
         all_keys = list(self.Produced_data.keys())
+        self.T_Test_Result = {}
         for i in range(len(self.Produced_data)):
             current_key = all_keys[i]
             current_A_set = self.Produced_data[current_key][0]
             current_B_set = self.Produced_data[current_key][1]
             reshaped_A,reshaped_B = self.t_data_reshape(current_A_set,current_B_set)
             current_T_result = self.Single_T_Generator(reshaped_A,reshaped_B)
-            OS_Tools.Save_And_Read.save_variable(current_T_result,self.save_path+r'\\'+current_key+'_T_Test_Result.pkl')
+            self.T_Test_Result[current_key] = current_T_result
             t_graph_origin = current_T_result['t_value']/np.sqrt(current_T_result['Graph_Num'])
             t_graph = self.Graph_Filt_Clip(t_graph_origin)
             Graph_Tools.Graph_Processing.Write_Graph(self.save_path,t_graph,current_key+r'_T_Graph')
+            
+        OS_Tools.Save_And_Read.save_variable(self.T_Test_Result,self.save_path+r'\\T_Test_Result.pkl')
             
 if __name__ == '__main__':
 # =============================================================================
@@ -105,4 +108,10 @@ if __name__ == '__main__':
 #     import General_Functions.OS_Tools as OS_Tools
 #     Produced_data = OS_Tools.Save_And_Read.read_variable(r'E:\ZR\Data_Temp\191106_L69_OI\Run01_OD8\Results\Produced_data.pkl')
 # =============================================================================
-    print('Test Run Ended')
+    import time
+    start_time = time.time()
+    TTM = T_Test_Map(Head_Property,Produced_data,Sub_parameter,save_path)
+    TTM.Main()
+    stop_time = time.time()
+    print('Test Run Time: '+str(stop_time-start_time))
+    

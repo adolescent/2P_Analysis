@@ -1,0 +1,24 @@
+This task aims at revie cell find problem.
+
+Use Good 2P Data to finish this job
+
+
+Steps are as below:
+
+1.Review different cell find method. Use Morphology method; On-Off method.
+
+2.Compare different method find cells variation. 
+	Morphology vs On-Off
+	On-Off in different Runs
+	Compare Method
+		a)Calculate union areas
+		b)Calculate union cells, even though only a few pix consist, we regard the hole cell consist,calculate cell nums and consist cells
+		c)Different cell find thresholds. now I use 1.5 std, what about change std?
+
+3.New cell find method.
+
+	Active pix in spon series as in cell?
+		Calculate std, use high std pix as cell pix?
+		
+		
+	Calculate spon activated cell vs stim activated cell: Are they different?

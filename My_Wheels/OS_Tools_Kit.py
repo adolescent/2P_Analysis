@@ -40,21 +40,25 @@ def mkdir(path):
 #%% Function2: Get File Name
 def Get_File_Name(path,file_type = '.tif'):
     """
-    Get all file names of specific file type, 
+    Get all file names of specific type.
 
     Parameters
     ----------
     path : (str)
-        Root path you want to path.
-    file_type : TYPE, optional
-        DESCRIPTION. The default is '.tif'.
+        Root path you want to cycle.
+    file_type : (str), optional
+        File type you want to get. The default is '.tif'.
 
     Returns
     -------
-    Name_Lists : TYPE
-        DESCRIPTION.
+    Name_Lists : (list)
+       Return a list, all file names contained.
 
     """
-    
+    Name_Lists=[] 
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if root == path:#只遍历根目录，不操作子目录的文件
+                if os.path.splitext(file)[1] == file_type:
+                    Name_Lists.append(os.path.join(root, file))
     return Name_Lists
-    

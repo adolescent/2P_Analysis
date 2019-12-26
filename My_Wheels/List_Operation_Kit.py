@@ -9,7 +9,8 @@ This Module is Used to do List File Operations, making such work easier.
 """
 
 #%% Function1:List Annex
-def List_Annex( A , B , dilimit = r'\\' ):
+def List_Annex( A , B , dilimit = '\\' ):
+    
     """
     This Function is used to Annex two part of strings, add same head or tail, useful at path cycle.
     
@@ -45,4 +46,5 @@ def List_Annex( A , B , dilimit = r'\\' ):
             out_str.append(str(A[i])+dilimit+str(B[0]))
         return out_str
         
-#%% Function 2:
+#%% Function 2: 
+        

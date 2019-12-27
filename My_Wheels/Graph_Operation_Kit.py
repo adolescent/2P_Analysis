@@ -49,7 +49,7 @@ def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2
         This Variable can be set to -1 to skip clip.
     normalization : (Bool), optional
         Whether normalization is done here. The default is True, if False, no normalization will be done here.
-    bit : (str), optional
+    bit : ('u2','u1','f8'), optional
         dtype of output graph. This parameter will affect normalization width. The default is 'u2'.
 
     Returns	
@@ -60,6 +60,83 @@ def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2
     """
     #Step1, clip
     input_graph = input_graph.astype('f8')
-    
-    
+    if clip_std > 0:
+        lower_level = input_graph.mean()-clip_std*input_graph.std()
+        higher_level = input_graph.mean()+clip_std*input_graph.std()
+        clipped_graph = np.clip(input_graph,lower_level,higher_level)
+    else:
+        print('No Clip Done.')
+    #Step2, normalization
+    norm_graph = (clipped_graph-clipped_graph.min())/(clipped_graph.max()-clipped_graph.min())
+    if normalization == True:
+        if bit == 'u2':
+            processed_graph = (norm_graph*65535).astype('u2')
+        elif bit == 'u1':
+            processed_graph = (norm_graph*255).astype('u1')
+        elif bit == 'f8':
+            print('0-1 Normalize data returned')
+            processed_graph = norm_graph
+        else:
+            raise IOError('Output dtype not supported yet.')
+    else:
+        print('No Normalization Done.')
+        
     return processed_graph
+#%% Function3: Show Graph and Write them.
+def Show_Graph(input_graph,graph_name,save_path,show_time = 5000,write = True,graph_formation = '.tif'):
+    """
+    Show input graph, and write them in ordered path.
+
+    Parameters
+    ----------
+    input_graph : (2D Ndarray,dtype = 'u1' or 'u2')
+        Input graph. Must be plotable dtype, or there will be problems in plotting.
+    graph_name : (str)
+        Graph name.
+    save_path : (str)
+        Save path. can be empty is write = False
+    show_time : (int), optional
+        Graph show time, ms. This value can be set to 0 to skip show.The default is = 5000.
+    write : (Bool), optional
+        Whether graph is written. If false, show graph only. The default is True.
+    graph_formation : (str),optional
+        What kind of graph you want to save. The default is '.tif'
+
+    Returns
+    -------
+    None.
+
+    """
+    if show_time != 0:
+        cv2.imshow(graph_name,input_graph)
+        cv2.waitKey(show_time)
+        cv2.destroyAllWindows()
+    if write == True:
+        cv2.imwrite(save_path+r'\\'+graph_name+graph_formation,input_graph)
+        
+#%% Function 4: Graph Boulder Cut
+def Graph_Cut(graph,boulders):
+    """
+    Cut Graph with specific boulders.
+
+    Parameters
+    ----------
+    graph : (ndarray)
+        Input graph.
+    boulders : (list,length = 4,element = int)
+        4 element list. Telling cut pix of 4 directions.
+        [0]:Up; [1]:Down; [2]:Left; [3]:Right
+
+    Returns
+    -------
+    cutted_graph : (ndarray)
+        Cutted graph. dtype consist with input graph.
+
+    """
+    ud_range,lr_range = np.shape(graph)
+    if ud_range < (boulders[0]+boulders[1]) or lr_range < (boulders[2]+boulders[3]):
+        raise IOError('Cut bouder too big, misison impossible.')
+    cutted_graph = graph[boulders[0]:(ud_range-boulders[1]),boulders[2]:(lr_range-boulders[3])]
+    
+    return cutted_graph
+#%% Function 5

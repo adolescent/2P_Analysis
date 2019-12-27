@@ -15,7 +15,8 @@ OUTPUT : Aligned Graphs in one standars
 
 import My_Wheels.OS_Tools_Kit as OS_Tools
 import My_Wheels.List_Operation_Kit as List_Op
-
+import My_Wheels.Graph_Operation_Kit as Graph_Tools
+import numpy as np
 
 
 class Cross_Run_Align(object):
@@ -46,13 +47,29 @@ class Cross_Run_Align(object):
         -------
         None.
         """
-        all_tif_name_before = []
+        #Get Run Average First
+        self.Before_Align_Dics = {}# Define a dictionary to save before align graphs.
+        total_graph_num = 0 # counter of graph numbers
+        
         for i in range(len(self.Before_Align_Tif_Name)):
-            all_tif_name_before.extend(self.Before_Align_Tif_Name[i])
+            run_graph_num = len(self.Before_Align_Tif_Name[i])# How many graphs in this run
+            total_graph_num += run_graph_num
+            current_run_average = Graph_Tools.Average_From_File(self.Before_Align_Tif_Name[i])
+            current_run_average = Graph_Tools.Clip_And_Normalize(current_run_average)
+            self.Before_Align_Dics[i] = (current_run_average,run_graph_num) # Write Current dict as a Tuple.
+            Graph_Tools.Show_Graph(current_run_average, 'Run_Average',self.all_save_folders[i])# Show and save Run Average.
             
-        
-        
-        
+        # Then Use Weighted average method to generate global tif. This methos can be faster than original ones.
+        global_average_graph = np.zeros(shape = np.shape(self.Before_Align_Dics[0][0]),dtype = 'f8')# Base on shape of graph
+        for i in range(len(self.Before_Align_Tif_Name)):
+            global_average_graph += self.Before_Align_Dics[i][0].astype('f8')*self.Before_Align_Dics[i][1]/total_graph_num
+        global_average_graph = global_average_graph.astype('u2')
+        for i in range(len(self.all_save_folders)):
+            Graph_Tools.Show_Graph(global_average_graph, 'Global_Average', self.all_save_folders[i],show_time = 0)
+        self.Align_Base = global_average_graph # Define Base of Alignment, use this to do the job.
+    
+    def 
+    
 #%% Test Run Here.
         
 if __name__ == '__main__':
@@ -65,3 +82,4 @@ if __name__ == '__main__':
     
     all_folders = List_Op.List_Annex(file_path, run_name)
     CRA = Cross_Run_Align(all_folders)
+    CRA.Before_Run_Average()

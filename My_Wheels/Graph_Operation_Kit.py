@@ -139,4 +139,31 @@ def Graph_Cut(graph,boulders):
     cutted_graph = graph[boulders[0]:(ud_range-boulders[1]),boulders[2]:(lr_range-boulders[3])]
     
     return cutted_graph
-#%% Function 5
+#%% Function 5 Boulder Fill
+def Boulder_Fill(graph,boulders,fill_value):
+    """
+    Fill Graph Boulder with specific value. Graph shape will not change.
+
+    Parameters
+    ----------
+    graph : (2D Array)
+        Input graph.
+    boulders : (4 element list)
+        Telling boulder width in all 4 directions.
+        [0]:Up; [1]:Down; [2]:Left; [3]:Right
+        fill_value : (number)
+        Value you want to fill in boulders.
+
+    Returns
+    -------
+    graph : (2D Array)
+        Boulder filled graph.
+
+    """
+    length,width = np.shape(graph)
+    graph[0:boulders[0],:] = fill_value
+    graph[(length-boulders[1]):length,:] = fill_value
+    graph[:,0:boulders[2]] = fill_value
+    graph[:,(width-boulders[3]):width] = fill_value
+    
+    return graph

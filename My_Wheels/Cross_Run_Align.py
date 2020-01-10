@@ -19,6 +19,7 @@ import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import numpy as np
 import cv2
 from My_Wheels.Alignment import Alignment
+import time
 
 
 class Cross_Run_Align(object):
@@ -50,6 +51,7 @@ class Cross_Run_Align(object):
         -------
         None.
         """
+        print('Averaging before align...')
         #Get Run Average First
         self.Before_Align_Dics = {}# Define a dictionary to save before align graphs.
         total_graph_num = 0 # counter of graph numbers
@@ -57,7 +59,7 @@ class Cross_Run_Align(object):
             run_graph_num = len(self.Before_Align_Tif_Name[i])# How many graphs in this run
             total_graph_num += run_graph_num
             current_run_average = Graph_Tools.Average_From_File(self.Before_Align_Tif_Name[i])
-            current_run_average = Graph_Tools.Clip_And_Normalize(current_run_average)
+            current_run_average = Graph_Tools.Clip_And_Normalize(current_run_average,clip_std = 5)
             self.Before_Align_Dics[i] = (current_run_average,run_graph_num) # Write Current dict as a Tuple.
             Graph_Tools.Show_Graph(current_run_average, 'Run_Average',self.all_save_folders[i])# Show and save Run Average.
             
@@ -65,7 +67,7 @@ class Cross_Run_Align(object):
         global_average_graph = np.zeros(shape = np.shape(self.Before_Align_Dics[0][0]),dtype = 'f8')# Base on shape of graph
         for i in range(len(self.Before_Align_Tif_Name)):
             global_average_graph += self.Before_Align_Dics[i][0].astype('f8')*self.Before_Align_Dics[i][1]/total_graph_num
-        global_average_graph = Graph_Tools.Clip_And_Normalize(global_average_graph)
+        global_average_graph = Graph_Tools.Clip_And_Normalize(global_average_graph,clip_std = 5)
         
         # At last, save global average graph in every run folders.
         for i in range(len(self.all_save_folders)):
@@ -80,14 +82,15 @@ class Cross_Run_Align(object):
         -------
         None.
         """
+        print('Pre work done. Aligning graphs...')
         for i in range(len(self.Before_Align_Tif_Name)): # Cycle all runs
             for j in range(len(self.Before_Align_Tif_Name[i])): # Cycle current run, between all graph.
                 base = self.Align_Base # Use global average as base graph
                 current_graph = cv2.imread(self.Before_Align_Tif_Name[i][j],-1)
                 _,_,current_aligned_graph = Alignment(base,current_graph) # Calculate aligned graph 
                 # Then save graph.
-                graph_name = self.Aligned_frame_folders[i]+r'\\'+self.Before_Align_Tif_Name[i][j].split('\\')[-1][:-4]
-                Graph_Tools.Show_Graph(current_graph,graph_name,self.Aligned_frame_folders[i],show_time = 0)
+                graph_name = self.Before_Align_Tif_Name[i][j].split('\\')[-1][:-4]
+                Graph_Tools.Show_Graph(current_aligned_graph,graph_name,self.Aligned_frame_folders[i],show_time = 0)
                 
     def After_Align_Average(self):
         """
@@ -98,13 +101,14 @@ class Cross_Run_Align(object):
         None.
 
         """
+        print('Aligning done. ')
         self.After_Align_Graphs = {} # Initialize a dictionary, will record all aligned graphs averages and graph nums.
         # Fill After Align Graph Dictionary first
         total_graph_num = 0
         for i in range(len(self.Aligned_frame_folders)):
-            current_run_names = OS_Tools.Get_File_Name(self.Aligned_frame_folders)
+            current_run_names = OS_Tools.Get_File_Name(self.Aligned_frame_folders[i])
             temp_average = Graph_Tools.Average_From_File(current_run_names) # This will generate an average graph with 'f8' formation.
-            current_graph_aligned = Graph_Tools.Clip_And_Normalize(temp_average)
+            current_graph_aligned = Graph_Tools.Clip_And_Normalize(temp_average,clip_std = 5)
             Graph_Tools.Show_Graph(current_graph_aligned, 'Run_Average_After_Align', self.all_save_folders[i])
             current_run_Frame_Num = len(current_run_names)
             total_graph_num += current_run_Frame_Num
@@ -113,8 +117,8 @@ class Cross_Run_Align(object):
         
         # Then calculate global average in each run.
         for i in range(len(self.all_save_folders)):
-            global_average_after_align += self.After_Align_Graphs[i][0]*self.After_Align_Graphs[i][1]/total_graph_num
-        global_average_after_align = Graph_Tools.Clip_And_Normalize(global_average_after_align)
+            global_average_after_align += self.After_Align_Graphs[i][0].astype('f8')*self.After_Align_Graphs[i][1]/total_graph_num
+        global_average_after_align = Graph_Tools.Clip_And_Normalize(global_average_after_align,clip_std = 5)
         
         # Then save global graph into each folder.
         for i in range(len(self.all_save_folders)):
@@ -123,20 +127,40 @@ class Cross_Run_Align(object):
             else:
                 Graph_Tools.Show_Graph(global_average_after_align, 'Global_Average_After_Align', self.all_save_folders[i],show_time = 0)
 
-    
+    def Do_Align(self):
+        """
+        Main Function. Use this function will finish align work, useful for module using
+
+        Returns
+        -------
+        None.
+
+        """
+        start_time = time.time() # Processing Start time
+        self.Before_Run_Average()
+        self.Align_Cores()
+        self.After_Align_Average()
+        finish_time = time.time()
+        time_cost = finish_time-start_time
+        print('Alignment Done, time cost = '+str(time_cost) +'s')
+        
+        
 #%% Test Run Here.
         
 if __name__ == '__main__':
     
     file_path = [r'E:\ZR\Data_Temp\191215_L77_2P']
-    run_name = ['Run01_V4_L11U_D210_GA_RFlocation_shape3_Sti2degStep2deg',
-                'Run02_V4_L11U_D210_GA_RFsize',
-                'Run03_V4_L11U_D210_GA_RFlocation_shape3_Sti2degStep2deg',
-                'Run04_V4_L11U_D210_GA_BACS_ori4_ori8',]
+    run_name = ['Run01_V4_L11U_D210_GA_RFlocation_shape3_Sti2degStep2deg']
+# =============================================================================
+#                 'Run02_V4_L11U_D210_GA_RFsize',
+#                 'Run03_V4_L11U_D210_GA_RFlocation_shape3_Sti2degStep2deg',
+#                 'Run04_V4_L11U_D210_GA_BACS_ori4_ori8',]
+# =============================================================================
     
     all_folders = List_Op.List_Annex(file_path, run_name)
     CRA = Cross_Run_Align(all_folders)
     CRA.Before_Run_Average()
     CRA.Align_Cores()
+    #%%
     CRA.After_Align_Average()
     

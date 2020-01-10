@@ -33,8 +33,8 @@ def Bais_Correlation(extended_base,extended_target,align_range):
         Best match y bais, positive y means target shall move down.
 
     """
-    target_fft = np.fft.fft(extended_target)
-    base_fft = np.fft.fft(extended_base)
+    target_fft = np.fft.fft2(extended_target)
+    base_fft = np.fft.fft2(extended_base)
     conv2 = np.real(np.fft.ifft2(target_fft*base_fft)) # Convolution between base & target. This calculation method will be faster than direct conv function. 
     conv_height,conv_width = np.shape(conv2)
     y_center,x_center = (int((conv_height-1)/2),int((conv_width-1)/2)) # Center of concolution matrix, if perfect match, this center will have biggest value.

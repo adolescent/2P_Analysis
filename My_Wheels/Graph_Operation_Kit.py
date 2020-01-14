@@ -167,3 +167,68 @@ def Boulder_Fill(graph,boulders,fill_value):
     graph[:,(width-boulders[3]):width] = fill_value
     
     return graph
+#%% Function 6 Grap_Combine
+def Graph_Combine(graph_A,graph_B,bit = 'u1'):
+    """
+    Combine 2 input graphs, just add together.
+
+    Parameters
+    ----------
+    graph_A : (Input Graph, 2D or 3D Array)
+        Graph A. Gray map 2D, color map 3D.
+    graph_B : (Input Graph, 2D or 3D Array)
+        Graph B. same type as A.
+    bit : ('u1' or 'u2'), optional
+        DESCRIPTION. The default is 'u1'.
+
+    Returns
+    -------
+    combined_graph : TYPE
+        Graph same shape as input.
+
+    """
+    graph_A = graph_A.astype('f8')
+    graph_B = graph_B.astype('f8')
+    # Check graph shape
+    if np.shape(graph_A) != np.shape(graph_B):
+        raise IOError('Graph Shape not match, CHECK please.')
+    # Determine max pix value.
+    if bit == 'u1':
+        max_value = 255
+    elif bit == 'u2':
+        max_value = 65535
+    else:
+        raise IOError('Incorrect bit depth.')
+    # Then Add Up 2 graphs, then clip them.
+    combined_graph = np.clip(graph_A + graph_B,0,max_value).astype(bit)
+    
+    return combined_graph
+#%% Function7 Graph Depth Change
+def Graph_Depth_Change(graph,output_bit = 'u2'):
+    """
+    Change Graph Depth between uint8 and uint16. Change from 1 to another.
+
+    Parameters
+    ----------
+    graph : (Input Graph, 2D or 3D Array)
+        Input Graph of .
+    current_bit : ('u1' or 'u2'), optional
+        Dtype of output graph. The default is 'u2'.
+
+    Returns
+    -------
+    output_graph : (2D or 3D Array)
+        Output graph.
+
+    """
+    graph = graph.astype('f8')
+    normalized_graph = (graph-np.min(graph))/(np.max(graph)-np.min(graph))
+    if output_bit == 'u1':
+        max_value = 255
+    elif output_bit == 'u2':
+        max_value = 65535
+    else:
+        raise IOError('Incorrect bit detph')
+    output_graph = (normalized_graph*max_value).astype(output_bit)
+    
+    return output_graph

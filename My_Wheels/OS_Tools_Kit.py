@@ -118,14 +118,42 @@ def Load_Variable(save_folder,file_name):
     return loaded_file
 #%% Function 5: Spike2 Data Reader.
 import neo
-def Spike2_Reader(smr_name,smr_path,ch_name = 'Stimuli'):
+def Spike2_Reader(smr_name,smr_path,physical_channel = 0):
+    """
     
+    Export a single channel from .smr data
+
+    Parameters
+    ----------
+    smr_name : (str)
+        Smr file name. extend name shall be contained
+    smr_path : (str)
+        Smr File Path. Path only.
+    physical_channel : (int), optional
+        COM Port of 1401. The default is 0.
+        Traditionally, port 0 is ViSaGe input, port3 is 2P Scanning Wave.
+    Returns
+    -------
+    exported_channel : (Dic)
+        Exported channel data.
+        ['Capture_Frequent'] = Capture frequency, Hz
+        ['Channel_Data'] = time_series
+        ['Physical_Channel'] = Physical Channel of 1401.
+
+    """
+    
+    exported_channel = {}
     reader = neo.io.Spike2IO(filename=(smr_path+r'\\'+smr_name))
     smr_data = reader.read(lazy=False)[0]
     all_trains = smr_data.segments[0].analogsignals
+    
     for i in range(len(all_trains)):
-        current_ch = all_trains[i].annotate
-        if ch_name ==current_ch:
-            fs = all_trains.sampling_rate
+        current_physics_ch = all_trains[i].annotations['physical_channel_index']
+        if physical_channel == current_physics_ch:
+            fs = all_trains[i].sampling_rate
+            channel_data = all_trains[i]
+            exported_channel['Capture_Frequent'] = fs
+            exported_channel['Channel_Data'] = channel_data
+            exported_channel['Physical_Channel'] = physical_channel
             
-    return smr_data
+    return exported_channel

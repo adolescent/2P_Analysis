@@ -47,4 +47,36 @@ def List_Annex( A , B , dilimit = '\\' ):
         return out_str
         
 #%% Function 2: 
+def List_extend(input_list,front,tail):
+    """
+    extend or cut list length.If extend, boulder value will be used.
+
+    Parameters
+    ----------
+    input_list : (list)
+        Input list. All element shall be number.
+    front : (int)
+        Length want to extend in the front. Negative number will cut list.
+    tail : (int)
+        Length want to extend at last. Negative number will cut list.
+
+    Returns
+    -------
+    extended_list : (list)
+        Cutted list.
+
+    """
+    front_element = input_list[0] # First element at front
+    last_element = input_list[-1] # Last element at last
+    # Process front first.
+    if front >0:
+        added_list = [front_element]*front
+        added_list.extend(input_list)
+    else:
+        added_list = input_list[front:]
+        
+        
+    extended_list = added_list
+    print(extended_list)
+    return extended_list
         

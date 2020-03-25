@@ -10,7 +10,7 @@ Do not save.
 import My_Wheels.OS_Tools_Kit as os_tools
 import numpy as np
 
-smr_path = r'D:\Test_Data\200107_L80_LM\200107_L80_2P_stimuli\Run01_2P_G8'
+smr_path = r'E:\Test_Data\200107_L80_LM\200107_L80_2P_stimuli\Run01_2P_G8'
 smr_name = '1.smr'
 frame_train = os_tools.Spike2_Reader(smr_name,smr_path,physical_channel = 3)['Channel_Data']
 stim_train = os_tools.Spike2_Reader(smr_name,smr_path,physical_channel = 0)['Channel_Data']
@@ -50,7 +50,14 @@ for i in range(1,len(stop_point)):# Frame 0 ignored.
         last_frame_time = current_time
 all_graph_time = all_graph_time[:-2] # Last 2 frame may not be saved.
 # Till now, all_graph_time contains all frame times.
+#%% This part will get frame-stim sequence, we need to adjust sequence for convenience.
+head_extend = 1 # how many frame before stim show added
+tail_extend = 1 # how many frame after stim show added
+
+frame_belongings = []
+for i in range(len(all_graph_time)):
+    current_graph_time = all_graph_time[i]
+    frame_belongings.append(processed_list[current_graph_time][0])# Frame belong before adjust
+    
 #%% This part will distribute frame to stim or stim off.
-
-
 #%% This is the last part. distribute stim into stim id.

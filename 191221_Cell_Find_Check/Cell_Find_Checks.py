@@ -12,15 +12,15 @@ import My_Wheels.List_Operation_Kit as List_Tools
 
 
 #%% Step 1 Align
-Day_Folder = [r'E:\ZR\Data_Temp\191215_L77_2P']
+Day_Folder = [r'E:\Test_Data\200107_L80_LM']
 Run_Folder = [
-    'Run01_V4_L11U_D210_GA_RFlocation_shape3_Sti2degStep2deg',
-    'Run02_V4_L11U_D210_GA_RFsize',
-    'Run03_V4_L11U_D210_GA_RFlocation_shape3_Sti2degStep2deg'
+    '1-001',
     ]
 
 Run_In_Align = List_Tools.List_Annex(Day_Folder, Run_Folder)
 CRA = Module_Align.Cross_Run_Align(Run_In_Align)
 CRA.Do_Align()
-
-#%%
+#%% Step 2 Stim_Frame_Align
+from My_Wheels.Stim_Frame_Align import Stim_Frame_Align
+stim_folder = r'E:\Test_Data\200107_L80_LM\200107_L80_2P_stimuli\Run01_2P_G8'
+a,b = Stim_Frame_Align(stim_folder)

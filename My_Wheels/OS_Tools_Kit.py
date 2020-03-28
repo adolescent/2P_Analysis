@@ -118,7 +118,7 @@ def Load_Variable(save_folder,file_name):
     return loaded_file
 #%% Function 5: Spike2 Data Reader.
 import neo
-def Spike2_Reader(smr_name,smr_path,physical_channel = 0):
+def Spike2_Reader(smr_name,physical_channel = 0):
     """
     
     Export a single channel from .smr data
@@ -127,8 +127,6 @@ def Spike2_Reader(smr_name,smr_path,physical_channel = 0):
     ----------
     smr_name : (str)
         Smr file name. extend name shall be contained
-    smr_path : (str)
-        Smr File Path. Path only.
     physical_channel : (int), optional
         COM Port of 1401. The default is 0.
         Traditionally, port 0 is ViSaGe input, port3 is 2P Scanning Wave.
@@ -143,7 +141,7 @@ def Spike2_Reader(smr_name,smr_path,physical_channel = 0):
     """
     
     exported_channel = {}
-    reader = neo.io.Spike2IO(filename=(smr_path+r'\\'+smr_name))
+    reader = neo.io.Spike2IO(filename=(smr_name))
     smr_data = reader.read(lazy=False)[0]
     all_trains = smr_data.segments[0].analogsignals
     
@@ -157,3 +155,30 @@ def Spike2_Reader(smr_name,smr_path,physical_channel = 0):
             exported_channel['Physical_Channel'] = physical_channel
             
     return exported_channel
+#%% Function 6: Get Last Saved file name.
+import time
+import numpy as np
+def Last_Saved_name(path,file_type = '.txt'):
+    """
+    Return last saved file name. Only usable at the same day!
+
+    Parameters
+    ----------
+    path : (str)
+        Target data folder.
+    file_type : (str)
+        Which type of data you want to find.
+
+    Returns
+    -------
+    name : (str)
+        Last saved data.
+
+    """
+    all_file_name = Get_File_Name(path,file_type)
+    all_file_time = np.array([])
+    for i in range(len(all_file_name)):
+        current_file_time = int(time.strftime("%H%M%S",time.localtime(os.stat(all_file_name[i]).st_mtime)))
+        all_file_time = np.append(all_file_time,current_file_time)
+    last_file_name = all_file_name[np.where(all_file_time == np.max(all_file_time))[0][0]]
+    return last_file_name

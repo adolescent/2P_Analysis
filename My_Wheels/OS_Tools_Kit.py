@@ -85,6 +85,11 @@ def Save_Variable(save_folder,name,variable,extend_name = '.pkl'):
         Nothing.
 
     """
+    if os.path.exists(save_folder):
+        pass 
+    else:
+        os.mkdir(save_folder)
+    
     real_save_path = save_folder+r'\\'+name+extend_name
     fw = open(real_save_path,'wb')
     pickle.dump(variable,fw)

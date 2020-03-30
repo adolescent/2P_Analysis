@@ -133,7 +133,8 @@ class Cross_Run_Align(object):
 
         Returns
         -------
-        None.
+        Align Properties(Dic):
+            Property of this alignment, including useful path and useful names.
 
         """
         start_time = time.time() # Processing Start time
@@ -143,6 +144,16 @@ class Cross_Run_Align(object):
         finish_time = time.time()
         time_cost = finish_time-start_time
         print('Alignment Done, time cost = '+str(time_cost) +'s')
+        
+        # Output a dictionary, coding 
+        Align_Properties = {}
+        Align_Properties['all_save_folders'] = self.all_save_folders
+        all_tif_name = []
+        for i in range(len(self.Aligned_frame_folders)):
+            current_tif_list = OS_Tools.Get_File_Name(self.Aligned_frame_folders[i],file_type = '.tif')
+            all_tif_name.append(current_tif_list)
+        Align_Properties['all_tif_name'] = all_tif_name
+        return Align_Properties
         
         
 #%% Test Run Here.

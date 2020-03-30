@@ -9,6 +9,7 @@ Graph Operation kits, this tool box aims at doing all graph Works
 
 import cv2
 import numpy as np
+import os
 
 #%% Function1: Graph Average(From File).
 
@@ -66,6 +67,8 @@ def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2
         clipped_graph = np.clip(input_graph,lower_level,higher_level)
     else:
         print('No Clip Done.')
+        clipped_graph = input_graph
+        
     #Step2, normalization
     norm_graph = (clipped_graph-clipped_graph.min())/(clipped_graph.max()-clipped_graph.min())
     if normalization == True:
@@ -80,6 +83,7 @@ def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2
             raise IOError('Output dtype not supported yet.')
     else:
         print('No Normalization Done.')
+        processed_graph = clipped_graph
         
     return processed_graph
 #%% Function3: Show Graph and Write them.
@@ -112,7 +116,12 @@ def Show_Graph(input_graph,graph_name,save_path,show_time = 5000,write = True,gr
         cv2.waitKey(show_time)
         cv2.destroyAllWindows()
     if write == True:
-        cv2.imwrite(save_path+r'\\'+graph_name+graph_formation,input_graph)
+        
+        if os.path.exists(save_path):# If path exists
+            cv2.imwrite(save_path+r'\\'+graph_name+graph_formation,input_graph)
+        else:# Else, creat save folder first.
+            os.mkdir(save_path)
+            cv2.imwrite(save_path+r'\\'+graph_name+graph_formation,input_graph)
         
 #%% Function 4: Graph Boulder Cut
 def Graph_Cut(graph,boulders):
@@ -232,3 +241,42 @@ def Graph_Depth_Change(graph,output_bit = 'u2'):
     output_graph = (normalized_graph*max_value).astype(output_bit)
     
     return output_graph
+#%% Function8 Sub Graph Generator
+def Graph_Subtractor(tif_names,A_Sets,B_Sets,clip_std = 2.5,output_type = 'u2'):
+    """
+    Get A-B graph.
+
+    Parameters
+    ----------
+    tif_names : (list)
+        List of all aligned tif names.This can be found in Align_Property(Cross_Run_Align.Do_Align())
+    A_Sets : (list)
+        Frame id of set A.Use this to get specific frame name.
+    B_Sets : (list)
+        Frame id of set B.
+    clip_std : (number), optional
+        How many std will be used to clip output graph. The default is 2.5.
+    output_type : ('f8','u1','u2'), optional
+        Data type of output grpah. The default is 'u2'.
+
+    Returns
+    -------
+    subtracted_graph : (2D ndarray)
+        Subtracted graph.
+    dF_F:(float)
+        Rate of changes, (A-B)/B
+
+    """
+    A_Set_tif_names = []
+    for i in range(len(A_Sets)):
+        A_Set_tif_names.append(tif_names[A_Sets[i]])
+    B_Set_tif_names = []
+    for i in range(len(B_Sets)):
+        B_Set_tif_names.append(tif_names[B_Sets[i]])
+    A_Set_Average = Average_From_File(A_Set_tif_names)
+    B_Set_Average = Average_From_File(B_Set_tif_names)
+    simple_sub = A_Set_Average - B_Set_Average
+    dF_F = simple_sub.mean()/B_Set_Average.mean()
+    subtracted_graph = Clip_And_Normalize(simple_sub,clip_std,bit = output_type)
+    return subtracted_graph,dF_F
+    

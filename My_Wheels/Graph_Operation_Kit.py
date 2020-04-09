@@ -280,3 +280,115 @@ def Graph_Subtractor(tif_names,A_Sets,B_Sets,clip_std = 2.5,output_type = 'u2'):
     subtracted_graph = Clip_And_Normalize(simple_sub,clip_std,bit = output_type)
     return subtracted_graph,dF_F
     
+#%% Function 9 Graph Overlapping/Union
+def Graph_Overlapping(graph_A,graph_B,thres = 0.5):
+    """
+    Simple overlapping calculation, used to compare cell locations
+
+    Parameters
+    ----------
+    graph_A : (2D Array/2D Array*3)
+        Graph A, regarded as gray graph.
+    graph_B : (2D Array/2D Array*3)
+        Graph B, regarded as gray graph.
+    thres : (0~1 float)
+        Threshold used for binary data.
+
+    Returns
+    -------
+    intersection_graph : (2D Array, dtype = 'u1')
+        Overlapping graph. Both active point will be shown on this graph.
+    union_graph : (2D Array, dtype = 'u1')
+        Union graph. All active point in single graph will be shown.
+    active_areas:(list,3-element)
+        [A_areas,B_areas,intersection_areas]
+    """
+    # Process graph first.
+    A_shape = np.shape(graph_A)
+    if len(A_shape) == 3:# Meaning color graph.
+        used_A_graph = cv2.cvtColor(graph_A,cv2.COLOR_BGR2GRAY).astype('f8')
+    else:
+        used_A_graph = graph_A.astype('f8')
+    norm_A_graph = (used_A_graph-used_A_graph.min())/(used_A_graph.max()-used_A_graph.min())
+    bool_A = norm_A_graph > thres
+    B_shape = np.shape(graph_B)
+    if len(B_shape) == 3:# Meaning color graph.
+        used_B_graph = cv2.cvtColor(graph_B,cv2.COLOR_BGR2GRAY).astype('f8')
+    else:
+        used_B_graph = graph_B.astype('f8')
+    norm_B_graph = (used_B_graph-used_B_graph.min())/(used_B_graph.max()-used_B_graph.min())
+    bool_B = norm_B_graph > thres    
+    # Then calculate intersection and union.
+    bool_intersection = bool_A*bool_B
+    bool_union = bool_A+bool_B
+    A_areas = bool_A.sum()
+    B_areas = bool_B.sum()
+    intersection_areas = bool_intersection.sum()
+    active_areas = [A_areas,B_areas,intersection_areas]
+    #return bool_intersection,bool_union
+    # Output as u1 type at last.
+    intersection_graph = (bool_intersection.astype('u1'))*255
+    union_graph = (bool_union.astype('u1'))*255
+    return intersection_graph,union_graph,active_areas
+    
+#%% Functino 10 : Plot several input graph on same map, using different colors.
+from My_Wheels.Calculation_Functions import Color_Dictionary
+def Combine_Graphs(
+        graph_turples,
+        all_colors = ['r','g','b','y','c','p'],
+        graph_size = (512,512)
+        ):
+    """
+    Combine several map together, using different colors. This function better be used on binary graphs.
+
+    Parameters
+    ----------
+    graph_turples : (turple)
+        Turple list of input graph, every element shall be a 2D array, 6 map supported for now.
+    all_colors : (list), optional
+        Sequence of input graph colors. The default is ['r','g','b','y','c','p'].
+    graph_size : (2-element turple),optional
+        Graph size. Pre defined for convenience
+
+    Returns
+    -------
+    Combined_Map : (2D array, 3 channel,dtype = 'u1')
+        Combined graph. Use u1 graph.
+    """
+    Combined_Map = np.zeros(shape = (graph_size[0],graph_size[1],3),dtype = 'f8')
+    Graph_Num= len(graph_turples)
+    if Graph_Num > len(all_colors):
+        raise ValueError('Unable to combine so many graphs for now..\n')
+    for i in range(Graph_Num):
+        current_graph = graph_turples[i]
+        if len(np.shape(current_graph)) == 3:# for color map,change into gray.
+            current_graph = cv2.cvtColor(current_graph,cv2.COLOR_BGR2GRAY).astype('f8')
+        current_graph = Clip_And_Normalize(current_graph,clip_std = 0, bit = 'f8')# Normalize and to 0-1
+        # After processing, draw current graph onto combined map.
+        current_color = Color_Dictionary[all_colors[i]]
+        Combined_Map[:,:,0] = Combined_Map[:,:,0]+current_graph*current_color[0]
+        Combined_Map[:,:,1] = Combined_Map[:,:,1]+current_graph*current_color[1]
+        Combined_Map[:,:,2] = Combined_Map[:,:,2]+current_graph*current_color[2]
+    # After that, clip output graph.
+    Combined_Map = np.clip(Combined_Map,0,255).astype('u1')    
+    return Combined_Map
+#%% Function 11 : Easy Plot.
+def EZPlot(input_graph,show_time = 7000):
+    """
+    Easy plot, do nothing and just show graph.
+
+    Parameters
+    ----------
+    input_graph : (2D Array, u1 or u2 dtype)
+        Input graph.
+    show_time : (int),optional
+        Show time. The default is 7s.
+    Returns
+    -------
+    int
+        Fill in blank.
+
+    """
+    graph_name = 'current_graph'
+    Show_Graph(input_graph,graph_name,save_path = '',show_time = show_time,write = False)
+    return 0

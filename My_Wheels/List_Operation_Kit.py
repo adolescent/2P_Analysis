@@ -85,7 +85,7 @@ def List_extend(input_list,front,tail):
     extended_list = processing_list
 
     return extended_list
-#%% Function3: List To Dictionary
+#%% Function 3: List To Dictionary
 def List_To_Dic(input_list):
     """
     Use list set as key, location of list as value.
@@ -107,5 +107,28 @@ def List_To_Dic(input_list):
             Dic[input_list[i]].append(i)
         else:# If first appearance, creat new key.
             Dic[input_list[i]] = [i]
-            
     return Dic
+
+#%% Function 4: List Subtraction
+def List_Subtraction(list_A,list_B):
+    """
+    A-B. Attention: repeat element in list may cause trouble. Sequence is not considered here.
+
+    Parameters
+    ----------
+    list_A : (list)
+        Mother list.
+    list_B : (list)
+        Subtracted list. All element need to be in list A.
+
+    Returns
+    -------
+    subtracted_list : (list)
+        All element in A but not in B.
+    """
+    subtracted_list = list_A
+    if len(set(list_A)) != len(list_A):
+        raise IOError('Repeat element in lists, check please.')
+    for i in range(len(list_B)):
+        subtracted_list.remove(list_B[i])
+    return subtracted_list

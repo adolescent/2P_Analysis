@@ -5,6 +5,7 @@ Created on Thu Jan  9 16:24:36 2020
 @author: ZR
 
 Calculation Functions, contains easy matrix calculation tools.
+Useful variables contained in there too.
 """
 import numpy as np
 
@@ -35,3 +36,14 @@ def Normalized_2D_Gaussian_Generator(parameter):
     if sumh != 0:
         h /= sumh
     return h
+#%% Function 2: Color BGR Dictionary
+Color_Dictionary = {}
+Color_Dictionary['r'] = (0,0,255)
+Color_Dictionary['g'] = (0,255,0)
+Color_Dictionary['b'] = (255,0,0)
+Color_Dictionary['y'] = (0,255,255)
+Color_Dictionary['c'] = (255,255,0)
+Color_Dictionary['p'] = (255,0,255)
+Color_Dictionary['d'] = (0,0,0)
+Color_Dictionary['w'] = (255,255,255)
+

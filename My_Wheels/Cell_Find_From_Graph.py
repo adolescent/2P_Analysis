@@ -17,8 +17,9 @@ import skimage.morphology
 import skimage.measure
 import Cell_Visualization as Visualize
 import cv2
+import My_Wheels.OS_Tools_Kit as OS_Tools
 
-
+#%% Main Function: Return finded graphs.
 def Cell_Find_From_Graph(
         input_graph,
         find_thres = 2.5,
@@ -105,3 +106,47 @@ def Cell_Find_From_Graph(
     
     return Cell_Finded
     
+#%% Function 2: Cell Find and plot.
+def Cell_Find_And_Plot(
+        graph_folder,
+        graph_name,
+        Cell_Label,
+        find_thres = 2.5,
+        max_pix = 1000,
+        min_pix = 20,
+        shape_boulder = [20,20,20,20], 
+        sharp_gauss = ([7,7],1.5),
+        back_gauss = ([15,15],7),
+        size_limit = 20    
+        ):
+    """
+    Cell find from file.
+
+    Parameters
+    ----------
+    graph_folder : (str)
+        Graph folder.
+    graph_name : (str)
+        Graph name. Extend name shall be contained.
+    Cell_Label : (str)
+        Save sub Folder. Cell data and cell graphs will be saved in this sub folder.
+    find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit : As Function 1, optional
+        As Function 1.
+
+    Returns
+    -------
+    Cell_Finded : TYPE
+        DESCRIPTION.
+
+    """
+    Base_Graph = cv2.imread(graph_folder + r'\\' + graph_name,-1)
+    graph_save_folder = graph_folder + r'\\' + Cell_Label
+    Finded_Cells = Cell_Find_From_Graph(Base_Graph,find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
+    OS_Tools.Save_Variable(graph_save_folder,Cell_Label,Finded_Cells)
+    all_keys = list(Finded_Cells.keys())
+    all_keys.remove('All_Cell_Information')
+    for i in range(len(all_keys)):
+        Graph_Tools.Show_Graph(Finded_Cells[all_keys[i]],graph_name = all_keys[i],save_path = graph_save_folder,show_time = 2000,write = True)
+    return Finded_Cells
+
+

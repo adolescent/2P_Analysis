@@ -3,6 +3,7 @@
 Created on Tue Mar 31 13:40:53 2020
 
 @author: zhang
+This function is used for comparation between 2 set of cells.
 """
 #%% Function 1： Cell Location Compare.
 import numpy as np

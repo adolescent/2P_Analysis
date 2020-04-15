@@ -48,4 +48,3 @@ On_Off_Cells = Cell_Find_And_Plot(save_folder,On_Off_Graph_Name,'On_Off_Cells',f
 import My_Wheels.Cell_Visualization as Vi
 Compare_Matrix = Vi.Cell_Information_Compare(Run1_Onoff,Run2_Onoff,shift_limit = 15,plot = True, save_folder = save_folder)
 
-    

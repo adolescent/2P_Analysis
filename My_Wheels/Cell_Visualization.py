@@ -181,6 +181,7 @@ def Cell_Information_Compare(cell_finded_A,
     """
     from My_Wheels.Cell_Location_Compare import Cell_Location_Compare
     import My_Wheels.List_Operation_Kit as List_Tools
+    import My_Wheels.OS_Tools_Kit as OS_Tools
     # First, generate simple intersection & union map.
     Compare_Dictionary = {}
     intersection,union,area = Graph_Tools.Graph_Overlapping(cell_finded_A['Cell_Graph'],cell_finded_B['Cell_Graph'])
@@ -233,6 +234,7 @@ def Cell_Information_Compare(cell_finded_A,
     Compare_Dictionary['Match_Graph_Combine'] = combine_graph
     # if plot is true, plot all graphs in specific folder.
     if plot == True:
+        OS_Tools.Save_Variable(save_folder,'Compare_Matrix',Compare_Dictionary)
         all_keys = list(Compare_Dictionary.keys())
         all_keys.remove('Cell_Areas')
         all_keys.remove('Compare_Information')

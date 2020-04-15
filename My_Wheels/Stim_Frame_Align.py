@@ -124,5 +124,5 @@ def Stim_Frame_Align(
         else:
             Frame_Stim_Sequence.append(-1)
     Frame_Stim_Dictionary = List_Ops.List_To_Dic(Frame_Stim_Sequence)
-        
+    Frame_Stim_Dictionary['Original_Stim_Train'] = Frame_Stim_Sequence
     return Frame_Stim_Sequence,Frame_Stim_Dictionary

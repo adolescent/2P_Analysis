@@ -9,7 +9,7 @@ Generate spike train
 import cv2
 import numpy as np
 import more_itertools as mit
-
+import My_Wheels.List_Operation_Kit as List_Tools
 
 
 def Spike_Train_Generator(all_tif_name,
@@ -95,8 +95,9 @@ def Spike_Train_Generator(all_tif_name,
             dF_F_trains[all_keys[i]] = current_spike_train
             
     elif Base_F_type == 'before_ISI':# Use ISI Before stim onset as base.
+        if stim_train == None:
+            raise IOError('Please input stim train!')
         stim_train = np.asarray(stim_train)
-        dF_F_trains = {}
         ignore_ISI_frame = 1
         all_keys = list(F_value_Dictionary.keys())
         cutted_stim_train = list(mit.split_when(stim_train,lambda x, y: (x-y) >0))
@@ -114,9 +115,11 @@ def Spike_Train_Generator(all_tif_name,
                 current_cell_dF_train.extend(current_dF_train)
                 # Then add frame counter at last.
                 frame_counter = frame_counter + len(cutted_stim_train[j])
-            dF_F_trains[i] = np.asarray(current_cell_dF_train)
+            dF_F_trains[all_keys[i]] = np.asarray(current_cell_dF_train)
             
     elif Base_F_type == 'begining_ISI':# Use First ISI as global base.
+        if stim_train == None:
+            raise IOError('Please input stim train!')
         first_stim_id = np.where(np.asarray(stim_train)>0)[0][0]
         all_keys = list(F_value_Dictionary.keys())
         for i in range(len(all_keys)):
@@ -125,9 +128,61 @@ def Spike_Train_Generator(all_tif_name,
             base_F = base_F_series.mean()
             current_spike_train = (current_F_series-base_F)/base_F
             dF_F_trains[all_keys[i]] = current_spike_train
+            
+    elif Base_F_type == 'all_ISI':
+        if stim_train == None:
+            raise IOError('Please input stim train!')
+        stim_train = np.asarray(stim_train)
+        all_ISI_frame_loc = np.where(stim_train == -1)[0]
+        cutted_ISI_frame_loc = list(mit.split_when(all_ISI_frame_loc,lambda x,y:(y-x)>1))
+        used_ISI_id = []
+        for i in range(len(cutted_ISI_frame_loc)):
+            used_ISI_id.extend(cutted_ISI_frame_loc[i][ignore_ISI_frame:])
+        all_keys = list(F_value_Dictionary.keys())
+        for i in range(len(all_keys)):
+            current_cell_F_train = F_value_Dictionary[all_keys[i]]
+            current_base_F = current_cell_F_train[used_ISI_id]
+            base_F = current_base_F.mean()
+            current_dF_train = (current_cell_F_train-base_F)/base_F
+            dF_F_trains[all_keys[i]] = current_dF_train
 
+    elif Base_F_type == 'nearest_0':
+        stim_train = np.asarray(stim_train)
+        blank_location = np.where(stim_train == 0)[0]
+        cutted_blank_location = list(mit.split_when(blank_location,lambda x,y:(y-x)>1))
+        all_blank_start_frame = [] # This is the start frame of every blank.
+        for i in range(len(cutted_blank_location)):
+            all_blank_start_frame.append(cutted_blank_location[i][0])
+        #%% Get base_F_of every blank.
+        all_keys = list(F_value_Dictionary.keys())
+        for i in range(len(all_keys)):
+            current_key = all_keys[i]
+            current_cell_F_train = F_value_Dictionary[current_key]
+            # First, get base F of every blank.
+            all_blank_base_F = [] # base F of every blank.
+            for j in range(len(cutted_blank_location)):
+                all_blank_base_F.append(current_cell_F_train[cutted_blank_location[j]].mean())
+            # Then, generate dF train.
+            current_dF_train = []
+            for j in range(len(current_cell_F_train)):
+                current_F = current_cell_F_train[j]
+                _,current_base_loc = List_Tools.Find_Nearest(all_blank_start_frame,j)
+                current_base = all_blank_base_F[current_base_loc]
+                current_dF_F = (current_F-current_base)/current_base
+                current_dF_train.append(current_dF_F)
+            dF_F_trains[all_keys[i]] = np.asarray(current_dF_train)
+            
+    elif Base_F_type == 'all_0':
+        stim_train = np.asarray(stim_train)
+        all_blank_frame_id = np.where(stim_train == 0)[0]
+        all_keys = list(F_value_Dictionary.keys())
+        for i in range(len(all_keys)):
+            current_cell_F_train = F_value_Dictionary[all_keys[i]]
+            current_base = current_cell_F_train[all_blank_frame_id].mean()
+            current_dF_train = (current_cell_F_train-current_base)/current_base
+            dF_F_trains[all_keys[i]] = current_dF_train
+    
     else:
-        
         raise IOError('Not finished functions.')
     
     return F_value_Dictionary,dF_F_trains

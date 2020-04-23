@@ -7,7 +7,7 @@ Created on Wed Dec 25 11:10:38 2019
 This Module is Used to do List File Operations, making such work easier.
 
 """
-
+import numpy as np
 #%% Function1:List Annex
 def List_Annex( A , B , dilimit = '\\' ):
     
@@ -132,3 +132,28 @@ def List_Subtraction(list_A,list_B):
     for i in range(len(list_B)):
         subtracted_list.remove(list_B[i])
     return subtracted_list
+
+#%% Function 5: Nearest number find.
+def Find_Nearest(input_list,target_number):
+    """
+    Return nearest number in input_list with target.
+
+    Parameters
+    ----------
+    input_list : (list)
+        All element shall be number, and no repeat is allowed.
+    target_number : (float)
+        Number you want to match.
+
+    Returns
+    -------
+    nearest_num : (float)
+        Nearest number in input list with target.
+    num_loc : (int)
+        Location ID of number above.
+    """
+    input_list = np.asarray(input_list)
+    dist = abs(input_list-target_number)
+    num_loc = np.where(dist == dist.min())[0][0]
+    nearest_num = input_list[num_loc]
+    return nearest_num,num_loc

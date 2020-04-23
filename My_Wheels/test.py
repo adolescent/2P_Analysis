@@ -8,41 +8,32 @@ Do not save.
 """
 #%%
 import more_itertools as mit
-
-test = list(mit.split_when(stim_train,lambda x, y: (x-y) >0))
-#%% This part will count how many frame have already be read.
-current_id = 2# remember to start from zero!
-counter = 0 # count number of frames before current list.
-current_list_series = 5
-for i in range(current_list_series):
-    counter = counter + len(test[i])
-real_current_id = counter + current_id
-
-
-
-
-#%% This part is real run areas.
 import numpy as np
-dF_Dic = {}
-ignore_ISI_frame = 1
-all_keys = list(F.keys())
-cutted_stim_train = list(mit.split_when(stim_train,lambda x, y: (x-y) >0))
-for i in range(len(all_keys)):
-    current_cell_train = F[all_keys[i]]
-    frame_counter = 0
-    current_cell_dF_train = []
-    for j in range(len(cutted_stim_train)):
-        current_stim_train = np.asarray(cutted_stim_train[j])
-        current_F_train = np.asarray(current_cell_train[frame_counter:(frame_counter+len(current_stim_train))])
-        null_id = np.where(current_stim_train == -1)[0]
-        null_id = null_id[ignore_ISI_frame:]
-        current_base = current_F_train[null_id].mean()
-        current_dF_train = (current_F_train-current_base)/current_base
-        current_cell_dF_train.extend(current_dF_train)
-        # Then add frame counter at last.
-        frame_counter = frame_counter + len(cutted_stim_train[j])
-    dF_Dic[i] = current_cell_dF_train
+import My_Wheels.List_Operation_Kit as List_Tools
+dF_F_trains = {}
 #%%
-
-
-
+stim_train = np.asarray(stim_train)
+blank_location = np.where(stim_train == 0)[0]
+cutted_blank_location = list(mit.split_when(blank_location,lambda x,y:(y-x)>1))
+all_blank_start_frame = [] # This is the start frame of every blank.
+for i in range(len(cutted_blank_location)):
+    all_blank_start_frame.append(cutted_blank_location[i][0])
+    
+#%% Get base_F_of every blank.
+all_keys = list(F_value_Dictionary.keys())
+for i in range(len(all_keys)):
+    current_key = all_keys[i]
+    current_cell_F_train = F_value_Dictionary[current_key]
+    # First, get base F of every blank.
+    all_blank_base_F = [] # base F of every blank.
+    for j in range(len(cutted_blank_location)):
+        all_blank_base_F.append(current_cell_F_train[cutted_blank_location[j]].mean())
+    # Then, generate dF train.
+    current_dF_train = []
+    for j in range(len(current_cell_F_train)):
+        current_F = current_cell_F_train[j]
+        _,current_base_loc = List_Tools.Find_Nearest(all_blank_start_frame,j)
+        current_base = all_blank_base_F[current_base_loc]
+        current_dF_F = (current_F-current_base)/current_base
+        current_dF_train.append(current_dF_F)
+    dF_F_trains[all_keys[i]] = np.asarray(current_dF_train)

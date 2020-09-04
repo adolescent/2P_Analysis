@@ -12,10 +12,9 @@ import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import My_Wheels.OS_Tools_Kit as OS_Tools
 
 #%% Step 1 Align
-Day_Folder = [r'E:\Test_Data\200107_L80_LM']
+Day_Folder = [r'D:\ZR\Data_Temp\191101_L77_2P']
 Run_Folder = [
-    '1-001',
-    '1-002'
+    'Run01_V4_L11_D310_GA_Spon',
     ]
 
 Run_In_Align = List_Tools.List_Annex(Day_Folder, Run_Folder)
@@ -23,8 +22,8 @@ CRA = Module_Align.Cross_Run_Align(Run_In_Align)
 Align_Property = CRA.Do_Align()
 #%% Step 2 Stim_Frame_Align
 from My_Wheels.Stim_Frame_Align import Stim_Frame_Align
-stim_folder = r'E:\Test_Data\200107_L80_LM\200107_L80_2P_stimuli\Run02_2P_manual_OD8'
-_,Stim_Frame_Align = Stim_Frame_Align(stim_folder,head_extend = -2)
+stim_folder = r'D:\ZR\Data_Temp\191101_L77_2P\191101_L77_2P_stimuli\Run02_RFloca25_shape3_dir4_noISI'
+_,Stim_Frame_Align = Stim_Frame_Align(stim_folder,jmp_step = 50,frame_thres = 1.5)
 
 #%% Step3, On Off Map Generation.
 Num_Run = 1

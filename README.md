@@ -1,11 +1,8 @@
-# 2P_Spon
-A project for spontaneous data analysis, done in Python.
+# 2P_Analysis
+A project for spontaneous data analysis, codes in Python.
 
-NOTE: Chinese comment can be found here.
-
-  The data get through two-photon microscope usually converted to type '.tif', as graphs are captured in a constant frequency, it's easy for us to analysis the cell spike through different times.
-
-  This program is made to analysis cell reaction in spontaneous state, which means no stimuls is given. We can get different cells spikes as time goes by.
+  Target of this project is to establish a general 2-photon data processing tool box, making data process of 2-photon-microscopy standardized and easy to perform.
+  Now basic graph processing and cell spike train sorting finished.
 
 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" /></a>

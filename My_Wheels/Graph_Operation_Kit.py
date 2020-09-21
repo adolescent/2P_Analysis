@@ -40,6 +40,7 @@ def Average_From_File(Name_List):
 def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2'):
     """
     Clip input graph,then normalize them to specific bit depth, output graph be shown directly.
+    If not normalize, just return origin dtype.
     
     Parameters
     ----------
@@ -59,6 +60,7 @@ def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2
         Output graphs.
 
     """
+    origin_dtype = str(input_graph.dtype)
     #Step1, clip
     input_graph = input_graph.astype('f8')
     if clip_std > 0:
@@ -83,7 +85,7 @@ def Clip_And_Normalize(input_graph,clip_std = 2.5,normalization = True,bit = 'u2
             raise IOError('Output dtype not supported yet.')
     else:
         print('No Normalization Done.')
-        processed_graph = clipped_graph
+        processed_graph = clipped_graph.astype(origin_dtype)
         
     return processed_graph
 #%% Function3: Show Graph and Write them.

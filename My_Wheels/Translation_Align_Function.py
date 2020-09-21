@@ -108,7 +108,7 @@ def Translation_Alignment(
         
     else:
         print('Before average Skipped.')
-    time_tic_average0 = time.time()    
+    time_tic_average0 = time.time()
     
     #%% Step3, Core Align Function.
     print('Aligning...')

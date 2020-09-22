@@ -8,6 +8,7 @@ import My_Wheels.OS_Tools_Kit as OS_Tools
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import cv2
 import numpy as np
+import scipy
 
 def Video_From_File(
         data_folder,
@@ -50,22 +51,28 @@ def Video_From_File(
     True.
 
     """
-    
+
     all_tif_name = OS_Tools.Get_File_Name(path = data_folder,file_type = file_type)
     graph_num = len(all_tif_name)
+    video_writer = cv2.VideoWriter(data_folder+r'\\Video.avi',cv2.VideoWriter_fourcc('M','J','P','G'),fps,graph_size,0)
     for i in range(graph_num):
-        raw_graph = cv2.imread(all_tif_name[i],-1).astype('f8') # Keep raw depth.
-        gained_graph = raw_graph*gain
+        raw_graph = cv2.imread(all_tif_name[i],-1).astype('f8')
+        # Do clip first.
+        clipped_graph = Graph_Tools.EZClip(raw_graph,clip_std = clip)
+        # gain graph
+        gained_graph = clipped_graph*gain
+        # Then change graph into 8 bit uint.
         if graph_dtype == 'u2':
-            gained_graph = gained_graph/256
-        elif graph_dtype != 'u1':
+            u1_graph = gained_graph/256
+        elif graph_dtype == 'u1':
+            u1_graph = gained_graph
+        else:
             raise ValueError('Graph dtype not understand.')
-        u1_writable_graph = np.clip(gained_graph,0,255).astype('u1')
+
+        u1_writable_graph = np.clip(u1_graph,0,255).astype('u1')
+        u1_writable_graph = scipy.ndimage.gaussian_filter(u1_writable_graph,sigma = gaussian)
         if frame_annotate == True:
             cv2.putText(u1_writable_graph,'Stim ID = '+str(i),(300,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
-        
-        
-        
-    
-    
+        video_writer.write(u1_writable_graph)
+    del video_writer 
     return True

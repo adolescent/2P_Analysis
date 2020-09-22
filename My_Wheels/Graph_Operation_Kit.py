@@ -394,3 +394,48 @@ def EZPlot(input_graph,show_time = 7000):
     graph_name = 'current_graph'
     Show_Graph(input_graph,graph_name,save_path = '',show_time = show_time,write = False)
     return 0
+
+#%% Function 12 : Easy Clip.
+def EZClip(input_graph,clip_std = 5,max_lim = 'inner',min_lim = 'inner'):
+    """
+    Easy Clip, clip graph with given std. Return same bit depth as input.
+
+    Parameters
+    ----------
+    input_graph : (2D_NdArray)
+        Graph need to be clip.
+    clip_std : (float),optional
+        Std of clip. The default is 5
+    max_lim : (float),optional.
+        If number is given, use this instead of std max.
+    min_lim : (float),optional.
+        If number is given, use this instead of std min.
+
+    Returns
+    -------
+    clipped_graph : (2D_NdArray)
+        Clipped graph. Bit depth same as input.
+
+    """
+    origin_type = str(input_graph.dtype)
+    raw_graph = input_graph.astype('f8') # Turn into float64 for calculation.
+    mean = raw_graph.mean()
+    std = raw_graph.std()
+    upper_lim = mean+std*clip_std
+    lower_lim = mean-std*clip_std
+    if origin_type == 'uint8':
+        lower_lim = max(lower_lim,0)
+        upper_lim = min(upper_lim,255)
+    elif origin_type == 'uint16':
+        lower_lim = max(lower_lim,0)
+        upper_lim = min(upper_lim,65535)
+        
+    if max_lim != 'inner':
+        upper_lim = max_lim
+    if min_lim != 'inner':
+        lower_lim = min_lim
+        
+    clipped_graph = np.clip(raw_graph,lower_lim,upper_lim).astype(origin_type)
+    
+    
+    return clipped_graph

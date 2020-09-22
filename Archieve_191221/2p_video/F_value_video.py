@@ -80,7 +80,7 @@ class Video_Write(object):
             
         size = (472,472)
         fps = fps
-        videoWriter = cv2.VideoWriter(self.save_folder+r'\\'+file_name,-1,fps,size,0)#last variance: is color
+        videoWriter = cv2.VideoWriter(self.save_folder+r'\\'+file_name,cv2.cv.CV_FOURCC('X', '2', '6', '4'),fps,size,0)#last variance: is color
         for i in range(self.frame_Num):
 
             current_img = file_matrix[i,:,:]

@@ -12,8 +12,9 @@ from skimage import filters
 from skimage.color import rgb2gray  # only needed for incorrectly saved images
 from skimage.measure import regionprops
 
-image = cv2.imread(r'D:\ZR\Data_Temp\190412_L74_LM\1-001\results\After_Align_Run001.tif',-1)
+#image = cv2.imread(r'D:\ZR\Data_Temp\190412_L74_LM\1-001\results\After_Align_Run001.tif',-1)
 #%%
+image = cutted_fraph_dics[10]
 threshold_value = filters.threshold_otsu(image)
 labeled_foreground = (image > threshold_value).astype(int)
 properties = regionprops(labeled_foreground, image)

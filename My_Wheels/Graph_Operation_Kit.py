@@ -223,7 +223,7 @@ def Graph_Depth_Change(graph,output_bit = 'u2'):
     ----------
     graph : (Input Graph, 2D or 3D Array)
         Input Graph of .
-    current_bit : ('u1' or 'u2'), optional
+    output_bit : ('u1' or 'u2'), optional
         Dtype of output graph. The default is 'u2'.
 
     Returns
@@ -233,14 +233,23 @@ def Graph_Depth_Change(graph,output_bit = 'u2'):
 
     """
     graph = graph.astype('f8')
-    normalized_graph = (graph-np.min(graph))/(np.max(graph)-np.min(graph))
-    if output_bit == 'u1':
-        max_value = 255
-    elif output_bit == 'u2':
-        max_value = 65535
-    else:
-        raise IOError('Incorrect bit detph')
-    output_graph = (normalized_graph*max_value).astype(output_bit)
+    change_index = 65535/255
+    if output_bit == 'u1': # Which means we will change 16bit to 8 bit
+        output_graph = (graph/change_index).astype('u1')
+    elif output_bit == 'u2': # Which means change 8 bit to 16 bit
+        output_graph = (graph*change_index).astype('u2')
+    
+    
+# =============================================================================
+#     normalized_graph = (graph-np.min(graph))/(np.max(graph)-np.min(graph))
+#     if output_bit == 'u1':
+#         max_value = 255
+#     elif output_bit == 'u2':
+#         max_value = 65535
+#     else:
+#         raise IOError('Incorrect bit detph')
+#     output_graph = (normalized_graph*max_value).astype(output_bit)
+# =============================================================================
     
     return output_graph
 #%% Function8 Sub Graph Generator
@@ -439,3 +448,31 @@ def EZClip(input_graph,clip_std = 5,max_lim = 'inner',min_lim = 'inner'):
     
     
     return clipped_graph
+
+#%% Function 13 : Graph Central Caltulator
+def Graph_Center_Calculator(input_graph,annotate_brightness = 50):
+    """
+    Calculate graph center, return coordinate and annotate graph.
+
+    Parameters
+    ----------
+    input_graph : (2D Nd-Array)
+        Input graph.
+    annotate_brightness : (int), optional
+        0-100, brightness of graph in annotate graph. The default is 50.
+
+    Returns
+    -------
+    center_loc : (turple)
+        coordinate of .
+    annotate_graph : TYPE
+        DESCRIPTION.
+
+    """
+    return center_loc,annotate_graph
+    
+    
+
+
+
+

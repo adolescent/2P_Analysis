@@ -14,7 +14,7 @@ from skimage.measure import regionprops
 
 #image = cv2.imread(r'D:\ZR\Data_Temp\190412_L74_LM\1-001\results\After_Align_Run001.tif',-1)
 #%%
-image = cutted_fraph_dics[10]
+image = cutted_graph_dics[15]
 threshold_value = filters.threshold_otsu(image)
 labeled_foreground = (image > threshold_value).astype(int)
 properties = regionprops(labeled_foreground, image)

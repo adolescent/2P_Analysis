@@ -449,8 +449,30 @@ def EZClip(input_graph,clip_std = 5,max_lim = 'inner',min_lim = 'inner'):
     
     return clipped_graph
 
-#%% Function 13 : Graph Central Caltulator
-def Graph_Center_Calculator(input_graph,annotate_brightness = 50):
+#%% Function 13 : Easy Normalization
+def EZNormalize(input_graph):
+    '''
+    Normalization Tools, return 0-1 matrix. Usable to all 
+
+    Parameters
+    ----------
+    input_graph : (NdArray)
+        Input graph. Any dtype is okay.
+
+    Returns
+    -------
+    normalized_graph : (NdArray)
+        Normalized graph. Data type is 0-1 ranged float64.
+
+    '''
+    origin_graph = input_graph.astype('f8')
+    max_value = origin_graph.max()
+    min_value = origin_graph.min()
+    normalized_graph = (origin_graph-min_value)/(max_value-min_value)
+    return normalized_graph
+
+#%% Function 14 : Graph Central Caltulator
+def Graph_Center_Calculator(input_graph,center_mode = 'weight',annotate_brightness = 50):
     """
     Calculate graph center, return coordinate and annotate graph.
 
@@ -458,21 +480,36 @@ def Graph_Center_Calculator(input_graph,annotate_brightness = 50):
     ----------
     input_graph : (2D Nd-Array)
         Input graph.
+    center_mode : ('weight' or 'binary')
+        Mode of center find. 'weight' means intense of point contained in calculation, 'binary' center calculated from thresholed graph.        
     annotate_brightness : (int), optional
         0-100, brightness of graph in annotate graph. The default is 50.
 
     Returns
     -------
     center_loc : (turple)
-        coordinate of .
-    annotate_graph : TYPE
-        DESCRIPTION.
+        coordinate of mass center YX sequence.
+    annotate_graph : (2D_NdArray)
+        Graph of annotation. brightness above.
 
     """
+    from skimage import filters
+    from skimage.measure import regionprops
+    threshold_value = filters.threshold_otsu(input_graph)
+    labeled_foreground = (input_graph > threshold_value).astype(int)# 1/0 boulder map.
+    properties = regionprops(labeled_foreground, input_graph)
+    if center_mode == 'weight':
+        center_loc = properties[0].weighted_centroid
+    elif center_mode == 'binary':
+        center_loc = properties[0].centroid
+    else:
+        raise ValueError('Invalid center method.')
+    # Then draw annotation map.
+    annotate_graph = EZNormalize(input_graph)*annotate_brightness/100
+    y_loc = int(center_loc[0])
+    x_loc = int(center_loc[1])
+    annotate_graph[y_loc-2:y_loc+2,x_loc-2:x_loc+2]=1
+    annotate_graph = (annotate_graph*255).astype('u1')
     return center_loc,annotate_graph
+
     
-    
-
-
-
-

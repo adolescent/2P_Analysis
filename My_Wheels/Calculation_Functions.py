@@ -47,3 +47,29 @@ Color_Dictionary['p'] = (255,0,255)
 Color_Dictionary['d'] = (0,0,0)
 Color_Dictionary['w'] = (255,255,255)
 
+
+#%% Function 3 : vector calculator
+def Vector_Calculate(point_A,point_B):
+    '''
+    Calculate vector from A to B. Usually in structure(y,x),use down&right as positive.
+
+    Parameters
+    ----------
+    point_A : (turple)
+        Start point.
+    point_B : (turple)
+        End point.
+
+    Returns
+    -------
+    vector : (turple)
+        Vector from A to B. Pay attention to positive direction.
+    norm : (float)
+        Norm of the vector above.
+
+    '''
+    y_loc = point_B[0]-point_A[0]
+    x_loc = point_B[1]-point_A[1]
+    vector = (y_loc,x_loc)
+    norm = np.sqrt(np.square(x_loc)+np.square(y_loc))
+    return vector,norm

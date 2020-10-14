@@ -24,16 +24,18 @@ def Average_From_File(Name_List):
 
     Returns
     -------
-    averaged_graph : (2D ndarray, float64)
-        Return averaged graph, data type f8 for convenient.
+    averaged_graph : (2D ndarray,)
+        Return averaged graph, data type as input.
 
     """
     graph_num = len(Name_List)
     temple_graph = cv2.imread(Name_List[0],-1)
+    origin_type = temple_graph.dtype
     averaged_graph = np.zeros(shape = temple_graph.shape,dtype = 'f8')
     for i in range(graph_num):
         current_graph = cv2.imread(Name_List[i],-1).astype('f8')# Read in graph as origin depth, and change into f8
         averaged_graph += current_graph/graph_num
+    averaged_graph = averaged_graph.astype(origin_type)
     return averaged_graph
 
 #%% Function2: Clip And Normalize input graph

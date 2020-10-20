@@ -74,7 +74,7 @@ def Cell_Find_From_Graph(
     level = np.mean(im_cell)+find_thres*np.std(im_cell)
     origin_cells = im_cell>level # Original cell graphs, need to be filtered later.
     # Revome boulder.
-    origin_cells = Graph_Tools.Boulder_Fill(origin_cells, shape_boulder, 0)
+    origin_cells = Graph_Tools.Bo ulder_Fill(origin_cells, shape_boulder, 0)
     # Then remove small areas, other removal have no direct function, so we have to do it later.
     cell_washed = skimage.morphology.remove_small_objects(origin_cells,min_pix,connectivity = 1)
     # Get Cell Group Description here.

@@ -30,8 +30,8 @@ fig = plt.figure(1, figsize=(4, 3))
 plt.clf()
 ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=40, azim=110)
 
-plt.cla()Y
-pca = decomposition.PCA(n_components=3)
+plt.cla()
+pca = decomposition.PCA()
 pca.fit(X)
 X = pca.transform(X)
 
@@ -51,3 +51,30 @@ ax.w_yaxis.set_ticklabels([])
 ax.w_zaxis.set_ticklabels([])
 
 plt.show()
+
+#%%
+
+import matplotlib.pyplot as plt
+import numpy as np
+a = np.random.multivariate_normal([0,0],cov = [[10.5246,9.6313],[9.6313,11.3203]],size = 5000)
+#transfer_matrix = np.array([[0.707,-0.707],[0.707,0.707]])
+#test = np.dot(a,transfer_matrix)
+plt.ylim([-15,15])
+plt.xlim([-20,20])
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.scatter(a[:,0],a[:,1],s = 1)# s 是点大小
+plt.arrow(0,0,0.6906*10,0.7231*10,head_width=1, head_length=1, shape="full",fc='red',ec='red')
+plt.arrow(0,0,-0.7215*2,0.6923*2,head_width=1, head_length=1, shape="full",fc='red',ec='red')
+#plt.scatter(test[:,0],test[:,1])
+#%%
+from sklearn import decomposition
+pca = decomposition.PCA()
+pca.fit(a)
+b = pca.transform(a)
+plt.ylim([-15,15])
+plt.xlim([-20,20])
+plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.scatter(b[:,0],b[:,1],s = 1)
+#%%

@@ -18,11 +18,12 @@ import skimage.measure
 import Cell_Visualization as Visualize
 import cv2
 import My_Wheels.OS_Tools_Kit as OS_Tools
+from skimage import filters
 
 #%% Main Function: Return finded graphs.
 def Cell_Find_From_Graph(
         input_graph,
-        find_thres = 2.5,
+        find_thres = 'otsu',
         max_pix = 1000,
         min_pix = 20,
         shape_boulder = [20,20,20,20], 
@@ -37,8 +38,8 @@ def Cell_Find_From_Graph(
     ----------
     input_graph : (2D Array)
         Input graph. Use this graph to find cell.
-    find_thres : (float), optional
-        How many std we use in finding cells. The default is 2.5.
+    find_thres : (float or 'otsu'), optional
+        How many std we use in finding cells. The default is 'otsu', meaning we use ootsu method to find threshold here.
     max_pix : (int), optional
         Max cell area. Bigger than this will be ignored. The default is 1000.
     min_pix : (int), optional
@@ -71,10 +72,13 @@ def Cell_Find_From_Graph(
     sharp_blur = scipy.ndimage.correlate(input_graph,sharp_mask,mode = 'reflect').astype('f8')
     back_blur = scipy.ndimage.correlate(input_graph,back_mask,mode = 'reflect').astype('f8')
     im_cell = (sharp_blur-back_blur)/np.max(sharp_blur-back_blur) # Local Max value shown in this graph.
-    level = np.mean(im_cell)+find_thres*np.std(im_cell)
+    if find_thres == 'otsu':# Add otsu method here.
+        level = filters.threshold_otsu(im_cell)
+    else:
+        level = np.mean(im_cell)+find_thres*np.std(im_cell)
     origin_cells = im_cell>level # Original cell graphs, need to be filtered later.
     # Revome boulder.
-    origin_cells = Graph_Tools.Bo ulder_Fill(origin_cells, shape_boulder, 0)
+    origin_cells = Graph_Tools.Boulder_Fill(origin_cells, shape_boulder, 0)
     # Then remove small areas, other removal have no direct function, so we have to do it later.
     cell_washed = skimage.morphology.remove_small_objects(origin_cells,min_pix,connectivity = 1)
     # Get Cell Group Description here.

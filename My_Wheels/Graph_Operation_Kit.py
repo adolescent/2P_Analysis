@@ -514,4 +514,23 @@ def Graph_Center_Calculator(input_graph,center_mode = 'weight',annotate_brightne
     annotate_graph = (annotate_graph*255).astype('u1')
     return center_loc,annotate_graph
 
+#%% Function 15 : Graph Binirizer.
+def Graph_Binirizer(graph,thres = 'otsu'):
+    '''
+    Generate binary graph. Any depth graph can do this.
+
+    Parameters
+    ----------
+    graph : (2D-Array)
+        Input graph. Graph depth not important here.
+    thres : (float or 'otsu'), optional
+        Thres std of graph binary. The default is 'otsu',meaning use ootsu method.
+        
+    Returns
+    -------
+    binary_graph : (2D-Array)
+        Output of binary graph, dtype = 'bool'
+
+    '''
     
+    return binary_graph

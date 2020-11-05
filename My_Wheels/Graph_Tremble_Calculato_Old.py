@@ -69,16 +69,10 @@ def Tremble_Calculator_From_File(
     elif move_method == 'former':
         base_graph = cv2.imread(all_tif_name[0],-1)# Use first frame as base.
     
-    
-    
     # cycle all graph to generate tremble plots.
     for i in range(len(all_tif_name)):
         # Process input graph, get cell 
         current_graph = cv2.imread(all_tif_name[i],-1)
-
-          
-        
-        
         processed_cell_graph = None
         #Cut Graph as described
         _,_,_,cutted_current_graph = Graph_Cutter(processed_cell_graph,boulder,cut_shape)

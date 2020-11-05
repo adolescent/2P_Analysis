@@ -18,7 +18,7 @@ def Tremble_Calculator_From_File(
         graph_type = '.tif',
         cut_shape = (8,8),
         boulder = 20,
-        move_method = 'former',
+        base_method = 'former',
         base = [],
         ):
     '''
@@ -34,7 +34,7 @@ def Tremble_Calculator_From_File(
         Shape of fracture cut. Proper cut will . The default is (10,5).
     boulder : (int),optional
         Boulder of graph. Cut and not used in following calculation.The default is 20.        
-    move_method : ('average'or'former'or'input'), optional
+    base_method : ('average'or'former'or'input'), optional
         Method of bais calculation. The default is 'former'. 
         'average' bais use all average; 'former' bais use fomer frame; 'input' bais need to be given.
     base : (2D_NdArray), optional
@@ -52,5 +52,17 @@ def Tremble_Calculator_From_File(
     '''
     all_tif_name = OS_Tools.Get_File_Name(data_folder,file_type = graph_type)
     average_graph = Graph_Tools.Average_From_File(all_tif_name)
+    tremble_information = {}
+    #1. Get base graph first.
+    if base_method == 'input':
+        base_graph = base
+    elif base_method == 'average':
+        base_graph = average_graph
+    elif base_method == 'former':
+        base_graph = cv2.imread(all_tif_name[0],-1)# First input graph.
+    else:
+        raise IOError('Invalid Base Method, check please.\n')
+        
     
-    
+        
+        

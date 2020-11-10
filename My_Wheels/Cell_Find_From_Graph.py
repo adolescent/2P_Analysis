@@ -146,7 +146,7 @@ def Cell_Find_And_Plot(
     Base_Graph = cv2.imread(graph_folder + r'\\' + graph_name,-1)
     graph_save_folder = graph_folder + r'\\' + Cell_Label
     Finded_Cells = Cell_Find_From_Graph(Base_Graph,find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
-    OS_Tools.Save_Variable(graph_save_folder,Cell_Label,Finded_Cells)
+    OS_Tools.Save_Variable(graph_save_folder,Cell_Label,Finded_Cells,extend_name = '.cell')
     all_keys = list(Finded_Cells.keys())
     all_keys.remove('All_Cell_Information')
     for i in range(len(all_keys)):

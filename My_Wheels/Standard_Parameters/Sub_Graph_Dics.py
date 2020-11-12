@@ -20,4 +20,56 @@ def Sub_Dic_Generator(mode):
         DESCRIPTION.
 
     '''
+    sub_dics = {}
+    if mode == 'OD_OI':
+        sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
+        sub_dics['OD'] = [[1,2,3,4],[5,6,7,8]]
+        sub_dics['L-0'] = [[1,2,3,4],[0]]
+        sub_dics['R-0'] = [[5,6,7,8],[0]]
+        sub_dics['A-O'] = [[4,8],[2,6]]
+        sub_dics['H-V'] = [[3,7],[1,5]]
+        sub_dics['HV-AO'] = [[1,3,5,7],[2,4,6,8]]
+        
+    elif mode == 'OD_2P':
+        sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
+        sub_dics['OD'] = [[1,3,5,7],[2,4,6,8]]
+        sub_dics['L-0'] = [[1,3,5,7],[0]]
+        sub_dics['R-0'] = [[2,4,6,8],[0]]
+        sub_dics['H-V'] = [[5,6],[1,2]]
+        sub_dics['A-O'] = [[7,8],[3,4]]
+        sub_dics['HV-AO'] = [[1,2,5,6],[3,4,7,8]]
+        
+    elif mode == 'G8_Norm':# Normal G8, ID1 is right moving bars.
+        sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
+        sub_dics['H-V'] = [[3,7],[1,5]]
+        sub_dics['A-O'] = [[4,8],[2,6]]
+        sub_dics['HV-AO'] = [[1,3,5,7],[2,4,6,8]]
+        sub_dics['Orien0-0'] = [[3,7],[0]]
+        sub_dics['Orien45-0'] = [[4,8],[0]]
+        sub_dics['Orien90-0'] = [[1,5],[0]]
+        sub_dics['Orien135-0'] = [[2,6],[0]]
+        sub_dics['DirU-D'] = [[2,3,4],[6,7,8]]
+        sub_dics['DirL-R'] = [[4,5,6],[8,1,2]]
+        
+    elif mode == 'G8_+90': # In early 2p stims, use up moving bars as ID1.
+        sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
+        sub_dics['H-V'] = [[1,5],[3,7]]
+        sub_dics['A-O'] = [[2,6],[4,8]]
+        sub_dics['HV-AO'] = [[1,3,5,8],[2,4,6,8]]
+        sub_dics['Orien0-0'] = [[1,5],[0]]
+        sub_dics['Orien45-0'] = [[2,6],[0]]
+        sub_dics['Orien90-0'] = [[3,7],[0]]
+        sub_dics['Orien135-0'] = [[4,8],[0]]
+        sub_dics['DirU-D'] = [[2,1,3],[4,5,6]]
+        sub_dics['DirL-R'] = [[2,3,4],[6,7,8]]
+        
+        
+    elif mode == 'RGLum4':
+        sub_dics['All-0'] = [[1,2,3,4],[0]]
+        sub_dics['RG-Lum'] = [[1,2],[3,4]]
+        sub_dics['A-O'] = [[1,3],[2,4]]
+        sub_dics['RG-0'] = [[1,2],[0]]
+        sub_dics['Lum-0'] = [[3,4],[0]]
+        
+        
     return sub_dics

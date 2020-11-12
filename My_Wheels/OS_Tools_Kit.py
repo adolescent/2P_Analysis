@@ -97,16 +97,16 @@ def Save_Variable(save_folder,name,variable,extend_name = '.pkl'):
     
     return True
 #%% Function 4: Load saved binary file.
-def Load_Variable(save_folder,file_name):
+def Load_Variable(save_folder,file_name=False):
     """
-    Load variable from file.
+    Load variable from file. Single value input supported.
 
     Parameters
     ----------
     save_folder : (str)
         Folder of files.
     file_name : (str)
-        Name of file. Extend name shall be contained!
+        Name of file. Extend name shall be contained! If you want to input single value path, just ignore this part.
 
     Returns
     -------
@@ -114,8 +114,10 @@ def Load_Variable(save_folder,file_name):
         Loaded file. Same formation as it was saved.
 
     """
-    	
-    real_file_path = save_folder+r'\\'+file_name
+    if file_name == False:
+        real_file_path = save_folder
+    else:
+        real_file_path = save_folder+r'\\'+file_name
     with open(real_file_path, 'rb') as file:
         loaded_file = pickle.load(file)
     file.close()

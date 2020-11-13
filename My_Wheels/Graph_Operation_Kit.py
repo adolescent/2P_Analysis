@@ -13,7 +13,7 @@ import os
 
 #%% Function1: Graph Average(From File).
 
-def Average_From_File(Name_List):
+def Average_From_File(Name_List,gaussian_parameter = False):
     """
     Average Graph Files, return an aligned matrix. RGB Graph shall be able to use it (not tested).
 
@@ -21,7 +21,9 @@ def Average_From_File(Name_List):
     ----------
     Name_List : (list)
         File Name List. all list units shall be a direct file path.
-
+        
+    gaussian_parameter : (turple or False)
+        If not False, we will do gaussian blur of every input graph. e.g. for input:((5,5),1.5),Use Kernel 5*5 with 1.5std gauss.
     Returns
     -------
     averaged_graph : (2D ndarray,)
@@ -34,6 +36,8 @@ def Average_From_File(Name_List):
     averaged_graph = np.zeros(shape = temple_graph.shape,dtype = 'f8')
     for i in range(graph_num):
         current_graph = cv2.imread(Name_List[i],-1).astype('f8')# Read in graph as origin depth, and change into f8
+        if gaussian_parameter != False:# which means we need to do gaussian blur to every input.
+            current_graph = cv2.GaussianBlur(current_graph, gaussian_parameter[0], gaussian_parameter[1])
         averaged_graph += current_graph/graph_num
     averaged_graph = averaged_graph.astype(origin_type)
     return averaged_graph

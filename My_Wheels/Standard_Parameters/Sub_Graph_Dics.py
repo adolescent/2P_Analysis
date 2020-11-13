@@ -35,8 +35,8 @@ def Sub_Dic_Generator(mode):
         sub_dics['OD'] = [[1,3,5,7],[2,4,6,8]]
         sub_dics['L-0'] = [[1,3,5,7],[0]]
         sub_dics['R-0'] = [[2,4,6,8],[0]]
-        sub_dics['H-V'] = [[5,6],[1,2]]
-        sub_dics['A-O'] = [[7,8],[3,4]]
+        sub_dics['H-V'] = [[1,2],[5,6]]
+        sub_dics['A-O'] = [[3,4],[7,8]]
         sub_dics['HV-AO'] = [[1,2,5,6],[3,4,7,8]]
         
     elif mode == 'G8_Norm':# Normal G8, ID1 is right moving bars.

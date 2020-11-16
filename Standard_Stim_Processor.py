@@ -11,6 +11,7 @@ import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import numpy as np
 import cv2
 from My_Wheels.Translation_Align_Function import Translation_Alignment
+from Cell_Find_From_Graph import Cell_Find_From_Graph
 
 def Single_Subgraph_Generator(
         all_tif_name,
@@ -102,8 +103,9 @@ def Single_Cellgraph_Generator(
         B_IDs,
         gaussian_parameter = ((5,5),1.5),
         ):
-    print('Function Not Finished Yet!')
+    print0('Function Not Finished Yet!')
     sub_cell_graph,t_cell_graph,cell_info_dic =0,0,0
+    
     return sub_cell_graph,t_cell_graph,cell_info_dic
 
 
@@ -170,10 +172,16 @@ def Standard_Stim_Processor(
         on_list = []
         for i in range(len(all_keys)):
             on_list.extend(Frame_Stim_Dic[all_keys[i]])
-            
+        on_off_graph,_,_ = Single_Subgraph_Generator(aligned_all_tif_name, on_list, off_list,gaussian_parameter,t_map = False)
+        cell_dic = Cell_Find_From_Graph(on_off_graph,find_thres = 2)
     else:
         cell_dic = OS_Tools.Load_Variable(cell_method)
+    
+    # Step4, calculate pix subgraph and t-graph.
+    for i in range(len(sub_dic)):
         
+    # Step5, calculate cell subgraph and t-graph.
+    
         
 if __name__ == '__main__':
     from My_Wheels.Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator

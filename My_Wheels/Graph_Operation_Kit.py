@@ -10,34 +10,40 @@ Graph Operation kits, this tool box aims at doing all graph Works
 import cv2
 import numpy as np
 import os
+import My_Wheels.Filters as Filter
 
 #%% Function1: Graph Average(From File).
 
-def Average_From_File(Name_List,gaussian_parameter = False):
-    """
-    Average Graph Files, return an aligned matrix. RGB Graph shall be able to use it (not tested).
+def Average_From_File(Name_List,LP_Para = False,HP_Para = False,filter_method = False):
+    '''
+    Average graph from file. filter is allowed.
 
     Parameters
     ----------
     Name_List : (list)
-        File Name List. all list units shall be a direct file path.
-        
-    gaussian_parameter : (turple or False)
-        If not False, we will do gaussian blur of every input graph. e.g. for input:((5,5),1.5),Use Kernel 5*5 with 1.5std gauss.
+        File name of all input graph.
+    LP_Para : (turple), optional
+        Use False to skip. Low pass parameter. The default is False.
+    HP_Para : (turple), optional
+        Use False to skip. High pass parameter. The default is False.
+    filter_method : (str), optional
+        Use False to skip. Filter method. The default is False.
+
     Returns
     -------
-    averaged_graph : (2D ndarray,)
-        Return averaged graph, data type as input.
+    averaged_graph : TYPE
+        DESCRIPTION.
 
-    """
+    '''
     graph_num = len(Name_List)
     temple_graph = cv2.imread(Name_List[0],-1)
     origin_type = temple_graph.dtype
     averaged_graph = np.zeros(shape = temple_graph.shape,dtype = 'f8')
     for i in range(graph_num):
         current_graph = cv2.imread(Name_List[i],-1).astype('f8')# Read in graph as origin depth, and change into f8
-        if gaussian_parameter != False:# which means we need to do gaussian blur to every input.
-            current_graph = cv2.GaussianBlur(current_graph, gaussian_parameter[0], gaussian_parameter[1])
+        if filter_method != False: # Meaning we need to filter graph.
+            current_graph = Filter.Filter_2D(current_graph,LP_Para,HP_Para,filter_method)
+            
         averaged_graph += current_graph/graph_num
     averaged_graph = averaged_graph.astype(origin_type)
     return averaged_graph

@@ -10,14 +10,18 @@ import cv2
 import numpy as np
 import more_itertools as mit
 import My_Wheels.List_Operation_Kit as List_Tools
+import My_Wheels.Filters as My_Filter
 
 
 def Spike_Train_Generator(all_tif_name,
                           cell_information,
-                          Base_F_type = 'global',
+                          Base_F_type = 'most_unactive',
                           stim_train = None,
                           ignore_ISI_frame = 1,
-                          unactive_prop = 0.1
+                          unactive_prop = 0.1,
+                          LP_Para = False,
+                          HP_Para = False,
+                          filter_method = False
                           ):
     """
     
@@ -60,10 +64,14 @@ def Spike_Train_Generator(all_tif_name,
     F_value_Dictionary = {}
     height,width = np.shape(cv2.imread(all_tif_name[0],-1))
     all_graph_matrix = np.zeros(shape = (height,width,Frame_Num),dtype = 'u2')
-    # Step 1, read in all graphs.
+    # Step 1, read in all graphs. Do filter is required.
     for i in range(Frame_Num):
         current_graph = cv2.imread(all_tif_name[i],-1)
+        if filter_method != False: # Meaning we need filter here.
+            current_graph = My_Filter.Filter_2D(current_graph,LP_Para,HP_Para,filter_method)
         all_graph_matrix[:,:,i] = current_graph
+        
+
     # Step 2, generate origin F value list first.
     for i in range(Cell_Num):# cycle cell
         cell_location = cell_information[i].coords
@@ -186,5 +194,5 @@ def Spike_Train_Generator(all_tif_name,
         raise IOError('Not finished functions.')
     
     return F_value_Dictionary,dF_F_trains
-  #  return dF_F_trains,F_value_Dictionary
+#  return F_value_Dictionary,dF_F_trains
 

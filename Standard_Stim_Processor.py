@@ -12,11 +12,14 @@ import numpy as np
 import cv2
 from My_Wheels.Translation_Align_Function import Translation_Alignment
 from Cell_Find_From_Graph import Cell_Find_From_Graph
+import My_Wheels.Filters as My_Filter
 
 def Single_Subgraph_Generator(
         all_tif_name,
         A_IDs,B_IDs,
-        gaussian_parameter = ((5,5),1.5),
+        filter_method = 'Gaussian',
+        LP_Para = ((5,5),1.5),
+        HP_Para = False,
         t_map = True
         ):
     '''
@@ -30,8 +33,12 @@ def Single_Subgraph_Generator(
         List of A ID.
     B_IDs : (list)
         List of B ID.
-    gaussian_parameter : (turple), optional
-        Use False to skip. Gaussian filter used before and after subtraction. The default is ((5,5),1.5).
+    filter_method : (str), optional
+        Can be set False to skip. Filter used before and after subtraction. The default is 'Gaussian'.
+    LP_Para: (turple),optional
+        Can be set False to skip. Low pass filter parameter. The default is ((5,5),1.5).
+    HP_Para: (turple),optional
+        Can be set False to skip. High pass filter parameter. The default is False.
     t_map : (bool), optional
         Whether t map is generated. The default is True.
 
@@ -52,8 +59,8 @@ def Single_Subgraph_Generator(
     # Calculate sub graph.
     F_info_Dics['Graph_Shape'] = np.shape(cv2.imread(all_tif_name[0],-1))
     F_info_Dics['Origin_Data_Type'] = str((cv2.imread(all_tif_name[0],-1)).dtype)
-    F_info_Dics['Average_A_Graph'] = Graph_Tools.Average_From_File(A_Set_Graph_names,gaussian_parameter)
-    F_info_Dics['Average_B_Graph'] = Graph_Tools.Average_From_File(B_Set_Graph_names,gaussian_parameter)
+    F_info_Dics['Average_A_Graph'] = Graph_Tools.Average_From_File(A_Set_Graph_names,LP_Para,HP_Para,filter_method)
+    F_info_Dics['Average_B_Graph'] = Graph_Tools.Average_From_File(B_Set_Graph_names,LP_Para,HP_Para,filter_method)
     F_info_Dics['dF_Map'] = (F_info_Dics['Average_A_Graph'].astype('f8') - F_info_Dics['Average_B_Graph'].astype('f8'))
     F_info_Dics['Average_dF_value'] = abs(F_info_Dics['dF_Map']).mean()# Average dF value.
     F_info_Dics['Average_dF/F_value'] = F_info_Dics['Average_dF_value']/(F_info_Dics['Average_B_Graph'].mean())
@@ -77,12 +84,9 @@ def Single_Subgraph_Generator(
         for i in range(sample_size):
             current_a_graph = cv2.imread(selected_A_name[i],-1)
             current_b_graph = cv2.imread(selected_B_name[i],-1)
-            if gaussian_parameter != False:
-                A_graph_arrays[:,:,i] = cv2.GaussianBlur(current_a_graph, gaussian_parameter[0], gaussian_parameter[1])
-                B_graph_arrays[:,:,i] = cv2.GaussianBlur(current_b_graph, gaussian_parameter[0], gaussian_parameter[1])
-            else:
-                A_graph_arrays[:,:,i] = current_a_graph
-                B_graph_arrays[:,:,i] = current_b_graph
+            if filter_method != False:
+                A_graph_arrays[:,:,i] = My_Filter.Filter_2D(current_a_graph,LP_Para,HP_Para,filter_method)
+                B_graph_arrays[:,:,i] = My_Filter.Filter_2D(current_b_graph,LP_Para,HP_Para,filter_method)
         # After that, we calculate t and p value pix by pix.
         t_value_graph = np.zeros(shape = F_info_Dics['Graph_Shape'],dtype = 'f8')
         p_value_graph = np.zeros(shape = F_info_Dics['Graph_Shape'],dtype = 'f8')
@@ -97,13 +101,13 @@ def Single_Subgraph_Generator(
     return sub_graph,t_graph,F_info_Dics
 
 def Single_Cellgraph_Generator(
-        all_tif_name,
+        dF_F_train,
         cell_information,
         A_IDs,
         B_IDs,
         gaussian_parameter = ((5,5),1.5),
         ):
-    print0('Function Not Finished Yet!')
+    print('Function Not Finished Yet!')
     sub_cell_graph,t_cell_graph,cell_info_dic =0,0,0
     
     return sub_cell_graph,t_cell_graph,cell_info_dic
@@ -115,32 +119,13 @@ def Standard_Stim_Processor(
              sub_dic,
              tuning_graph = True,
              cell_method = 'Default',
-             gaussian_parameter = ((5,5),1.5)
+             filter_method = 'Gaussian',
+             LP_Para = ((5,5),1.5),
+             HP_Para = False,
+             spike_train_path = 'Default',
+             spike_train_filter_para = (False,False),
+             spike_train_filter_method = False
              ):
-    '''
-    Input part of this module. Althought this model can do align, if you want to align all graphs together, prealign is advised.
-
-    Parameters
-    ----------
-    graph_folder : (str)
-        Input graph folder. If graph has been aligned, this will use aligned graph directly. Else this function will align single run.
-    stim_folder : (str)
-        Folder of stimulus, or aligned stimulus file name. This will be checked later, if is folder, 
-    sub_dic : (dic)
-        Subtraction ID dictionary. Standard ID can be acquired from My_Wheels.Standard_Parameters.Sub_Graph_Dics. 
-    tuning_graph : (bool), optional
-        Whether we produce radar map. The default is True.
-    cell_method: ('Default' or cell file path)
-        If default, use on-off graph, else you need to give the input path.
-
-    gaussian_parameter : (turple)
-        This step can be skipped if you input 'False'. Gaussian blur of graph process. Every graph will be filtered before process. The default is((5,5),1.5),meaning kernel of filter is (5,5), std = 1.5. 
-    
-    Returns
-    -------
-    None.
-
-    '''
     # Path Cycle.
     work_folder = data_folder+r'\Results'
     OS_Tools.mkdir(work_folder)
@@ -169,20 +154,25 @@ def Standard_Stim_Processor(
         all_keys = list(Frame_Stim_Dic.keys())
         all_keys.remove(0)
         all_keys.remove(-1)# Remove ISI
+        all_keys.remove('Original_Stim_Train')
         on_list = []
         for i in range(len(all_keys)):
             on_list.extend(Frame_Stim_Dic[all_keys[i]])
-        on_off_graph,_,_ = Single_Subgraph_Generator(aligned_all_tif_name, on_list, off_list,gaussian_parameter,t_map = False)
+        on_off_graph,_,_ = Single_Subgraph_Generator(aligned_all_tif_name, on_list, off_list,filter_method,LP_Para,HP_Para,t_map = False)
         cell_dic = Cell_Find_From_Graph(on_off_graph,find_thres = 2)
     else:
         cell_dic = OS_Tools.Load_Variable(cell_method)
-    
-    # Step4, calculate pix subgraph and t-graph.
-    for i in range(len(sub_dic)):
         
-    # Step5, calculate cell subgraph and t-graph.
+    # Step4, calculate spike_train.
+    if spike_train_path != 'Default':
+        dF_F_train = OS_Tools.Load_Variable(spike_train_path)
+    else:# meaning we need to calculate spike train from the very begining.
+        from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
+        _,dF_F_train = Spike_Train_Generator(aligned_all_tif_name,cell_dic['Cell_Information'],Base_F_type = 'nearest_0',stim_train = Frame_Stim_Dic['Original_Stim_Train'],LP_Para = LP_Para,HP_Para = HP_Para,filter_method = filter_method)
+    #Step5, filt spike trains.
+    #Step6, calculate cell subgraph and t-graph.
     
         
-if __name__ == '__main__':
-    from My_Wheels.Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
+if __name__ == '__main__' :
+    print('Test Run')
     

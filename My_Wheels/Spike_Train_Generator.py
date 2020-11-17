@@ -26,6 +26,7 @@ def Spike_Train_Generator(all_tif_name,
     """
     
     Generate Spike Train from graphs. Multiple find method provided.
+    Filter here indicating 2D spacial filter. No time course filter provided here.
     
     Parameters
     ----------

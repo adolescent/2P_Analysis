@@ -105,9 +105,12 @@ def Single_Cellgraph_Generator(
         cell_information,
         A_IDs,
         B_IDs,
-        gaussian_parameter = ((5,5),1.5),
         ):
-    print('Function Not Finished Yet!')
+    graph_shape = np.shape(cell_information[0]._label_image)
+    cell_graph_visual = np.zeros()
+    for i in range(len(dF_F_train)):
+        
+    
     sub_cell_graph,t_cell_graph,cell_info_dic =0,0,0
     
     return sub_cell_graph,t_cell_graph,cell_info_dic
@@ -117,7 +120,7 @@ def Standard_Stim_Processor(
              data_folder,
              stim_folder,
              sub_dic,
-             tuning_graph = True,
+             tuning_graph = False,
              cell_method = 'Default',
              filter_method = 'Gaussian',
              LP_Para = ((5,5),1.5),
@@ -170,9 +173,20 @@ def Standard_Stim_Processor(
         from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
         _,dF_F_train = Spike_Train_Generator(aligned_all_tif_name,cell_dic['Cell_Information'],Base_F_type = 'nearest_0',stim_train = Frame_Stim_Dic['Original_Stim_Train'],LP_Para = LP_Para,HP_Para = HP_Para,filter_method = filter_method)
     #Step5, filt spike trains.
-    #Step6, calculate cell subgraph and t-graph.
+    if spike_train_filter_method != False: # Meaning we need to do train filter.
+        for i in range(len(dF_F_train)):
+            dF_F_train[i] = My_Filter.Signal_Filter(dF_F_train,spike_train_filter_method,spike_train_filter_para)
+    # Step6, cycle all sub_dic to generate 
+    # Step7, calculate cell graph and visualization.
+    for i in range(len(sub_dic)):
+        output_folder = work_folder+r'\Subtraction_Graphs'
+        
+    
+    #Step8, calculate cell subgraph and t-graph.
     
         
 if __name__ == '__main__' :
+    from My_Wheels.Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
+    G8_Dic = Sub_Dic_Generator('G8+90')
     print('Test Run')
     

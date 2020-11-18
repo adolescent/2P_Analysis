@@ -103,15 +103,53 @@ def Single_Subgraph_Generator(
 def Single_Cellgraph_Generator(
         dF_F_train,
         cell_information,
+        clip,
         A_IDs,
         B_IDs,
         ):
     graph_shape = np.shape(cell_information[0]._label_image)
-    cell_graph_visual = np.zeros()
-    for i in range(len(dF_F_train)):
-        
-    
-    sub_cell_graph,t_cell_graph,cell_info_dic =0,0,0
+    sub_cell_graph = np.zeros(shape = (graph_shape+(3,)),dtype = 'u1')# color graph,BGR.
+    t_cell_graph = np.zeros(shape = (graph_shape+(3,)),dtype = 'u1')
+    cell_info_dic = {}
+    # Calculation first, then we draw graph. Seperate to do norm and align easier.
+    cell_Num = len(cell_information)
+    cell_dF_F_array = np.zeros(cell_Num,dtype = 'f8')
+    cell_t_array = np.zeros(cell_Num,dtype = 'f8')
+    cell_p_array = np.zeros(cell_Num,dtype = 'f8')
+    for i in range(cell_Num):
+        current_cell_spike_train = dF_F_train[i]
+        A_dFs = current_cell_spike_train[A_IDs]
+        B_dFs = current_cell_spike_train[B_IDs]
+        cell_dF_F_array[i] = A_dFs.mean()-B_dFs.mean()
+        import random
+        from scipy.stats import ttest_rel
+        sample_size = min(len(A_dFs),len(B_dFs))
+        selected_A = random.sample(list(A_dFs),sample_size)
+        selected_B = random.sample(list(B_dFs),sample_size)
+        cell_t_array[i],cell_p_array[i] = ttest_rel(selected_A,selected_B)
+    cell_info_dic['origin_subcell'] = cell_dF_F_array
+    cell_info_dic['max_dF_F'] = np.max(abs(cell_dF_F_array))
+    cell_info_dic['origin_t_map'] = cell_t_array
+    cell_info_dic['p_map'] = cell_p_array
+    # Process t map and sub map. Clip and normalize.
+    clipped_cell_dF_F_array = Graph_Tools.EZClip(cell_dF_F_array,clip)
+    sig_array = cell_p_array<0.05
+    sig_t_array = sig_array*cell_t_array
+    clipped_cell_t_array = Graph_Tools.EZClip(sig_t_array,clip)
+    normed_cell_dF_F_array = clipped_cell_dF_F_array/np.max(abs(clipped_cell_dF_F_array))
+    normed_cell_t_array = clipped_cell_t_array/np.max(abs(clipped_cell_t_array))
+    # Finally, we can plot graphs here.
+    for i in range(cell_Num):
+        current_cell_info = cell_information[i]
+        y_list,x_list = current_cell_info.coords[:,0],current_cell_info.coords[:,1]
+        if normed_cell_dF_F_array >0:
+            sub_cell_graph[y_list,x_list,2] = normed_cell_dF_F_array[i]*255
+        else:
+            sub_cell_graph[y_list,x_list,0] = abs(normed_cell_dF_F_array[i])*255
+        if normed_cell_t_array >0:
+            t_cell_graph[y_list,x_list,2] = normed_cell_t_array[i]*255
+        else:
+            t_cell_graph[y_list,x_list,0] = abs(normed_cell_t_array[i])*255
     
     return sub_cell_graph,t_cell_graph,cell_info_dic
 
@@ -120,6 +158,7 @@ def Standard_Stim_Processor(
              data_folder,
              stim_folder,
              sub_dic,
+             show_clip = 3,
              tuning_graph = False,
              cell_method = 'Default',
              filter_method = 'Gaussian',
@@ -171,17 +210,37 @@ def Standard_Stim_Processor(
         dF_F_train = OS_Tools.Load_Variable(spike_train_path)
     else:# meaning we need to calculate spike train from the very begining.
         from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
-        _,dF_F_train = Spike_Train_Generator(aligned_all_tif_name,cell_dic['Cell_Information'],Base_F_type = 'nearest_0',stim_train = Frame_Stim_Dic['Original_Stim_Train'],LP_Para = LP_Para,HP_Para = HP_Para,filter_method = filter_method)
+        _,dF_F_train = Spike_Train_Generator(aligned_all_tif_name,cell_dic['All_Cell_Information'],Base_F_type = 'nearest_0',stim_train = Frame_Stim_Dic['Original_Stim_Train'],LP_Para = LP_Para,HP_Para = HP_Para,filter_method = filter_method)
     #Step5, filt spike trains.
     if spike_train_filter_method != False: # Meaning we need to do train filter.
         for i in range(len(dF_F_train)):
             dF_F_train[i] = My_Filter.Signal_Filter(dF_F_train,spike_train_filter_method,spike_train_filter_para)
-    # Step6, cycle all sub_dic to generate 
-    # Step7, calculate cell graph and visualization.
+    # Step6, get each frame graph and cell graph.
+    all_graph_keys = list(sub_dic.keys())
     for i in range(len(sub_dic)):
         output_folder = work_folder+r'\Subtraction_Graphs'
+        current_key = all_graph_keys[i]
+        current_sub_list = sub_dic[current_key]
+        A_conds = current_sub_list[0]# condition of A graph
+        B_conds = current_sub_list[1]# condition of B graph
+        A_IDs = []
+        B_IDs = []
+        for i in range(len(A_conds)):
+            A_IDs.extend(Frame_Stim_Dic[A_conds[i]])
+        for i in range(len(B_conds)):
+            B_IDs.extend(Frame_Stim_Dic[B_conds[i]])
+        # Get frame maps.
+        current_sub_graph,current_t_graph,current_F_info = Single_Subgraph_Generator(aligned_all_tif_name, A_IDs, B_IDs,filter_method,LP_Para,HP_Para)
         
-    
+        current_sub_graph = Graph_Tools.Clip_And_Normalize(current_sub_graph,show_clip)
+        Graph_Tools.Show_Graph(current_sub_graph, current_key+'_SubGraph', output_folder)
+        current_t_graph = Graph_Tools.Clip_And_Normalize(current_t_graph,show_clip)
+        Graph_Tools.Show_Graph(current_t_graph, current_key+'_T_Graph', output_folder)
+        OS_Tools.Save_Variable(output_folder, current_key+'_Sub_Info', current_F_info,extend_name = '.info')
+        # Get cell maps
+        cell_info = cell_dic['All_Cell_Information']
+        
+            
     #Step8, calculate cell subgraph and t-graph.
     
         

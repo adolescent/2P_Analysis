@@ -154,17 +154,31 @@ def Cell_Find_And_Plot(
     return Finded_Cells
 
 #%% Function3, On-Off cell graph generator.
+from My_Wheels.Standard_Stim_Processor import Single_Subgraph_Generator
 def On_Off_Cell_Finder(
         all_tif_name,
         Stim_Frame_Dic,
-        find_thres = 2,
+        find_thres = 1.5,
         max_pix = 1000,
         min_pix = 20,
+        filter_method = 'Gaussian',
+        LP_Para = ((5,5),1.5),
+        HP_Para = False,
         shape_boulder = [20,20,20,20], 
         sharp_gauss = ([7,7],1.5),
         back_gauss = ([15,15],7),
         size_limit = 20
         ):
     # Generater On-Off graph.
-    
-    return Finded_Cells
+    off_list = Stim_Frame_Dic[0]
+    all_keys = list(Stim_Frame_Dic.keys())
+    all_keys.remove('Original_Stim_Train')
+    all_keys.remove(-1)
+    all_keys.remove(0)
+    on_list = []
+    for i in range(len(all_keys)):
+        on_list.extend(Stim_Frame_Dic[all_keys[i]])
+    on_off_graph,_,_ = Single_Subgraph_Generator(all_tif_name, on_list, off_list,filter_method,LP_Para,HP_Para,t_map = False)
+    on_off_graph = Graph_Tools.Clip_And_Normalize(on_off_graph,clip_std = 2.5)
+    Finded_Cells = Cell_Find_From_Graph(on_off_graph,find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
+    return on_off_graph,Finded_Cells

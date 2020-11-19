@@ -11,7 +11,7 @@ import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import numpy as np
 import cv2
 from My_Wheels.Translation_Align_Function import Translation_Alignment
-from Cell_Find_From_Graph import Cell_Find_From_Graph
+from Cell_Find_From_Graph import On_Off_Cell_Finder
 import My_Wheels.Filters as My_Filter
 
 def Single_Subgraph_Generator(
@@ -64,8 +64,8 @@ def Single_Subgraph_Generator(
     F_info_Dics['dF_Map'] = (F_info_Dics['Average_A_Graph'].astype('f8') - F_info_Dics['Average_B_Graph'].astype('f8'))
     F_info_Dics['Average_dF_value'] = abs(F_info_Dics['dF_Map']).mean()# Average dF value.
     F_info_Dics['Average_dF/F_value'] = F_info_Dics['Average_dF_value']/(F_info_Dics['Average_B_Graph'].mean())
-    sub_graph = np.nan_to_num(F_info_Dics['dF_Map']/F_info_Dics['Average_B_Graph'].astype('f8'))
-    F_info_Dics['dF/F_Graph'] = sub_graph
+    F_info_Dics['dF/F_Graph'] = np.nan_to_num(F_info_Dics['dF_Map']/F_info_Dics['Average_B_Graph'].astype('f8'))
+    sub_graph = F_info_Dics['dF_Map']
     
     # Then calculate F value graph.
     if t_map == False:
@@ -251,16 +251,7 @@ def Standard_Stim_Processor(
     # Step3, get cell information 
     if cell_method == 'Default':# meaning we will use On-Off graph to find cell.
         print('Cell information not found. Finding here..')
-        off_list = Frame_Stim_Dic[0]
-        all_keys = list(Frame_Stim_Dic.keys())
-        all_keys.remove(0)
-        all_keys.remove(-1)# Remove ISI
-        all_keys.remove('Original_Stim_Train')
-        on_list = []
-        for i in range(len(all_keys)):
-            on_list.extend(Frame_Stim_Dic[all_keys[i]])
-        on_off_graph,_,_ = Single_Subgraph_Generator(aligned_all_tif_name, on_list, off_list,filter_method,LP_Para,HP_Para,t_map = False)
-        cell_dic = Cell_Find_From_Graph(on_off_graph,find_thres = 2)
+        cell_dic = On_Off_Cell_Finder(aligned_all_tif_name, Frame_Stim_Dic,filter_method=filter_method,LP_Para=LP_Para,HP_Para = HP_Para)
     else:
         cell_dic = OS_Tools.Load_Variable(cell_method)
         
@@ -301,7 +292,7 @@ def Standard_Stim_Processor(
         current_cell_sub_graph,current_cell_t_graph,current_cell_info = Single_Cellgraph_Generator(dF_F_train,cell_info,show_clip,A_IDs,B_IDs)
         Graph_Tools.Show_Graph(current_cell_sub_graph, current_key+'_Cell_SubGraph', output_folder)
         Graph_Tools.Show_Graph(current_cell_t_graph, current_key+'_Cell_T_Graph', output_folder)
-        OS_Tools.Save_Variable(output_folder, current_key+'_Sub_Info', current_cell_info,extend_name = '.info')
+        OS_Tools.Save_Variable(output_folder, current_key+'_Cell_Info', current_cell_info,extend_name = '.info')
     #Step7, calculate cell tuning graph.
     if tuning_graph == True:
         print('Not finished yet.')

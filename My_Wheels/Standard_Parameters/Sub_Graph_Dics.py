@@ -11,7 +11,7 @@ def Sub_Dic_Generator(mode):
 
     Parameters
     ----------
-    mode : ('G8','G890','RGLum4','OD_OI','OD_2P')
+    mode : ('G8','G8+90','RGLum4','OD_OI','OD_2P')
         Mode of data. This is important for 
 
     Returns
@@ -60,7 +60,7 @@ def Sub_Dic_Generator(mode):
         sub_dics['Orien45-0'] = [[2,6],[0]]
         sub_dics['Orien90-0'] = [[3,7],[0]]
         sub_dics['Orien135-0'] = [[4,8],[0]]
-        sub_dics['DirU-D'] = [[2,1,3],[4,5,6]]
+        sub_dics['DirU-D'] = [[2,1,8],[4,5,6]]
         sub_dics['DirL-R'] = [[2,3,4],[6,7,8]]
         
         

@@ -153,4 +153,18 @@ def Cell_Find_And_Plot(
         Graph_Tools.Show_Graph(Finded_Cells[all_keys[i]],graph_name = all_keys[i],save_path = graph_save_folder,show_time = 2000,write = True)
     return Finded_Cells
 
-
+#%% Function3, On-Off cell graph generator.
+def On_Off_Cell_Finder(
+        all_tif_name,
+        Stim_Frame_Dic,
+        find_thres = 2,
+        max_pix = 1000,
+        min_pix = 20,
+        shape_boulder = [20,20,20,20], 
+        sharp_gauss = ([7,7],1.5),
+        back_gauss = ([15,15],7),
+        size_limit = 20
+        ):
+    # Generater On-Off graph.
+    
+    return Finded_Cells

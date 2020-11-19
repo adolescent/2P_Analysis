@@ -107,6 +107,30 @@ def Single_Cellgraph_Generator(
         A_IDs,
         B_IDs,
         ):
+    '''
+    Generate singel cellgraph.
+
+    Parameters
+    ----------
+    dF_F_train : (NdArray)
+        Calculated dF/F train of cells.
+    cell_information : (Cell data)
+        Finded cell information.
+    clip : (float)
+        Clipd of cell data plot.
+    A_IDs : (list)
+        A set IDs. Calculation A-B
+
+    Returns
+    -------
+    sub_cell_graph : (NdArray,(shape,3))
+        Cell subgraph. BGR array.
+    t_cell_graph : (NdArray,(shape,3))
+        Cell t graph. BGR array.
+    cell_info_dic : (Dic)
+        Information of subtraction.
+
+    '''
     graph_shape = np.shape(cell_information[0]._label_image)
     sub_cell_graph = np.zeros(shape = (graph_shape+(3,)),dtype = 'u1')# color graph,BGR.
     t_cell_graph = np.zeros(shape = (graph_shape+(3,)),dtype = 'u1')
@@ -142,11 +166,11 @@ def Single_Cellgraph_Generator(
     for i in range(cell_Num):
         current_cell_info = cell_information[i]
         y_list,x_list = current_cell_info.coords[:,0],current_cell_info.coords[:,1]
-        if normed_cell_dF_F_array >0:
+        if normed_cell_dF_F_array[i] >0:
             sub_cell_graph[y_list,x_list,2] = normed_cell_dF_F_array[i]*255
         else:
             sub_cell_graph[y_list,x_list,0] = abs(normed_cell_dF_F_array[i])*255
-        if normed_cell_t_array >0:
+        if normed_cell_t_array[i] >0:
             t_cell_graph[y_list,x_list,2] = normed_cell_t_array[i]*255
         else:
             t_cell_graph[y_list,x_list,0] = abs(normed_cell_t_array[i])*255
@@ -168,6 +192,41 @@ def Standard_Stim_Processor(
              spike_train_filter_para = (False,False),
              spike_train_filter_method = False
              ):
+    '''
+    Generate subtraction graph, cell graph and tuning graphs if requred.
+
+    Parameters
+    ----------
+    data_folder : (str)
+        Run folder.
+    stim_folder : (str)
+        Stim file folder or Frame_Stim_Align File folder. Pre align is advised.
+    sub_dic : (Dic)
+        Subtraction dicionary. This can be generated from My_Wheels.Standard_Parameters
+    show_clip : (float), optional
+        Clip of graph show. The default is 3.
+    tuning_graph : (bool), optional
+        Whether we generate tuning graph of each cells. The default is False.
+    cell_method : (str), optional
+        Cell find method. You can input cell file path here. The default is 'Default'.
+    filter_method : (str), optional
+        False to skip filter. Kernel function of graph filtering. The default is 'Gaussian'.
+    LP_Para : (turple), optional
+        False to skip. Low pass filter of graph. The default is ((5,5),1.5).
+    HP_Para : (turple), optional
+        False to skip. High pass filter of graph. Big HP can be very slow!. The default is False.
+    spike_train_path : (str), optional
+        Path of spike train.'Default' will generate spike train directly. The default is 'Default'.
+    spike_train_filter_para : (turple), optional
+        Signal filter bandpass propotion of spike train. Please be sure if you need this. The default is (False,False).
+    spike_train_filter_method : (str), optional
+        False to skip. Method of signal filtering. The default is False.
+
+    Returns
+    -------
+    None.
+
+    '''
     # Path Cycle.
     work_folder = data_folder+r'\Results'
     OS_Tools.mkdir(work_folder)
@@ -239,13 +298,16 @@ def Standard_Stim_Processor(
         OS_Tools.Save_Variable(output_folder, current_key+'_Sub_Info', current_F_info,extend_name = '.info')
         # Get cell maps
         cell_info = cell_dic['All_Cell_Information']
-        
-            
-    #Step8, calculate cell subgraph and t-graph.
+        current_cell_sub_graph,current_cell_t_graph,current_cell_info = Single_Cellgraph_Generator(dF_F_train,cell_info,show_clip,A_IDs,B_IDs)
+        Graph_Tools.Show_Graph(current_cell_sub_graph, current_key+'_Cell_SubGraph', output_folder)
+        Graph_Tools.Show_Graph(current_cell_t_graph, current_key+'_Cell_T_Graph', output_folder)
+        OS_Tools.Save_Variable(output_folder, current_key+'_Sub_Info', current_cell_info,extend_name = '.info')
+    #Step7, calculate cell tuning graph.
+    if tuning_graph == True:
+        print('Not finished yet.')
+    
+    
     
         
-if __name__ == '__main__' :
-    from My_Wheels.Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
-    G8_Dic = Sub_Dic_Generator('G8+90')
-    print('Test Run')
+
     

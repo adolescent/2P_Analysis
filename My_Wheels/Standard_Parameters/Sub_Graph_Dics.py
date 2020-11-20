@@ -55,7 +55,7 @@ def Sub_Dic_Generator(mode):
         sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
         sub_dics['H-V'] = [[1,5],[3,7]]
         sub_dics['A-O'] = [[2,6],[4,8]]
-        sub_dics['HV-AO'] = [[1,3,5,8],[2,4,6,8]]
+        sub_dics['HV-AO'] = [[1,3,5,7],[2,4,6,8]]
         sub_dics['Orien0-0'] = [[1,5],[0]]
         sub_dics['Orien45-0'] = [[2,6],[0]]
         sub_dics['Orien90-0'] = [[3,7],[0]]

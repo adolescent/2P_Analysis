@@ -11,7 +11,6 @@ import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import numpy as np
 import cv2
 from My_Wheels.Translation_Align_Function import Translation_Alignment
-from Cell_Find_From_Graph import On_Off_Cell_Finder
 import My_Wheels.Filters as My_Filter
 
 def Single_Subgraph_Generator(
@@ -20,7 +19,8 @@ def Single_Subgraph_Generator(
         filter_method = 'Gaussian',
         LP_Para = ((5,5),1.5),
         HP_Para = False,
-        t_map = True
+        t_map = True,
+        t_sig = 0.05
         ):
     '''
     Generate single subtraction map of 2P data. A-B graph is generated.
@@ -41,6 +41,8 @@ def Single_Subgraph_Generator(
         Can be set False to skip. High pass filter parameter. The default is False.
     t_map : (bool), optional
         Whether t map is generated. The default is True.
+    t_sig:(0~1),optional.
+        Threshold of significant t map. The default is 0.01.
 
     Returns
     -------
@@ -94,9 +96,11 @@ def Single_Subgraph_Generator(
         for i in range(F_info_Dics['Graph_Shape'][0]):
             for j in range(F_info_Dics['Graph_Shape'][1]):
                 t_value_graph[i,j],p_value_graph[i,j] = ttest_rel(A_graph_arrays[i,j,:],B_graph_arrays[i,j,:])
-        t_graph = t_value_graph
-        F_info_Dics['t_graph'] = t_graph
+        t_graph_origin = t_value_graph
+        F_info_Dics['t_graph_origin'] = t_graph_origin
         F_info_Dics['p_value_of_t_test'] = p_value_graph
+        t_graph = t_graph_origin*(p_value_graph<t_sig)
+        F_info_Dics['t_graph'] = t_graph
 
     return sub_graph,t_graph,F_info_Dics
 
@@ -228,6 +232,7 @@ def Standard_Stim_Processor(
 
     '''
     # Path Cycle.
+    from Cell_Find_From_Graph import On_Off_Cell_Finder
     work_folder = data_folder+r'\Results'
     OS_Tools.mkdir(work_folder)
     aligned_frame_folder = work_folder+r'\Aligned_Frames'

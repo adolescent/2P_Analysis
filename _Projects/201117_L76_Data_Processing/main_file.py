@@ -79,5 +79,22 @@ Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-002',
                         spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-002\Results\Cells\dF_F_train.pkl',
                         )
 #%% Then OD
-
+OD_Subdic = Sub_Dic_Generator('OD_2P')
+Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-003',
+                        stim_folder = r'G:\Test_Data\2P\201111_L76_LM\1-003\Results\Stim_Frame_Align.pkl',
+                        sub_dic = OD_Subdic,
+                        tuning_graph=False,
+                        cell_method = r'G:\Test_Data\2P\201111_L76_LM\1-003\Results\Cells\Finded_Cells.cell',
+                        spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-003\Results\Cells\dF_F_train.pkl',
+                        )
 #%% Then RGLum4
+RG_Subdic = Sub_Dic_Generator('RGLum4')
+Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-009',
+                        stim_folder = r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Stim_Frame_Align.pkl',
+                        sub_dic = RG_Subdic,
+                        tuning_graph=False,
+                        cell_method = r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Cells\Finded_Cells.cell',
+                        spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Cells\dF_F_train.pkl',
+                        )
+#%% Morphology cell find, and get tuning here.
+

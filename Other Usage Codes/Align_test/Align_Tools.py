@@ -19,7 +19,6 @@ def alignImages(im1, im2):
   # Convert images to grayscale
   im1Gray = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
   im2Gray = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
-
   # Detect ORB features and compute descriptors.
   orb = cv2.ORB_create(MAX_FEATURES)
   keypoints1, descriptors1 = orb.detectAndCompute(im1Gray, None)

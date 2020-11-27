@@ -97,4 +97,47 @@ Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-009',
                         spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Cells\dF_F_train.pkl',
                         )
 #%% Morphology cell find, and get tuning here.
-
+from My_Wheels.Cell_Find_From_Graph import Cell_Find_And_Plot
+#Use Global average to find cells.
+Cell_Find_And_Plot(r'G:\Test_Data\2P\201111_L76_LM\1-001\Results', 'Global_Average_After_Align.tif', 'Morpho',find_thres = 1.5)
+#%% Use This cell to do train again.
+from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
+run_list = [
+    r'G:\Test_Data\2P\201111_L76_LM\1-002',
+    r'G:\Test_Data\2P\201111_L76_LM\1-003',
+    r'G:\Test_Data\2P\201111_L76_LM\1-009'
+    ]
+for i in range(3):
+    cell_dic = OS_Tools.Load_Variable(run_list[i]+r'\Results\Morpho\Morpho.cell')
+    all_tif_name = OS_Tools.Get_File_Name(run_list[i]+r'\Results\Aligned_Frames')
+    stim_train = OS_Tools.Load_Variable(run_list[i]+r'\Results\Stim_Frame_Align.pkl')['Original_Stim_Train']
+    F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_dic['All_Cell_Information'])
+    OS_Tools.Save_Variable(run_list[i]+r'\Results\Morpho', 'F_train', F_train)
+    OS_Tools.Save_Variable(run_list[i]+r'\Results\Morpho', 'dF_F_train', dF_F_train)
+#%%
+G8_Subdic = Sub_Dic_Generator('G8+90')
+Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-002',
+                        stim_folder = r'G:\Test_Data\2P\201111_L76_LM\1-002\Results\Stim_Frame_Align.pkl',
+                        sub_dic = G8_Subdic,
+                        tuning_graph=False,
+                        cell_method = r'G:\Test_Data\2P\201111_L76_LM\1-002\Results\Morpho\Morpho.cell',
+                        spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-002\Results\Morpho\dF_F_train.pkl',
+                        )
+#%%
+OD_Subdic = Sub_Dic_Generator('OD_2P')
+Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-003',
+                        stim_folder = r'G:\Test_Data\2P\201111_L76_LM\1-003\Results\Stim_Frame_Align.pkl',
+                        sub_dic = OD_Subdic,
+                        tuning_graph=False,
+                        cell_method = r'G:\Test_Data\2P\201111_L76_LM\1-003\Results\Morpho\Morpho.cell',
+                        spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-003\Results\Morpho\dF_F_train.pkl',
+                        )
+#%%
+RG_Subdic = Sub_Dic_Generator('RGLum4')
+Standard_Stim_Processor(r'G:\Test_Data\2P\201111_L76_LM\1-009',
+                        stim_folder = r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Stim_Frame_Align.pkl',
+                        sub_dic = RG_Subdic,
+                        tuning_graph=False,
+                        cell_method = r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Morpho\Morpho.cell',
+                        spike_train_path=r'G:\Test_Data\2P\201111_L76_LM\1-009\Results\Morpho\dF_F_train.pkl',
+                        )

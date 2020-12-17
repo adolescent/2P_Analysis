@@ -13,7 +13,8 @@ import numpy as np
 import My_Wheels.OS_Tools_Kit as OS_Tools
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import My_Wheels.Filters as Filters
-
+#%% Old Core function of affine.
+# This function is really OLD!! Will be out of date very sooon.
 def Affine_Core(
         base,
         target,
@@ -93,8 +94,53 @@ def Affine_Core(
     
     return matched_graph,h
 
+#%% Affine match with point restriction.
+def Affine_Core_Point_Equal(
+        target,
+        base,
+        targ_gain = 20,
+        max_point = 50000,
+        good_match_prop = 0.3,
+        sector_num = 4,
+        dist_lim = 200,
+        Filter = True
+        ):
+    height,width = base.shape
+    pix_persec = height//sector_num
+    # Check data type.
+    if base.dtype != np.dtype('u1'):
+        raise IOError('Base graph dtype shall be u1!')
+    if target.dtype == np.dtype('u1'):
+        target = target.astype('u2')*256
+    elif target.dtype == np.dtype('u2'):
+        target = target
+    else:
+        raise IOError('Target graph dtype shall be u1 or u2!')
+    # Change graph data type. Only 8bit 1channel graph is allowed.
+    if Filter == True:
+        target_filted = Filters.Filter_2D(target,HP_Para=False)
+    else:
+        target_filted = target
+    target_8bit = np.clip((target_filted.astype('f8')*targ_gain/256),0,255).astype('u1')
+    # Detect ORB features and compute descriptors.
+    orb = cv2.ORB_create(max_point)
+    keypoints1, descriptors1 = orb.detectAndCompute(target_8bit, None)
+    keypoints2, descriptors2 = orb.detectAndCompute(base, None)
+    # Match features.
+    matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
+    matches = matcher.match(descriptors1, descriptors2, None)
+    # Then eliminate match with bigger dist.
+    matches.sort(key=lambda x: x.distance, reverse=False)
+    while (matches[-1].distance>dist_lim):
+        matches.pop(-1)
+    # Then get num of good matches and distribute them into quaters.
+    good_match_num = round(len(matches)*good_match_prop)
+    max_point_per_sector = good_match_num//sector_num
+    for i in range(matches):
+        current_y = keypoints2[matches[i].trainIdx].pt[1] # Use y loc in base graph as indicator.
+        
 
-
+#%% Practical affine function circulation.
 def Affine_Graph_Aligner(
         data_folder,
         base_graph,

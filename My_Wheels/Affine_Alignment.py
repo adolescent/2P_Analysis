@@ -22,7 +22,8 @@ def Affine_Core(
         max_point = 100000,
         good_match = 0.15,
         dist_lim = 40,
-        Filter = True
+        Filter = True,
+        match_checker = 1,
         ):
     '''
     Use ORB method to do affine correlation.
@@ -86,7 +87,7 @@ def Affine_Core(
     # Find homography
     h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)
     # h Check here to avoid bad mistake. This part can be revised and discussed.
-    if abs(h[0,1])>1:
+    if abs(h[0,1])>match_checker:
         raise IOError('Bad match, please check parameters.')
     
     height,width = base.shape
@@ -103,10 +104,10 @@ def Affine_Core_Point_Equal(
         good_match_prop = 0.3,
         sector_num = 4,
         dist_lim = 200,
-        Filter = True
+        Filter = True,
+        match_checker = 1
         ):
     height,width = base.shape
-    pix_persec = height//sector_num
     # Check data type.
     if base.dtype != np.dtype('u1'):
         raise IOError('Base graph dtype shall be u1!')
@@ -136,17 +137,41 @@ def Affine_Core_Point_Equal(
     # Then get num of good matches and distribute them into quaters.
     good_match_num = round(len(matches)*good_match_prop)
     max_point_per_sector = good_match_num//sector_num
-    for i in range(matches):
+    sector_height = height//sector_num
+    sector_counter = np.zeros(sector_num)
+    used_matches = []
+    for i in range(len(matches)):
         current_y = keypoints2[matches[i].trainIdx].pt[1] # Use y loc in base graph as indicator.
+        current_sector = int(current_y//sector_height)
+        if sector_counter[current_sector]<max_point_per_sector:
+            used_matches.append(matches[i])
+            sector_counter[current_sector] +=1
+    # Extract location of good matches
+    points1 = np.zeros((len(used_matches), 2), dtype=np.float32)
+    points2 = np.zeros((len(used_matches), 2), dtype=np.float32)
+    for i, match in enumerate(used_matches):
+        points1[i, :] = keypoints1[match.queryIdx].pt
+        points2[i, :] = keypoints2[match.trainIdx].pt
+    # Find homography
+    h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)  
+    # h Check here to avoid bad mistake. This part can be revised and discussed.
+    if abs(h[0,1])>match_checker:
+        raise IOError('Bad match, please check parameters.')
+    
+    height,width = base.shape
+    matched_graph = cv2.warpPerspective(target, h, (width, height))
+    
+    return matched_graph,h
         
 
 #%% Practical affine function circulation.
 def Affine_Graph_Aligner(
         data_folder,
         base_graph,
-        max_point = 100000,
-        good_match = 0.3,
-        dist_lim = 120
+        max_point = 50000,
+        good_match_prop = 0.3,
+        dist_lim = 120,
+        match_checker = 1
         ):
     OS_Tools.mkdir(data_folder+r'\Results')
     aligned_graph_folder = data_folder+r'\Results\Affine_Aligned_Graphs'
@@ -155,7 +180,7 @@ def Affine_Graph_Aligner(
     h_dic = {}
     for i in range(len(all_tif_name)):
         current_target = cv2.imread(all_tif_name[i],-1)
-        aligned_graph,h = Affine_Core(base_graph, current_target,max_point = max_point,good_match = good_match,dist_lim =dist_lim,Filter = True)
+        aligned_graph,h = Affine_Core_Point_Equal(current_target,base_graph,max_point = max_point,good_match_prop = good_match_prop,dist_lim =dist_lim,Filter = True,match_checker = match_checker)
         Graph_Tools.Show_Graph(aligned_graph,all_tif_name[i].split('\\')[-1], aligned_graph_folder,show_time = 0,graph_formation= '')
         h_dic[i] = h
     aligned_all_graph_name = OS_Tools.Get_File_Name(aligned_graph_folder)

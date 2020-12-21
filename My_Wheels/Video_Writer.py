@@ -12,42 +12,41 @@ import My_Wheels.Filters as Filters
 
 def Video_From_File(
         data_folder,
-        graph_size = (512,512),
+        graph_size = (472,472),
         file_type = '.tif',
         fps = 15,
         gain = 20,
         LP_Gaussian = ([5,5],1.5),
         frame_annotate = True,
-        cut_boulder = [20,20,20,20],
+        cut_boulder = [20,20,20,20]
         ):
     '''
     Write all files in a folder as a video.
 
     Parameters
     ----------
-    data_folder : TYPE
-        DESCRIPTION.
-    graph_size : TYPE, optional
-        DESCRIPTION. The default is (512,512).
-    file_type : TYPE, optional
-        DESCRIPTION. The default is '.tif'.
-    fps : TYPE, optional
-        DESCRIPTION. The default is 15.
-    gain : TYPE, optional
-        DESCRIPTION. The default is 20.
-    LP_Gaussian : TYPE, optional
-        DESCRIPTION. The default is ([5,5],1.5).
+    data_folder : (std)
+        Frame folder. All frame in this folder will be write into video. Dtype shall be u2 or there will be a problem.
+    graph_size : (2-element-turple), optional
+        Frame size AFTER cut. The default is (472,472).
+    file_type : (str), optional
+        Data type of graph file. The default is '.tif'.
+    fps : (int), optional
+        Frame per second. The default is 15.
+    gain : (int), optional
+        Show gain. The default is 20.
+    LP_Gaussian : (turple), optional
+        LP Gaussian Filter parameter. Only do low pass. The default is ([5,5],1.5).
     frame_annotate : TYPE, optional
-        DESCRIPTION. The default is True.
+        Whether we annotate frame number on it. The default is True.
     cut_boulder : TYPE, optional
-        DESCRIPTION. The default is [20,20,20,20].
-     : TYPE
-        DESCRIPTION.
+        Boulder cut of graphs, UDLR. The default is [20,20,20,20].
+
 
     Returns
     -------
     bool
-        DESCRIPTION.
+        True if function processed.
 
     '''
 
@@ -64,8 +63,10 @@ def Video_From_File(
         # Then do filter, then 
         if LP_Gaussian != False:
             u1_writable_graph = Filters.Filter_2D(gained_graph,LP_Gaussian,False)
+        else:
+            u1_writable_graph = gained_graph
         if frame_annotate == True:
-            cv2.putText(u1_writable_graph,'Stim ID = '+str(i),(300,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
+            cv2.putText(u1_writable_graph,'Stim ID = '+str(i),(250,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
         video_writer.write(u1_writable_graph)
     del video_writer 
     return True

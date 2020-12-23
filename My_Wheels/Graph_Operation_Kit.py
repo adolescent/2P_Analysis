@@ -524,3 +524,31 @@ def Graph_Center_Calculator(input_graph,center_mode = 'weight',annotate_brightne
     annotate_graph = (annotate_graph*255).astype('u1')
     return center_loc,annotate_graph
 
+#%% Function 15: Graph Boulder Extend
+def Boulder_Extend(graph,pix_extend,fill_value = 0):
+    '''
+    Extend graph boulders with specific value. Graph shape WILL change.
+
+    Parameters
+    ----------
+    graph : (2D Array)
+        Input graph.
+    pix_extend : (list)
+        [Up,Down,Left,Right]. List of pix num we extend.
+    fill_value : (int), optional
+        The value we fill into the extend pix. The default is 0.
+
+    Returns
+    -------
+    extended_graph : (2D Array)
+        Extended graph. Shape shall be checked.
+
+    '''
+    height,width = graph.shape
+    origin_dtype = graph.dtype
+    extend_height = height+pix_extend[0]+pix_extend[1]
+    extend_width = width+pix_extend[2]+pix_extend[3]
+    extended_graph = np.ones(shape = (extend_height,extend_width),dtype = origin_dtype)*fill_value
+    extended_graph[pix_extend[0]:(pix_extend[0]+height),pix_extend[2]:(pix_extend[2]+width)] = graph
+    
+    return extended_graph

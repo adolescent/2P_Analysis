@@ -303,7 +303,10 @@ def Standard_Stim_Processor(
         print('Not finished yet.')
     
     
-    
+#%% Make a function to 1 key process stim map.
+def One_Key_Stim_Maps(
+        
+        ):
         
 
     

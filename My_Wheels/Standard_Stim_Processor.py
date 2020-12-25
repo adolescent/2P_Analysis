@@ -12,6 +12,7 @@ import numpy as np
 import cv2
 from My_Wheels.Translation_Align_Function import Translation_Alignment
 import My_Wheels.Filters as My_Filter
+from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
 
 def Single_Subgraph_Generator(
         all_tif_name,
@@ -186,6 +187,7 @@ def Standard_Stim_Processor(
              data_folder,
              stim_folder,
              sub_dic,
+             alinged_sub_folder = r'\Results\Aligned_Frames',
              show_clip = 3,
              tuning_graph = False,
              cell_method = 'Default',
@@ -235,7 +237,7 @@ def Standard_Stim_Processor(
     from Cell_Find_From_Graph import On_Off_Cell_Finder
     work_folder = data_folder+r'\Results'
     OS_Tools.mkdir(work_folder)
-    aligned_frame_folder = work_folder+r'\Aligned_Frames'
+    aligned_frame_folder = data_folder+alinged_sub_folder
     OS_Tools.mkdir(aligned_frame_folder)
     
     # Step1, align graphs. If already aligned, just read 
@@ -264,7 +266,7 @@ def Standard_Stim_Processor(
     if spike_train_path != 'Default':
         dF_F_train = OS_Tools.Load_Variable(spike_train_path)
     else:# meaning we need to calculate spike train from the very begining.
-        from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
+        
         _,dF_F_train = Spike_Train_Generator(aligned_all_tif_name,cell_dic['All_Cell_Information'],Base_F_type = 'nearest_0',stim_train = Frame_Stim_Dic['Original_Stim_Train'],LP_Para = LP_Para,HP_Para = HP_Para,filter_method = filter_method)
     #Step5, filt spike trains.
     if spike_train_filter_method != False: # Meaning we need to do train filter.
@@ -305,8 +307,31 @@ def Standard_Stim_Processor(
     
 #%% Make a function to 1 key process stim map.
 def One_Key_Stim_Maps(
-        
+        data_folder,
+        cell_folder,
+        sub_dic,
+        alinged_sub_folder = r'\Results\Aligned_Frames',
+        Stim_Align_sub_folder = r'\Results\Stim_Frame_Align.pkl'
         ):
-        
+    '''
+    1 key generate stim map. Befor using this, you need to :
+        1.align graphs
+        2.give cell file path.
+        3.Finish stim frame align.
+    '''
+    result_folder = data_folder+r'\Results'
+    stim_folder = data_folder + Stim_Align_sub_folder
+    cell_path = OS_Tools.Get_File_Name(cell_folder,'.cell')[0]
+    cell_dic = OS_Tools.Load_Variable(cell_path)
+    # Then generate spiketrain
+    all_tif_name = OS_Tools.Get_File_Name(data_folder+alinged_sub_folder)
+    cell_information = OS_Tools.Load_Variable()
+    F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information)
+    Standard_Stim_Processor(data_folder, 
+                            stim_folder,
+                            sub_dic,
+                            spike_train_path
+                            )
+    
 
     

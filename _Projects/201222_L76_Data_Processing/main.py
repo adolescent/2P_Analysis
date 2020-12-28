@@ -9,7 +9,7 @@ import My_Wheels.List_Operation_Kit as List_Tools
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import My_Wheels.OS_Tools_Kit as OS_Tools
 import cv2
-data_folder = [r'I:\Test_Data\2P\201222_L76_2P']
+data_folder = [r'E:\Test_Data\2P\201222_L76_2P']
 run_list = [
     '1-001',# Spon
     '1-008',# OD
@@ -45,12 +45,22 @@ for i in range(3):
     current_stim_folder = all_stim_folder[i]
     _,stimdic = Stim_Frame_Align(current_stim_folder,jmp_step = 1500,head_extend = -1)# for T pre
     OS_Tools.Save_Variable(current_stim_folder, 'Stim_Frame_Align', stimdic)
-#%% Then calculate cell from spon brightest 5%
-from My_Wheels.Graph_Selector import Intensity_Selector
+#%% Use global morpho as base to find cell.
 from My_Wheels.Cell_Find_From_Graph import Cell_Find_And_Plot
-cell_base_graph,_ = Intensity_Selector(r'I:\Test_Data\2P\201222_L76_2P\1-001\Results\Aligned_Frames')
-cell_base_graph = Graph_Tools.Clip_And_Normalize(cell_base_graph,clip_std = 5)
-Graph_Tools.Show_Graph(cell_base_graph, 'Cell_Find_Base', r'I:\Test_Data\2P\201222_L76_2P\1-001\Results')
-Cell_Find_And_Plot(r'I:\Test_Data\2P\201222_L76_2P\1-001\Results', 'Cell_Find_Base.tif', 'Spon_Base',find_thres = 1.5)
-#%% 
-
+global_cell = Cell_Find_And_Plot(r'E:\Test_Data\2P\201222_L76_2P\1-008\Results', 'Global_Average_After_Align.tif', 'Global_Morpho',1)
+cell_folder = r'E:\Test_Data\2P\201222_L76_2P\1-008\Results\Global_Morpho'
+#%% For Run08
+from My_Wheels.Standard_Stim_Processor import One_Key_Stim_Maps
+from My_Wheels.Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
+# Calculate Run08 Cells.
+OD_Folder = r'E:\Test_Data\2P\201222_L76_2P\1-008'
+OD_sub_dic = Sub_Dic_Generator('OD_2P')
+One_Key_Stim_Maps(OD_Folder, cell_folder, OD_sub_dic)
+#%% Then Run 10 G8
+G8_Folder = r'E:\Test_Data\2P\201222_L76_2P\1-010'
+G8_sub_dic = Sub_Dic_Generator('G8+90')
+One_Key_Stim_Maps(G8_Folder, cell_folder, G8_sub_dic)
+#%% Then RGLum4
+RG_Folder = r'E:\Test_Data\2P\201222_L76_2P\1-011'
+RG_sub_dic = Sub_Dic_Generator('RGLum4')
+One_Key_Stim_Maps(RG_Folder, cell_folder, RG_sub_dic)

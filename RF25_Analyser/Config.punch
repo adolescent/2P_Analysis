@@ -1,0 +1,17 @@
+This file is used to config graph & stim folder. Do not change this struct.
+#####################################################################################
+Frame Foler:
+D:\ZR\Data_Temp\200122_L80_LM\1-007
+----------------------------------------
+Stim Folder
+D:\ZR\Data_Temp\200122_L80_LM\200122_L80LM_2P_stimuli\Run07_RE_RFloca25_G4_noISI_stimuli1.5deg_step1.5deg_W_forV1
+----------------------------------------
+Capturing Frequency(Hz)
+2.8
+----------------------------------------
+Frame find Voltage(Usually no need to change.V)
+1
+######################################################################################
+Input finish
+Please Click RFOnline.exe
+Have Fun (T_T)/~~~

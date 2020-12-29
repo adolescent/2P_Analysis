@@ -14,6 +14,7 @@ import cv2
 def Tremble_Evaluator(
         data_folder,
         ftype = '.tif',
+        binary_thres = 1,
         boulder_ignore = 20,
         cut_shape = (4,4)
         ):
@@ -51,6 +52,7 @@ def Tremble_Evaluator(
     centere_loc_dic = {}
     for i in range(len(all_tif_name)):
         current_graph = cv2.imread(all_tif_name[i],-1)
+        
         _,_,_,current_cutted_graphs = Graph_Cutter(current_graph,boulder_ignore,cut_shape)
         
         

@@ -21,7 +21,7 @@ def Single_Subgraph_Generator(
         LP_Para = ((5,5),1.5),
         HP_Para = False,
         t_map = True,
-        t_sig = 0.05
+        t_sig = 1
         ):
     '''
     Generate single subtraction map of 2P data. A-B graph is generated.
@@ -43,7 +43,7 @@ def Single_Subgraph_Generator(
     t_map : (bool), optional
         Whether t map is generated. The default is True.
     t_sig:(0~1),optional.
-        Threshold of significant t map. The default is 0.01.
+        Threshold of significant t map. The default is 1.
 
     Returns
     -------
@@ -320,17 +320,23 @@ def One_Key_Stim_Maps(
         3.Finish stim frame align.
     '''
     result_folder = data_folder+r'\Results'
-    stim_folder = data_folder + Stim_Align_sub_folder
+    stim_path = data_folder + Stim_Align_sub_folder
     cell_path = OS_Tools.Get_File_Name(cell_folder,'.cell')[0]
     cell_dic = OS_Tools.Load_Variable(cell_path)
     # Then generate spiketrain
+    stim_train = OS_Tools.Load_Variable(stim_path)['Original_Stim_Train']
     all_tif_name = OS_Tools.Get_File_Name(data_folder+alinged_sub_folder)
-    cell_information = OS_Tools.Load_Variable()
-    F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information)
+    cell_information = cell_dic['All_Cell_Information']
+    F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information,Base_F_type='nearest_0',stim_train = stim_train)
+    # Then save F and dF/F trains
+    OS_Tools.Save_Variable(result_folder, 'F_Trains', F_train)
+    OS_Tools.Save_Variable(result_folder, 'dF_F_Trains', dF_F_train)
+    # At last, calculate Maps.
     Standard_Stim_Processor(data_folder, 
-                            stim_folder,
+                            stim_path,
                             sub_dic,
-                            spike_train_path
+                            cell_method = cell_path,
+                            spike_train_path = result_folder+r'\dF_F_Trains.pkl'
                             )
     
 

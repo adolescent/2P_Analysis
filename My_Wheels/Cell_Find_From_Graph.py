@@ -19,6 +19,7 @@ import Cell_Visualization as Visualize
 import cv2
 import My_Wheels.OS_Tools_Kit as OS_Tools
 from skimage import filters
+import My_Wheels.Graph_Selector as Graph_Selector
 
 #%% Main Function: Return finded graphs.
 def Cell_Find_From_Graph(
@@ -182,3 +183,21 @@ def On_Off_Cell_Finder(
     on_off_graph = Graph_Tools.Clip_And_Normalize(on_off_graph,clip_std = 2.5)
     Finded_Cells = Cell_Find_From_Graph(on_off_graph,find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
     return on_off_graph,Finded_Cells
+#%% Function4, Cell Find from a.i. active .
+def Cell_Find_From_active(
+        aligned_data_folder,
+        find_thres = 1,
+        active_mode = 'biggest',
+        propotion = 0.05,
+        max_pix = 1000,
+        min_pix = 20,
+        shape_boulder = [20,20,20,20], 
+        sharp_gauss = ([7,7],1.5),
+        back_gauss = ([15,15],7),
+        size_limit = 20  
+        ):
+    intensity_selected_graph,_ = Graph_Selector.Intensity_Selector(aligned_data_folder,mode = active_mode,propotion=propotion,list_write=False)
+    save_folder = '\\'.join(aligned_data_folder.split('\\')[:-1])
+    Graph_Tools.Show_Graph(Graph_Tools.Clip_And_Normalize(intensity_selected_graph,clip_std = 5), 'Cell_Find_Base', save_folder)
+    Cell_Finded = Cell_Find_And_Plot(save_folder, 'Cell_Find_Base.tif', 'Active_Cell',find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
+    return Cell_Finded

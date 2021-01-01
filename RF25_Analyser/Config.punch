@@ -1,10 +1,10 @@
 This file is used to config graph & stim folder. Do not change this struct.
 #####################################################################################
 Frame Foler:
-I:\Test_Data\2P\201211_L76_2P\1-008
+I:\Test_Data\2P\201222_L76_2P\1-004
 ----------------------------------------
 Stim Folder
-I:\Test_Data\2P\201211_L76_2P\201211_L76_2P_stimuli\Run08_RFloca25_G4_noISI_stimuli1.5deg_step1.5deg_W_forV1
+I:\Test_Data\2P\201222_L76_2P\201222_L76_2P_stimuli\Run04_RE_RFloca25_G4_noISI_W_forV1
 ----------------------------------------
 Capturing Frequency(Hz)
 1.3

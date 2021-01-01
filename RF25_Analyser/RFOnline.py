@@ -14,7 +14,7 @@ from My_Wheels.Stim_Frame_Align import Stim_Frame_Align
 from My_Wheels.Cell_Find_From_Graph import Cell_Find_And_Plot
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import numpy as np
-from operator import itemgetter
+import cv2
 #%% First, read in config file. 
 # All Read in shall be in this part to avoid bugs = =
 f = open('Config.punch','r')
@@ -27,7 +27,9 @@ frame_thres = float(config_info[12])
 #%% Second do graph align.
 save_folder = frame_folder+r'\Results'
 aligned_tif_folder = save_folder+r'\Aligned_Frames'
-Translation_Alignment([frame_folder],align_range = 10,align_boulder = 40,big_memory_mode=True)
+all_tif_name = OS_Tools.Get_File_Name(frame_folder)
+graph_size = np.shape(cv2.imread(all_tif_name[0],-1))
+Translation_Alignment([frame_folder],align_range = 10,align_boulder = 40,big_memory_mode=True,graph_shape = graph_size)
 aligned_all_tif_name = np.array(OS_Tools.Get_File_Name(aligned_tif_folder))
 #%% Third, Stim Frame Align
 jmp_step = int(5000//cap_freq)
@@ -50,3 +52,41 @@ for i in range(5):# i as vector1
         all_cells = current_graph*cell_mask
         RF_Data[i,j,0] = current_graph.mean()
         RF_Data[i,j,1] = all_cells.mean()
+# then sub average value.
+frame_average = RF_Data[:,:,0].min()
+cell_average = RF_Data[:,:,1].min()
+prop_RF_Data = np.zeros(shape = (5,5,2),dtype = 'f8')
+prop_RF_Data[:,:,0] = RF_Data[:,:,0]/frame_average -1
+prop_RF_Data[:,:,1] = RF_Data[:,:,1]/cell_average -1
+OS_Tools.Save_Variable(save_folder, 'Origin_RF_Data', RF_Data)
+#%% Then do Spline interpolation here.
+import pylab as pl
+# Show graph first.
+x = np.array([1,2,3,4,5])
+y = np.array([1,2,3,4,5])
+fval = prop_RF_Data[:,:,0]
+cval = prop_RF_Data[:,:,1]
+pl.figure(figsize=(10,7))
+pl.subplot(1,2,1)
+pl.xticks(np.arange(-5,6,1))
+pl.yticks(np.arange(-5,6,1))
+im1=pl.imshow(fval, extent=[1,5,5,1], cmap='inferno', interpolation='spline16', origin="upper")
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+ax = pl.gca()
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("right", size="5%", pad=0.05)
+pl.colorbar(im1, cax=cax)
+pl.title('Frame Data')
+# Then cell graph.
+pl.subplot(1,2,2)
+pl.xticks(np.arange(-5,6,1))
+pl.yticks(np.arange(-5,6,1))
+im2=pl.imshow(cval, extent=[1,5,5,1], cmap='inferno', interpolation='spline16', origin="upper")
+ax = pl.gca()
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("right", size="5%", pad=0.05)
+pl.colorbar(im2, cax=cax)
+pl.title('Cell Data')
+pl.savefig(save_folder+'\RF.png')
+pl.show()
+

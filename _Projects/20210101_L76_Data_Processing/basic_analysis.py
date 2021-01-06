@@ -43,5 +43,7 @@ from My_Wheels.Standard_Stim_Processor import One_Key_Stim_Maps
 OD_para = Sub_Dic_Generator('OD_2P')
 One_Key_Stim_Maps(r'I:\Test_Data\2P\210101_L76_2P\1-014', cell_folder, OD_para)
 
+# Then RGLum4 
+RG_para = Sub_Dic_Generator('RGLum4')
 
 

@@ -17,7 +17,7 @@ def Tremble_Evaluator(
         binary_thres = 1,
         boulder_ignore = 20,
         cut_shape = (4,4)
-        ):
+        ): 
     '''
     Evaluate tremble for graphs in given folder.
 

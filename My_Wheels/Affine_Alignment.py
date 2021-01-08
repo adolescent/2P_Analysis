@@ -189,3 +189,16 @@ def Affine_Graph_Aligner(
     Graph_Tools.Show_Graph(average_after, 'Average_After_Affine', data_folder+r'\Results')
     OS_Tools.Save_Variable(data_folder+r'\Results', 'Align_Paras', h_dic)
     return h_dic
+#%% Last, use gaussian average to do an align. BIG MEMORY required.
+def Affine_Aligner_Gaussian(
+        data_folder,
+        base_graph,
+        max_point = 50000,
+        good_match_prop = 0.3,
+        dist_lim = 120,
+        match_checker = 1
+        ):
+    
+    
+    
+    return h_dics

@@ -28,7 +28,7 @@ def Normalized_2D_Gaussian_Generator(parameter):
     """
     shape = parameter[0]
     sigma = parameter[1]
-    m,n = [(ss-1.)/2. for ss in shape] #得到横纵方向的半高宽
+    m,n = [(ss-1.)/2. for ss in shape] #得到横纵方向的半宽
     y,x = np.ogrid[-m:m+1,-n:n+1]    #左闭右开，得到每一个取值。
     h = np.exp( -(x*x + y*y) / (2.*sigma*sigma) )
     h[ h < np.finfo(h.dtype).eps*h.max() ] = 0 #小于精度的置为零。
@@ -73,3 +73,31 @@ def Vector_Calculate(point_A,point_B):
     vector = (y_loc,x_loc)
     norm = np.sqrt(np.square(x_loc)+np.square(y_loc))
     return vector,norm
+
+#%% Function 4: 1D Gaussian array generator
+def Normalized_1D_Gaussian_Generator(size,sigma):
+    '''
+    Generate 1D gaussian kernel. This is useful in window averaging.
+
+    Parameters
+    ----------
+    size : (odd)
+        Width of kernel. Must be odd value.
+    sigma : (float)
+        The std of gaussian array
+
+    Returns
+    -------
+    gaussian_array : (Array)
+        1D Gaussian array in shape given.
+
+    '''
+    if size%2 == 0:
+        raise ValueError('Gaussian Kernel size must be odd.')
+    half_width = (size-1)/2
+    x = np.ogrid[-half_width:half_width+1]
+    gaussian_array = np.exp(-(x*x)/(2*sigma*sigma))
+    gaussian_array[ gaussian_array < np.finfo(gaussian_array.dtype).eps*gaussian_array.max() ] = 0 #小于精度的置为零。
+    sumarray = gaussian_array.sum()
+    gaussian_array /= sumarray
+    return gaussian_array

@@ -141,4 +141,28 @@ def Signal_Filter(
         raise IOError('filter design not finished yet.')
         
     return filtedData
-    
+#%% Windows slip
+def Window_Average(
+        data_matrix,
+        window_size = 5,
+        window_method = 'Gaussian'
+        ):
+    '''
+    Average data matrix with given 
+
+    Parameters
+    ----------
+    data_matrix : TYPE
+        DESCRIPTION.
+    window_size : TYPE, optional
+        DESCRIPTION. The default is 5.
+    window_method : TYPE, optional
+        DESCRIPTION. The default is 'Gaussian'.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    '''
+    return averaged_series.

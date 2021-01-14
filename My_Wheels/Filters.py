@@ -165,4 +165,5 @@ def Window_Average(
         DESCRIPTION.
 
     '''
-    return averaged_series.
+    averaged_series = 0
+    return averaged_series

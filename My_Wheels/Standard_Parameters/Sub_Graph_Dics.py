@@ -72,4 +72,8 @@ def Sub_Dic_Generator(mode):
         sub_dics['Lum-0'] = [[3,4],[0]]
         
         
+    elif mode == 'Color7Dir8':
+        
+        
+        
     return sub_dics

@@ -47,7 +47,7 @@ for i in range(8):
     _,current_stim_dic = Stim_Frame_Align(all_stim_folders[i])
     OS_Tools.Save_Variable(all_stim_folders[i], 'Stim_Frame_Align', current_stim_dic)
 #%%Get F and dF trains here.
-cell_folder = r'E:\Test_Data\2P\210112_L76_2P\1-007\Results\All_Stim'
+cell_folder = r'H:\Test_Data\2P\210112_L76_2P\1-007\Results\All_Stim'
 from Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
 from Standard_Stim_Processor import One_Key_Stim_Maps
 # Run07,OD
@@ -61,3 +61,13 @@ One_Key_Stim_Maps(r'E:\Test_Data\2P\210112_L76_2P\1-011', cell_folder, G8_Para)
 RG_Para = Sub_Dic_Generator('RGLum4')
 One_Key_Stim_Maps(r'E:\Test_Data\2P\210112_L76_2P\1-014', cell_folder, RG_Para)
 One_Key_Stim_Maps(r'E:\Test_Data\2P\210112_L76_2P\1-015', cell_folder, RG_Para)
+C7D8_Para = Sub_Dic_Generator('Color7Dir8')
+One_Key_Stim_Maps(r'H:\Test_Data\2P\210112_L76_2P\1-013', cell_folder, C7D8_Para,have_blank = False)
+S3D8_Para = Sub_Dic_Generator('Shape3Dir8')
+One_Key_Stim_Maps(r'H:\Test_Data\2P\210112_L76_2P\1-016', cell_folder, S3D8_Para,have_blank = False)
+#%% Then calculate spon cell response.
+cell_dic = OS_Tools.Load_Variable(r'H:\Test_Data\2P\210112_L76_2P\1-007\Results\All_Stim\All_Stim.cell')
+all_cell_mask = cell_dic['Cell_Graph'][:,:,0]
+from My_Wheels.Average_Intensity_Calculator import AI_Calculator
+frame_series = AI_Calculator(r'H:\Test_Data\2P\210112_L76_2P\1-001\Results\Aligned_Frames')
+cell_series = AI_Calculator(r'H:\Test_Data\2P\210112_L76_2P\1-001\Results\Aligned_Frames',masks = all_cell_mask)

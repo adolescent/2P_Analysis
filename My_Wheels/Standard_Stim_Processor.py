@@ -310,6 +310,7 @@ def One_Key_Stim_Maps(
         data_folder,
         cell_folder,
         sub_dic,
+        have_blank = True,
         alinged_sub_folder = r'\Results\Aligned_Frames',
         Stim_Align_sub_folder = r'\Results\Stim_Frame_Align.pkl'
         ):
@@ -327,7 +328,11 @@ def One_Key_Stim_Maps(
     stim_train = OS_Tools.Load_Variable(stim_path)['Original_Stim_Train']
     all_tif_name = OS_Tools.Get_File_Name(data_folder+alinged_sub_folder)
     cell_information = cell_dic['All_Cell_Information']
-    F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information,Base_F_type='nearest_0',stim_train = stim_train)
+    if have_blank == True:
+        F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information,Base_F_type='nearest_0',stim_train = stim_train)
+    else:
+        print('No blank, use previous ISI to calculate trains')
+        F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information,Base_F_type='before_ISI',stim_train = stim_train)
     # Then save F and dF/F trains
     OS_Tools.Save_Variable(result_folder, 'F_Trains', F_train)
     OS_Tools.Save_Variable(result_folder, 'dF_F_Trains', dF_F_train)
@@ -338,6 +343,14 @@ def One_Key_Stim_Maps(
                             cell_method = cell_path,
                             spike_train_path = result_folder+r'\dF_F_Trains.pkl'
                             )
-    
+#%% A variation to generate frame graph only. This method need no cell and return no train.
+def One_Key_Frame_Graphs(
+        data_folder,
+        sub_dic,
+        alinged_sub_folder = r'\Results\Aligned_Frames',
+        Stim_Align_sub_folder = r'\Results\Stim_Frame_Align.pkl'
+        ):
+    print('Working on it!')
+    return True
 
     

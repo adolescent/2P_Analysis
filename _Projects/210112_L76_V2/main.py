@@ -71,3 +71,8 @@ all_cell_mask = cell_dic['Cell_Graph'][:,:,0]
 from My_Wheels.Average_Intensity_Calculator import AI_Calculator
 frame_series = AI_Calculator(r'H:\Test_Data\2P\210112_L76_2P\1-001\Results\Aligned_Frames')
 cell_series = AI_Calculator(r'H:\Test_Data\2P\210112_L76_2P\1-001\Results\Aligned_Frames',masks = all_cell_mask)
+
+#%% Then calculate
+
+
+

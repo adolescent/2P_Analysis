@@ -552,3 +552,35 @@ def Boulder_Extend(graph,pix_extend,fill_value = 0):
     extended_graph[pix_extend[0]:(pix_extend[0]+height),pix_extend[2]:(pix_extend[2]+width)] = graph
     
     return extended_graph
+#%% Function16, graph rotation.
+def Graph_Twister(origin_graph,angle):
+    '''
+    Rotate graph in given angle. Fill boulder with white. Clockwise.
+
+    Parameters
+    ----------
+    origin_graph : (2D Array).
+        Input graph. Can be color or grayscale. Output will be the same format.
+    angle : (int)
+        Clockwise rotation angle. Degree system.
+
+    Returns
+    -------
+    twisted_graph : (2D Array)
+        Twisted graph. Boulder will be extended to fullfill the graph. Fill white in the blank.
+
+    '''
+    h,w = origin_graph.shape[:2]# first 2 axis.
+    (cx,cy) = (w/2,h/2)
+    #设置旋转矩阵
+    M = cv2.getRotationMatrix2D((cx,cy),-angle,1.0)
+    cos = np.abs(M[0,0])
+    sin = np.abs(M[0,1])
+    # 计算图像旋转后的新边界
+    nW = int((h*sin)+(w*cos))
+    nH = int((h*cos)+(w*sin))
+    # 调整旋转矩阵的移动距离（t_{x}, t_{y}）
+    M[0,2] += (nW/2) - cx
+    M[1,2] += (nH/2) - cy
+    twisted_graph = cv2.warpAffine(origin_graph,M,(nW,nH),borderValue=(255,255,255))
+    return twisted_graph

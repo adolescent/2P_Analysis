@@ -6,7 +6,7 @@ Created on Tue Nov 10 13:18:31 2020
 """
 import numpy as np
 
-def Sub_Dic_Generator(mode):
+def Sub_Dic_Generator(mode,para_dic = None):
     '''
     Generate subtraction dics.
 
@@ -14,6 +14,10 @@ def Sub_Dic_Generator(mode):
     ----------
     mode : ('G8','G8+90','RGLum4','OD_OI','OD_2P')
         Mode of data. This is important for 
+    para_dic : (Dic)
+        parameters may need for some run such as SF3 TF3 or etc...
+    
+
 
     Returns
     -------
@@ -111,6 +115,17 @@ def Sub_Dic_Generator(mode):
         sub_dics['Bars-0'] = [[1,2,3,4,5,6,7,8],[-1]]
         sub_dics['Triangle-0'] = [[9,10,11,12,13,14,15,16],[-1]]
         sub_dics['All-0'] = [list(np.arange(1,25)),[-1]]
+        
+    elif mode == 'G16_2P':# id 1,Up moving. Counter clockwise.
+        sub_dics['All-0'] = [list(np.arange(1,17)),[0]]
+        sub_dics['H-V'] = [[1,9],[5,13]]
+        sub_dics['A-O'] = [[3,11],[7,15]]
+        
+        
+        
+    elif mode == 'SF_TF_Dir':
+        if para_dic == None:
+            raise IOError('Please give parameter dictionary.')
         
         
     return sub_dics

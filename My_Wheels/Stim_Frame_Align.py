@@ -7,6 +7,7 @@ Created on Thu Jan 23 18:14:59 2020
 Align stim id and frames.
 -1 as stim off.
 """
+
 import OS_Tools_Kit as os_tools
 import more_itertools as mit
 import numpy as np
@@ -66,7 +67,6 @@ def Stim_Frame_Align(
         final_stim_list.extend(current_list)
     del cutted_stim_list,stim_train,binary_stim_train
     # square wave process done, final_stim_list is stim-time relation.
-    #%%
     # Step3, triangle wave list processing.
     binary_frame_train = (frame_train>frame_thres).astype('i4').ravel()
     dislocation_binary_frame_train = np.append(binary_frame_train[1:],0)
@@ -126,3 +126,17 @@ def Stim_Frame_Align(
     Frame_Stim_Dictionary = List_Ops.List_To_Dic(Frame_Stim_Sequence)
     Frame_Stim_Dictionary['Original_Stim_Train'] = Frame_Stim_Sequence
     return Frame_Stim_Sequence,Frame_Stim_Dictionary
+
+
+#%% Define a function to calculate all aligns in a single day.
+def One_Key_Stim_Align(
+        stims_folder
+        ):
+    all_stim_folders = os_tools.Get_Sub_Folders(stims_folder)
+    for i in range(len(all_stim_folders)):
+        current_stim_folder = all_stim_folders[i]
+        not_spon = (os_tools.Get_File_Name(current_stim_folder,file_type = '.smr') != [])
+        if not_spon:
+            _,current_align_dic = Stim_Frame_Align(current_stim_folder)
+            os_tools.Save_Variable(current_stim_folder, 'Stim_Frame_Align', current_align_dic)
+    return True

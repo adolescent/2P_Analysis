@@ -39,12 +39,13 @@ def List_Annex( A , B , dilimit = '\\' ):
         out_str = []
         for i in range(len(B)):
             out_str.append(str(A[0])+dilimit+str(B[i]))
-        return out_str
     else: # If want same tail
         out_str = []
         for i in range(len(A)):
             out_str.append(str(A[i])+dilimit+str(B[0]))
-        return out_str
+            
+    out_str = np.array(out_str)
+    return out_str
         
 #%% Function 2: List Extend & Cut
 def List_extend(input_list,front,tail):
@@ -157,3 +158,9 @@ def Find_Nearest(input_list,target_number):
     num_loc = np.where(dist == dist.min())[0][0]
     nearest_num = input_list[num_loc]
     return nearest_num,num_loc
+
+def List_Slicer(input_list,ids_list):
+    sliced_list = []
+    for i in range(len(ids_list)):
+        sliced_list.append(input_list[i])
+    return sliced_list

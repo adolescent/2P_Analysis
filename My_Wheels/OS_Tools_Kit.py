@@ -10,6 +10,7 @@ This structure is used to do path operations.
 
 import os
 import pickle
+import List_Operation_Kit as List_Tools
 
 #%% Function1:Make Dictionary
 def mkdir(path):
@@ -189,3 +190,28 @@ def Last_Saved_name(path,file_type = '.txt'):
         all_file_time = np.append(all_file_time,current_file_time)
     last_file_name = all_file_name[np.where(all_file_time == np.max(all_file_time))[0][0]]
     return last_file_name
+
+#%% Function7 Get sub folders name
+def Get_Sub_Folders(current_folder):
+    '''
+    Input a path, return sub folders. Absolute path.
+
+    Parameters
+    ----------
+    current_folder : (str)
+        The path you want to operate.
+
+    Returns
+    -------
+    sub_folders : (list)
+        List of all subfolders. Absolute path provided to simplify usage.
+
+    '''
+    all_subfolders = os.listdir(current_folder)
+    for i in range(len(all_subfolders)-1,-1,-1):
+        current_sf = all_subfolders[i]
+        # Then remove file names
+        if len(current_sf.split('.')) == 2:# meaning this is a file, have extend name.
+            all_subfolders.pop(i)
+    sub_folders = List_Tools.List_Annex([current_folder], all_subfolders)
+    return sub_folders

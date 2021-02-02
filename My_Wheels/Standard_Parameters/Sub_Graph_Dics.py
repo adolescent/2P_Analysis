@@ -15,7 +15,7 @@ def Sub_Dic_Generator(mode,para_dic = None):
     mode : ('G8','G8+90','RGLum4','OD_OI','OD_2P')
         Mode of data. This is important for 
     para_dic : (Dic)
-        parameters may need for some run such as SF3 TF3 or etc...
+        API added. For parameters may need for some run...
     
 
 
@@ -61,13 +61,21 @@ def Sub_Dic_Generator(mode,para_dic = None):
         sub_dics['H-V'] = [[1,5],[3,7]]
         sub_dics['A-O'] = [[2,6],[4,8]]
         sub_dics['HV-AO'] = [[1,3,5,7],[2,4,6,8]]
+        sub_dics['HA-VO'] = [[1,2,5,6],[3,4,7,8]]
         sub_dics['Orien0-0'] = [[1,5],[0]]
         sub_dics['Orien45-0'] = [[2,6],[0]]
         sub_dics['Orien90-0'] = [[3,7],[0]]
         sub_dics['Orien135-0'] = [[4,8],[0]]
         sub_dics['DirU-D'] = [[2,1,8],[4,5,6]]
         sub_dics['DirL-R'] = [[2,3,4],[6,7,8]]
-        
+        sub_dics['Dir0-0'] = [[1],[0]]
+        sub_dics['Dir45-0'] = [[2],[0]]
+        sub_dics['Dir90-0'] = [[3],[0]]
+        sub_dics['Dir135-0'] = [[4],[0]]
+        sub_dics['Dir180-0'] = [[5],[0]]
+        sub_dics['Dir225-0'] = [[6],[0]]
+        sub_dics['Dir270-0'] = [[7],[0]]
+        sub_dics['Dir315-0'] = [[8],[0]]
         
     elif mode == 'RGLum4':
         sub_dics['All-0'] = [[1,2,3,4],[0]]
@@ -96,7 +104,7 @@ def Sub_Dic_Generator(mode,para_dic = None):
         sub_dics['Red-Cyan'] = [[1,2,3,4,5,6,7,8],[25,26,27,28,29,30,31,32]]
         sub_dics['Yellow-Blue'] = [[9,10,11,12,13,14,15,16],[33,34,35,36,37,38,39,40]]
         sub_dics['Green-Purple'] = [[17,18,19,20,21,22,23,24],[41,42,43,44,45,46,47,48]]
-    
+        sub_dics['All-0'] = [list(np.arange(1,57)),[-1]]
     
     elif mode == 'Shape3Dir8':
         sub_dics['H-V'] = [[3,7],[1,5]]
@@ -120,12 +128,34 @@ def Sub_Dic_Generator(mode,para_dic = None):
         sub_dics['All-0'] = [list(np.arange(1,17)),[0]]
         sub_dics['H-V'] = [[1,9],[5,13]]
         sub_dics['A-O'] = [[3,11],[7,15]]
+        sub_dics['DirU-D'] = [[1,2,3,4,14,15,16],[6,7,8,9,10,11,12]]
+        sub_dics['DirL-R'] = [[2,3,4,5,6,7,8],[10,11,12,13,14,15,16]]
+        sub_dics['HV-AO'] = [[1,3,5,7],[2,4,6,8]]
+        sub_dics['Orien0-0'] = [[1,9],[0]]
+        sub_dics['Orien22.5-0'] = [[2,10],[0]]
+        sub_dics['Orien45-0'] = [[3,11],[0]]
+        sub_dics['Orien67.5-0'] = [[4,12],[0]]
+        sub_dics['Orien90-0'] = [[5,13],[0]]
+        sub_dics['Orien112.5-0'] = [[6,14],[0]]
+        sub_dics['Orien135-0'] = [[7,15],[0]]
+        sub_dics['Orien157.5-0'] = [[8,16],[0]]
+        sub_dics['Dir0-0'] = [[1],[0]]
+        sub_dics['Dir22.5-0'] = [[2],[0]]
+        sub_dics['Dir45-0'] = [[3],[0]]
+        sub_dics['Dir67.5-0'] = [[4],[0]]
+        sub_dics['Dir90-0'] = [[5],[0]]
+        sub_dics['Dir112.5-0'] = [[6],[0]]
+        sub_dics['Dir135-0'] = [[7],[0]]
+        sub_dics['Dir157.5-0'] = [[8],[0]]
+        sub_dics['Dir180-0'] = [[9],[0]]
+        sub_dics['Dir202.5-0'] = [[10],[0]]
+        sub_dics['Dir225-0'] = [[11],[0]]
+        sub_dics['Dir247.5-0'] = [[12],[0]]
+        sub_dics['Dir270-0'] = [[13],[0]]
+        sub_dics['Dir292.5-0'] = [[14],[0]]
+        sub_dics['Dir315-0'] = [[15],[0]]
+        sub_dics['Dir337.5-0'] = [[16],[0]]
         
-        
-        
-    elif mode == 'SF_TF_Dir':
-        if para_dic == None:
-            raise IOError('Please give parameter dictionary.')
         
         
     return sub_dics

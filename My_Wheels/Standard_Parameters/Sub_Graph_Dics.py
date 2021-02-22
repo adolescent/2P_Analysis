@@ -6,7 +6,7 @@ Created on Tue Nov 10 13:18:31 2020
 """
 import numpy as np
 
-def Sub_Dic_Generator(mode,para_dic = None):
+def Sub_Dic_Generator(mode,para = None):
     '''
     Generate subtraction dics.
 
@@ -14,7 +14,7 @@ def Sub_Dic_Generator(mode,para_dic = None):
     ----------
     mode : ('G8','G8+90','RGLum4','OD_OI','OD_2P')
         Mode of data. This is important for 
-    para_dic : (Dic)
+    para : (turple)
         API added. For parameters may need for some run...
     
 
@@ -139,23 +139,36 @@ def Sub_Dic_Generator(mode,para_dic = None):
         sub_dics['Orien112.5-0'] = [[6,14],[0]]
         sub_dics['Orien135-0'] = [[7,15],[0]]
         sub_dics['Orien157.5-0'] = [[8,16],[0]]
-        sub_dics['Dir0-0'] = [[1],[0]]
-        sub_dics['Dir22.5-0'] = [[2],[0]]
-        sub_dics['Dir45-0'] = [[3],[0]]
-        sub_dics['Dir67.5-0'] = [[4],[0]]
-        sub_dics['Dir90-0'] = [[5],[0]]
-        sub_dics['Dir112.5-0'] = [[6],[0]]
-        sub_dics['Dir135-0'] = [[7],[0]]
-        sub_dics['Dir157.5-0'] = [[8],[0]]
-        sub_dics['Dir180-0'] = [[9],[0]]
-        sub_dics['Dir202.5-0'] = [[10],[0]]
-        sub_dics['Dir225-0'] = [[11],[0]]
-        sub_dics['Dir247.5-0'] = [[12],[0]]
-        sub_dics['Dir270-0'] = [[13],[0]]
-        sub_dics['Dir292.5-0'] = [[14],[0]]
-        sub_dics['Dir315-0'] = [[15],[0]]
-        sub_dics['Dir337.5-0'] = [[16],[0]]
+        sub_dics['Dir0-180'] = [[1],[9]]
+        sub_dics['Dir22.5-202.5'] = [[2],[10]]
+        sub_dics['Dir45-225'] = [[3],[11]]
+        sub_dics['Dir67.5-247.5'] = [[4],[12]]
+        sub_dics['Dir90-270'] = [[5],[13]]
+        sub_dics['Dir112.5-292.5'] = [[6],[14]]
+        sub_dics['Dir135-315'] = [[7],[15]]
+        sub_dics['Dir157.5-337.5'] = [[8],[16]]
+
+        
+    elif mode =='RFSize':
+        if para == None:
+            raise IOError('Please give RF paras.')
+        sizes = para['Size']
+        dirs = para['Dir']
+        size_num = len(sizes)
+        dir_num = len(dirs)
+        # Get all shapes id.
+        all_size_dic = {}
+        for i in range(size_num):
+            all_size_dic[sizes[i]] = list(range(i*dir_num+1,(i+1)*dir_num+1))
+        # Then get all dir ids.
+        all_dir_dic = {}
+        for i in range(dir_num):
+            current_dir_id = []
+            for j in range(size_num):
+                current_dir_id.append(i+1+j*dir_num)
+            all_dir_dic[dirs[i]] = current_dir_id
+        # At last, return subtraction pairs.
         
         
-        
+        sub_dics = {}
     return sub_dics

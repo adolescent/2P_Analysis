@@ -39,7 +39,7 @@ One_Key_Stim_Align(r'G:\Test_Data\2P\210123_L76_2P\210123_L76_2P_stimuli')
 from My_Wheels.Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
 from My_Wheels.Standard_Stim_Processor import One_Key_Stim_Maps
 OD_Para = Sub_Dic_Generator('OD_2P')
-cell_folder = r'G:\Test_Data\2P\210123_L76_2P\1-009\Results\All_Stim_Cell'
+cell_folder = r'J:\Test_Data\2P\210123_L76_2P\1-009\Results\All_Stim_Cell'
 One_Key_Stim_Maps(r'G:\Test_Data\2P\210123_L76_2P\1-009', cell_folder, OD_Para)
 
 G16_Para = Sub_Dic_Generator('G16_2P')
@@ -49,3 +49,14 @@ RG_Para = Sub_Dic_Generator('RGLum4')
 One_Key_Stim_Maps(r'G:\Test_Data\2P\210123_L76_2P\1-012', cell_folder, RG_Para)
 
 RFSize_Para = Sub_Dic_Generator('RFSize',{'Size':[0.5,1,2,3,4,6],'Dir':[0,45,90,135,180,225,270,315]})
+One_Key_Stim_Maps(r'J:\Test_Data\2P\210123_L76_2P\1-013', cell_folder, RFSize_Para,have_blank = False)
+
+SFTF_Para = Sub_Dic_Generator('SFTF',{'SF':[0.5,1,2],'TF':[1,2,4],'Dir':[90,135,180,225,270,315]})
+One_Key_Stim_Maps(r'J:\Test_Data\2P\210123_L76_2P\1-014', cell_folder, SFTF_Para,have_blank = False)
+
+C7D8_Para = Sub_Dic_Generator('Color7Dir8')
+One_Key_Stim_Maps(r'J:\Test_Data\2P\210123_L76_2P\1-015', cell_folder, C7D8_Para,have_blank = False)
+
+
+
+

@@ -168,7 +168,67 @@ def Sub_Dic_Generator(mode,para = None):
                 current_dir_id.append(i+1+j*dir_num)
             all_dir_dic[dirs[i]] = current_dir_id
         # At last, return subtraction pairs.
+        sizes.sort()# sort from small to big, then sub by sequence.
+        # Calculate size tuning graph here.
+        for i in range(size_num-1):
+            current_sub_name = 'Size'+str(sizes[i])+'-Size'+str(sizes[i+1])
+            sub_dics[current_sub_name] = [all_size_dic[sizes[i]],all_size_dic[sizes[i+1]]]
+        # And direction - 0 graphs.
+        for i in range(dir_num):
+            current_sub_name = 'Dir'+str(dirs[i])+'-0'
+            sub_dics[current_sub_name] = [all_dir_dic[dirs[i]],[-1]]
+            
+    elif mode == 'SFTF':
+        if para == None:
+            raise IOError('Please give SF paras.')
+        SFs = para['SF']
+        TFs = para['TF']
+        Dirs = para['Dir']
+        SF_num = len(SFs)
+        TF_num = len(TFs)
+        Dir_num = len(Dirs)
+        # Get Dir ids
+        all_Dir_dic = {}
+        for i in range(Dir_num):
+            all_Dir_dic[Dirs[i]] = list(range(i*SF_num*TF_num+1,(i+1)*SF_num*TF_num+1))
+        # Get SF ids
+        all_SF_dic = {}
+        for i in range(SF_num):
+            current_SF_id = []
+            for j in range(TF_num*Dir_num):
+                current_SF_id.append(i+1+j*SF_num)
+            all_SF_dic[SFs[i]]=current_SF_id
+        # Get TF ids
+        all_TF_dic = {}
+        for i in range(TF_num):
+            current_TF_id = []
+            for j in range(Dir_num):
+                for k in range(SF_num):
+                    current_TF_id.append(1+k+i*SF_num+j*SF_num*TF_num)
+            all_TF_dic[TFs[i]] = current_TF_id
+        # At last, we can calculate SF-TF graphs here.
+        if SF_num>1:
+            SFs.sort()
+            for i in range(SF_num-1):
+                current_file_name = 'SF'+str(SFs[i])+'-SF'+str(SFs[i+1])
+                sub_dics[current_file_name] = [all_SF_dic[SFs[i]],all_SF_dic[SFs[i+1]]]
+        else:
+            print('Only 1 SF given, no SF sub maps.')
+        # Then for TF maps.
+        if TF_num>1:
+            TFs.sort()
+            for i in range(TF_num-1):
+                current_file_name = 'TF'+str(TFs[i])+'-SF'+str(TFs[i+1])
+                sub_dics[current_file_name] = [all_TF_dic[TFs[i]],all_TF_dic[TFs[i+1]]]
+        else:
+            print('Only 1 TF given, no TF sub maps.')
+        # Then dir-0
+        for i in range(Dir_num):
+            current_file_name = 'Dir'+str(Dirs[i])+'-0'
+            sub_dics[current_file_name] = [all_Dir_dic[Dirs[i]],[-1]]
+            
         
-        
-        sub_dics = {}
+    else:
+        raise IOError('Method not understand, please check.')
+            
     return sub_dics

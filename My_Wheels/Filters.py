@@ -7,6 +7,7 @@ A file of all filters.
 """
 from scipy.ndimage import correlate
 import My_Wheels.Calculation_Functions as Calculator
+import numpy as np
 
 #%% 2D Filters
 def Filter_2D_Kenrel(graph,kernel):
@@ -165,5 +166,32 @@ def Window_Average(
         DESCRIPTION.
 
     '''
-    averaged_series = 0
+    origin_dtype = data_matrix.dtype
+    if window_size%2 == 0:
+        raise IOError('Window Size need to be odd!.')
+    graph_num = data_matrix.shape[2]
+    extended_graph_num = graph_num+window_size-1
+    # Use reflect boulder, extend data matrix to fit for window.
+    frame_extend = int((window_size-1)/2)
+    extended_graph_matrix = np.zeros(shape = (data_matrix.shape[0],data_matrix.shape[1],extended_graph_num),dtype = origin_dtype)
+    extended_graph_matrix[:,:,frame_extend:extended_graph_num-frame_extend] = data_matrix
+    for i in range(frame_extend):
+        extended_graph_matrix[:,:,frame_extend-i-1]=extended_graph_matrix[:,:,frame_extend+i+1]# head reflection
+        extended_graph_matrix[:,:,extended_graph_num-frame_extend+i]=extended_graph_matrix[:,:,extended_graph_num-frame_extend-i-2]# Tail reflection
+    # Get window kernel function, use this 
+    slip_window = np.zeros((window_size),dtype = 'f8')
+    if window_method == 'Average':
+        slip_window[:] = 1/window_size
+    elif window_method == 'Gaussian':
+        slip_window = Calculator.Normalized_1D_Gaussian_Generator(window_size,window_size/5)
+    else:
+        raise IOError('Window method not supported.')
+    # Then get the slip average.
+    slipped_data_matrix = np.zeros(data_matrix.shape,dtype = origin_dtype) # remain dtype unchanged. 
+    reshapped_data = extended_graph_matrix.reshape(-1,extended_graph_num)
+    for i in range(graph_num):
+        current_slice = reshapped_data[:,i:i+window_size]
+        current_frame = np.average(current_slice,axis = 1,weights=slip_window).reshape(data_matrix.shape[0],data_matrix.shape[1])
+        slipped_data_matrix[:,:,i] = current_frame
+    averaged_series = slipped_data_matrix
     return averaged_series

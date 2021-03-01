@@ -109,8 +109,10 @@ def Affine_Core_Point_Equal(
         ):
     height,width = base.shape
     # Check data type.
-    if base.dtype != np.dtype('u1'):
-        raise IOError('Base graph dtype shall be u1!')
+    if base.dtype == np.dtype('u2'):
+        base = (base/256).astype('u1')
+    elif base.dtype != np.dtype('u1'):
+        raise IOError('Base graph dtype shall be u1 or u2.')
     if target.dtype == np.dtype('u1'):
         target = target.astype('u2')*256
     elif target.dtype == np.dtype('u2'):
@@ -198,6 +200,9 @@ def Affine_Aligner_Gaussian(
         dist_lim = 120,
         match_checker = 1
         ):
+    
+    all_tif_name = OS_Tools.Get_File_Name(data_folder)
+    base = 
     
     
     

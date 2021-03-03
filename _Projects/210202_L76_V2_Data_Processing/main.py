@@ -34,6 +34,8 @@ C7D8_Para = Sub_Dic_Generator('Color7Dir8+90')# Caution! Direction checked. Stim
 One_Key_Stim_Maps(r'J:\Test_Data\2P\210202_L76LM_2P\1-008', cell_folder, C7D8_Para,have_blank = False)
 
 SFTF_Para = Sub_Dic_Generator('SFTF',para = {'SF':[0.5,1,2],'TF':[2,4,8],'Dir':[270,315,0,45,90,135,180,225]})
-One_Key_Stim_Maps(r'J:\Test_Data\2P\210202_L76LM_2P\1-013', cell_folder, SFTF_Para,have_blank = False)
+One_Key_Stim_Maps(r'J:\Test_Data\2P\210202_L76LM_2P\1-010', cell_folder, SFTF_Para)
 
 
+RFSize_Para = Sub_Dic_Generator('RFSize',{'Size':[0.5,1,2,4,8,12],'Dir':[270,315,0,45,90,135,180,225]})
+One_Key_Stim_Maps(r'J:\Test_Data\2P\210202_L76LM_2P\1-011', cell_folder, RFSize_Para)

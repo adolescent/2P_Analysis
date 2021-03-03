@@ -13,6 +13,8 @@ import cv2
 from My_Wheels.Translation_Align_Function import Translation_Alignment
 import My_Wheels.Filters as My_Filter
 from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
+import warnings
+
 
 def Single_Subgraph_Generator(
         all_tif_name,
@@ -310,7 +312,7 @@ def One_Key_Stim_Maps(
         data_folder,
         cell_folder,
         sub_dic,
-        have_blank = True,
+        have_blank = None,
         alinged_sub_folder = r'\Results\Aligned_Frames',
         Stim_Align_sub_folder = r'\Results\Stim_Frame_Align.pkl'
         ):
@@ -328,6 +330,9 @@ def One_Key_Stim_Maps(
     stim_train = OS_Tools.Load_Variable(stim_path)['Original_Stim_Train']
     all_tif_name = OS_Tools.Get_File_Name(data_folder+alinged_sub_folder)
     cell_information = cell_dic['All_Cell_Information']
+    if have_blank != None:
+        warnings.warn('Have blank is detected automatically, this API is useless now.',FutureWarning)
+    have_blank = (0 in stim_train)
     if have_blank == True:
         F_train,dF_F_train = Spike_Train_Generator(all_tif_name, cell_information,Base_F_type='nearest_0',stim_train = stim_train)
     else:

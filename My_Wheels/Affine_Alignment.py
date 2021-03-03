@@ -107,6 +107,39 @@ def Affine_Core_Point_Equal(
         Filter = True,
         match_checker = 1
         ):
+    '''
+    Core function of affine align, will selece equal spetial point vertically.
+
+    Parameters
+    ----------
+    target : (2D Array, dtype = u1/u2)
+        The graph will be aligned.
+    base : (2D Array, dtype = u1/u2)
+        Base graph. Target will be aligned to this.
+    targ_gain : (int), optional
+        Gain used to do align. The default is 20.
+    max_point : (int), optional
+        Max number of feature points. The default is 50000.
+    good_match_prop : (float), optional
+        Propotion of good match in all matches. The default is 0.3.
+    sector_num : (int), optional
+        Cut graph vertically in several sections, all section have equal points. The default is 4.
+    dist_lim : (int), optional
+        Distance limitation of 2 matches, match above this will be ignored. The default is 200.
+    Filter : (bool), optional
+        Whether we do space filter. The default is True.
+    match_checker : (float), optional
+        A checker for h matrix. Bigger checher means we tolerate more graph deformation. The default is 1.
+
+
+    Returns
+    -------
+    matched_graph : (2D Array)
+        Deformed graph. Shape will be the same as base graph.
+    h : TYPE
+        DESCRIPTION.
+
+    '''
     height,width = base.shape
     # Check data type.
     if base.dtype == np.dtype('u2'):
@@ -202,8 +235,10 @@ def Affine_Aligner_Gaussian(
         ):
     
     all_tif_name = OS_Tools.Get_File_Name(data_folder)
-    base = 
-    
-    
+    graph_num = len(all_tif_name)
+    graph_shape = cv2.imread(all_tif_name[0],-1).shape
+    all_tif_matrix = np.zeros(shape = graph_shape+(graph_num,),dtype = 'u2')
+    for i in range(graph_num):
+        all_tif_matrix[:,:,i] = cv2.imread(all_tif_name[i],-1)
     
     return h_dics

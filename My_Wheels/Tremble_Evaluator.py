@@ -76,7 +76,7 @@ def Tremble_Evaluator(
 def Tremble_Comparision(before_folder,
                         after_folder,
                         boulder_ignore = 20,
-                        cut_shape = (4,4),
+                        cut_shape = (9,9),
                         mask_thres = 0):
     # Initialization
     save_folder = after_folder+r'\Results'
@@ -128,15 +128,29 @@ def Tremble_Comparision(before_folder,
     OS_Tools.Save_Variable(save_folder, 'cov_matrix', cov_matrix_dic)
     OS_Tools.Save_Variable(save_folder, 'variance_matrix', var_matrix_dic)
     # Calculate variance change and plot variance map.
+    # Before variance map
     plt.clf()
     fig2 = plt.figure(figsize = (15,15))
-    plt.title('Variance_Change',fontsize=40)
-    fig2 = sns.heatmap(variation_change,cmap = 'bwr',annot=True,annot_kws={"size": 22},square=True,yticklabels=False,xticklabels=False,center = 0)
+    plt.title('Before Align Variance',fontsize=36)
+    fig2 = sns.heatmap(variation[:,:,0],cmap = 'bwr',annot=True,annot_kws={"size": 20},square=True,yticklabels=False,xticklabels=False,center = 0)
+    fig2.figure.savefig(save_folder+'\Before_Variance.png',dpi = 330)
+    # After variance map
+    plt.clf()
+    fig2 = plt.figure(figsize = (15,15))
+    plt.title('After Align Variance',fontsize=36)
+    fig2 = sns.heatmap(variation[:,:,1],cmap = 'bwr',annot=True,annot_kws={"size": 20},square=True,yticklabels=False,xticklabels=False,center = 0)
+    fig2.figure.savefig(save_folder+'\After_Variance.png',dpi = 330)
+    # Variance change map
+    plt.clf()
+    fig2 = plt.figure(figsize = (15,15))
+    plt.title('Variance Change',fontsize=36)
+    fig2 = sns.heatmap(variation_change,cmap = 'bwr',annot=True,annot_kws={"size": 20},square=True,yticklabels=False,xticklabels=False,center = 0)
     fig2.figure.savefig(save_folder+'\Variance_Change.png',dpi = 330)
+    # Variance change propotion map
     plt.clf()
     fig2 = plt.figure(figsize = (15,15))
-    plt.title('Variance_Change_Propotion',fontsize=40)
-    fig2 = sns.heatmap(variation_prop,cmap = 'bwr',annot=True,annot_kws={"size": 22},square=True,yticklabels=False,xticklabels=False,center = 0)
+    plt.title('Variance Change Propotion',fontsize=36)
+    fig2 = sns.heatmap(variation_prop,cmap = 'bwr',annot=True,annot_kws={"size": 20},square=True,yticklabels=False,xticklabels=False,center = 0)
     fig2.figure.savefig(save_folder+'\Variance_Change_Prop.png',dpi = 330)
     return cov_matrix_dic,var_matrix_dic
     

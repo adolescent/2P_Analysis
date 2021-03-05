@@ -126,16 +126,17 @@ def Tremble_Comparision(before_folder,
     Graph_Tools.Show_Graph(after_schematic, 'After_Schematic', save_folder)
     fig.savefig(save_folder+'\Scatter Plots.png',dpi = 330)
     OS_Tools.Save_Variable(save_folder, 'cov_matrix', cov_matrix_dic)
+    OS_Tools.Save_Variable(save_folder, 'variance_matrix', var_matrix_dic)
     # Calculate variance change and plot variance map.
     plt.clf()
     fig2 = plt.figure(figsize = (15,15))
-    fig2 = sns.heatmap(variation_change,cmap = 'bwr',annot=True,annot_kws={"size": 25},square=True,yticklabels=False,xticklabels=False,center = 0)
+    plt.title('Variance_Change',fontsize=40)
+    fig2 = sns.heatmap(variation_change,cmap = 'bwr',annot=True,annot_kws={"size": 22},square=True,yticklabels=False,xticklabels=False,center = 0)
     fig2.figure.savefig(save_folder+'\Variance_Change.png',dpi = 330)
     plt.clf()
     fig2 = plt.figure(figsize = (15,15))
-    fig2 = sns.heatmap(variation_prop,cmap = 'bwr',annot=True,annot_kws={"size": 25},square=True,yticklabels=False,xticklabels=False,center = 0)
+    plt.title('Variance_Change_Propotion',fontsize=40)
+    fig2 = sns.heatmap(variation_prop,cmap = 'bwr',annot=True,annot_kws={"size": 22},square=True,yticklabels=False,xticklabels=False,center = 0)
     fig2.figure.savefig(save_folder+'\Variance_Change_Prop.png',dpi = 330)
-    
-    
     return cov_matrix_dic,var_matrix_dic
     

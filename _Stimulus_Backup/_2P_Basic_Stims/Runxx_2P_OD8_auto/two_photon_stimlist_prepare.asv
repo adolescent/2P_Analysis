@@ -1,0 +1,12 @@
+function [stlimlist,logname] = two_photon_stimlist_prepare(Nstim,Ncond,Nblock)
+% input the Number of stim and Number of condition, Number of block
+% output the stlimlist
+logname=strcat('stim_log',num2str(rem(now,1)),'.txt');
+stlimlist = zeros(Nblock,Ncond);
+for i = 1:Nblock
+    seq_temp = randperm(Ncond)-1;
+    
+    stlimlist(i,:) = seq_temp;
+    
+end
+save(logname,);

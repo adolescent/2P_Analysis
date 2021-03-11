@@ -22,7 +22,7 @@ def Tremble_Evaluator(
         data_folder,
         ftype = '.tif',
         boulder_ignore = 20,
-        cut_shape = (4,4),
+        cut_shape = (9,9),
         mask_thres = 0
         ):
     all_file_name = OS_Tools.Get_File_Name(data_folder,ftype)

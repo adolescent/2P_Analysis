@@ -14,6 +14,7 @@ from My_Wheels.Translation_Align_Function import Translation_Alignment
 import My_Wheels.Filters as My_Filter
 from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
 import warnings
+from My_Wheels.Stim_Dic_Tools import Frame_ID_Extractor
 
 
 def Single_Subgraph_Generator(
@@ -352,13 +353,30 @@ def One_Key_Stim_Maps(
 def One_Key_Frame_Graphs(
         data_folder,
         sub_dic,
+        show_clip = 3,
         alinged_sub_folder = r'\Results\Aligned_Frames',
         Stim_Align_sub_folder = r'\Results\Stim_Frame_Align.pkl'
         ):
-    print('Working on it!')
-    
-    
-    
+    result_folder = data_folder+r'\Results'
+    graph_save_folder = result_folder+r'\Only_Frame_SubGraphs'
+    OS_Tools.mkdir(result_folder)
+    OS_Tools.mkdir(graph_save_folder)
+    stim_path = data_folder + Stim_Align_sub_folder
+    stim_dic = OS_Tools.Load_Variable(stim_path)
+    all_tif_name = OS_Tools.Get_File_Name(data_folder+alinged_sub_folder)
+    graph_num = len(sub_dic)
+    all_sub_graph_names = list(sub_dic.keys())
+    for i in range(graph_num):
+        current_name = all_sub_graph_names[i]
+        current_a = Frame_ID_Extractor(stim_dic, sub_dic[current_name][0])
+        current_b = Frame_ID_Extractor(stim_dic, sub_dic[current_name][1])
+        current_sub_graph,current_t_graph,current_info_dic = Single_Subgraph_Generator(all_tif_name, current_a, current_b)
+        current_sub_graph = Graph_Tools.Clip_And_Normalize(current_sub_graph,show_clip)
+        current_t_graph = Graph_Tools.Clip_And_Normalize(current_t_graph,show_clip)
+        # Save graphs
+        Graph_Tools.Show_Graph(current_sub_graph, current_name+'_Sub_Graph', graph_save_folder)
+        Graph_Tools.Show_Graph(current_t_graph, current_name+'_t_Graph', graph_save_folder)
+        OS_Tools.Save_Variable(graph_save_folder, current_name+r'_Sub_Info', current_info_dic,'.info')
     return True
 
     

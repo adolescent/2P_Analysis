@@ -215,3 +215,20 @@ def Get_Sub_Folders(current_folder):
             all_subfolders.pop(i)
     sub_folders = List_Tools.List_Annex([current_folder], all_subfolders)
     return sub_folders
+#%% Function8, Return upper folder.
+def CDdotdot(file_name):
+    '''
+    Give a file path or folder path, return upper folder, useful to get save folder.
+
+    Parameters
+    ----------
+    file_name : (str)
+        File name or path name.Cannot be ended with '\'
+
+    Returns
+    -------
+    upper_folder : (str)
+        Upper folder or file save folder.
+    '''
+    upper_folder = '\\'.join(file_name.split('\\')[:-1])
+    return upper_folder

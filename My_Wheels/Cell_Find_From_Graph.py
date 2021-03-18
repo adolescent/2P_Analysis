@@ -201,3 +201,70 @@ def Cell_Find_From_active(
     Graph_Tools.Show_Graph(Graph_Tools.Clip_And_Normalize(intensity_selected_graph,clip_std = 5), 'Cell_Find_Base', save_folder)
     Cell_Finded = Cell_Find_And_Plot(save_folder, 'Cell_Find_Base.tif', 'Active_Cell',find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
     return Cell_Finded
+#%% Function5, Find Cell mannually.
+def Cell_Find_From_Mannual(mask_graph_path,average_graph_path = None,boulder = 20,save = True):
+    '''
+    Find cell from mannual mask.
+
+    Parameters
+    ----------
+    mask_graph_path : (str)
+        Save path of manuual plotted mask.
+    average_graph_path : (str,optional)
+        If not given, combined graph will not be produced.
+    boulder : int, optional
+        Boulder of cells. Centroid of cell over this boulde will be ignored.  The default is 20.
+    save : bool, optional
+        Whether we save cell graphs in specific folder. The default is True.
+
+    Returns
+    -------
+    Cell_Finded : (Dic)
+        Same cell dtype as before.
+
+    '''
+    save_path = OS_Tools.CDdotdot(mask_graph_path)
+    mask_graph = cv2.imread(mask_graph_path,0)
+    height,width = mask_graph.shape
+    thres = mask_graph.max()/2
+    thres_graph = mask_graph>thres# Get binary cell graph
+    washed_thres_graph = skimage.morphology.remove_small_objects(thres_graph,5,connectivity = 1)# remove draw errors.
+    cell_label = skimage.measure.label(washed_thres_graph)
+    All_Cells = skimage.measure.regionprops(cell_label)
+    # Delete cell 
+    for i in range(len(All_Cells)-1,-1,-1):
+        current_cell = All_Cells[i]
+        current_height,current_width = current_cell.centroid
+        if current_height<boulder or (height-current_height)<boulder:
+            All_Cells.pop(i)
+        elif current_width<boulder or (width-current_width)<boulder:
+            All_Cells.pop(i)
+    # Visualization here.
+    visual_cell_graph = Visualize.Cell_Visualize(All_Cells)
+    annotated_graph = Visualize.Label_Cell(visual_cell_graph,All_Cells,color = (255,255,0))
+    if average_graph_path == None:
+        print('Average graph not given, no combined graph.')
+    else:
+        average_graph = cv2.imread(average_graph_path,1)# Read in 8 bit color map
+        # Then annotate cell mask on average graph.
+        cell_mask = visual_cell_graph[:,:,0]/2
+        combined_graph = average_graph.astype('f8')*0.7
+        combined_graph[:,:,1] = np.clip((combined_graph[:,:,1]+cell_mask),0,255)
+        combined_graph = combined_graph.astype('u1')
+        labled_combined_graph = Visualize.Label_Cell(combined_graph, All_Cells,color = (255,255,0))
+    # At last, save all cell information and cell maps,
+    Cell_Finded = {}
+    Cell_Finded['All_Cell_Information'] = All_Cells
+    Cell_Finded['Cell_Graph'] = visual_cell_graph
+    Cell_Finded['Annotate_Cell_Graph'] = annotated_graph
+    Cell_Finded['Combined_Graph'] = combined_graph
+    Cell_Finded['Combined_Graph_With_Number'] = labled_combined_graph
+    if save == True:
+        OS_Tools.Save_Variable(save_path, 'Manuall_Cells', Cell_Finded,'.cell')
+        Graph_Tools.Show_Graph(visual_cell_graph, 'Cell_Graph', save_path)
+        Graph_Tools.Show_Graph(annotated_graph, 'Annotate_Cell_Graph', save_path)
+        Graph_Tools.Show_Graph(combined_graph, 'Combined_Graph', save_path)
+        Graph_Tools.Show_Graph(labled_combined_graph, 'Combined_Graph_With_Number', save_path)
+
+    return Cell_Finded
+

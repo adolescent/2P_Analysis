@@ -131,6 +131,7 @@ def Sub_Dic_Generator(mode,para = None):
     
     elif mode == 'Shape3Dir8':
         sub_dics['H-V'] = [[3,7],[1,5]]
+        sub_dics['A-O'] = [[4,8],[2,6]]
         sub_dics['Triangle-Bar'] = [[9,10,11,12,13,14,15,16],[1,2,3,4,5,6,7,8]]
         sub_dics['Circle-Bar'] = [[17,18,19,20,21,22,23,24],[1,2,3,4,5,6,7,8]]
         sub_dics['Circle-Triangle'] = [[17,18,19,20,21,22,23,24],[9,10,11,12,13,14,15,16]]

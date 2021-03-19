@@ -164,3 +164,17 @@ def List_Slicer(input_list,ids_list):
     for i in range(len(ids_list)):
         sliced_list.append(input_list[i])
     return sliced_list
+#%% Function 6: Run name getter of 2p
+def Run_Name_Producer_2P(run_id_lists):
+    subfolder_lists = []
+    for i in range(len(run_id_lists)):
+        current_runid = str(run_id_lists[i])
+        if len(current_runid) == 1:
+            subfolder_lists.append('1-00'+current_runid)
+        elif len(current_runid) == 2:
+            subfolder_lists.append('1-0'+current_runid)
+        elif len(current_runid) == 3:
+            subfolder_lists.append('1-'+current_runid)
+        else:
+            raise IOError('Run number impossible, check input plz.')
+    return subfolder_lists

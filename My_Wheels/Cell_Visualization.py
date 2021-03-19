@@ -10,6 +10,9 @@ Several useful tools for cell visualization.
 import numpy as np
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import cv2
+from PIL import ImageFont
+from PIL import Image
+from PIL import ImageDraw
 #%% Function 1: Visualize Cell
 def Cell_Visualize(cell_information,color = [255,255,255],mode = 'Fill'):
     """
@@ -70,9 +73,7 @@ def Label_Cell(graph,cell_information,color = (0,255,100),font_size = 11):
         Labled Graph. Cell number will be shown on it.
 
     """
-    from PIL import ImageFont
-    from PIL import Image
-    from PIL import ImageDraw
+
     
     font = ImageFont.truetype('arial.ttf',font_size)
     im = Image.fromarray(graph)
@@ -113,38 +114,82 @@ def Location_Annotation(
         y = id_lists[i][0]
         cv2.circle(annotation_map,(x,y),annotate_size,255,0)
     return annotation_map
-#%% Function 4: Part Cell Visialize
-def Part_Cell_Visualize(
-        cell_id_list,
-        cell_information,
-        color = [255,255,255],
-        mode = 'Fill'
-        ):
-    """
-    Plot part of cell in cell informations.
+#%% Function 4: Specific Cells Visialize
+# =============================================================================
+# #Old functions. New function below. API change is possible, be cautious.
+# def Part_Cell_Visualize(
+#         cell_id_list,
+#         cell_information,
+#         color = [255,255,255],
+#         mode = 'Fill'
+#         ):
+#     """
+#     Plot part of cell in cell informations.
+# 
+#     Parameters
+#     ----------
+#     cell_id_list : (list)
+#         Cell id list you want to plot.
+#     cell_information : (list)
+#         Skimage produced cell information.
+#     color : (3-element-list), optional
+#         Color of plot cells. The default is [255,255,255].
+#     mode : ('Fill' or 'Boulder'), optional
+#         Type of cell visualization. The default is 'Fill'.
+# 
+#     Returns
+#     -------
+#     Visualized_Part_Cells : (2D Array)
+#         Visualized graph.
+# 
+#     """
+#     used_cell_information = []
+#     for i in range(len(cell_id_list)):
+#         used_cell_information.append(cell_information[cell_id_list[i]])
+#     Visualized_Part_Cells = Cell_Visualize(used_cell_information,color = color,mode = mode)    
+#     return Visualized_Part_Cells
+# =============================================================================
+def Specific_Cells_Visualize(cell_id_lists,cell_info,average_graph = (None)):
+    '''
+    Visualize cells of only given ID. 
 
     Parameters
     ----------
-    cell_id_list : (list)
-        Cell id list you want to plot.
-    cell_information : (list)
-        Skimage produced cell information.
-    color : (3-element-list), optional
-        Color of plot cells. The default is [255,255,255].
-    mode : ('Fill' or 'Boulder'), optional
-        Type of cell visualization. The default is 'Fill'.
+    cell_id_lists : (list)
+        Cell ids you want to plot.
+    cell_info : (list)
+        List of all cell infos.
+    average_graph : (2D Array), optional
+        Averaged base graph. Both gray and RGB allowed. The default is None.
 
     Returns
     -------
-    Visualized_Part_Cells : (2D Array)
-        Visualized graph.
+    Visualized_Part_Cells : TYPE
+        DESCRIPTION.
 
-    """
-    used_cell_information = []
-    for i in range(len(cell_id_list)):
-        used_cell_information.append(cell_information[cell_id_list[i]])
-    Visualized_Part_Cells = Cell_Visualize(used_cell_information,color = color,mode = mode)    
-    return Visualized_Part_Cells
+    '''
+    part_cell_info = []
+    for i in range(len(cell_id_lists)):
+        current_id = cell_id_lists[i]
+        part_cell_info.append(cell_info[current_id])
+    part_cells = Cell_Visualize(part_cell_info)
+    if type(average_graph) != tuple:# generate average graph added masks.
+        if len(average_graph.shape) == 2: # means gray map input.
+            average_graph = cv2.cvtColor(average_graph, cv2.COLOR_GRAY2BGR)
+        combined_graph = average_graph.astype('f8')*0.7
+        combined_graph[:,:,1] = combined_graph[:,:,1]+part_cells[:,:,0]/2
+        combined_graph = np.clip(combined_graph,0,255).astype('u1')
+        # Then annotate graph
+        annotated_graph = combined_graph
+        font = ImageFont.truetype('arial.ttf',11)
+        im = Image.fromarray(annotated_graph)
+        for i in range(len(part_cell_info)):
+            y,x = part_cell_info[i].centroid
+            draw = ImageDraw.Draw(im)
+            draw.text((x+5,y+5),str(cell_id_lists[i]),(0,255,100),font = font,align = 'center')
+        annotated_graph = np.array(im)
+        
+    return part_cells,combined_graph,annotated_graph
 
 #%% Function 5: Compare two cell informations.
 def Cell_Information_Compare(cell_finded_A,

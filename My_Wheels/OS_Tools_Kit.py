@@ -112,16 +112,19 @@ def Load_Variable(save_folder,file_name=False):
     Returns
     -------
     loaded_file : (Any type)
-        Loaded file. Same formation as it was saved.
+        Loaded file. Same formation as it was saved.If file not exist, return False.
 
     """
     if file_name == False:
         real_file_path = save_folder
     else:
         real_file_path = save_folder+r'\\'+file_name
-    with open(real_file_path, 'rb') as file:
-        loaded_file = pickle.load(file)
-    file.close()
+    if os.path.exists(real_file_path):
+        with open(real_file_path, 'rb') as file:
+            loaded_file = pickle.load(file)
+        file.close()
+    else:
+        loaded_file = False
     
     return loaded_file
 #%% Function 5: Spike2 Data Reader.
@@ -232,3 +235,25 @@ def CDdotdot(file_name):
     '''
     upper_folder = '\\'.join(file_name.split('\\')[:-1])
     return upper_folder
+#%% Function9, Number_bit_Fill
+def Bit_Filler(number,bit_num = 4):
+    '''
+    This function is used to fill number into specific bits. Fill 0 above.
+
+    Parameters
+    ----------
+    number : (int or str)
+        Number before fill.
+    bit_num : (int), optional
+        Digital bit you want to fill into. The default is 4.
+
+    Returns
+    -------
+    filled_num : (str)
+        Number filled with 0 above.
+
+    '''
+    base_num = pow(10,bit_num)
+    added_num = base_num+int(number)
+    filled_num = str(added_num)[1:]
+    return filled_num

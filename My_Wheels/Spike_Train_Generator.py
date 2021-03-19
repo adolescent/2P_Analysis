@@ -11,6 +11,7 @@ import numpy as np
 import more_itertools as mit
 import My_Wheels.List_Operation_Kit as List_Tools
 import My_Wheels.Filters as My_Filter
+import warnings
 
 
 def Spike_Train_Generator(all_tif_name,
@@ -107,7 +108,7 @@ def Spike_Train_Generator(all_tif_name,
         if stim_train == None:
             raise IOError('Please input stim train!')
         stim_train = np.asarray(stim_train)
-        ignore_ISI_frame = 1
+        #ignore_ISI_frame = 1
         all_keys = list(F_value_Dictionary.keys())
         cutted_stim_train = list(mit.split_when(stim_train,lambda x, y: (x-y) >0))
         for i in range(len(all_keys)):
@@ -118,7 +119,10 @@ def Spike_Train_Generator(all_tif_name,
                 current_stim_train = np.asarray(cutted_stim_train[j])
                 current_F_train = np.asarray(current_cell_train[frame_counter:(frame_counter+len(current_stim_train))])
                 null_id = np.where(current_stim_train == -1)[0]
-                null_id = null_id[ignore_ISI_frame:]
+                if len(null_id)>1:
+                    null_id = null_id[ignore_ISI_frame:]
+                else:
+                    warnings.warn("ISI frame less than 2, use all ISIs", UserWarning)
                 current_base = current_F_train[null_id].mean()
                 current_dF_train = (current_F_train-current_base)/current_base
                 current_cell_dF_train.extend(current_dF_train)
@@ -196,4 +200,41 @@ def Spike_Train_Generator(all_tif_name,
     
     return F_value_Dictionary,dF_F_trains
 #  return F_value_Dictionary,dF_F_trains
+#%% Function2, single cell spike train
+# This function is created later, so based on all cell info method. Not really effective.
+def Single_Cell_Spike_Train(all_tif_name,
+                            single_cell_info,
+                            Base_F_type = 'most_unactive',
+                            stim_train = None,
+                            unactive_prop = 0.1
+                            ):
+    '''
+    Input single cell info and all tif name, return F train and dF/F train lists
+
+    Parameters
+    ----------
+    all_tif_name : (list)
+        List of all tif name.
+    single_cell_info : (skimage info file)
+        just input single info file is enough.
+    Base_F_type/stim_train/unactive_prop : The same as function above.
+
+
+    Returns
+    -------
+    F_train : (Nd-Array)
+        Cell F-value list.
+    dF_F_train : (Nd_Array)
+        Cell dF/F value list.
+
+    '''
+    F_dic,dF_F_dic = Spike_Train_Generator(all_tif_name = all_tif_name,
+                                           cell_information = [single_cell_info],
+                                           Base_F_type = Base_F_type,
+                                           stim_train = stim_train,
+                                           unactive_prop = unactive_prop)
+    F_train = F_dic[0]
+    dF_F_train = dF_F_dic[0]
+    
+    return F_train,dF_F_train
 

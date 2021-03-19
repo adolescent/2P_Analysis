@@ -37,7 +37,7 @@ def Stim_Frame_Align(
     head_extend(int),optional
         Number of frame regarded as stim on before stim. Positive will extend frame on, Negative will cut.
     tail_extend(int),optional
-        Number of frame ragarded as stim on after stim. Positive will
+        Number of frame ragarded as stim on after stim. Positive will extend frame on, Negative will cut.
     Returns
     -------
     Frame_Stim_Sequence : (list)

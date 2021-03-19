@@ -192,104 +192,107 @@ def Specific_Cells_Visualize(cell_id_lists,cell_info,average_graph = (None)):
     return part_cells,combined_graph,annotated_graph
 
 #%% Function 5: Compare two cell informations.
-def Cell_Information_Compare(cell_finded_A,
-                             cell_finded_B,
-                             shift_limit = 10,
-                             graph_size = (512,512),
-                             plot = False,
-                             save_folder = '',
-                             show_time = 2000
-                             ):
-    """
-    Compare cell find consistency between two cell datas.
-
-    Parameters
-    ----------
-    cell_finded_A : (dic)
-        Cell Find Dictionary A, A is base.
-    cell_info_B : (dic)
-        Cell Find Dictionary B, usa A to compare B.
-    shift_limit : (int),optional
-        Max shift pix for two cell to be regarded as one. The default is 10.
-    graph_size : (2-element-turple),optional
-        Graph size. Pre given for convenient. The default is (512,512).
-    plot : (Bool),optional
-        If True, all graph will be ploted and save in save_folder. The default is False.
-    save_folder : (str),optional
-        If plot is True, save_folder shall be given. The default is ''.
-    show_time:(int),optional
-        Graph show time during plot. The default is 2s.
-    Returns
-    -------
-    Compare_Dictionary : (Dictionary)
-        Compare information dictionaries.
-    """
-    from My_Wheels.Cell_Location_Compare import Cell_Location_Compare
-    import My_Wheels.List_Operation_Kit as List_Tools
-    import My_Wheels.OS_Tools_Kit as OS_Tools
-    # First, generate simple intersection & union map.
-    Compare_Dictionary = {}
-    intersection,union,area = Graph_Tools.Graph_Overlapping(cell_finded_A['Cell_Graph'],cell_finded_B['Cell_Graph'])
-    Compare_Dictionary['Intersection_Map'] = intersection
-    Compare_Dictionary['Union_Map'] = union
-    Compare_Dictionary['Cell_Areas'] = area
-    # Second, get origin compare dictionary.
-    cell_info_A = cell_finded_A['All_Cell_Information']
-    cell_info_B = cell_finded_B['All_Cell_Information']
-    compare_information = Cell_Location_Compare(cell_info_A,cell_info_B,shift_limit = shift_limit)
-    Compare_Dictionary['Compare_Information'] = compare_information
-    all_coactive_cell_loc = []
-    for i in range(len(compare_information)):
-        if compare_information[i][0] != -1: # Which means there is a match for cell i in set A.
-            current_loc = compare_information[i][1]
-            all_coactive_cell_loc.append((int(current_loc[0]),int(current_loc[1])))
-    coactive_cell_annotate = Location_Annotation(all_coactive_cell_loc,5,graph_size)
-    Compare_Dictionary['Coactive_Cell_Annotate'] = coactive_cell_annotate
-    # Last, draw match and unmatch cell seperately.
-    A_Set_Cell_Num = len(cell_info_A)
-    B_Set_Cell_Num = len(cell_info_B)
-    Paired_A_Cell_ids = []
-    Paired_B_Cell_ids = []
-    for i in range(A_Set_Cell_Num):
-        current_compare_B_id = compare_information[i][0]
-        if current_compare_B_id != -1:# as a match
-            Paired_A_Cell_ids.append(i)
-            Paired_B_Cell_ids.append(current_compare_B_id)
-    Paired_A_Cell_ids = list(set(Paired_A_Cell_ids))
-    Compare_Dictionary['Paired_Cell_Num'] = len(Paired_A_Cell_ids)
-    print(str(len(Paired_A_Cell_ids))+' of '+str(A_Set_Cell_Num)+' Cells are paired.')
-    Paired_B_Cell_ids = list(set(Paired_B_Cell_ids))
-    Unpaired_A_Cell_ids = List_Tools.List_Subtraction(list(range(A_Set_Cell_Num)),Paired_A_Cell_ids)
-    Unpaired_B_Cell_ids = List_Tools.List_Subtraction(list(range(B_Set_Cell_Num)),Paired_B_Cell_ids)
-    # Then get specific cells with 
-    Paired_A_Cell_Graph = Part_Cell_Visualize(Paired_A_Cell_ids,cell_info_A)
-    Paired_B_Cell_Graph = Part_Cell_Visualize(Paired_B_Cell_ids,cell_info_B)
-    Unpaired_A_Cell_Graph = Part_Cell_Visualize(Unpaired_A_Cell_ids,cell_info_A)
-    Unpaired_B_Cell_Graph = Part_Cell_Visualize(Unpaired_B_Cell_ids,cell_info_B)
-    # Then put all graphs on one map
-    combine_graph = Graph_Tools.Combine_Graphs((Paired_A_Cell_Graph,
-                                                Paired_B_Cell_Graph,
-                                                Unpaired_A_Cell_Graph,
-                                                Unpaired_B_Cell_Graph
-                                                ),all_colors = ['c','g','r','b'])
-    Compare_Dictionary['Paired_A_Cell_Graph'] = Paired_A_Cell_Graph
-    Compare_Dictionary['Paired_B_Cell_Graph'] = Paired_B_Cell_Graph
-    Compare_Dictionary['Unpaired_A_Cell_Graph'] = Unpaired_A_Cell_Graph
-    Compare_Dictionary['Unpaired_B_Cell_Graph'] = Unpaired_B_Cell_Graph
-    Compare_Dictionary['Match_Graph_Combine'] = combine_graph
-    # if plot is true, plot all graphs in specific folder.
-    if plot == True:
-        OS_Tools.Save_Variable(save_folder,'Compare_Matrix',Compare_Dictionary)
-        all_keys = list(Compare_Dictionary.keys())
-        all_keys.remove('Cell_Areas')
-        all_keys.remove('Compare_Information')
-        all_keys.remove('Paired_Cell_Num')
-        for i in range(8):
-            Graph_Tools.Show_Graph(Compare_Dictionary[all_keys[i]],
-                                   all_keys[i],
-                                   save_path = save_folder,
-                                   show_time = show_time)
-    return Compare_Dictionary
+# old function, not usable now. 
+#=============================================================================
+# def Cell_Information_Compare(cell_finded_A,
+#                              cell_finded_B,
+#                              shift_limit = 10,
+#                              graph_size = (512,512),
+#                              plot = False,
+#                              save_folder = '',
+#                              show_time = 2000
+#                              ):
+#     """
+#     Compare cell find consistency between two cell datas.
+# 
+#     Parameters
+#     ----------
+#     cell_finded_A : (dic)
+#         Cell Find Dictionary A, A is base.
+#     cell_info_B : (dic)
+#         Cell Find Dictionary B, usa A to compare B.
+#     shift_limit : (int),optional
+#         Max shift pix for two cell to be regarded as one. The default is 10.
+#     graph_size : (2-element-turple),optional
+#         Graph size. Pre given for convenient. The default is (512,512).
+#     plot : (Bool),optional
+#         If True, all graph will be ploted and save in save_folder. The default is False.
+#     save_folder : (str),optional
+#         If plot is True, save_folder shall be given. The default is ''.
+#     show_time:(int),optional
+#         Graph show time during plot. The default is 2s.
+#     Returns
+#     -------
+#     Compare_Dictionary : (Dictionary)
+#         Compare information dictionaries.
+#     """
+#     from My_Wheels.Cell_Location_Compare import Cell_Location_Compare
+#     import My_Wheels.List_Operation_Kit as List_Tools
+#     import My_Wheels.OS_Tools_Kit as OS_Tools
+#     # First, generate simple intersection & union map.
+#     Compare_Dictionary = {}
+#     intersection,union,area = Graph_Tools.Graph_Overlapping(cell_finded_A['Cell_Graph'],cell_finded_B['Cell_Graph'])
+#     Compare_Dictionary['Intersection_Map'] = intersection
+#     Compare_Dictionary['Union_Map'] = union
+#     Compare_Dictionary['Cell_Areas'] = area
+#     # Second, get origin compare dictionary.
+#     cell_info_A = cell_finded_A['All_Cell_Information']
+#     cell_info_B = cell_finded_B['All_Cell_Information']
+#     compare_information = Cell_Location_Compare(cell_info_A,cell_info_B,shift_limit = shift_limit)
+#     Compare_Dictionary['Compare_Information'] = compare_information
+#     all_coactive_cell_loc = []
+#     for i in range(len(compare_information)):
+#         if compare_information[i][0] != -1: # Which means there is a match for cell i in set A.
+#             current_loc = compare_information[i][1]
+#             all_coactive_cell_loc.append((int(current_loc[0]),int(current_loc[1])))
+#     coactive_cell_annotate = Location_Annotation(all_coactive_cell_loc,5,graph_size)
+#     Compare_Dictionary['Coactive_Cell_Annotate'] = coactive_cell_annotate
+#     # Last, draw match and unmatch cell seperately.
+#     A_Set_Cell_Num = len(cell_info_A)
+#     B_Set_Cell_Num = len(cell_info_B)
+#     Paired_A_Cell_ids = []
+#     Paired_B_Cell_ids = []
+#     for i in range(A_Set_Cell_Num):
+#         current_compare_B_id = compare_information[i][0]
+#         if current_compare_B_id != -1:# as a match
+#             Paired_A_Cell_ids.append(i)
+#             Paired_B_Cell_ids.append(current_compare_B_id)
+#     Paired_A_Cell_ids = list(set(Paired_A_Cell_ids))
+#     Compare_Dictionary['Paired_Cell_Num'] = len(Paired_A_Cell_ids)
+#     print(str(len(Paired_A_Cell_ids))+' of '+str(A_Set_Cell_Num)+' Cells are paired.')
+#     Paired_B_Cell_ids = list(set(Paired_B_Cell_ids))
+#     Unpaired_A_Cell_ids = List_Tools.List_Subtraction(list(range(A_Set_Cell_Num)),Paired_A_Cell_ids)
+#     Unpaired_B_Cell_ids = List_Tools.List_Subtraction(list(range(B_Set_Cell_Num)),Paired_B_Cell_ids)
+#     # Then get specific cells with 
+#     Paired_A_Cell_Graph = Part_Cell_Visualize(Paired_A_Cell_ids,cell_info_A)
+#     Paired_B_Cell_Graph = Part_Cell_Visualize(Paired_B_Cell_ids,cell_info_B)
+#     Unpaired_A_Cell_Graph = Part_Cell_Visualize(Unpaired_A_Cell_ids,cell_info_A)
+#     Unpaired_B_Cell_Graph = Part_Cell_Visualize(Unpaired_B_Cell_ids,cell_info_B)
+#     # Then put all graphs on one map
+#     combine_graph = Graph_Tools.Combine_Graphs((Paired_A_Cell_Graph,
+#                                                 Paired_B_Cell_Graph,
+#                                                 Unpaired_A_Cell_Graph,
+#                                                 Unpaired_B_Cell_Graph
+#                                                 ),all_colors = ['c','g','r','b'])
+#     Compare_Dictionary['Paired_A_Cell_Graph'] = Paired_A_Cell_Graph
+#     Compare_Dictionary['Paired_B_Cell_Graph'] = Paired_B_Cell_Graph
+#     Compare_Dictionary['Unpaired_A_Cell_Graph'] = Unpaired_A_Cell_Graph
+#     Compare_Dictionary['Unpaired_B_Cell_Graph'] = Unpaired_B_Cell_Graph
+#     Compare_Dictionary['Match_Graph_Combine'] = combine_graph
+#     # if plot is true, plot all graphs in specific folder.
+#     if plot == True:
+#         OS_Tools.Save_Variable(save_folder,'Compare_Matrix',Compare_Dictionary)
+#         all_keys = list(Compare_Dictionary.keys())
+#         all_keys.remove('Cell_Areas')
+#         all_keys.remove('Compare_Information')
+#         all_keys.remove('Paired_Cell_Num')
+#         for i in range(8):
+#             Graph_Tools.Show_Graph(Compare_Dictionary[all_keys[i]],
+#                                    all_keys[i],
+#                                    save_path = save_folder,
+#                                    show_time = show_time)
+#     return Compare_Dictionary
+# =============================================================================
 #%% Test Runs
 if __name__ == '__main__':
     from My_Wheels.Cell_Find_From_Graph import Cell_Find_From_Graph

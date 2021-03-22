@@ -194,7 +194,6 @@ def Spike_Train_Generator(all_tif_name,
             current_base = current_cell_F_train[all_blank_frame_id].mean()
             current_dF_train = (current_cell_F_train-current_base)/current_base
             dF_F_trains[all_keys[i]] = current_dF_train
-    
     else:
         raise IOError('Not finished functions.')
     

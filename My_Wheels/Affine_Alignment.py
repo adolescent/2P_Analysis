@@ -279,8 +279,8 @@ def Affine_Aligner_Gaussian(
     graph_after_align = aligned_tif_matrix.mean(axis = 2).astype('u2')
     graph_before_align = Graph_Tools.Clip_And_Normalize(graph_before_align,clip_std = 5)
     graph_after_align = Graph_Tools.Clip_And_Normalize(graph_after_align,clip_std = 5)
-    Graph_Tools.Show_Graph(graph_before_align, 'Graph_Before_Align', save_folder)
-    Graph_Tools.Show_Graph(graph_after_align, 'Graph_After_Align', save_folder)
+    Graph_Tools.Show_Graph(graph_before_align, 'Graph_Before_Affine', save_folder)
+    Graph_Tools.Show_Graph(graph_after_align, 'Graph_After_Affine', save_folder)
     return True
 
 

@@ -11,6 +11,8 @@ import cv2
 import numpy as np
 import os
 import My_Wheels.Filters as Filter
+import My_Wheels.List_Operation_Kit as lt
+import My_Wheels.OS_Tools_Kit as ot
 
 #%% Function1: Graph Average(From File).
 
@@ -584,3 +586,33 @@ def Graph_Twister(origin_graph,angle):
     M[1,2] += (nH/2) - cy
     twisted_graph = cv2.warpAffine(origin_graph,M,(nW,nH),borderValue=(255,255,255))
     return twisted_graph
+#%% Function 17, Global average generator
+def Global_Averagor(all_folder_list,
+                    sub_folders = r'\Results\Affined_Frames'
+                    ):
+    '''
+    Average global graph from all subgraphs.
+
+    Parameters
+    ----------
+    all_folder_list : TYPE
+        DESCRIPTION.
+    sub_folders : TYPE, optional
+        DESCRIPTION. The default is r'\Results\Affined_Frames'.
+
+    Returns
+    -------
+    global_averaged_graph : TYPE
+        DESCRIPTION.
+
+    '''
+    all_folders = lt.List_Annex(all_folder_list, [sub_folders])
+    all_tif_name = []
+    for i in range(len(all_folders)):
+        current_tif_name = ot.Get_File_Name(all_folders[i])
+        all_tif_name.extend(current_tif_name)
+    global_averaged_graph = Average_From_File(all_tif_name)
+    
+    return global_averaged_graph
+    
+

@@ -198,7 +198,7 @@ def Affine_Core_Point_Equal(
     
     height,width = base.shape
     matched_graph = cv2.warpPerspective(target, h, (width, height))
-    
+    #matched_graph = np.maximum(matched_graph,1)
     return matched_graph,h
         
 

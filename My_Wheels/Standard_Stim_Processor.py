@@ -100,7 +100,9 @@ def Single_Subgraph_Generator(
         for i in range(F_info_Dics['Graph_Shape'][0]):
             for j in range(F_info_Dics['Graph_Shape'][1]):
                 t_value_graph[i,j],p_value_graph[i,j] = ttest_rel(A_graph_arrays[i,j,:],B_graph_arrays[i,j,:])
-        t_graph_origin = t_value_graph
+        # avoid nan
+        t_graph_origin = np.nan_to_num(t_value_graph)
+        p_value_graph = np.nan_to_num(p_value_graph)
         F_info_Dics['t_graph_origin'] = t_graph_origin
         F_info_Dics['p_value_of_t_test'] = p_value_graph
         t_graph = t_graph_origin*(p_value_graph<t_sig)

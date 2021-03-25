@@ -130,3 +130,13 @@ fig2 = plt.figure()
 plt.scatter(trans_c[:,0],trans_c[:,1],s = 1)
 plt.xlim(-0.2,0.2)
 plt.ylim(-0.2,0.2)
+#%%
+
+import pywt
+import numpy as np
+import matplotlib.pyplot as plt
+x = np.arange(512)
+y = np.sin(2*np.pi*x/32)
+coef, freqs=pywt.cwt(y,np.arange(1,512),'cgau7')
+plt.matshow(coef) # doctest: +SKIP
+plt.show() # doctest: +SKIP

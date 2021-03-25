@@ -132,11 +132,39 @@ def Stim_Frame_Align(
 def One_Key_Stim_Align(
         stims_folder
         ):
+    '''
+    Generate all stim trains 
+
+    Parameters
+    ----------
+    stims_folder : (str)
+        Folder of all stim files.
+
+    Returns
+    -------
+    bool
+        API of operation finish.
+
+    '''
     all_stim_folders = os_tools.Get_Sub_Folders(stims_folder)
+    # remove folders not stim run
+    for i in range(len(all_stim_folders)-1,-1,-1):
+        if all_stim_folders[i].find('Run') == -1:
+            all_stim_folders = np.delete(all_stim_folders, i)
+    total_save_path = os_tools.CDdotdot(stims_folder)
+    All_Stim_Dic = {}
+    # Then generate all align folders.
     for i in range(len(all_stim_folders)):
         current_stim_folder = all_stim_folders[i]
+        current_runname = list(current_stim_folder[current_stim_folder.find('Run'):current_stim_folder.find('Run')+5])
+        current_runname.insert(3,'0')
+        current_runname = ''.join(current_runname)
         not_spon = (os_tools.Get_File_Name(current_stim_folder,file_type = '.smr') != [])
         if not_spon:
             _,current_align_dic = Stim_Frame_Align(current_stim_folder)
             os_tools.Save_Variable(current_stim_folder, 'Stim_Frame_Align', current_align_dic)
+            All_Stim_Dic[current_runname] = current_align_dic
+        else:
+            All_Stim_Dic[current_runname] = None
+    os_tools.Save_Variable(total_save_path, '_All_Stim_Frame_Infos', All_Stim_Dic)
     return True

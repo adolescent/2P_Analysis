@@ -13,6 +13,7 @@ import cv2
 from My_Wheels.Affine_Alignment import Affine_Aligner_Gaussian
 
 
+
 day_folder = r'K:\Test_Data\2P\210320_L76_2P'
 run_folders = lt.Run_Name_Producer_2P(list(range(1,16)))
 all_run_folder = lt.List_Annex([day_folder], run_folders)
@@ -41,4 +42,16 @@ OD_Para = Sub_Dic_Generator('OD_2P')
 One_Key_Frame_Graphs(r'K:\Test_Data\2P\210320_L76_2P\1-010', OD_Para,alinged_sub_folder=r'\Results\Affined_Frames')
 S3D8_Para = Sub_Dic_Generator('Shape3Dir8')
 One_Key_Frame_Graphs(r'K:\Test_Data\2P\210320_L76_2P\1-013', S3D8_Para,alinged_sub_folder=r'\Results\Affined_Frames')
+RFSize_Para = Sub_Dic_Generator('RFSize',{'Size':[0.5,1,1.5,2,3],'Dir':[270,315,0,45,90,135,180,225]})
+One_Key_Frame_Graphs(r'K:\Test_Data\2P\210320_L76_2P\1-014', RFSize_Para,alinged_sub_folder=r'\Results\Affined_Frames')
+C7D8_Para = Sub_Dic_Generator('Color7Dir8+90')
+One_Key_Frame_Graphs(r'K:\Test_Data\2P\210320_L76_2P\1-015', C7D8_Para,alinged_sub_folder=r'\Results\Affined_Frames')
 
+
+
+#%% Then Use mannual cell to find 
+from My_Wheels.Cell_Find_From_Graph import Cell_Find_From_Mannual
+finded_cell = Cell_Find_From_Mannual(r'K:\Test_Data\2P\210320_L76_2P\_Mannual_Cell\_Cell_Mask.png',r'K:\Test_Data\2P\210320_L76_2P\_Mannual_Cell\Global_Average_After_Affine.tif',0)
+#%% At last, generate all cell trains.
+from My_Wheels.Standard_Cell_Generator import Standard_Cell_Processor
+Standard_Cell_Processor('L76', '210320', r'K:\Test_Data\2P\210320_L76_2P', r'K:\Test_Data\2P\210320_L76_2P\_Mannual_Cell\Manuall_Cells.cell', run_id_lists = list(range(1,16)),align_subfolder=r'\Results\Affined_Frames')

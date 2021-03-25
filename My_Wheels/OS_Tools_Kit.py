@@ -233,6 +233,7 @@ def CDdotdot(file_name):
     upper_folder : (str)
         Upper folder or file save folder.
     '''
+    file_name = str(file_name)
     upper_folder = '\\'.join(file_name.split('\\')[:-1])
     return upper_folder
 #%% Function9, Number_bit_Fill

@@ -15,6 +15,9 @@ import My_Wheels.Filters as My_Filter
 from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
 import warnings
 from My_Wheels.Stim_Dic_Tools import Frame_ID_Extractor
+import warnings
+ 
+
 
 
 def Single_Subgraph_Generator(
@@ -58,6 +61,7 @@ def Single_Subgraph_Generator(
         Information dictionary. Including origin F & dF/F information of input graph.
 
     '''
+    warnings.filterwarnings('ignore')
     F_info_Dics = {}
     all_tif_name = np.array(all_tif_name)# Change into nparray to slice.
     A_Set_Graph_names = all_tif_name[A_IDs]

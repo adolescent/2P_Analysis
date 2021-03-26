@@ -5,6 +5,9 @@ Created on Fri Mar 12 15:10:43 2021
 @author: ZR
 This part of code is used to operate Stim_Frame_Aling files.
 """
+import more_itertools as mit
+import My_Wheels.List_Operation_Kit as lt
+
 
 def Frame_ID_Extractor(stim_dic,stim_ID_Lists):
     '''
@@ -23,8 +26,54 @@ def Frame_ID_Extractor(stim_dic,stim_ID_Lists):
         Frame ID List of wanted stims.
 
     '''
-    frame_lists = []
+    frame_list = []
     for i in range(len(stim_ID_Lists)):
-        frame_lists.extend(stim_dic[stim_ID_Lists[i]])
-    
-    return frame_lists
+        frame_list.extend(stim_dic[stim_ID_Lists[i]])
+    return frame_list
+
+def Frame_ID_Extrator_In_Conditions(stim_dic,
+                                    stim_ID_Lists,
+                                    head_extend = 2,
+                                    tail_extend = 2):
+    '''
+    Return Frame ID in stim_ID_Lists,but in list of each conditions.
+
+    Parameters
+    ----------
+    stim_dic : (Dic)
+        Stim_Frame_Align dictionary.
+    stim_ID_Lists : (list)
+        List of stim IDs you want to get.
+    head_extend : (int), optional
+        Frame extend of each conditions. Positive add, negative cut. The default is 2.
+    tail_extend : (int), optional
+        The same as head extend, just on the tail. The default is 2.
+
+    Returns
+    -------
+    cutted_frame_lists : (list)
+        List of each condition frame ids..
+
+    '''
+    origin_list = Frame_ID_Extractor(stim_dic, stim_ID_Lists)
+    cutted_origin_list = list(mit.split_when(origin_list,lambda x,y:(y-x)!=1))
+    cutted_frame_lists = lt.Element_Same_length(cutted_origin_list)
+    # final adjust,
+    adjusted_frame_lists = []
+    for i in range(len(cutted_frame_lists)):
+        current_frame_list = cutted_frame_lists[i]
+        # head 
+        if head_extend>0:# add
+            head_add_frame = list(range(current_frame_list[0]-head_extend,current_frame_list[0]))
+            current_frame_list = head_add_frame+current_frame_list
+        elif head_extend<0:# cut 
+            current_frame_list = current_frame_list[abs(head_extend):]
+        # tail
+        if tail_extend >0:# add
+            tail_add_frame = list(range(current_frame_list[-1]+1,current_frame_list[-1]+tail_extend+1))
+            current_frame_list.extend(tail_add_frame)
+        elif tail_extend<0: # cut
+            current_frame_list = current_frame_list[:tail_extend]
+        adjusted_frame_lists.append(current_frame_list)
+        
+    return adjusted_frame_lists

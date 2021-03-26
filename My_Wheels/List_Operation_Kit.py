@@ -178,3 +178,38 @@ def Run_Name_Producer_2P(run_id_lists):
         else:
             raise IOError('Run number impossible, check input plz.')
     return subfolder_lists
+
+#%% Function 7: List element same length
+def Element_Same_length(input_list,start = 'head'):
+    '''
+    cut each element in input lists, make sure they have same length.
+
+    Parameters
+    ----------
+    input_list : (list)
+        Element shall be list too, or this is nonsense.
+    start : ('head' or 'tail'), optional
+        If length not equal, which direction to reserve. The default is 'head'.
+
+    Returns
+    -------
+    cutted_element_list : (list)
+        List after cut.
+
+    '''
+    element_num = len(input_list)
+    element_length = len(input_list[0])
+    # get least element length, all element will cut into this length.
+    for i in range(element_num):
+        current_len = len(input_list[i])
+        if element_length > current_len:
+            element_length = current_len
+    # Then generate cutted element lists
+    cutted_element_list = []
+    for i in range(element_num):
+        if start == 'head':
+            cutted_element_list.append(input_list[i][:element_length])
+        elif start == 'tail':
+            current_length = len(input_list[i])
+            cutted_element_list.append(input_list[i][current_length-element_length:])
+    return cutted_element_list

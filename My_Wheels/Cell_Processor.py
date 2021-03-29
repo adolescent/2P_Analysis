@@ -15,66 +15,67 @@ import OS_Tools_Kit as ot
 import Stim_Dic_Tools as st
 import matplotlib.pyplot as plt
 import numpy as np
+import My_Wheels.Filters as Filters
 
 
-
-class Single_Cell_Processor(object):
+class Cell_Processor(object):
     
-    def __init__(self,cell_dic,all_stim_dic,average_graph = None):
-        self.cell_dic = cell_dic
+    def __init__(self,all_cell_folder,
+                 all_stim_dic_path,
+                 runname,
+                 average_graph = None,
+                 series_mode = 'F',
+                 filter_para = (0.02,False)
+                 ):
+
+        self.all_cell_name = ot.Get_File_Name(all_cell_folder,'.sc')
         self.average_graph = average_graph
-        self.name = self.cell_dic['Name']
-        self.all_stim_dic = all_stim_dic 
-    
-    def Response_Map(self,runname,
-                     Stim_ID_dics,
-                     head_frame = 2,tail_frame = 3,
-                     mode = 'F'
-                     ):
-        '''
-        Generate Tang style Response map of given ids. 
-
-        Parameters
-        ----------
-        runname : (str)
-            Runname. Format as 'Run001' and so on.
-        Stim_ID_dics : (Dic)
-            Graph name and responded stim ID lists.
-        head_frame :(int), optional
-            How many frame before stim. The default is 2.
-        tail_frame : (int), optional
-            How many frame after stim. The default is 3.
-        mode : ('F' or 'dF'),optional
-            Which series to use. F series or dF/F series. The default is 'F'.
-
-        Returns
-        -------
-        response_data : (Dic)
-            Dictionary of response data of each given stim id.
-        response_map : (fig file)
-            plt fig data. Use savefig can save the plot.
-
-        '''
-        # Initialization
-        subgraph_num = len(Stim_ID_dics)
-        current_Stim_Frame_Align = self.all_stim_dic[runname]
-        all_subgraph_name = list(self.all_stim_dic.keys())
-        if mode == 'F':
-            cell_series = self.cell_dic['F_train'][runname]
-        elif mode == 'dF':
-            cell_series = self.cell_dic['dF_F_train'][runname]
+        self.all_stim_dic = ot.Load_Variable(all_stim_dic_path)
+        self.stim_frame_align = self.all_stim_dic[runname]
+        # Then get each cell spike train.
+        cell_num = len(self.all_cell_name)
+        self.all_cells_train = {}
+        for i in range(cell_num):
+            name = 
+        if series_mode == 'F':
+            self.cell_series = self.cell_dic['F_train'][runname]
+        elif series_mode == 'dF':
+            self.cell_series = self.cell_dic['dF_F_train'][runname]
         else:
             raise IOError('Invalid input mode, please check.')
+        # Then filter cell train
+        self.cell_series = Filters.Signal_Filter(self.cell_series,filter_para = filter_para)
+        
+        
+    
+    def Response_Map(self,Condition_dics,
+                     cell_name,
+                     head_frame = 2,tail_frame = 3,
+                     std_annotate = True
+                     ):
+
+        # Initialization
+        subgraph_num = len(Condition_dics)
+        all_subgraph_name = list(Condition_dics.keys())
         # Get all condition response datas
         response_data = {}
+        # Cycle maps
         for i in range(subgraph_num):
             current_subgraph_name = all_subgraph_name[i]
-            current_stim_id = Stim_ID_dics[current_subgraph_name]
-            all_conditions = SDT.Frame_ID_Extrator_In_Conditions(current_Stim_Frame_Align, current_stim_id)
+            current_stim_id = Condition_dics[current_subgraph_name]
+            all_conditions = SDT.Frame_ID_Extrator_In_Conditions(self.stim_frame_align, 
+                                                                 current_stim_id,
+                                                                 head_extend= head_frame,
+                                                                 tail_extend=tail_frame)
             condition_num = len(all_conditions)
             condition_length = len(all_conditions[0])
             response_data[all_subgraph_name[i]] = np.zeros(shape = (condition_num,condition_length),dtype = 'f8')
-        
+            # Fill in response data matrix.
+            for j in range(condition_num):
+                current_frame_id = all_conditions[j]
+                response_data[all_subgraph_name[i]][j,:] = self.cell_series[current_frame_id]
+            
+            
         # Graph Plotting
         col_num = int(np.ceil(np.sqrt(subgraph_num)))
         row_num = int(np.ceil(subgraph_num/col_num))
@@ -83,11 +84,11 @@ class Single_Cell_Processor(object):
         for i in range(subgraph_num):
             current_col = i%col_num
             current_row = i//col_num
-
+            
             
             
         
-        
+        response_map = None
         return response_data,response_map
     
     def Wavelet_Specs(self):
@@ -108,7 +109,5 @@ class Single_Cell_Processor(object):
         
         
         
-class Multi_Cell_Processor(object):
-    pass
-    
+
     

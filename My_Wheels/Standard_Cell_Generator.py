@@ -76,8 +76,7 @@ def Standard_Cell_Processor(
     cell_name_prefix = animal_name+'_'+str(date)+location+'_'
     all_cell_num = len(cell_info)
     all_run_subfolders = lt.List_Annex([day_folder], lt.Run_Name_Producer_2P(run_id_lists))
-    save_folder = day_folder+r'\_Cell_Data'
-    ot.mkdir(save_folder)
+    save_folder = day_folder
     # Set cell data formats.
     all_cell_list = []
     for i in range(all_cell_num):
@@ -107,8 +106,10 @@ def Standard_Cell_Processor(
             all_cell_list[j]['dF_F_train'][current_runid] = current_run_dF_Fs[j]
             all_cell_list[j]['F_train'][current_runid] = current_run_Fs[j]
     # Till now, all cell data of all runs is saved in 'all_cell_list'.
-    # Last part, saving files.
+    # Last part, saving files. All cells in one file, dtype = dic.
+    all_cell_dic = {}
     for i in range(all_cell_num):
-        ot.Save_Variable(save_folder,all_cell_list[i]['Name'],all_cell_list[i],'.sc')
+        all_cell_dic[all_cell_list[i]['Name']] = all_cell_list[i]
+    ot.Save_Variable(save_folder,'_All_Cell_Dics',all_cell_dic,'.ac')
         
     return True

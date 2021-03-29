@@ -110,6 +110,5 @@ def Standard_Cell_Processor(
     all_cell_dic = {}
     for i in range(all_cell_num):
         all_cell_dic[all_cell_list[i]['Name']] = all_cell_list[i]
-    ot.Save_Variable(save_folder,'_All_Cell_Dics',all_cell_dic,'.ac')
-        
+    ot.Save_Variable(save_folder,'_'+animal_name+'_'+date+location+'_All_Cells',all_cell_dic,'.ac')
     return True

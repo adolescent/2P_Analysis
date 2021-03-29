@@ -20,46 +20,45 @@ import My_Wheels.Filters as Filters
 
 class Cell_Processor(object):
     
-    def __init__(self,all_cell_folder,
+    def __init__(self,cell_data_path,
                  all_stim_dic_path,
                  runname,
                  average_graph = None,
                  series_mode = 'F',
                  filter_para = (0.02,False)
                  ):
-
-        self.all_cell_name = ot.Get_File_Name(all_cell_folder,'.sc')
+        # Read in variables
+        self.all_cell_dic = ot.Load_Variable(cell_data_path)
         self.average_graph = average_graph
         self.all_stim_dic = ot.Load_Variable(all_stim_dic_path)
         self.stim_frame_align = self.all_stim_dic[runname]
         # Then get each cell spike train.
-        cell_num = len(self.all_cell_name)
+        cell_num = len(self.all_cell_dic)
         self.all_cells_train = {}
+        self.all_cell_names = list(self.all_cell_dic.keys())
         for i in range(cell_num):
-            name = 
-        if series_mode == 'F':
-            self.cell_series = self.cell_dic['F_train'][runname]
-        elif series_mode == 'dF':
-            self.cell_series = self.cell_dic['dF_F_train'][runname]
-        else:
-            raise IOError('Invalid input mode, please check.')
-        # Then filter cell train
-        self.cell_series = Filters.Signal_Filter(self.cell_series,filter_para = filter_para)
-        
-        
-    
-    def Response_Map(self,Condition_dics,
+            current_name = self.all_cell_names[i]
+            if series_mode == 'F':
+                cell_series = self.all_cell_dic[current_name]['F_train'][runname]
+            elif series_mode == 'dF':
+                cell_series = self.all_cell_dic[current_name]['dF_F_train'][runname]
+            else:
+                raise IOError('Invalid input mode, please check.')
+            cell_series = Filters.Signal_Filter(cell_series,filter_para = filter_para)# Then filter cell train
+            self.all_cells_train[current_name] = cell_series
+
+    def Single_Cell_Response_Map(self,Condition_dics,
                      cell_name,
-                     head_frame = 2,tail_frame = 3,
+                     head_frame = 3,tail_frame = 3,
                      std_annotate = True
                      ):
 
         # Initialization
         subgraph_num = len(Condition_dics)
         all_subgraph_name = list(Condition_dics.keys())
-        # Get all condition response datas
+        cell_train = self.all_cells_train[cell_name]
         response_data = {}
-        # Cycle maps
+        # For every map.
         for i in range(subgraph_num):
             current_subgraph_name = all_subgraph_name[i]
             current_stim_id = Condition_dics[current_subgraph_name]
@@ -73,7 +72,7 @@ class Cell_Processor(object):
             # Fill in response data matrix.
             for j in range(condition_num):
                 current_frame_id = all_conditions[j]
-                response_data[all_subgraph_name[i]][j,:] = self.cell_series[current_frame_id]
+                response_data[all_subgraph_name[i]][j,:] = cell_train[current_frame_id]
             
             
         # Graph Plotting

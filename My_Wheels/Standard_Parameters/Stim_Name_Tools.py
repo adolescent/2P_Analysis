@@ -5,7 +5,7 @@ Created on Thu Mar 25 14:28:17 2021
 @author: ZR
 """
 
-
+#%% Function1, return 
 def Stim_ID_Combiner(mode,para_dic = None):
     
     Stim_IDs = {}
@@ -27,6 +27,20 @@ def Stim_ID_Combiner(mode,para_dic = None):
             current_name = 'Dir'+str(i*22.5)
             Stim_IDs[current_name] = [i+1]
         Stim_IDs['Blank'] = [0]
+        Stim_IDs['All'] = list(range(1,17))
+        
+    elif mode == 'Color7Dir8_Colors':
+        Stim_IDs['Red'] = list(range(1,9))
+        Stim_IDs['Yellow'] = list(range(9,17))
+        Stim_IDs['Green'] = list(range(17,25))
+        Stim_IDs['Cyan'] = list(range(25,33))
+        Stim_IDs['Blue'] = list(range(33,41))
+        Stim_IDs['Purple'] = list(range(41,49))
+        Stim_IDs['While'] = list(range(49,57))
+        Stim_IDs['All'] = list(range(1,57))
+        
+        
     return Stim_IDs
-
-
+#%% Function 2, 
+def Ortho_Stim_Name(input_stim_name):
+    pass

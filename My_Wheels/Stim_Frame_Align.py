@@ -18,7 +18,7 @@ def Stim_Frame_Align(
         stim_thres = 2,
         frame_thres = 1,
         jmp_step = 3000,
-        head_extend = 0,
+        head_extend = 1,
         tail_extend = 0,
         ):
     """
@@ -166,5 +166,5 @@ def One_Key_Stim_Align(
             All_Stim_Dic[current_runname] = current_align_dic
         else:
             All_Stim_Dic[current_runname] = None
-    os_tools.Save_Variable(total_save_path, '_All_Stim_Frame_Infos', All_Stim_Dic)
+    os_tools.Save_Variable(total_save_path, '_All_Stim_Frame_Infos', All_Stim_Dic,'.sfa')
     return True

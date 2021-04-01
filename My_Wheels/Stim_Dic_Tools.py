@@ -77,3 +77,18 @@ def Frame_ID_Extrator_In_Conditions(stim_dic,
         adjusted_frame_lists.append(current_frame_list)
         
     return adjusted_frame_lists
+
+def Condition_Response_Frames(Stim_Frame_Align,head_extend = 3,tail_extend = 3):
+    # Remove ISI and trains.
+    import copy
+    current_SFA =  copy.deepcopy(Stim_Frame_Align)
+    del current_SFA[-1]
+    del current_SFA['Original_Stim_Train']
+    all_stim_ids = list(current_SFA.keys())
+    condition_frames = {}
+    for i in range(len(all_stim_ids)):
+        current_stim_id = all_stim_ids[i]
+        current_condition_frames = Frame_ID_Extrator_In_Conditions(current_SFA, [current_stim_id],head_extend = head_extend,tail_extend = tail_extend)
+        condition_frames[current_stim_id] = current_condition_frames
+        
+    return condition_frames

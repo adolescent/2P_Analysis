@@ -22,6 +22,7 @@ class Cell_Processor(object):
                  average_graph = None,
                  series_mode = 'F',
                  filter_para = (0.02,False)
+                 
                  ):
         '''
         
@@ -64,13 +65,15 @@ class Cell_Processor(object):
             cell_series = Filters.Signal_Filter(cell_series,filter_para = filter_para)# Then filter cell train
             self.all_cells_train[current_name] = cell_series
 
+
+
     def Single_Cell_Response_Data(self,Condition_dics,
                      cell_name,
                      head_frame = 3,tail_frame = 3,
                      condition_dF_base = [0,1,2]
                      ):
         '''
-        Generate single cell response data.
+        Generate single cell response data. This is the initial step of most functions.
 
         Parameters
         ----------
@@ -132,6 +135,24 @@ class Cell_Processor(object):
     def Average_Response_Map(self,data_mode = 'processed',
                              stim_on = (3,6),
                              error_bar = True):
+        '''
+        Generate Average Response map.
+
+        Parameters
+        ----------
+        data_mode : 'processed' or 'raw', optional
+            Which response data to use.raw will use F value, processed use dF. The default is 'processed'.
+        stim_on : (turple), optional
+            Frame range of stim on. The default is (3,6).
+        error_bar : bool, optional
+            Whether we annotat error bar on graphs. The default is True.
+
+        Returns
+        -------
+        fig : (plt fig file)
+            Current cell response frame. Remenber to plt.clf() after save!.
+
+        '''
         # calculate average response data first.
         cell_name = self.current_cell
         if data_mode == 'processed':
@@ -183,6 +204,25 @@ class Cell_Processor(object):
     def Single_Condition_Response_Map(self,data_mode = 'raw'):
         pass
 
+
+    def Radar_Map(self,radar_dic,
+                  mode = 'processed',
+                  error_bar = True,
+                  base_range = [0,1,2],
+                  stim_on_range = [3,4,5,6]):
+        
+        cell_name = self.current_cell
+        if data_mode == 'processed':
+            plotable_data = self.response_data
+        elif data_mode == 'raw':
+            plotable_data = self.raw_response_data
+        else:
+            raise IOError('Data mode invalid.')
+        # Then 
+        
+        
+    
+    
     
     def Wavelet_Specs(self):
         # This is an example. 

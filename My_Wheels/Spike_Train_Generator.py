@@ -12,6 +12,7 @@ import more_itertools as mit
 import My_Wheels.List_Operation_Kit as List_Tools
 import My_Wheels.Filters as My_Filter
 import warnings
+import My_Wheels.Stim_Dic_Tools as SDT
 
 
 def Spike_Train_Generator(all_tif_name,
@@ -90,7 +91,7 @@ def Spike_Train_Generator(all_tif_name,
         for i in range(len(all_keys)):
             current_cell_F_train = F_value_Dictionary[all_keys[i]]
             base_F = current_cell_F_train.mean()
-            current_spike_train = (current_cell_F_train-base_F)/base_F
+            current_spike_train = np.nan_to_num((current_cell_F_train-base_F)/base_F)
             dF_F_trains[all_keys[i]] = current_spike_train
             
     elif Base_F_type == 'most_unactive':
@@ -101,7 +102,7 @@ def Spike_Train_Generator(all_tif_name,
             unactive_frame_num = round(len(sorted_list)*unactive_prop)
             sorted_list = sorted_list[:unactive_frame_num]
             base_F = np.mean(sorted_list)
-            current_spike_train = (current_cell_F_train-base_F)/base_F
+            current_spike_train = np.nan_to_num((current_cell_F_train-base_F)/base_F)
             dF_F_trains[all_keys[i]] = current_spike_train
             
     elif Base_F_type == 'before_ISI':# Use ISI Before stim onset as base.
@@ -124,7 +125,7 @@ def Spike_Train_Generator(all_tif_name,
                 else:
                     warnings.warn("ISI frame less than 2, use all ISIs", UserWarning)
                 current_base = current_F_train[null_id].mean()
-                current_dF_train = (current_F_train-current_base)/current_base
+                current_dF_train = np.nan_to_num((current_F_train-current_base)/current_base)
                 current_cell_dF_train.extend(current_dF_train)
                 # Then add frame counter at last.
                 frame_counter = frame_counter + len(cutted_stim_train[j])
@@ -139,7 +140,7 @@ def Spike_Train_Generator(all_tif_name,
             current_F_series = F_value_Dictionary[all_keys[i]]
             base_F_series = current_F_series[ignore_ISI_frame:first_stim_id]
             base_F = base_F_series.mean()
-            current_spike_train = (current_F_series-base_F)/base_F
+            current_spike_train = np.nan_to_num((current_F_series-base_F)/base_F)
             dF_F_trains[all_keys[i]] = current_spike_train
             
     elif Base_F_type == 'all_ISI':
@@ -156,7 +157,7 @@ def Spike_Train_Generator(all_tif_name,
             current_cell_F_train = F_value_Dictionary[all_keys[i]]
             current_base_F = current_cell_F_train[used_ISI_id]
             base_F = current_base_F.mean()
-            current_dF_train = (current_cell_F_train-base_F)/base_F
+            current_dF_train = np.nan_to_num((current_cell_F_train-base_F)/base_F)
             dF_F_trains[all_keys[i]] = current_dF_train
 
     elif Base_F_type == 'nearest_0':
@@ -181,7 +182,7 @@ def Spike_Train_Generator(all_tif_name,
                 current_F = current_cell_F_train[j]
                 _,current_base_loc = List_Tools.Find_Nearest(all_blank_start_frame,j)
                 current_base = all_blank_base_F[current_base_loc]
-                current_dF_F = (current_F-current_base)/current_base
+                current_dF_F = np.nan_to_num((current_F-current_base)/current_base)
                 current_dF_train.append(current_dF_F)
             dF_F_trains[all_keys[i]] = np.asarray(current_dF_train)
             
@@ -192,48 +193,76 @@ def Spike_Train_Generator(all_tif_name,
         for i in range(len(all_keys)):
             current_cell_F_train = F_value_Dictionary[all_keys[i]]
             current_base = current_cell_F_train[all_blank_frame_id].mean()
-            current_dF_train = (current_cell_F_train-current_base)/current_base
+            current_dF_train = np.nan_to_num((current_cell_F_train-current_base)/current_base)
             dF_F_trains[all_keys[i]] = current_dF_train
     else:
         raise IOError('Not finished functions.')
     
     return F_value_Dictionary,dF_F_trains
 #  return F_value_Dictionary,dF_F_trains
-#%% Function2, single cell spike train
-# This function is created later, so based on all cell info method. Not really effective.
-def Single_Cell_Spike_Train(all_tif_name,
-                            single_cell_info,
-                            Base_F_type = 'most_unactive',
-                            stim_train = None,
-                            unactive_prop = 0.1
-                            ):
+#%% Function2, Single_Condition_Train_Generator
+def Single_Condition_Train_Generator(F_train,
+                                     Stim_Frame_Align,
+                                     response_head_extend = 3,
+                                     response_tail_extend = 3,
+                                     base_frame = [0,1,2],
+                                     filter_para = (0.02,False)
+                                     ):
     '''
-    Input single cell info and all tif name, return F train and dF/F train lists
+    This function will produce single cell & single run condition matrixs.
 
     Parameters
     ----------
-    all_tif_name : (list)
-        List of all tif name.
-    single_cell_info : (skimage info file)
-        just input single info file is enough.
-    Base_F_type/stim_train/unactive_prop : The same as function above.
-
+    F_train : (Array)
+        Originl F value train.
+    Stim_Frame_Align : (Dic)
+        Stim Frame Align dics. All condition(except-1) will be calculated later.
+    response_head_extend : (int)
+        Number of frame before stim onset.
+    response_tail_extend : (int)
+        Number of frame after stim onset.
+    filter_para : (2-element-turple), optional
+        This is for filter. Check Filters for detail.The default is (0.02,False),~0.013Hz HP.
 
     Returns
     -------
-    F_train : (Nd-Array)
-        Cell F-value list.
-    dF_F_train : (Nd_Array)
-        Cell dF/F value list.
+    sc_dic : (dic)
+        Matrix of all condition values.
+    raw_sc_dic : (dic)
+        DESCRIPTION.
 
     '''
-    F_dic,dF_F_dic = Spike_Train_Generator(all_tif_name = all_tif_name,
-                                           cell_information = [single_cell_info],
-                                           Base_F_type = Base_F_type,
-                                           stim_train = stim_train,
-                                           unactive_prop = unactive_prop)
-    F_train = F_dic[0]
-    dF_F_train = dF_F_dic[0]
-    
-    return F_train,dF_F_train
+    condition_frames = SDT.Condition_Response_Frames(Stim_Frame_Align,response_head_extend,response_tail_extend)
+    # extend and filt F_train to avoid error. 
+    F_train = np.append(F_train,F_train[0:response_tail_extend])# Extend head to tail avoiding error.
+    F_train_filted = My_Filter.Signal_Filter(F_train,filter_para = filter_para)
+    sc_dic = {}
+    raw_sc_dic = {}
+    # get each condition have same length.
+    condition_length = 65535
+    all_conditions = list(condition_frames.keys())
+    for i in range(len(all_conditions)):# get proper length
+        current_cond_length = len(condition_frames[all_conditions[i]][0])
+        if current_cond_length < condition_length:
+            condition_length = current_cond_length
+    for i in range(len(all_conditions)):# cut too long condition.
+        current_condition = condition_frames[all_conditions[i]]
+        if len(current_condition[0]) > condition_length: # meaning too long conds.
+            for j in range(len(current_condition)):
+                current_condition[j] = current_condition[j][:condition_length]
+    # Get raw_sc dic & processed sc dic
+    for i in range(len(all_conditions)):
+        c_condition = all_conditions[i]
+        c_frame_lists = condition_frames[c_condition]
+        c_F_matrix = np.zeros(shape = (len(c_frame_lists),len(c_frame_lists[0])),dtype = 'f8')
+        c_raw_F_matrix = np.zeros(shape = (len(c_frame_lists),len(c_frame_lists[0])),dtype = 'f8')
+        for j in range(len(c_frame_lists)):
+            cs_cond = c_frame_lists[j]
+            c_raw_F_matrix[j,:] = F_train_filted[cs_cond]
+            c_F_base = F_train_filted[np.array(cs_cond)[base_frame]].mean()
+            c_F_matrix[j,:] = np.nan_to_num(((F_train_filted[cs_cond]-c_F_base)/c_F_base))
+        raw_sc_dic[c_condition] = c_raw_F_matrix
+        sc_dic[c_condition] = c_F_matrix
+    return sc_dic,raw_sc_dic
+
 

@@ -265,6 +265,7 @@ def Sub_Dic_Generator(mode,para = None):
         if white_id == -1:
             print('No White find, so no white graph generated.')
         # Get direction submaps.
+        sub_dics['All-0'] = [list(range(1,29)),[0]]
         sub_dics['H-V'] = [list(range(1,8)),list(range(15,22))]
         sub_dics['A-O'] = [list(range(8,15)),list(range(22,29))]
         sub_dics['Orien0-0'] = [list(range(1,8)),[0]]

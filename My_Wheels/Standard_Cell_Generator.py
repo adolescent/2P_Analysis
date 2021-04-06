@@ -9,9 +9,8 @@ import My_Wheels.OS_Tools_Kit as ot
 import My_Wheels.List_Operation_Kit as lt
 #from My_Wheels.Spike_Train_Generator import Single_Cell_Spike_Train
 from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
-import Stim_Dic_Tools as SDT
-import numpy as np
-import My_Wheels.Filters as Filters
+from My_Wheels.Spike_Train_Generator import Single_Condition_Train_Generator
+
 # Old function is toooooooo slow, so use new plz. The same function.
 # =============================================================================
 # def Standard_Cell_Processor(
@@ -60,6 +59,9 @@ import My_Wheels.Filters as Filters
 #         # Then save current cell.
 #         ot.Save_Variable(save_folder, current_cell_name, current_cell_dic,'.sc')
 # =============================================================================
+
+
+
 #%% Change cycle sequence to accelerate calculation speed.
 def Standard_Cell_Processor(
         animal_name,
@@ -71,9 +73,10 @@ def Standard_Cell_Processor(
         location = 'A',# For runs have 
         Stim_Frame_Align_name = '_All_Stim_Frame_Infos.sfa',
         #Stim_Frame_Align_subfolder = r'\Results\Stim_Frame_Align.pkl',# API changed.
-        align_subfolder = r'\Results\Aligned_Frames',  
+        align_subfolder = r'\Results\Aligned_Frames',
         response_head_extend = 3,
         response_tail_extend = 3,
+        base_frame = [0,1,2],
         filter_para = (0.02,False)
         ):
     # Folder and name initialization
@@ -103,7 +106,7 @@ def Standard_Cell_Processor(
         current_runid = 'Run'+(all_run_subfolders[i][-3:])# Use origin run id to avoid bugs.
         current_all_tif_name = ot.Get_File_Name(all_run_subfolders[i]+align_subfolder,'.tif')
         current_Stim_Frame_Align = all_Stim_Frame_Align[current_runid]
-        if current_Stim_Frame_Align == False : # meaning this run is spon.
+        if current_Stim_Frame_Align == None or len(current_Stim_Frame_Align) == 302: # meaning this run is spon or RF25.
             current_run_Fs,current_run_dF_Fs = Spike_Train_Generator(current_all_tif_name, cell_info,'most_unactive',None)
         else:
             current_run_stim_train = current_Stim_Frame_Align['Original_Stim_Train']
@@ -116,20 +119,18 @@ def Standard_Cell_Processor(
             all_cell_list[j]['dF_F_train'][current_runid] = current_run_dF_Fs[j]
             all_cell_list[j]['F_train'][current_runid] = current_run_Fs[j]
         # Then, we generate Condition Reaction Train for each cell and each condition.
-        all_conditions = SDT.Condition_Response_Frames(current_Stim_Frame_Align,response_head_extend,response_tail_extend)
-        condition_num = len(all_conditions)
-        all_condition_IDs = list(all_conditions.keys())
-        for j in range(all_cell_num):
-            all_cell_list[j]['Raw_CR_trains'][current_runid] = {}
-            all_cell_list[j]['CR_trains'][current_runid] = {}
-            current_cell_train = current_run_Fs[j]
-            for k in range(condition_num):
-                current_condition = all_conditions[all_condition_IDs[k]]
-                raw_condition_matrix = np.zeros(shape = (len(current_condition),len(current_condition[0])),dtype = 'f8')
-                condition_matrix = np.zeros(shape = (len(current_condition),len(current_condition[0])),dtype = 'f8')
-                for l in range(len(current_condition)):
-                    single_cond_frame = current_condition[l]
-                    raw_condition_matrix[l,:] = current_cell_train[single_cond_frame]
+        if current_Stim_Frame_Align == None:
+            all_cell_list[j]['CR_trains'][current_runid] = None
+            all_cell_list[j]['Raw_CR_trains'][current_runid] = None
+        else:
+            for j in range(all_cell_num):
+                all_cell_list[j]['CR_trains'][current_runid],all_cell_list[j]['Raw_CR_trains'][current_runid] = Single_Condition_Train_Generator(current_run_Fs[j],
+                                                                                                                                                 current_Stim_Frame_Align,
+                                                                                                                                                 response_head_extend,
+                                                                                                                                                 response_tail_extend,
+                                                                                                                                                 base_frame,
+                                                                                                                                                 filter_para
+                                                                                                                                                 )
     # Till now, all cell data of all runs is saved in 'all_cell_list'.
     # Last part, saving files. All cells in one file, dtype = dic.
     all_cell_dic = {}

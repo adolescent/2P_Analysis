@@ -7,8 +7,9 @@ This part of code is used to operate Stim_Frame_Aling files.
 """
 import more_itertools as mit
 import My_Wheels.List_Operation_Kit as lt
+import numpy as np
 
-
+#%% Function1, Frame ID extractor
 def Frame_ID_Extractor(stim_dic,stim_ID_Lists):
     '''
     This program will extract any combination of Stim ID in already aligned dics.
@@ -30,6 +31,8 @@ def Frame_ID_Extractor(stim_dic,stim_ID_Lists):
     for i in range(len(stim_ID_Lists)):
         frame_list.extend(stim_dic[stim_ID_Lists[i]])
     return frame_list
+
+#%% Function2, Frame ID Extractor in condition formats
 
 def Frame_ID_Extrator_In_Conditions(stim_dic,
                                     stim_ID_Lists,
@@ -78,7 +81,26 @@ def Frame_ID_Extrator_In_Conditions(stim_dic,
         
     return adjusted_frame_lists
 
+#%% Function3, Single Condition Stim Frames
 def Condition_Response_Frames(Stim_Frame_Align,head_extend = 3,tail_extend = 3):
+    '''
+    This function is useful in data preprocessing. Input stim frame align, this will return each condition in each stimulus
+
+    Parameters
+    ----------
+    Stim_Frame_Align : (Dic)
+        Single Run Stim Frame Align dictionary.
+    head_extend : (int), optional
+        Frame before stim on. The default is 3.
+    tail_extend : (int), optional
+        Frame after stim on. The default is 3.
+
+    Returns
+    -------
+    condition_frames : (dic) 
+        Each stim's frame id, in conditions.
+
+    '''
     # Remove ISI and trains.
     import copy
     current_SFA =  copy.deepcopy(Stim_Frame_Align)
@@ -92,3 +114,20 @@ def Condition_Response_Frames(Stim_Frame_Align,head_extend = 3,tail_extend = 3):
         condition_frames[current_stim_id] = current_condition_frames
         
     return condition_frames
+
+
+#%% Function 4, Condition Response Train Combiner
+def CR_Train_Combiner(CR_Trains,Condition_Dics):
+    cond_num = len(Condition_Dics)
+    all_cond_name = list(Condition_Dics.keys())
+    combined_condition_datas = {}
+    for i in range(cond_num):
+        c_name = all_cond_name[i]
+        c_stim_list = Condition_Dics[c_name]
+        c_cond_array = CR_Trains[c_stim_list[0]]
+        if len(c_stim_list)>1:# meaning we need to concatenate.
+            for i in range(len(c_stim_list)-1):
+                c_cond_array = np.concatenate((c_cond_array,CR_Trains[c_stim_list[i+1]]))
+        combined_condition_datas[c_name] = c_cond_array
+
+    return combined_condition_datas

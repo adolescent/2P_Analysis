@@ -29,6 +29,12 @@ def Stim_ID_Combiner(mode,para_dic = None):
         Stim_IDs['Blank'] = [0]
         Stim_IDs['All'] = list(range(1,17))
         
+    elif mode == 'G16_Radar':
+        print('Dir 0 is horizontal, moving up. Counterclockwise.')
+        for i in range(16):
+            current_name = 'Dir'+str(i*22.5)
+            Stim_IDs[current_name] = [i+1]
+        
     elif mode == 'Color7Dir8_Colors':
         Stim_IDs['Red'] = list(range(1,9))
         Stim_IDs['Yellow'] = list(range(9,17))
@@ -38,8 +44,7 @@ def Stim_ID_Combiner(mode,para_dic = None):
         Stim_IDs['Purple'] = list(range(41,49))
         Stim_IDs['While'] = list(range(49,57))
         Stim_IDs['All'] = list(range(1,57))
-        
-        
+
     return Stim_IDs
 #%% Function 2, 
 def Ortho_Stim_Name(input_stim_name):

@@ -96,7 +96,63 @@ class Cell_Processor(object):
             plt.clf()
             plt.close()
         return True
-    def Radar_Maps(self,runnane,Radar_Conds,
-                   on_frames = [3,4,5,6],mode = 'processed'):
-        
+    
+    
+    
+    def Radar_Maps(self,runname,Radar_Cond,
+                   on_frames = [3,4,5,6],mode = 'processed',error_bar = True):
+        radar_folder = self.save_folder+r'\\'+runname+'_Radar_Maps'
+        ot.mkdir(radar_folder)
+        # Cycle all cells
+        for i in range(self.cell_num):
+            # get cr train
+            c_cellname = self.all_cell_names[i]
+            if mode == 'processed':
+                if runname in self.all_cell_dic[c_cellname]['CR_trains']:
+                    cr_train = self.all_cell_dic[c_cellname]['CR_trains'][runname]
+                else:
+                    cr_train = None
+            elif mode == 'raw':
+                if runname in self.all_cell_dic[c_cellname]['Raw_CR_trains']:
+                    cr_train = self.all_cell_dic[c_cellname]['Raw_CR_trains'][runname]
+                else:
+                    cr_train = None
+            if cr_train == None:
+                continue
+            # get radar data and std
+            radar_data = SDT.CR_Train_Combiner(cr_train,Radar_Cond)
+            all_radar_names = list(radar_data.keys())
+            plotable_data = {}
+            plotable_data['Names'] = []
+            plotable_data['Values'] = np.zeros(len(all_radar_names),dtype = 'f8')
+            plotable_data['Stds'] = np.zeros(len(all_radar_names),dtype = 'f8')
+            for j in range(len(all_radar_names)):
+                c_name = all_radar_names[j]
+                plotable_data['Names'].append(c_name)
+                c_conds,c_stds = radar_data[c_name].mean(0),radar_data[c_name].std(0)
+                cutted_conds,cutted_std = c_conds[on_frames],c_stds[on_frames]
+                max_ps = np.where(cutted_conds == cutted_conds.max())[0][0]
+                plotable_data['Values'][j] = cutted_conds[max_ps]
+                plotable_data['Stds'][j] = cutted_std[max_ps]
+            # plot radar maps.
+            fig = plt.figure(figsize = (8,8))
+            fig.suptitle(c_cellname+'_Radar Maps',fontsize=22)
+            ax = plt.axes(polar=True)
+            ax.set_theta_zero_location("N")
+            ax_num = len(all_radar_names)
+            angle_series =2*np.pi/360 * np.linspace(0, 360, ax_num+1,dtype = 'f8')
+            ax.set_xticks(angle_series[:-1])
+            ax.set_xticklabels(plotable_data['Names'])
+            if error_bar == True:
+                ax.errorbar(angle_series, 
+                            np.append(plotable_data['Values'],plotable_data['Values'][0]),
+                            np.append(plotable_data['Stds'],plotable_data['Stds'][0]),
+                            fmt = 'bo-',ecolor='r')
+            else:
+                ax.plot(angle_series, np.append(plotable_data['Values'],plotable_data['Values'][0]),'bo-')# Add one to close plots.
+            # at last, save graphs.
+            ot.Save_Variable(radar_folder, c_cellname+'_Radar_Data', plotable_data)
+            fig.savefig(radar_folder+r'\\'+c_cellname+'_Radar.png',dpi = 180)
+            plt.clf()
+            plt.close()
         return True

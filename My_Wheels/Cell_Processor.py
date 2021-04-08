@@ -9,7 +9,6 @@ import  Stim_Dic_Tools as SDT
 import numpy as np
 import OS_Tools_Kit as ot
 import matplotlib.pyplot as plt
-import My_Wheels.Filters as Filters
 
 class Cell_Processor(object):
     
@@ -29,7 +28,9 @@ class Cell_Processor(object):
                            Condition_dics,
                            mode = 'processed',
                            stim_on = (3,6),
-                           error_bar = True
+                           error_bar = True,
+                           figsize = 'Default',
+                           subshape = 'Default'
                            ):
         graph_folder = self.save_folder+r'\\'+runname
         ot.mkdir(graph_folder)
@@ -70,9 +71,16 @@ class Cell_Processor(object):
                     y_max = average_plot.max()
             y_range = [y_min-0.3,y_max+0.3]
             # Graph Plotting
-            col_num = int(np.ceil(np.sqrt(subgraph_num)))
-            row_num = int(np.ceil(subgraph_num/col_num))
-            fig,ax = plt.subplots(row_num,col_num,figsize = (15,15))# Initialize graphs
+            if subshape == 'Default':
+                col_num = int(np.ceil(np.sqrt(subgraph_num)))
+                row_num = int(np.ceil(subgraph_num/col_num))
+            else:
+                col_num = subshape[1]
+                row_num = subshape[0]
+            if figsize == 'Default':
+                fig,ax = plt.subplots(row_num,col_num,figsize = (15,15))# Initialize graphs:
+            else:
+                fig,ax = plt.subplots(row_num,col_num,figsize = figsize)
             fig.suptitle(c_cellname+'_Response Maps', fontsize=30)
             for j in range(subgraph_num):
                 current_col = j%col_num
@@ -91,7 +99,7 @@ class Cell_Processor(object):
                 else:
                     ax[current_row,current_col].errorbar(range(frame_num),current_data[0],fmt = 'bo-')
             # Save ploted graph.
-            ot.Save_Variable(graph_folder, c_cellname+'_Response_Data', response_plot_dic)
+            ot.Save_Variable(graph_folder, c_cellname+'_Response_Data', plotable_data)
             fig.savefig(graph_folder+r'\\'+c_cellname+'_Response.png',dpi = 180)
             plt.clf()
             plt.close()
@@ -100,7 +108,7 @@ class Cell_Processor(object):
     
     
     def Radar_Maps(self,runname,Radar_Cond,
-                   on_frames = [3,4,5,6],mode = 'processed',error_bar = True):
+                   on_frames = [3,4,5,6],bais_angle = 0,mode = 'processed',error_bar = True):
         radar_folder = self.save_folder+r'\\'+runname+'_Radar_Maps'
         ot.mkdir(radar_folder)
         # Cycle all cells
@@ -140,7 +148,7 @@ class Cell_Processor(object):
             ax = plt.axes(polar=True)
             ax.set_theta_zero_location("N")
             ax_num = len(all_radar_names)
-            angle_series =2*np.pi/360 * np.linspace(0, 360, ax_num+1,dtype = 'f8')
+            angle_series =2*np.pi/360 * (np.linspace(0, 360, ax_num+1,dtype = 'f8')+bais_angle)
             ax.set_xticks(angle_series[:-1])
             ax.set_xticklabels(plotable_data['Names'])
             if error_bar == True:
@@ -156,3 +164,8 @@ class Cell_Processor(object):
             plt.clf()
             plt.close()
         return True
+    
+    
+    
+    
+    

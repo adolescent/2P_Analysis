@@ -10,7 +10,7 @@ import My_Wheels.List_Operation_Kit as lt
 #from My_Wheels.Spike_Train_Generator import Single_Cell_Spike_Train
 from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
 from My_Wheels.Spike_Train_Generator import Single_Condition_Train_Generator
-
+#%% Old Functions, fold plz.
 # Old function is toooooooo slow, so use new plz. The same function.
 # =============================================================================
 # def Standard_Cell_Processor(
@@ -137,4 +137,19 @@ def Standard_Cell_Processor(
     for i in range(all_cell_num):
         all_cell_dic[all_cell_list[i]['Name']] = all_cell_list[i]
     ot.Save_Variable(save_folder,'_'+animal_name+'_'+date+location+'_All_Cells',all_cell_dic,'.ac')
+    return True
+
+
+
+#%% Add ROI runs into cell dic.
+def ROI_Add_On(all_cell_path,
+               all_Stim_Frame_Align_path,
+               global_average_graph,
+               roi_average_graph,
+               run_id_lists,
+               ROI_boulder = 10,
+               aligned_subfolder = r'\Results\Affined_Frames'
+               ):
+    
+    
     return True

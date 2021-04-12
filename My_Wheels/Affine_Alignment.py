@@ -241,7 +241,7 @@ def Affine_Aligner_Gaussian(
         dist_lim = 120,
         match_checker = 1,
         sector_num = 4,
-        write_file = True
+        write_file = False
         ):
     save_folder = data_folder+r'\Results'
     aligned_tif_folder = save_folder+r'\Affined_Frames'

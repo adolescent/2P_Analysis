@@ -4,7 +4,7 @@ Created on Thu Mar 25 14:28:17 2021
 
 @author: ZR
 """
-
+import numpy as np
 #%% Function1, return 
 def Stim_ID_Combiner(mode,para_dic = None):
     
@@ -117,7 +117,7 @@ def Stim_ID_Combiner(mode,para_dic = None):
             else:
                 Stim_IDs[c_name] = [i+19]
                 
-    elif mode == 'RFSize':
+    elif mode == 'RFSize': # RF Size & Dir tunings
         if para_dic == None:
             raise IOError('Please give RF Size dics.')
         sizes = para_dic['Size']
@@ -128,10 +128,32 @@ def Stim_ID_Combiner(mode,para_dic = None):
         Stim_IDs['All'] = list(range(1,cond_num+1))
         # Then all sizes
         for i in range(size_num):
-            c_size = sizes[i]
+            c_size = 'Size_'+str(sizes[i])
+            Stim_IDs[c_size] = list(range(i*dir_num+1,(i+1)*dir_num+1))
+        # Then all dirs
+        for i in range(dir_num):
+            c_dir = 'Dir'+str(dirs[i])
+            Stim_IDs[c_dir] = list(np.arange(i+1,40,dir_num))
             
+    elif mode == 'RFSize_SC': # Single Condition RF Size graphs.
+        if para_dic == None:
+            raise IOError('Please give RF Size dics.')
+        sizes = para_dic['Size']
+        dirs = para_dic['Dir']
+        cond_num = len(sizes)*len(dirs)
+        size_num = len(sizes)
+        dir_num = len(dirs)
+        # get all size average
+        for i in range(dir_num):
+            Stim_IDs['All_Dir'+str(dirs[i])] = list(np.arange(i+1,41,dir_num))
         
-
+        for i in range(size_num):
+            c_size = 'Size_'+str(sizes[i])
+            for j in range(dir_num):
+                c_dir = c_dir = '_Dir'+str(dirs[j])
+                Stim_IDs[c_size+c_dir] = [i*dir_num+j+1]
+                
+                
 
     return Stim_IDs
 #%% Function 2, 

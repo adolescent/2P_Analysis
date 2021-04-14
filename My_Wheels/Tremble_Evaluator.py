@@ -153,4 +153,32 @@ def Tremble_Comparision(before_folder,
     fig2 = sns.heatmap(variation_prop,cmap = 'bwr',annot=True,annot_kws={"size": 20},square=True,yticklabels=False,xticklabels=False,center = 0)
     fig2.figure.savefig(save_folder+'\Variance_Change_Prop.png',dpi = 330)
     return cov_matrix_dic,var_matrix_dic
+#%% Function3, leat tremble average graphs
+def Least_Tremble_Average_Graph(
+        data_folder,
+        average_prop = 0.05,
+        cut_shape = (9,9)
+        ):
+    all_tif_name = np.array(OS_Tools.Get_File_Name(data_folder))
+    _,frac_disps = Tremble_Evaluator(data_folder,cut_shape = cut_shape)
+    frac_num,frame_num,_ = frac_disps.shape
+    # Then calculate average center and least error graph.
+    frac_centers = np.zeros(shape = (frac_num,2),dtype = 'f8')
+    for i in range(frac_num):
+        frac_centers[i,0] = frac_disps[i,:,0].mean()
+        frac_centers[i,1]  = frac_disps[i,:,1].mean()
+    # And all frac_total movings
+    total_movings = np.zeros(frame_num,dtype = 'f8')
+    for i in range(frame_num):
+        c_dist = 0
+        for j in range(frac_num):
+            c_dist += (frac_centers[j][0]-frac_disps[j,i,0])**2+(frac_centers[j][1]-frac_disps[j,i,1])**2
+        total_movings[i] = c_dist
+    # Then find least props.
+    used_num = int(frame_num*average_prop)
+    print('Average of most stable '+str(used_num)+' Frames.')
+    used_frame_ind = np.argpartition(total_movings,used_num)[0:used_num]
+    graph_names = all_tif_name[used_frame_ind]
+    averaged_graph = Graph_Tools.Average_From_File(graph_names)
     
+    return averaged_graph,graph_names

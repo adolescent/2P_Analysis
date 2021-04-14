@@ -164,7 +164,30 @@ class Cell_Processor(object):
             plt.clf()
             plt.close()
         return True
-    
+    def Get_Trains(self,runname,train_name):
+        '''
+        Get dictionary of single train single mode.
+
+        Parameters
+        ----------
+        runname : (str)
+            Runname .
+        train_name : ('F_train' or 'dF_F_train')
+            Train method. If not properly given, an empty dic will be given.
+
+        Returns
+        -------
+        cell_trains : (Dic)
+            All cell having specific train will be shown.
+
+        '''
+        print('Get single run specific trains.')
+        cell_trains = {}
+        for i in range(self.cell_num):
+            c_cell_name = self.all_cell_names[i]
+            if runname in self.all_cell_dic[c_cell_name][train_name]:
+                cell_trains[c_cell_name] = self.all_cell_dic[c_cell_name][train_name][runname]
+        return cell_trains
     
     
     

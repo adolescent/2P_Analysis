@@ -156,7 +156,7 @@ def Tremble_Comparision(before_folder,
 #%% Function3, leat tremble average graphs
 def Least_Tremble_Average_Graph(
         data_folder,
-        average_prop = 0.05,
+        average_prop = 0.1,
         cut_shape = (9,9)
         ):
     all_tif_name = np.array(OS_Tools.Get_File_Name(data_folder))

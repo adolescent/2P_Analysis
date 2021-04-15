@@ -13,6 +13,7 @@ import numpy as np
 import My_Wheels.OS_Tools_Kit as OS_Tools
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import My_Wheels.Filters as Filters
+import warnings
 #%% Old Core function of affine.
 # Function Out of Date.
 # This function is really OLD!! Will be out of date very sooon.
@@ -194,8 +195,7 @@ def Affine_Core_Point_Equal(
     h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)  
     # h Check here to avoid bad mistake. This part can be revised and discussed.
     if abs(h[0,1])>match_checker:
-        raise IOError('Bad match, please check parameters.')
-    
+        warnings.warn('Bad match, please check parameters.',UserWarning)
     height,width = base.shape
     matched_graph = cv2.warpPerspective(target, h, (width, height))
     #matched_graph = np.maximum(matched_graph,1)

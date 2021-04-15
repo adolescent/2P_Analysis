@@ -283,7 +283,36 @@ def Sub_Dic_Generator(mode,para = None):
                 if i != white_id:
                     c_name = all_hues[i]
                     sub_dics[c_name+'-'+all_hues[white_id]] = [[i+1,i+8,i+15,i+22],white_series]
-    
+    elif mode == 'HueNOrien4':
+        if para == None:
+            raise IOError('Please give RF paras.')
+        print('Have 0, and id 1 is moving up color 1.')
+        all_hue = para['Hue']
+        hue_num = len(all_hue)
+        cond_num = hue_num*4+1
+        sub_dics['All-0'] = [list(range(1,cond_num)),[0]]
+        # Orientation graphs.
+        sub_dics['H-V'] = [list(range(1,hue_num+1)),list(range(hue_num*2+1,hue_num*3+1))]
+        sub_dics['A-O'] = [list(range(hue_num*1+1,hue_num*2+1)),list(range(hue_num*3+1,hue_num*4+1))]
+        # Hue-0 graphs.
+        for i in range(hue_num):
+            c_huename = all_hue[i]
+            sub_dics[c_huename+'-0'] = [[i+1,i+12,i+23,i+34],[0]]
+            # Hue-White graphs.
+            if 'White' in all_hue:
+                white_ind = all_hue.index('White')
+                if c_huename != 'White':
+                    sub_dics[c_huename+'-White'] = [[i+1,i+12,i+23,i+34],[1+white_ind,12+white_ind,23+white_ind,34+white_ind]]
+        # SP graphs.
+        if 'SP' in para:
+            print('Speial subgraphs included.')
+            SP_graphs = para['SP']
+            for i in range(len(SP_graphs)):
+                c_pairs = SP_graphs[i]
+                A_ind = all_hue.index(c_pairs[0])
+                B_ind = all_hue.index(c_pairs[1])
+                sub_dics[c_pairs[0]+'-'+c_pairs[1]] = [[A_ind+1,A_ind+12,A_ind+23,A_ind+34],[B_ind+1,B_ind+12,B_ind+23,B_ind+34]]
+                
     else:
         raise IOError('Method not understand, please check.')
             

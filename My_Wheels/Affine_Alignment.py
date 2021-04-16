@@ -241,9 +241,11 @@ def Affine_Aligner_Gaussian(
         dist_lim = 120,
         match_checker = 1,
         sector_num = 4,
-        write_file = False
+        write_file = False,
+        save_folder = 'Default'
         ):
-    save_folder = data_folder+r'\Results'
+    if save_folder == 'Default':
+        save_folder = data_folder+r'\Results'
     aligned_tif_folder = save_folder+r'\Affined_Frames'
     OS_Tools.mkdir(save_folder)
     OS_Tools.mkdir(aligned_tif_folder)

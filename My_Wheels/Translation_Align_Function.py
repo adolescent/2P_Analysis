@@ -103,9 +103,11 @@ def Translation_Alignment(
             global_average_graph += Before_Align_Dics[i][0].astype('f8')*Before_Align_Dics[i][1]/total_graph_num
         global_average_graph = Graph_Tools.Clip_And_Normalize(global_average_graph,clip_std = average_std)
         # Then save global average in each run folder.
-        for i in range(len(Before_Align_Tif_Name)):
-            Graph_Tools.Show_Graph(global_average_graph, 'Global_Average', all_save_folders[i],show_time = 0)
-        
+        if len(all_folders)>1:
+            for i in range(len(Before_Align_Tif_Name)):
+                Graph_Tools.Show_Graph(global_average_graph, 'Global_Average', all_save_folders[i],show_time = 0)
+        else:
+            print('Only One run, no global average.')
     else:
         print('Before average Skipped.')
     time_tic_average0 = time.time()
@@ -162,7 +164,8 @@ def Translation_Alignment(
             global_show_time = 5000
         else:
             global_show_time = 0
-        Graph_Tools.Show_Graph(global_average_after_align, 'Global_Average_After_Align', current_save_folder,show_time = global_show_time)
+        if len(all_folders)>1:
+            Graph_Tools.Show_Graph(global_average_after_align, 'Global_Average_After_Align', current_save_folder,show_time = global_show_time)
     time_tic_average1 = time.time()
     
     #%% Step5, save and timer

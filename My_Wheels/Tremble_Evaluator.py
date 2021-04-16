@@ -176,9 +176,14 @@ def Least_Tremble_Average_Graph(
         total_movings[i] = c_dist
     # Then find least props.
     used_num = int(frame_num*average_prop)
+    if used_num < 300:# least num of average is set to 300 to avoid problem.
+        used_num = min(300,frame_num)
     print('Average of most stable '+str(used_num)+' Frames.')
-    used_frame_ind = np.argpartition(total_movings,used_num)[0:used_num]
-    graph_names = all_tif_name[used_frame_ind]
+    if used_num<300:# meaning all frame used
+        graph_names = all_tif_name
+    else:
+        used_frame_ind = np.argpartition(total_movings,used_num)[0:used_num]
+        graph_names = all_tif_name[used_frame_ind]
     averaged_graph = Graph_Tools.Average_From_File(graph_names)
     
     return averaged_graph,graph_names

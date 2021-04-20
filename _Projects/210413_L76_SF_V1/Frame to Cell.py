@@ -33,3 +33,9 @@ H11O4_Para = Sub_Dic_Generator('HueNOrien4',para = {'Hue':['Red0.6','Red0.5','Re
                                                           ('Red0.6','Green'),('Red0.5','Green'),('Red0.4','Green'),('Red0.3','Green'),('Red0.2','Green')]})
 One_Key_Frame_Graphs(r'K:\Test_Data\2P\210413_L76_2P\1-014', H11O4_Para)
 
+
+#%% Third, Manual Cells
+from My_Wheels.Cell_Find_From_Graph import Cell_Find_From_Mannual
+Manual_Cells = Cell_Find_From_Mannual(r'K:\Test_Data\2P\210413_L76_2P\_Manual_Cell\_Cell_Masks.png',
+                                      average_graph_path= r'K:\Test_Data\2P\210413_L76_2P\_Manual_Cell\Global_Average.tif',boulder = 5)
+s

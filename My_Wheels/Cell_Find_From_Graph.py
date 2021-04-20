@@ -244,8 +244,8 @@ def Cell_Find_From_Mannual(mask_graph_path,average_graph_path = None,boulder = 2
     annotated_graph = Visualize.Label_Cell(visual_cell_graph,All_Cells,color = (255,255,0))
     if average_graph_path == None:
         print('Average graph not given, no combined graph.')
-        combined_graph = None
-        labled_combined_graph = None
+        combined_graph = 'No_Graph'
+        labled_combined_graph = 'No_Graph'
     else:
         average_graph = cv2.imread(average_graph_path,1)# Read in 8 bit color map
         # Then annotate cell mask on average graph.
@@ -265,7 +265,7 @@ def Cell_Find_From_Mannual(mask_graph_path,average_graph_path = None,boulder = 2
         OS_Tools.Save_Variable(save_path, 'Manuall_Cells', Cell_Finded,'.cell')
         Graph_Tools.Show_Graph(visual_cell_graph, 'Cell_Graph', save_path)
         Graph_Tools.Show_Graph(annotated_graph, 'Annotate_Cell_Graph', save_path)
-        if combined_graph != None:
+        if combined_graph != 'No_Graph':
             Graph_Tools.Show_Graph(combined_graph, 'Combined_Graph', save_path)
             Graph_Tools.Show_Graph(labled_combined_graph, 'Combined_Graph_With_Number', save_path)
 

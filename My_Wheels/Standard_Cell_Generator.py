@@ -1,155 +1,119 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 18 14:52:17 2021
+Created on Tue Apr 20 10:07:29 2021
 
 @author: ZR
-This part is used to generate standarized data type of cells. This is very useful in data processing
+
+Based on Final Averaged graphs and mannual cells(not necessary).
 """
-import My_Wheels.OS_Tools_Kit as ot
-import My_Wheels.List_Operation_Kit as lt
-#from My_Wheels.Spike_Train_Generator import Single_Cell_Spike_Train
-from My_Wheels.Spike_Train_Generator import Spike_Train_Generator
-from My_Wheels.Spike_Train_Generator import Single_Condition_Train_Generator
-#%% Old Functions, fold plz.
-# Old function is toooooooo slow, so use new plz. The same function.
-# =============================================================================
-# def Standard_Cell_Processor(
-#         animal_name,
-#         date,
-#         day_folder,
-#         cell_file_path,
-#         average_graph_path,
-#         run_id_lists,
-#         location = 'A',# For runs have 
-#         Stim_Frame_Align_subfolder = r'\Results\Stim_Frame_Align.pkl',# if not read, regard as spon runs.
-#         align_subfolder = r'\Results\Aligned_Frames',  
-#         ):
-#     # Folder and name initialization
-#     print('Just make sure average and cell find is already done.')
-#     cell_dic = ot.Load_Variable(cell_file_path)
-#     cell_info = cell_dic['All_Cell_Information']
-#     cell_name_prefix = animal_name+'_'+str(date)+location+'_'
-#     all_cell_num = len(cell_info)
-#     all_run_subfolders = lt.List_Annex([day_folder], lt.Run_Name_Producer_2P(run_id_lists))
-#     save_folder = day_folder+r'\_Cell_Data'
-#     ot.mkdir(save_folder)
-#     # Then calculate each cell dic file.
-#     for i in range(all_cell_num):
-#         current_cell_name = cell_name_prefix+ot.Bit_Filler(i,4)
-#         current_cell_dic = {}
-#         current_cell_dic['Name'] = current_cell_name
-#         current_cell_dic['Cell_Info'] = cell_info[i]
-#         # Cycle all runs for F and dF trains.
-#         current_cell_dic['dF_F_train'] = {}
-#         current_cell_dic['F_train'] = {}
-#         for j in range(len(all_run_subfolders)):
-#             current_runid = 'Run'+(all_run_subfolders[j][-3:])# Use origin run id to avoid bugs.
-#             current_all_tif_name = ot.Get_File_Name(all_run_subfolders[j]+align_subfolder,'.tif')
-#             current_Stim_Frame_Align = ot.Load_Variable(all_run_subfolders[j]+Stim_Frame_Align_subfolder)
-#             if current_Stim_Frame_Align == False : # meaning this run is spon.
-#                 current_F,current_dF_F = Single_Cell_Spike_Train(current_all_tif_name, cell_info[i],Base_F_type='most_unactive',stim_train = None)
-#             else:
-#                 current_run_stim_train = current_Stim_Frame_Align['Original_Stim_Train']
-#                 if 0 in current_run_stim_train:# having 0
-#                     current_F,current_dF_F = Single_Cell_Spike_Train(current_all_tif_name, cell_info[i],Base_F_type='nearest_0',stim_train = current_run_stim_train)
-#                 else:
-#                     current_F,current_dF_F = Single_Cell_Spike_Train(current_all_tif_name, cell_info[i],Base_F_type='before_ISI',stim_train = current_run_stim_train)
-#             current_cell_dic['dF_F_train'][current_runid] = current_dF_F
-#             current_cell_dic['F_train'][current_runid] = current_F
-#         # Then save current cell.
-#         ot.Save_Variable(save_folder, current_cell_name, current_cell_dic,'.sc')
-# =============================================================================
+
+import OS_Tools_Kit as ot
+import Graph_Operation_Kit as gt
+import List_Operation_Kit as lt
+import cv2
+from Spike_Train_Generator import Spike_Train_Generator
+from Spike_Train_Generator import Single_Condition_Train_Generator
 
 
-
-#%% Change cycle sequence to accelerate calculation speed.
-def Standard_Cell_Processor(
-        animal_name,
-        date,
-        day_folder,
-        cell_file_path,
-        #average_graph_path, # not necessary.
-        run_id_lists,
-        location = 'A',# For runs have 
-        Stim_Frame_Align_name = '_All_Stim_Frame_Infos.sfa',
-        #Stim_Frame_Align_subfolder = r'\Results\Stim_Frame_Align.pkl',# API changed.
-        align_subfolder = r'\Results\Aligned_Frames',
-        response_head_extend = 3,
-        response_tail_extend = 3,
-        base_frame = [0,1,2],
-        filter_para = (0.02,False)
-        ):
-    # Folder and name initialization
-    print('Just make sure average and cell find is already done.')
-    cell_dic = ot.Load_Variable(cell_file_path)
-    cell_info = cell_dic['All_Cell_Information']
-    cell_name_prefix = animal_name+'_'+str(date)+location+'_'
-    all_cell_num = len(cell_info)
-    all_run_subfolders = lt.List_Annex([day_folder], lt.Run_Name_Producer_2P(run_id_lists))
-    save_folder = day_folder
-    all_Stim_Frame_Align = ot.Load_Variable(day_folder+r'\\'+Stim_Frame_Align_name)
-    # Set cell data formats.
-    all_cell_list = []
-    for i in range(all_cell_num):
-        current_cell_name = cell_name_prefix+ot.Bit_Filler(i,4)
-        current_cell_dic = {}
-        current_cell_dic['Name'] = current_cell_name
-        current_cell_dic['Cell_Info'] = cell_info[i]
-        # Cycle all runs for F and dF trains.
-        current_cell_dic['dF_F_train'] = {}
-        current_cell_dic['F_train'] = {}
-        current_cell_dic['Raw_CR_trains'] = {}
-        current_cell_dic['CR_trains'] = {}
-        all_cell_list.append(current_cell_dic)
-    # Then cycle all runs, fill in 
-    for i in range(len(all_run_subfolders)):
-        current_runid = 'Run'+(all_run_subfolders[i][-3:])# Use origin run id to avoid bugs.
-        current_all_tif_name = ot.Get_File_Name(all_run_subfolders[i]+align_subfolder,'.tif')
-        current_Stim_Frame_Align = all_Stim_Frame_Align[current_runid]
-        if current_Stim_Frame_Align == None or len(current_Stim_Frame_Align) == 302: # meaning this run is spon or RF25.
-            current_run_Fs,current_run_dF_Fs = Spike_Train_Generator(current_all_tif_name, cell_info,'most_unactive',None)
-        else:
-            current_run_stim_train = current_Stim_Frame_Align['Original_Stim_Train']
-            if 0 in current_run_stim_train:# having 0
-                current_run_Fs,current_run_dF_Fs = Spike_Train_Generator(current_all_tif_name, cell_info,Base_F_type='nearest_0',stim_train = current_run_stim_train)
+class Standard_Cell_Generator(object):
+    name = 'Standard Cell Data Generator'
+    def __init__(self,animal_name,
+                 date,
+                 day_folder,
+                 runid_lists,
+                 location = 'A',
+                 Stim_Frame_Align_name = '_All_Stim_Frame_Infos.sfa',
+                 cell_subfolder = r'\_Manual_Cell'                 
+                 ):
+        print('Align,Cell Find,Stim Frame Align shall be done before.')
+        self.save_folder = day_folder
+        self.cell_prefix = animal_name+'_'+date+location+'_'
+        self.all_SFA_dic = ot.Load_Variable(day_folder+'\\'+Stim_Frame_Align_name)
+        cell_path = ot.Get_File_Name(day_folder+cell_subfolder,'.cell')[0]
+        self.cell_infos = ot.Load_Variable(cell_path)['All_Cell_Information']
+        self.cell_num = len(self.cell_infos)
+        self.all_runnames = []
+        for i in range(len(runid_lists)):
+            c_runid = runid_lists[i]
+            self.all_runnames.append('Run'+str(ot.Bit_Filler(c_runid,3)))
+        self.all_runsubfolders = lt.List_Annex([day_folder], lt.Run_Name_Producer_2P(runid_lists))
+        
+    
+    def Cell_Struct_Generator(self,mask = r'\Location_Mask.tif'):
+        self.All_Cells = {} # output variable,including all cell informations.
+        for i in range(self.cell_num):
+            c_cell_name = self.cell_prefix+ot.Bit_Filler(i,4)
+            self.All_Cells[c_cell_name] = {}# single cell working space.
+            self.All_Cells[c_cell_name]['Name'] = c_cell_name
+            self.All_Cells[c_cell_name]['Cell_Info'] = self.cell_infos[i]
+            self.All_Cells[c_cell_name]['Cell_Area'] = self.cell_infos[i].convex_area
+            # Then we determine whether this cell in each run.
+            self.All_Cells[c_cell_name]['In_Run'] = {}
+            for j in range(len(self.all_runsubfolders)):
+                c_sp = self.all_runsubfolders[j]+'\Results'
+                c_mask = cv2.imread(c_sp+mask,-1)
+                c_mask = c_mask>(c_mask/2)
+                
+                cell_location = self.cell_infos[i].coords
+                inmask_area = c_mask[cell_location[:,0],cell_location[:,1]].sum()
+                if inmask_area == self.cell_infos[i].area:
+                    self.All_Cells[c_cell_name]['In_Run'][self.all_runnames[j]] = True
+                    self.All_Cells[c_cell_name][self.all_runnames[j]] = {}
+                else:
+                    self.All_Cells[c_cell_name]['In_Run'][self.all_runnames[j]] = False
+            self.all_cellnames = list(self.All_Cells.keys())
+    
+    
+    def Firing_Trains(self,align_subfolder = r'\Results\Final_Aligned_Frames'):
+        # cycle all runs
+        for i in range(len(self.all_runsubfolders)):
+            all_tif_name = ot.Get_File_Name(self.all_runsubfolders[i]+align_subfolder)
+            c_F_train,c_dF_F_train = Spike_Train_Generator(all_tif_name, self.cell_infos)
+            # seperate trains into cell if in run.
+            c_runname = self.all_runnames[i]
+            for j in range(len(self.all_cellnames)):
+                c_cellname = self.all_cellnames[j]
+                if c_runname in self.All_Cells[c_cellname]:# meaning we have this run
+                    self.All_Cells[c_cellname][c_runname]['F_train'] = c_F_train[j]
+                    self.All_Cells[c_cellname][c_runname]['dF_F_train'] = c_dF_F_train[j]
+    
+    def Condition_Data(self,response_extend = (3,3),
+                       base_frame = [0,1,2],
+                       filter_para = (0.02,False),
+                       ROI_extend = (7,7),
+                       ROI_base_frame = [0,1,2,3,4],
+                       ROI_filter_para = (0.01,False),
+                       full_size = (512,512)):
+        
+        # cycle all runs
+        for i in range(len(self.all_runnames)):
+            c_runname = self.all_runnames[i]
+            examp_graph = cv2.imread(ot.Get_File_Name(self.all_runsubfolders[i])[0],-1)
+            if examp_graph.shape == full_size:
+                is_ROI = False
             else:
-                current_run_Fs,current_run_dF_Fs = Spike_Train_Generator(current_all_tif_name, cell_info,Base_F_type='before_ISI',stim_train = current_run_stim_train)
-        # Then put trains above into each cell files.
-        for j in range(all_cell_num):
-            all_cell_list[j]['dF_F_train'][current_runid] = current_run_dF_Fs[j]
-            all_cell_list[j]['F_train'][current_runid] = current_run_Fs[j]
-        # Then, we generate Condition Reaction Train for each cell and each condition.
-        if current_Stim_Frame_Align == None:
-            all_cell_list[j]['CR_trains'][current_runid] = None
-            all_cell_list[j]['Raw_CR_trains'][current_runid] = None
-        else:
-            for j in range(all_cell_num):
-                all_cell_list[j]['CR_trains'][current_runid],all_cell_list[j]['Raw_CR_trains'][current_runid] = Single_Condition_Train_Generator(current_run_Fs[j],
-                                                                                                                                                 current_Stim_Frame_Align,
-                                                                                                                                                 response_head_extend,
-                                                                                                                                                 response_tail_extend,
-                                                                                                                                                 base_frame,
-                                                                                                                                                 filter_para
-                                                                                                                                                 )
-    # Till now, all cell data of all runs is saved in 'all_cell_list'.
-    # Last part, saving files. All cells in one file, dtype = dic.
-    all_cell_dic = {}
-    for i in range(all_cell_num):
-        all_cell_dic[all_cell_list[i]['Name']] = all_cell_list[i]
-    ot.Save_Variable(save_folder,'_'+animal_name+'_'+date+location+'_All_Cells',all_cell_dic,'.ac')
-    return True
+                is_ROI = True
+            # Cycle all cells
+            for j in range(len(self.all_cellnames)):
+                c_cell_dic = self.All_Cells[self.all_cellnames[j]]
+                if (c_runname in c_cell_dic) and (self.all_SFA_dic[c_runname] != None):# This cell in in this run and not spon.
+                    t_F_train = c_cell_dic[c_runname]['F_train']
+                    if is_ROI :
+                        t_CR_Train,t_Raw_CR_Train = Single_Condition_Train_Generator(t_F_train, 
+                                                                                     self.all_SFA_dic[c_runname],
+                                                                                     ROI_extend[0],ROI_extend[1],
+                                                                                     ROI_base_frame,ROI_filter_para)
+                    else:
+                        t_CR_Train,t_Raw_CR_Train = Single_Condition_Train_Generator(t_F_train, 
+                                                                                     self.all_SFA_dic[c_runname],
+                                                                                     response_extend[0],response_extend[1],
+                                                                                     base_frame,filter_para)
+                    self.All_Cells[self.all_cellnames[j]][c_runname]['CR_Train'] = t_CR_Train
+                    self.All_Cells[self.all_cellnames[j]][c_runname]['Raw_CR_Train'] = t_Raw_CR_Train
+                    
 
-
-
-#%% Add ROI runs into cell dic.
-def ROI_Add_On(all_cell_path,
-               all_Stim_Frame_Align_path,
-               global_average_graph,
-               roi_average_graph,
-               run_id_lists,
-               ROI_boulder = 10,
-               aligned_subfolder = r'\Results\Affined_Frames'
-               ):
-    
-    
-    return True
+    def Generate_Cells(self):
+        self.Cell_Struct_Generator()
+        self.Firing_Trains()
+        self.Condition_Data()
+        ot.Save_Variable(self.save_folder, self.cell_prefix+'_All_Cells',self.All_Cells,'.ac')

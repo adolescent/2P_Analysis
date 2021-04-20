@@ -360,7 +360,7 @@ def One_Key_Frame_Graphs(
         data_folder,
         sub_dic,
         show_clip = 3,
-        alinged_sub_folder = r'\Results\Aligned_Frames',
+        alinged_sub_folder = r'\Results\Final_Aligned_Frames',
         Stim_Align_sub_folder = r'\Results\Stim_Frame_Align.pkl'
         ):
     result_folder = data_folder+r'\Results'

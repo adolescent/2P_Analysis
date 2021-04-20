@@ -73,6 +73,9 @@ class Standard_Aligner(object):
         final_base = cv2.imread(self.target_runfolder+r'\Results\Graph_After_Affine.tif',-1)
         # Target run just change foldername.
         os.rename(self.target_runfolder+r'\Results\Affined_Frames',self.target_runfolder+r'\Results\Final_Aligned_Frames')
+        targ_mask = np.ones(shape = self.full_size)
+        gt.Show_Graph((targ_mask*65535).astype('u2'), 'Location_Mask', self.target_runfolder+r'\Results')
+        # And generate full frame mask.
         # other run will use average match to realign.
         other_runs = list(self.all_runfolders)
         other_runs.remove(self.target_runfolder)
@@ -88,7 +91,7 @@ class Standard_Aligner(object):
             # Location mask, maybe used later
             mask = np.ones(shape = c_average_graph.shape)
             resized_mask = cv2.warpPerspective(mask, c_h, (self.full_size[1],self.full_size[0]))
-            gt.Show_Graph(gt.Clip_And_Normalize(resized_mask), 'Location_Mask', other_runs[i]+r'\Results')
+            gt.Show_Graph((resized_mask*65535).astype('u2'), 'Location_Mask', other_runs[i]+r'\Results')
             # Combined graph, for record
             resized_average = cv2.warpPerspective(c_average_graph, c_h,(self.full_size[1],self.full_size[0]))
             combined_graph = cv2.cvtColor(final_base,cv2.COLOR_GRAY2RGB).astype('f8')
@@ -136,9 +139,13 @@ class Standard_Aligner(object):
         One key align function, all work will be done automatically.
         CAUTION:If Tremble is too big, this might cause problem.
         '''
+        print('Start Aligning to each run..')
         self.Seperate_Translation_Align()
+        print('Affine based on each average graphs')
         self.Affine_Realign()
+        print('Cross run aligning')
         self.Cross_Run_Align()
+        print('Jobs done, generating averag graph.')
         self.Get_Final_Average()
         self.Delete_Middle_Folders()
 

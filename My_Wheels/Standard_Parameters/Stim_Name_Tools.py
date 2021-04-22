@@ -23,6 +23,7 @@ def Stim_ID_Combiner(mode,para_dic = None):
         
     elif mode == 'G16_Dirs':
         print('Dir 0 is horizontal, moving up. Counterclockwise.')
+        print('Subshape recommend:(3,8)')
         for i in range(16):
             current_name = 'Dir'+str(i*22.5)
             Stim_IDs[current_name] = [i+1]
@@ -47,6 +48,7 @@ def Stim_ID_Combiner(mode,para_dic = None):
         
     elif mode == 'OD_2P':
         print('1357L,2468R,12 up moving.')
+        print('Subshape recommend:(3,5)')
         Stim_IDs['L_All'] = [1,3,5,7]
         Stim_IDs['L_Orien0'] = [1]
         Stim_IDs['L_Orien45'] = [3]

@@ -262,7 +262,14 @@ def Single_Condition_Train_Generator(F_train,
             c_F_base = F_train_filted[np.array(cs_cond)[base_frame]].mean()
             c_F_matrix[j,:] = np.nan_to_num(((F_train_filted[cs_cond]-c_F_base)/c_F_base))
         raw_sc_dic[c_condition] = c_raw_F_matrix
-        sc_dic[c_condition] = c_F_matrix
+        # filter F matrix, if a condition have 1/3 frame over 3.5std, ignore this run.
+        h_thres = c_F_matrix.mean(0)+3.5*c_F_matrix.std(0)
+        l_thres = c_F_matrix.mean(0)-3.5*c_F_matrix.std(0)
+        for k in range(c_F_matrix.shape[0]-1,-1,-1):
+            check_series = c_F_matrix[k,:]
+            if ((check_series>h_thres).sum()+(check_series<l_thres).sum())>(c_F_matrix.shape[1]/3):
+                c_F_matrix = np.delete(c_F_matrix,k,axis = 0)
+            sc_dic[c_condition] = c_F_matrix
     return sc_dic,raw_sc_dic
 
 

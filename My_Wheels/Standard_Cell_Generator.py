@@ -8,7 +8,6 @@ Based on Final Averaged graphs and mannual cells(not necessary).
 """
 
 import OS_Tools_Kit as ot
-import Graph_Operation_Kit as gt
 import List_Operation_Kit as lt
 import cv2
 from Spike_Train_Generator import Spike_Train_Generator
@@ -108,6 +107,9 @@ class Standard_Cell_Generator(object):
                                                                                      self.all_SFA_dic[c_runname],
                                                                                      response_extend[0],response_extend[1],
                                                                                      base_frame,filter_para)
+                    
+                    
+                    
                     self.All_Cells[self.all_cellnames[j]][c_runname]['CR_Train'] = t_CR_Train
                     self.All_Cells[self.all_cellnames[j]][c_runname]['Raw_CR_Train'] = t_Raw_CR_Train
                     

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 21 13:24:15 2021
+Created on Tue Apr  6 16:34:49 2021
 
 @author: ZR
 """
@@ -12,10 +12,8 @@ import matplotlib.pyplot as plt
 
 class Cell_Processor(object):
     
-    name = 'Cell Data Processor'
-    
     def __init__(self,day_folder,average_graph = None):
-        print('Cell data processor, makesure you have cell data.')
+        print('Make sure cell data and SFA data in day folder.')
         cell_data_path = ot.Get_File_Name(day_folder,'.ac')[0]
         all_stim_dic_path = ot.Get_File_Name(day_folder,'.sfa')[0]
         self.all_cell_dic = ot.Load_Variable(cell_data_path)
@@ -26,7 +24,6 @@ class Cell_Processor(object):
         self.save_folder = day_folder+r'\_All_Results'
         ot.mkdir(self.save_folder)
         
-        
     def Cell_Response_Maps(self,runname,
                            Condition_dics,
                            mode = 'processed',
@@ -35,29 +32,27 @@ class Cell_Processor(object):
                            figsize = 'Default',
                            subshape = 'Default'
                            ):
-        
         graph_folder = self.save_folder+r'\\'+runname
         ot.mkdir(graph_folder)
-        
         for i in range(self.cell_num):# all cells
             c_cellname = self.all_cell_names[i]
-            tc = self.all_cell_dic[c_cellname]
-            #Is this cell in run?
-            if runname not in tc:
-                print('Cell '+ c_cellname + ' Not in '+ runname)
-                continue
-            # Do we have CR train in this cell?
-            if 'CR_Train' not in tc[runname]:
-                print('Cell '+ c_cellname + ' have no respose data.')
-                continue
-            # get cr trains & plotable data. 
+            # get cr trains    
             if mode == 'processed':
-                cr_train = tc[runname]['CR_Train']
+                if runname in self.all_cell_dic[c_cellname]['CR_trains']:
+                    cr_train = self.all_cell_dic[c_cellname]['CR_trains'][runname]
+                else:
+                    cr_train = None
             elif mode == 'raw':
-                cr_train = tc[runname]['Raw_CR_Train']
-            else:
-                raise IOError('Wrong CR Mode.')
-            plotable_data = SDT.CR_Train_Combiner(cr_train, Condition_dics)
+                if runname in self.all_cell_dic[c_cellname]['Raw_CR_trains']:
+                    cr_train = self.all_cell_dic[c_cellname]['Raw_CR_trains'][runname]
+                else:
+                    cr_train = None
+                    
+            # generate plotable data.
+            if cr_train == None:# no cr train, continue check another cell.
+                continue
+            else:#Combine conditions to get plotable data
+                plotable_data = SDT.CR_Train_Combiner(cr_train, Condition_dics)
             # Plot graphs.
             response_plot_dic = {}
             subgraph_num = len(plotable_data)
@@ -109,33 +104,30 @@ class Cell_Processor(object):
             plt.clf()
             plt.close()
         return True
-            
-    def Radar_Maps(self,runname,
-                   Radar_Cond,
-                   on_frames = [3,4,5,6],
-                   bais_angle = 0,
-                   mode = 'processed',
-                   error_bar = True):
+    
+    
+    
+    def Radar_Maps(self,runname,Radar_Cond,
+                   on_frames = [3,4,5,6],bais_angle = 0,mode = 'processed',error_bar = True):
         radar_folder = self.save_folder+r'\\'+runname+'_Radar_Maps'
         ot.mkdir(radar_folder)
-        for i in range(self.cell_num):# all cells
+        # Cycle all cells
+        for i in range(self.cell_num):
+            # get cr train
             c_cellname = self.all_cell_names[i]
-            tc = self.all_cell_dic[c_cellname]
-            #Is this cell in run?
-            if runname not in tc:
-                print('Cell '+ c_cellname + ' Not in '+ runname)
-                continue
-            # Do we have CR train in this cell?
-            if 'CR_Train' not in tc[runname]:
-                print('Cell '+ c_cellname + ' have no respose data.')
-                continue
-            # get cr trains & plotable data. 
             if mode == 'processed':
-                cr_train = tc[runname]['CR_Train']
+                if runname in self.all_cell_dic[c_cellname]['CR_trains']:
+                    cr_train = self.all_cell_dic[c_cellname]['CR_trains'][runname]
+                else:
+                    cr_train = None
             elif mode == 'raw':
-                cr_train = tc[runname]['Raw_CR_Train']
-            else:
-                raise IOError('Wrong CR Mode.')
+                if runname in self.all_cell_dic[c_cellname]['Raw_CR_trains']:
+                    cr_train = self.all_cell_dic[c_cellname]['Raw_CR_trains'][runname]
+                else:
+                    cr_train = None
+            if cr_train == None:
+                continue
+            # get radar data and std
             radar_data = SDT.CR_Train_Combiner(cr_train,Radar_Cond)
             all_radar_names = list(radar_data.keys())
             plotable_data = {}
@@ -172,6 +164,31 @@ class Cell_Processor(object):
             plt.clf()
             plt.close()
         return True
+    def Get_Trains(self,runname,train_name):
+        '''
+        Get dictionary of single train single mode.
 
-        
-        
+        Parameters
+        ----------
+        runname : (str)
+            Runname .
+        train_name : ('F_train' or 'dF_F_train')
+            Train method. If not properly given, an empty dic will be given.
+
+        Returns
+        -------
+        cell_trains : (Dic)
+            All cell having specific train will be shown.
+
+        '''
+        print('Get single run specific trains.')
+        cell_trains = {}
+        for i in range(self.cell_num):
+            c_cell_name = self.all_cell_names[i]
+            if runname in self.all_cell_dic[c_cell_name][train_name]:
+                cell_trains[c_cell_name] = self.all_cell_dic[c_cell_name][train_name][runname]
+        return cell_trains
+    
+    
+    
+    

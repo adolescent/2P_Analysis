@@ -67,8 +67,8 @@ class Cell_Processor(object):
             for j in range(subgraph_num):
                 current_graph_response = plotable_data[all_subgraph_name[j]]
                 average_plot = current_graph_response.mean(0)
-                average_std = current_graph_response.std(0)
-                response_plot_dic[all_subgraph_name[j]] = (average_plot,average_std)
+                se_2 = current_graph_response.std(0)/np.sqrt(current_graph_response.shape[0])*2
+                response_plot_dic[all_subgraph_name[j]] = (average_plot,se_2)
                 # renew y min and y max.
                 if average_plot.min() < y_min:
                     y_min = average_plot.min()
@@ -145,7 +145,7 @@ class Cell_Processor(object):
             for j in range(len(all_radar_names)):
                 c_name = all_radar_names[j]
                 plotable_data['Names'].append(c_name)
-                c_conds,c_stds = radar_data[c_name].mean(0),radar_data[c_name].std(0)
+                c_conds,c_stds = radar_data[c_name].mean(0),radar_data[c_name].std(0)/np.sqrt(radar_data[c_name].shape[0])
                 cutted_conds,cutted_std = c_conds[on_frames],c_stds[on_frames]
                 max_ps = np.where(cutted_conds == cutted_conds.max())[0][0]
                 plotable_data['Values'][j] = cutted_conds[max_ps]

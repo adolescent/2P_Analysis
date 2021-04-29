@@ -10,3 +10,7 @@ day_folder = r'K:\Test_Data\2P\210413_L76_2P'
 runlists = list(range(1,15))
 SA = Standard_Aligner(day_folder,runlists,final_base = '1-001')
 SA.One_Key_Aligner()
+#%% Generate Cell Data
+
+
+

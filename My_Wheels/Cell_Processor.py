@@ -145,8 +145,8 @@ class Cell_Processor(object):
             for j in range(len(all_radar_names)):
                 c_name = all_radar_names[j]
                 plotable_data['Names'].append(c_name)
-                c_conds,c_stds = radar_data[c_name].mean(0),radar_data[c_name].std(0)/np.sqrt(radar_data[c_name].shape[0])
-                cutted_conds,cutted_std = c_conds[on_frames],c_stds[on_frames]
+                c_conds,c_ses = radar_data[c_name].mean(0),radar_data[c_name].std(0)*2/np.sqrt(radar_data[c_name].shape[0])
+                cutted_conds,cutted_std = c_conds[on_frames],c_ses[on_frames]
                 max_ps = np.where(cutted_conds == cutted_conds.max())[0][0]
                 plotable_data['Values'][j] = cutted_conds[max_ps]
                 plotable_data['Stds'][j] = cutted_std[max_ps]

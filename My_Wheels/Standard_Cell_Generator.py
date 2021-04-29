@@ -12,6 +12,8 @@ import List_Operation_Kit as lt
 import cv2
 from Spike_Train_Generator import Spike_Train_Generator
 from Spike_Train_Generator import Single_Condition_Train_Generator
+import matplotlib.pyplot as plt 
+import numpy as np
 
 
 class Standard_Cell_Generator(object):
@@ -113,9 +115,53 @@ class Standard_Cell_Generator(object):
                     self.All_Cells[self.all_cellnames[j]][c_runname]['CR_Train'] = t_CR_Train
                     self.All_Cells[self.all_cellnames[j]][c_runname]['Raw_CR_Train'] = t_Raw_CR_Train
                     
+                    
+                    
+    def F_Value_Disp(self):
+        F_folder = self.save_folder+r'\All_F_disps'
+        ot.mkdir(F_folder)
+        all_cell_F_disp = []
+        for i in range(len(self.all_cellnames)):
+            c_cell = self.All_Cells[self.all_cellnames[i]]
+            all_runnames = list(c_cell['In_Run'].keys())
+            all_F_list = []
+            for j in range(len(self.all_runnames)):
+                c_run = all_runnames[j]
+                if c_cell['In_Run'][c_run]:
+                    c_F_list = list(c_cell[c_run]['F_train'])
+                    all_F_list.extend(c_F_list)
+                    self.All_Cells[self.all_cellnames[i]][c_run]['Mean_F'] = c_cell[c_run]['F_train'].mean()
+                    self.All_Cells[self.all_cellnames[i]][c_run]['STD_F'] = c_cell[c_run]['F_train'].std()
+                    
+            # after that, we have all F lists, and can plot general graphs.
+            total_avi = np.array(all_F_list).mean()
+            total_std = np.array(all_F_list).std()
+            fig, ax = plt.subplots(figsize = (6,4))
+            ax.set_title(self.all_cellnames[i]+' F Distribution')
+            ax.hist(all_F_list,bins = 50)
+            ax.annotate('Average:'+str(round(total_avi,2)),xycoords='figure fraction',xy=(0.7, 0.83))
+            ax.annotate('STD:'+str(round(total_std,2)),xycoords='figure fraction',xy=(0.7, 0.78))
+            self.All_Cells[self.all_cellnames[i]]['Average_F'] = total_avi
+            self.All_Cells[self.all_cellnames[i]]['Average_F_std'] = total_std
+            fig.savefig(F_folder+'\\'+self.all_cellnames[i]+'_F_disps',dpi = 120)
+            plt.clf()
+            plt.close()
+            all_cell_F_disp.append(total_avi)
+        fig, ax = plt.subplots(figsize = (6,4))
+        ax.set_title('All Cell F Distribution')
+        hc_mean = np.array(all_cell_F_disp).mean()
+        hc_std = np.array(all_cell_F_disp).std()
+        ax.hist(all_cell_F_disp,bins = 25)
+        ax.annotate('Average:'+str(round(hc_mean,2)),xycoords='figure fraction',xy=(0.7, 0.83))
+        ax.annotate('STD:'+str(round(hc_std,2)),xycoords='figure fraction',xy=(0.7, 0.78))
+        fig.savefig(F_folder+'\\_All_Cells_F_disps',dpi = 120)
+                    
+                    
+        
 
     def Generate_Cells(self):
         self.Cell_Struct_Generator()
         self.Firing_Trains()
         self.Condition_Data()
+        self.F_Value_Disp()
         ot.Save_Variable(self.save_folder, self.cell_prefix+'_All_Cells',self.All_Cells,'.ac')

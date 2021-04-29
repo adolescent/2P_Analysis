@@ -202,7 +202,7 @@ def Cell_Find_From_active(
     Cell_Finded = Cell_Find_And_Plot(save_folder, 'Cell_Find_Base.tif', 'Active_Cell',find_thres,max_pix,min_pix,shape_boulder,sharp_gauss,back_gauss,size_limit)
     return Cell_Finded
 #%% Function5, Find Cell mannually.
-def Cell_Find_From_Mannual(mask_graph_path,average_graph_path = None,boulder = 20,save = True):
+def Cell_Find_From_Mannual(mask_graph_path,average_graph_path = None,boulder = 8,save = True):
     '''
     Find cell from mannual mask.
 

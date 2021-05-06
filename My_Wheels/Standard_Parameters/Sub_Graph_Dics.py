@@ -57,6 +57,7 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['DirL-R'] = [[4,5,6],[8,1,2]]
         
     elif mode == 'G8+90': # In early 2p stims, use up moving bars as ID1.
+        print('ID 1 is moving up.')
         sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
         sub_dics['H-V'] = [[1,5],[3,7]]
         sub_dics['A-O'] = [[2,6],[4,8]]
@@ -149,6 +150,7 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['All-0'] = [list(np.arange(1,25)),[-1]]
         
     elif mode == 'G16_2P':# id 1,Up moving. Counter clockwise.
+        print('ID 1 is moving up.')
         sub_dics['All-0'] = [list(np.arange(1,17)),[0]]
         sub_dics['H-V'] = [[1,9],[5,13]]
         sub_dics['A-O'] = [[3,11],[7,15]]
@@ -251,38 +253,40 @@ def Sub_Dic_Generator(mode,para = None):
             current_file_name = 'Dir'+str(Dirs[i])+'-0'
             sub_dics[current_file_name] = [all_Dir_dic[Dirs[i]],[-1]]
             
-    elif mode == 'Hue7Ori4':
-        if para == None:
-            raise IOError('Please give RF paras.')
-        print('Have 0, and id 1 is moving up color 1.')
-        all_hues = para['Hue']
-        white_id = -1
-        # Get white series. If no white, return no color-0.
-        for i in range(len(all_hues)):
-            c_name = all_hues[i]
-            if 'N' in c_name:
-                white_id = i
-        if white_id == -1:
-            print('No White find, so no white graph generated.')
-        # Get direction submaps.
-        sub_dics['All-0'] = [list(range(1,29)),[0]]
-        sub_dics['H-V'] = [list(range(1,8)),list(range(15,22))]
-        sub_dics['A-O'] = [list(range(8,15)),list(range(22,29))]
-        sub_dics['Orien0-0'] = [list(range(1,8)),[0]]
-        sub_dics['Orien45-0'] = [list(range(8,15)),[0]]
-        sub_dics['Orien90-0'] = [list(range(15,22)),[0]]
-        sub_dics['Orien135-0'] = [list(range(22,29)),[0]]
-        # Then each color-blank 
-        for i in range(len(all_hues)):
-            c_name = all_hues[i]
-            sub_dics[c_name+'-Blank'] = [[i+1,i+8,i+15,i+22],[0]]
-        # Then if have white, generate color-white.
-        if white_id != -1:
-            white_series = [white_id+1,white_id+8,white_id+15,white_id+22]
-            for i in range(len(all_hues)):
-                if i != white_id:
-                    c_name = all_hues[i]
-                    sub_dics[c_name+'-'+all_hues[white_id]] = [[i+1,i+8,i+15,i+22],white_series]
+# =============================================================================
+#     elif mode == 'Hue7Ori4':
+#         if para == None:
+#             raise IOError('Please give RF paras.')
+#         print('Have 0, and id 1 is moving up color 1.')
+#         all_hues = para['Hue']
+#         white_id = -1
+#         # Get white series. If no white, return no color-0.
+#         for i in range(len(all_hues)):
+#             c_name = all_hues[i]
+#             if 'N' in c_name:
+#                 white_id = i
+#         if white_id == -1:
+#             print('No White find, so no white graph generated.')
+#         # Get direction submaps.
+#         sub_dics['All-0'] = [list(range(1,29)),[0]]
+#         sub_dics['H-V'] = [list(range(1,8)),list(range(15,22))]
+#         sub_dics['A-O'] = [list(range(8,15)),list(range(22,29))]
+#         sub_dics['Orien0-0'] = [list(range(1,8)),[0]]
+#         sub_dics['Orien45-0'] = [list(range(8,15)),[0]]
+#         sub_dics['Orien90-0'] = [list(range(15,22)),[0]]
+#         sub_dics['Orien135-0'] = [list(range(22,29)),[0]]
+#         # Then each color-blank 
+#         for i in range(len(all_hues)):
+#             c_name = all_hues[i]
+#             sub_dics[c_name+'-Blank'] = [[i+1,i+8,i+15,i+22],[0]]
+#         # Then if have white, generate color-white.
+#         if white_id != -1:
+#             white_series = [white_id+1,white_id+8,white_id+15,white_id+22]
+#             for i in range(len(all_hues)):
+#                 if i != white_id:
+#                     c_name = all_hues[i]
+#                     sub_dics[c_name+'-'+all_hues[white_id]] = [[i+1,i+8,i+15,i+22],white_series]
+# =============================================================================
     elif mode == 'HueNOrien4':
         if para == None:
             raise IOError('Please give RF paras.')
@@ -297,12 +301,12 @@ def Sub_Dic_Generator(mode,para = None):
         # Hue-0 graphs.
         for i in range(hue_num):
             c_huename = all_hue[i]
-            sub_dics[c_huename+'-0'] = [[i+1,i+12,i+23,i+34],[0]]
+            sub_dics[c_huename+'-0'] = [[i+1,i+1+hue_num,i+1+hue_num*2,i+1+hue_num*3],[0]]
             # Hue-White graphs.
             if 'White' in all_hue:
                 white_ind = all_hue.index('White')
                 if c_huename != 'White':
-                    sub_dics[c_huename+'-White'] = [[i+1,i+12,i+23,i+34],[1+white_ind,12+white_ind,23+white_ind,34+white_ind]]
+                    sub_dics[c_huename+'-White'] = [[i+1,i+1+hue_num,i+1+hue_num*2,i+1+hue_num*3],[1+white_ind,1+hue_num+white_ind,1+hue_num*2+white_ind,1+hue_num*3+white_ind]]
         # SP graphs.
         if 'SP' in para:
             print('Speial subgraphs included.')
@@ -311,7 +315,7 @@ def Sub_Dic_Generator(mode,para = None):
                 c_pairs = SP_graphs[i]
                 A_ind = all_hue.index(c_pairs[0])
                 B_ind = all_hue.index(c_pairs[1])
-                sub_dics[c_pairs[0]+'-'+c_pairs[1]] = [[A_ind+1,A_ind+12,A_ind+23,A_ind+34],[B_ind+1,B_ind+12,B_ind+23,B_ind+34]]
+                sub_dics[c_pairs[0]+'-'+c_pairs[1]] = [[A_ind+1,A_ind+1+hue_num,A_ind+1+hue_num*2,A_ind+1+hue_num*3],[B_ind+1,B_ind+1+hue_num,B_ind+1+hue_num*2,B_ind+1+hue_num*3]]
                 
     else:
         raise IOError('Method not understand, please check.')

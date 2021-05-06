@@ -155,8 +155,38 @@ def Stim_ID_Combiner(mode,para_dic = None):
                 c_dir = c_dir = '_Dir'+str(dirs[j])
                 Stim_IDs[c_size+c_dir] = [i*dir_num+j+1]
                 
-                
-
+    elif mode == 'HueNOrien4_Color':
+        if para_dic == None:
+            raise IOError('Please give hue dic.')
+        all_hue = para_dic['Hue']
+        hue_num = len(all_hue)
+        cond_num = hue_num*4+1
+        Stim_IDs['All'] = list(range(1,cond_num))
+        Stim_IDs['Blank'] = [0]
+        for i in range(hue_num):
+            c_hue = all_hue[i]
+            Stim_IDs[c_hue] = [1+i,hue_num*1+i+1,hue_num*2+i+1,hue_num*3+i+1]
+        Stim_IDs['Orien0'] = list(range(1,hue_num+1))
+        Stim_IDs['Orien45'] = list(range(hue_num+1,hue_num*2+1))
+        Stim_IDs['Orien90'] = list(range(hue_num*2+1,hue_num*3+1))
+        Stim_IDs['Orien135'] = list(range(hue_num*3+1,hue_num*4+1))
+    elif mode == 'HueNOrien4_SC':
+        print('Generate Single condition Hue response dic.')
+        print('Subshape recommend:(6,N)')
+        all_hue = para_dic['Hue']
+        hue_num = len(all_hue)
+        orien_lists = [0,45,90,135]
+        for i in range(4):
+            c_orien = orien_lists[i]
+            for j in range(hue_num):
+                c_name = all_hue[j]+'_Orien'+str(c_orien)
+                Stim_IDs[c_name] = [i*11+j+1]
+        for i in range(hue_num):
+            Stim_IDs[all_hue[i]+'_All'] = [i+1,i+12,i+23,i+34]
+        Stim_IDs['All'] = list(range(1,hue_num*4+1))
+        Stim_IDs['Blank'] = [0]
+        
+        
     return Stim_IDs
 #%% Function 2, 
 def Ortho_Stim_Name(input_stim_name):

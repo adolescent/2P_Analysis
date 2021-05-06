@@ -9,12 +9,26 @@ import  Stim_Dic_Tools as SDT
 import numpy as np
 import OS_Tools_Kit as ot
 import matplotlib.pyplot as plt
+import cv2
+import Graph_Operation_Kit as gt
 
 class Cell_Processor(object):
     
     name = 'Cell Data Processor'
     
     def __init__(self,day_folder,average_graph = None):
+        '''
+        Cell Processor with given inputs.
+
+        Parameters
+        ----------
+        day_folder : (str)
+            Save folder of day data. All_Cell,All_Stim_Frame Align need to be in this file.
+        average_graph : (2D Array,dtype = u16), optional
+            Global average graph. Need to be 16bit gray graph. The default is None.
+
+        '''
+        
         print('Cell data processor, makesure you have cell data.')
         cell_data_path = ot.Get_File_Name(day_folder,'.ac')[0]
         all_stim_dic_path = ot.Get_File_Name(day_folder,'.sfa')[0]
@@ -171,7 +185,46 @@ class Cell_Processor(object):
             fig.savefig(radar_folder+r'\\'+c_cellname+'_Radar.png',dpi = 180)
             plt.clf()
             plt.close()
-        return True
+            return True
+            
+        def Single_Cell_Plotter(self,cell_name,mode='circle'):
+            '''
+            Generate Single Cell Location map.
+
+            Parameters
+            ----------
+            cell_name : (str)
+                Name of cell you want to plot,'self.all_cell_names' can help.
+            mode : ('circle' or 'fill'), optional
+                Method of plot. The default is 'circle'.
+
+            Returns
+            -------
+            None.
+
+            '''
+            cell_save_path = self.save_folder+r'\Single_Cells'
+            ot.mkdir(cell_save_path)
+            if self.average_graph == None:
+                raise IOError('We need Average graph to generate cell loc.')
+            c_cell_dic = self.all_cell_dic[cell_name]
+            c_cell_info = c_cell_dic['Cell_Info']
+            # Then plot cells, in mode we want.
+            if mode == 'fill':# meaning we will paint graph into green.
+                base_graph = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)/2
+                cell_y,cell_x = c_cell_info.coords[:,0],c_cell_info.coords[:,1]
+                base_graph[cell_y,cell_x,1] +=32768
+            elif mode == 'circle':
+                base_graph = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)
+                loc_y,loc_x = c_cell_info.centroid
+                a = cv2.circle(base_graph,(int(loc_x),int(loc_y)),radius = 10,color = (0,0,65535),thickness=2)
+            else:
+                raise IOError('Wrong mode, check please.')
+            # After plot, annotate cell name.
+            base_graph = gt.Clip_And_Normalize(base_graph,5)
+            
+            
+        return 
 
         
         

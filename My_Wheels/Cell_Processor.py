@@ -185,46 +185,53 @@ class Cell_Processor(object):
             fig.savefig(radar_folder+r'\\'+c_cellname+'_Radar.png',dpi = 180)
             plt.clf()
             plt.close()
-            return True
+        return True
             
-        def Single_Cell_Plotter(self,cell_name,mode='circle'):
-            '''
-            Generate Single Cell Location map.
+    def Single_Cell_Plotter(self,cell_name,mode='circle'):
+        '''
+        Generate Single Cell Location map.
 
-            Parameters
-            ----------
-            cell_name : (str)
-                Name of cell you want to plot,'self.all_cell_names' can help.
-            mode : ('circle' or 'fill'), optional
-                Method of plot. The default is 'circle'.
+        Parameters
+        ----------
+        cell_name : (str)
+            Name of cell you want to plot,'self.all_cell_names' can help.
+        mode : ('circle' or 'fill'), optional
+            Method of plot. The default is 'circle'.
 
-            Returns
-            -------
-            None.
 
-            '''
-            cell_save_path = self.save_folder+r'\Single_Cells'
-            ot.mkdir(cell_save_path)
-            if self.average_graph == None:
-                raise IOError('We need Average graph to generate cell loc.')
-            c_cell_dic = self.all_cell_dic[cell_name]
-            c_cell_info = c_cell_dic['Cell_Info']
-            # Then plot cells, in mode we want.
-            if mode == 'fill':# meaning we will paint graph into green.
-                base_graph = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)/2
-                cell_y,cell_x = c_cell_info.coords[:,0],c_cell_info.coords[:,1]
-                base_graph[cell_y,cell_x,1] +=32768
-            elif mode == 'circle':
-                base_graph = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)
-                loc_y,loc_x = c_cell_info.centroid
-                a = cv2.circle(base_graph,(int(loc_x),int(loc_y)),radius = 10,color = (0,0,65535),thickness=2)
-            else:
-                raise IOError('Wrong mode, check please.')
-            # After plot, annotate cell name.
-            base_graph = gt.Clip_And_Normalize(base_graph,5)
-            
-            
-        return 
-
+        '''
+        cell_save_path = self.save_folder+r'\Single_Cells'
+        ot.mkdir(cell_save_path)
+        if type(self.average_graph) == type(None):
+            raise IOError('We need Average graph to generate cell loc.')
+        c_cell_dic = self.all_cell_dic[cell_name]
+        c_cell_info = c_cell_dic['Cell_Info']
+        # Then plot cells, in mode we want.
+        if mode == 'fill':# meaning we will paint graph into green.
+            base_graph = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)*0.7
+            cell_y,cell_x = c_cell_info.coords[:,0],c_cell_info.coords[:,1]
+            base_graph[cell_y,cell_x,1] +=32768
+            base_graph = np.clip(base_graph,0,65535).astype('u2')
+        elif mode == 'circle':
+            base_graph = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)
+            loc_y,loc_x = c_cell_info.centroid
+            base_graph = cv2.circle(base_graph,(int(loc_x),int(loc_y)),radius = 10,color = (0,0,65535),thickness=2)
+        else:
+            raise IOError('Wrong mode, check please.')
+        # After plot, annotate cell name.
+        base_graph = gt.Graph_Depth_Change(base_graph,'u1')
+        from PIL import ImageFont
+        from PIL import Image
+        from PIL import ImageDraw
+        font = ImageFont.truetype('arial.ttf',15)
+        im = Image.fromarray(base_graph)
+        y,x = c_cell_info.centroid
+        draw = ImageDraw.Draw(im)
+        draw.text((x+10,y+10),cell_name,(0,255,100),font = font,align = 'center')
+        annotated_graph = np.array(im)
+        #base_graph = gt.Clip_And_Normalize(base_graph,5)
+        gt.Show_Graph(annotated_graph, cell_name+'_Annotate', cell_save_path)
+        return True
+        
         
         

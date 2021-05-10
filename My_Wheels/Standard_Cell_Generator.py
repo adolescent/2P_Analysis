@@ -164,4 +164,4 @@ class Standard_Cell_Generator(object):
         self.Firing_Trains()
         self.Condition_Data()
         self.F_Value_Disp()
-        ot.Save_Variable(self.save_folder, self.cell_prefix+'_All_Cells',self.All_Cells,'.ac')
+        ot.Save_Variable(self.save_folder, self.cell_prefix+'All_Cells',self.All_Cells,'.ac')

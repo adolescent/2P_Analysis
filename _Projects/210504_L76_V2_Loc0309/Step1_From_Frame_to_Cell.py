@@ -22,3 +22,12 @@ S3D8_Para = Sub_Dic_Generator('Shape3Dir8')
 One_Key_Frame_Graphs(r'K:\Test_Data\2P\210504_L76_2P\1-015', S3D8_Para)
 H7O4_Para = Sub_Dic_Generator('HueNOrien4',para = {'Hue':['Red','Yellow','Green','Cyan','Blue','Purple','White']})
 One_Key_Frame_Graphs(r'K:\Test_Data\2P\210504_L76_2P\1-016', H7O4_Para)
+#%% Get cell file then.
+from My_Wheels.Cell_Find_From_Graph import Cell_Find_From_Mannual
+cell_dic = Cell_Find_From_Mannual(r'K:\Test_Data\2P\210504_L76_2P\_Manual_Cell\Cell_Mask.png',average_graph_path = r'K:\Test_Data\2P\210504_L76_2P\_Manual_Cell\Global_Average.tif',boulder = 5)
+from My_Wheels.Standard_Cell_Generator import Standard_Cell_Generator
+SCG = Standard_Cell_Generator('L76', '210504', r'K:\Test_Data\2P\210504_L76_2P', list(range(1,17)))
+SCG.Generate_Cells()
+
+
+# Till now, we get pure cell data here.

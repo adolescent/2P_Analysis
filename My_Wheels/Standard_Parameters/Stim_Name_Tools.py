@@ -180,9 +180,9 @@ def Stim_ID_Combiner(mode,para_dic = None):
             c_orien = orien_lists[i]
             for j in range(hue_num):
                 c_name = all_hue[j]+'_Orien'+str(c_orien)
-                Stim_IDs[c_name] = [i*11+j+1]
+                Stim_IDs[c_name] = [i*hue_num+j+1]
         for i in range(hue_num):
-            Stim_IDs[all_hue[i]+'_All'] = [i+1,i+12,i+23,i+34]
+            Stim_IDs[all_hue[i]+'_All'] = [i+1,i+1+hue_num,i+1+hue_num*2,i+1+hue_num*3]
         Stim_IDs['All'] = list(range(1,hue_num*4+1))
         Stim_IDs['Blank'] = [0]
         

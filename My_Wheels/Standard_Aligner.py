@@ -25,7 +25,7 @@ class Standard_Aligner(object):
     name = 'A Complex combined Aligner.'
     
     def __init__(self,day_folder,runids,final_base = '1-001',
-                 trans_range = 35,full_size = (512,512)):
+                 trans_range = 20,full_size = (512,512)):
         self.full_size = full_size
         self.run_subfolder = lt.Run_Name_Producer_2P(runids)
         self.all_runfolders = lt.List_Annex([day_folder], self.run_subfolder)

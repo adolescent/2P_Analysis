@@ -30,4 +30,4 @@ def Graph_Matcher(
     ROI_boulder = cv2.warpPerspective(rectangle, h, (512,512))
     location_graph[:,:,2] += ROI_boulder
     location_graph = np.clip(location_graph,0,255).astype('u1')
-    return merged_graph,location_graph,ROI_boulder
+    return merged_graph,location_graph,ROI_boulder,h

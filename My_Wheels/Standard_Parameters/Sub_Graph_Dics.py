@@ -56,7 +56,7 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['DirU-D'] = [[2,3,4],[6,7,8]]
         sub_dics['DirL-R'] = [[4,5,6],[8,1,2]]
         
-    elif mode == 'G8+90': # In early 2p stims, use up moving bars as ID1.
+    elif mode == 'G8+90': # In 2p stims, use up moving bars as ID1.
         print('ID 1 is moving up.')
         sub_dics['All-0'] = [[1,2,3,4,5,6,7,8],[0]]
         sub_dics['H-V'] = [[1,5],[3,7]]

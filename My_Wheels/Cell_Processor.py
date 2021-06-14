@@ -13,6 +13,7 @@ import cv2
 import Graph_Operation_Kit as gt
 import Statistic_Tools as st
 import random
+import seaborn as sns
 
 class Cell_Processor(object):
     
@@ -463,3 +464,28 @@ class Cell_Processor(object):
                     
                     
         return Black_Cell_Information
+    
+    def T_Map_Plot_Core(self,run_name,A_ID_list,B_ID_list,p_thres = 0.05,plot = True,
+                              used_frame = [4,5],mode = 'processed'):
+        current_index_dic = self.Index_Calculator_Core(run_name, A_ID_list, B_ID_list)
+        all_t = {}
+        for i in range(len(self.all_cell_names)):
+            if current_index_dic[self.all_cell_names[i]] != None:
+                c_t = current_index_dic[self.all_cell_names[i]]['t_value']
+                if current_index_dic[self.all_cell_names[i]]['p_value']<p_thres:
+                    all_t[self.all_cell_names[i]]=c_t
+        t_data = np.zeros(self.average_graph.shape,dtype = 'f8')
+        plotted_cells = list(all_t.keys())
+        for i in range(len(plotted_cells)):
+            c_cell_info = self.all_cell_dic[plotted_cells[i]]['Cell_Info']
+            cell_y,cell_x = c_cell_info.coords[:,0],c_cell_info.coords[:,1]
+            t_data[cell_y,cell_x] = all_t[plotted_cells[i]]
+        if plot == True:
+            fig = plt.figure(figsize = (15,15))
+            plt.title('T_Map',fontsize=36)
+            fig = sns.heatmap(t_data,square=True,yticklabels=False,xticklabels=False,center = 0)
+            fig.figure.savefig(self.save_folder+r'\T_Map.png')
+            plt.clf()
+        return t_data
+        
+        

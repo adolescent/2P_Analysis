@@ -12,6 +12,7 @@ import My_Wheels.Filters as Filters
 
 def Video_From_File(
         data_folder,
+        plot_range = (0,9999),
         graph_size = (472,472),
         file_type = '.tif',
         fps = 15,
@@ -51,6 +52,9 @@ def Video_From_File(
     '''
 
     all_tif_name = OS_Tools.Get_File_Name(path = data_folder,file_type = file_type)
+    start_frame = plot_range[0]
+    end_frame = min(plot_range[1],len(all_tif_name))
+    all_tif_name = all_tif_name[start_frame:end_frame]
     graph_num = len(all_tif_name)
     video_writer = cv2.VideoWriter(data_folder+r'\\Video.mp4',cv2.VideoWriter_fourcc('X','V','I','D'),fps,graph_size,0)
     #video_writer = cv2.VideoWriter(data_folder+r'\\Video.avi',-1,fps,graph_size,0)

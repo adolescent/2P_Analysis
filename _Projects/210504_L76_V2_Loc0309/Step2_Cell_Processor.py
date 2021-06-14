@@ -67,3 +67,12 @@ CP.Part_Cell_F_Disp(OD_neg_cell,'OD_Blacks_F',bins = 5)
 CP.Part_Cell_F_Disp(G16_neg_cell,'G16_Blacks_F',bins = 10)
 CP.Part_Cell_F_Disp(Hue_neg_cell,'Hue_Blacks_F',bins = 10)
 CP.Part_Cell_F_Disp(Shape_neg_cell,'Shape_Blacks_F',bins = 5)
+
+
+#%%
+from Spontaneous_Processor import Spontaneous_Processor
+day_folder = r'K:\Test_Data\2P\210504_L76_2P'
+SP_After = Spontaneous_Processor(day_folder,spon_run = r'Run014')
+after_spon = SP_After.Do_PCA(0,9999)
+SP_Before = Spontaneous_Processor(day_folder,spon_run = r'Run001')
+befor_spon = SP_Before.Do_PCA(0,9999)

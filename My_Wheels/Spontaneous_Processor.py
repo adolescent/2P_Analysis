@@ -270,7 +270,7 @@ class Spontaneous_Processor(object):
         return heat_data,color_map
             
 def Cross_Run_Pair_Correlation(day_folder,name_lists,run_A,run_B,
-                               start_time,end_time,label_A,label_B,
+                               start_time_A,end_time_A,start_time_B,end_time_B,label_A,label_B,
                                fps = 1.301,cor_range = (-0.2,0.6),method = 'spearman',mode = 'processed'):
     
     # First get A and B series seperately
@@ -286,8 +286,8 @@ def Cross_Run_Pair_Correlation(day_folder,name_lists,run_A,run_B,
             used_name_list.append(cc)
     real_cellnum = len(used_name_list)
     print('Really used cell num: '+str(real_cellnum))
-    A_series = A_SP.Series_Select(start_time, end_time).loc[used_name_list]
-    B_series = B_SP.Series_Select(start_time, end_time).loc[used_name_list]
+    A_series = A_SP.Series_Select(start_time_A, end_time_A).loc[used_name_list]
+    B_series = B_SP.Series_Select(start_time_B, end_time_B).loc[used_name_list]
     series_length = min(A_series.shape[1],B_series.shape[1])
     A_series = A_series.iloc[:,0:series_length]
     B_series = B_series.iloc[:,0:series_length]
@@ -319,11 +319,11 @@ def Cross_Run_Pair_Correlation(day_folder,name_lists,run_A,run_B,
     ax.annotate('p ='+str(round(p,7)),xycoords = 'axes fraction',xy = (0.9,0.65))
     fig.savefig(save_folder+r'\Cross_Run_Hist.png',dpi=180)
     # Plot joint graph then 
-    fig2 = sns.jointplot( x=A_pair_corr, y=B_pair_corr,s = 5,height = 8,xlim = cor_range,ylim = cor_range)
+    fig2 = sns.jointplot(x=A_pair_corr, y=B_pair_corr,s = 5,height = 8,xlim = cor_range,ylim = cor_range)
     fig2.set_axis_labels('x', 'y', fontsize=16)
     fig2.ax_joint.set_xlabel(label_A)
     fig2.ax_joint.set_ylabel(label_B)
-    fig2.ax_joint.plot([cor_range[0],cor_range[1]],[cor_range[0],cor_range[1]], 'r--')
+    fig2.ax_joint.plot([cor_range[0],cor_range[1]],[cor_range[0],cor_range[1]], ls = '--',color = 'gray')
     fig2.savefig(save_folder+r'\Cross_Run_joint.png',dpi=180)
     return A_pair_corr,B_pair_corr
     

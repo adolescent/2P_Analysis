@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from Spontaneous_Processor import Spontaneous_Processor
 from Cross_Day_Cell_Layout import Cross_Day_Cell_Layout
 from Spontaneous_Processor import Cross_Run_Pair_Correlation
+import seaborn as sns
+import pandas as pd
 
 work_path = r'D:\ZR\_MyCodes\2P_Analysis\_Projects\210616_Annual_Report'
 #%% Graph1, generate average graph of different run.
@@ -165,14 +167,14 @@ SP_2.Pairwise_Correlation_Plot(V_cells,0,2700,'Vertical',cor_range = (-0.2,0.7))
 selected_V_cell = random.sample(V_cells,108)
 selected_random_cell = random.sample(all_cell_name, 108)
 
-random_data = SP_1.Pairwise_Correlation_Core(selected_random_cell, 0, 2700)
-V_data = SP_1.Pairwise_Correlation_Core(selected_V_cell, 0, 2700)
-LE_data = SP_1.Pairwise_Correlation_Core(LE_cells, 0, 2700)
+random_data = SP_2.Pairwise_Correlation_Core(selected_random_cell, 0, 2700)
+V_data = SP_2.Pairwise_Correlation_Core(selected_V_cell, 0, 2700)
+LE_data = SP_2.Pairwise_Correlation_Core(LE_cells, 0, 2700)
 fig,ax = plt.subplots(figsize = (12,8))
-bins = np.linspace(-0.2, 0.2, 200)
-ax.hist(random_data,bins,label ='Random')
-ax.hist(LE_data,bins,label = 'Left Eye')
-ax.hist(V_data,bins,label = 'Vertical')
+bins = np.linspace(-0.1, 0.7, 200)
+ax.hist(random_data,bins,label ='Random',alpha = 0.75)
+ax.hist(LE_data,bins,label = 'Left Eye',alpha = 0.75)
+ax.hist(V_data,bins,label = 'Vertical',alpha = 0.75)
 ax.legend(prop={'size': 20})
 t,p,_ = st.T_Test_Ind(V_data, LE_data)
 ax.annotate('t ='+str(round(t,3)),xycoords = 'axes fraction',xy = (0.9,0.7))
@@ -202,18 +204,18 @@ SP_1.Pairwise_Correlation_Plot(Blue_cells,0,2700,'Blue',cor_range = (-0.2,0.2))
 SP_2.Pairwise_Correlation_Plot(Red_cells,0,2700,'Red',cor_range = (-0.2,0.7))
 SP_2.Pairwise_Correlation_Plot(Blue_cells,0,2700,'Blue',cor_range = (-0.2,0.7))
 # Then compare red and blue with orientation.
-selected_blue = random.sample(Blue_cells, 50)
-selected_vertical = random.sample(V_cells, 50)
+selected_blue = random.sample(Blue_cells, 49)
+selected_vertical = random.sample(V_cells, 49)
 
-red_data = SP_1.Pairwise_Correlation_Core(Red_cells, 0, 2700)
-blue_data = SP_1.Pairwise_Correlation_Core(selected_blue, 0, 2700)
-vertical_data = SP_1.Pairwise_Correlation_Core(selected_vertical, 0, 2700)
+red_data = SP_2.Pairwise_Correlation_Core(Red_cells, 0, 2700)
+blue_data = SP_2.Pairwise_Correlation_Core(selected_blue, 0, 2700)
+vertical_data = SP_2.Pairwise_Correlation_Core(selected_vertical, 0, 2700)
 
 fig,ax = plt.subplots(figsize = (12,8))
-bins = np.linspace(-0.2, 0.2, 200)
-ax.hist(red_data,bins,label ='Red')
-ax.hist(vertical_data,bins,label = 'Vertical')
-ax.hist(blue_data,bins,label = 'Blue')
+bins = np.linspace(-0.2, 0.7, 200)
+ax.hist(red_data,bins,label ='Red',alpha = 0.75)
+ax.hist(vertical_data,bins,label = 'Vertical',alpha = 0.75)
+ax.hist(blue_data,bins,label = 'Blue',alpha = 0.75)
 ax.legend(prop={'size': 20})
 t,p,_ = st.T_Test_Ind(red_data, blue_data)
 ax.annotate('t ='+str(round(t,3)),xycoords = 'axes fraction',xy = (0.9,0.7))
@@ -301,5 +303,128 @@ before_corr = Spon_Before.Pairwise_Correlation_Plot(Vertical_cells,0,1800,'Verti
 Spon_After = Spontaneous_Processor(r'K:\Test_Data\2P\210504_L76_2P','Run014')
 after_corr = Spon_After.Pairwise_Correlation_Plot(Vertical_cells,0,1800,'Vertical',(-0.2,0.6))
 Ver_Before_Corr,Ver_After_Corr = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210504_L76_2P', 
-                           Vertical_cells,'Run001','Run014',0,1800,
-                           'Vertical_Before','Vertical_After')
+                                                            Vertical_cells,'Run001','Run014',0,1800,0,1800,
+                                                            'Vertical_Before','Vertical_After')
+All_Before_Corr,All_After_Corr = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210504_L76_2P', 
+                                                            all_cell_name,'Run001','Run014',0,1800,0,1800,
+                                                            'All_Before','All_After')
+
+
+# Get data frame here.
+all_corr_dic = {}
+all_corr_dic['Before'] = []
+all_corr_dic['After'] = []
+all_corr_dic['Origin'] = []
+for i in range(len(Ver_Before_Corr)):
+    all_corr_dic['Before'].append(Ver_Before_Corr[i])
+    all_corr_dic['After'].append(Ver_After_Corr[i])
+    all_corr_dic['Origin'].append('Vertical')
+for i in range(len(All_Before_Corr)):
+    all_corr_dic['Before'].append(All_Before_Corr[i])
+    all_corr_dic['After'].append(All_After_Corr[i])
+    all_corr_dic['Origin'].append('All')    
+Correlation_Frame_V2 = pd.DataFrame(all_corr_dic)
+selected_Frame_V2 = Correlation_Frame_V2.groupby('Origin').sample(5670)    
+fig = sns.jointplot(data=selected_Frame_V2, x="Before", y="After", hue="Origin",kind="kde",height = 8,fill =True,xlim = (-0.2,0.5),ylim = (-0.2,0.5),thres = 0.1,alpha = 0.6)
+fig.ax_joint.plot([-0.2,0.5],[-0.2,0.5], 'r--')
+fig.savefig(work_path+r'\Kernel.png',dpi = 180)
+
+#%% Add jointplot for V1 results...
+LE_Before,LE_After = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                LE_cells,'Run001','Run009',0,2700,0,2700,
+                                                'LE_Before','LE_After',cor_range = (-0.2,0.7))
+RE_Before,RE_After = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                RE_cells,'Run001','Run009',0,2700,0,2700,
+                                                'RE_Before','RE_After',cor_range = (-0.2,0.7))
+All_V1_Before,All_V1_After = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                        all_cell_name,'Run001','Run009',0,2700,0,2700,
+                                                        'All_Before','All_After',cor_range = (-0.2,0.7))
+All_V1_After_0_10,All_V1_After_50_60 = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                                  all_cell_name,'Run009','Run009',0,600,3000,3600,
+                                                                  'All 0-10 min','All 50-60 min',cor_range = (-0.2,0.7))
+V_Before_V1,V_After_V1 = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                    V_cells,'Run001','Run009',0,2700,0,2700,
+                                                    'Vertical_Before','Vertical_After',cor_range = (-0.2,0.7))
+Blue_Before_V1,Blue_After_V1 = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                          Blue_cells,'Run001','Run009',0,2700,0,2700,
+                                                          'Vertical_Before','Vertical_After',cor_range = (-0.2,0.7))
+Red_Before_V1,Red_After_V1 = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210413_L76_2P', 
+                                                        Red_cells,'Run001','Run009',0,2700,0,2700,
+                                                        'Vertical_Before','Vertical_After',cor_range = (-0.2,0.7))
+# Get data frame here.
+all_corr_dic_V1 = {}
+all_corr_dic_V1['Before'] = []
+all_corr_dic_V1['After'] = []
+all_corr_dic_V1['Origin'] = []
+for i in range(len(LE_Before)):
+    all_corr_dic_V1['Before'].append(LE_Before[i])
+    all_corr_dic_V1['After'].append(LE_After[i])
+    all_corr_dic_V1['Origin'].append('LE')
+for i in range(len(V_Before_V1)):
+    all_corr_dic_V1['Before'].append(V_Before_V1[i])
+    all_corr_dic_V1['After'].append(V_After_V1[i])
+    all_corr_dic_V1['Origin'].append('Vertical')    
+for i in range(len(Red_Before_V1)):
+    all_corr_dic_V1['Before'].append(Red_Before_V1[i])
+    all_corr_dic_V1['After'].append(Red_After_V1[i])
+    all_corr_dic_V1['Origin'].append('Red')  
+for i in range(len(Blue_Before_V1)):
+    all_corr_dic_V1['Before'].append(Blue_Before_V1[i])
+    all_corr_dic_V1['After'].append(Blue_After_V1[i])
+    all_corr_dic_V1['Origin'].append('Blue')  
+for i in range(len(All_V1_Before)):
+    all_corr_dic_V1['Before'].append(All_V1_Before[i])
+    all_corr_dic_V1['After'].append(All_V1_After[i])
+    all_corr_dic_V1['Origin'].append('All')
+    
+Correlation_Frame_V1 = pd.DataFrame(all_corr_dic_V1)
+Selected_Frame_V1 = Correlation_Frame_V1.groupby('Origin').sample(1100)
+fig = sns.jointplot(data=Selected_Frame_V1, x="Before", y="After",kind = 'kde', hue="Origin",height = 8,xlim = (-0.2,0.2),ylim = (-0.2,0.7),levels = [0.1,0.9], thresh=.1,alpha = 0.7)
+fig.ax_joint.plot([-0.2,0.5],[-0.2,0.5], ls = '--',color = 'gray')
+fig.savefig(work_path+r'\Kernel.png',dpi = 180)
+#%% Compare V1 and V2 Glocal
+All_Frame_V1 = Correlation_Frame_V1.loc[Correlation_Frame_V1['Origin'] == 'All']
+All_Frame_V2 = Correlation_Frame_V2.loc[Correlation_Frame_V2['Origin'] == 'All']
+All_Frame_V1['Area'] = 'V1'
+All_Frame_V2['Area'] = 'V2'
+Area_Compare_Frame = pd.concat([All_Frame_V1,All_Frame_V2])
+Selected_Frames = Area_Compare_Frame.groupby('Area').sample(19000)
+fig = sns.jointplot(data=Selected_Frames, x="Before", y="After",kind = 'kde', hue="Area",height = 8,xlim = (-0.2,0.5),ylim = (-0.2,0.5),fill = True, thresh=.1,alpha = 0.7)
+fig = sns.jointplot(data=Selected_Frames, x="Before", y="After",hue="Area",height = 8,xlim = (-0.2,0.6),ylim = (-0.2,0.6),s = 4,alpha = 0.7)
+fig.ax_joint.plot([-0.2,0.6],[-0.2,0.6], ls = '--',color = 'gray')
+fig.savefig(work_path+r'\Kernel.png',dpi = 180)
+
+#%% Another set of data(210423-V1), just in case the result is fake..
+
+CP_Repeat = Cell_Processor(r'K:\Test_Data\2P\210423_L76_2P')
+ac_repeat = CP_Repeat.all_cell_names
+All_Before_Corr,All_After_Corr = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210423_L76_2P', 
+                                                            ac_repeat,'Run001','Run015',0,1800,0,1800,
+                                                            'All_Before','All_After')
+CP_Repeat_V2 = Cell_Processor(r'K:\Test_Data\2P\210514_L76_2P')
+ac_repeat_V2 = CP_Repeat_V2.all_cell_names
+All_Before_Corr_V2,All_After_Corr_V2 = Cross_Run_Pair_Correlation(r'K:\Test_Data\2P\210514_L76_2P', 
+                                                                  ac_repeat_V2,'Run001','Run015',0,1800,0,1800,
+                                                                  'All_Before','All_After')
+Repeat_Corr = {}
+Repeat_Corr['Before'] = []
+Repeat_Corr['After'] = []
+Repeat_Corr['Area'] = []
+for i in range(len(All_Before_Corr)):
+    Repeat_Corr['Before'].append(All_Before_Corr[i])
+    Repeat_Corr['After'].append(All_After_Corr[i])
+    Repeat_Corr['Area'].append('V1')
+for i in range(len(All_Before_Corr_V2)):
+    Repeat_Corr['Before'].append(All_Before_Corr_V2[i])
+    Repeat_Corr['After'].append(All_After_Corr_V2[i])
+    Repeat_Corr['Area'].append('V2')
+Repeat_Data_Frame = pd.DataFrame(Repeat_Corr)
+Selected_Repeat_DF = Repeat_Data_Frame.groupby('Area').sample(15000)
+fig = sns.jointplot(data=Selected_Repeat_DF, x="Before", y="After", hue="Area",kind="kde",height = 8,fill =True,xlim = (-0.2,0.5),ylim = (-0.2,0.5),thres = 0.1,alpha = 0.6)
+#fig = sns.jointplot(data=Selected_Repeat_DF, x="Before", y="After", hue="Area",height = 8,xlim = (-0.2,0.5),ylim = (-0.2,0.5),s=4)
+fig.ax_joint.plot([-0.2,0.5],[-0.2,0.5], ls = '--',c = 'gray')
+fig.savefig(work_path+r'\Kernel.png',dpi = 180)
+#%% V2 Circle tunings. Circle-Triangle.
+CP = Cell_Processor(r'K:\Test_Data\2P\210514_L76_2P')
+t_data = CP.T_Map_Plot_Core('Run013', [17,18,19,20,21,22,23,24], [1,2,3,4,5,6,7,8])
+

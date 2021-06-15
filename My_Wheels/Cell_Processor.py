@@ -486,6 +486,14 @@ class Cell_Processor(object):
             fig = sns.heatmap(t_data,square=True,yticklabels=False,xticklabels=False,center = 0)
             fig.figure.savefig(self.save_folder+r'\T_Map.png')
             plt.clf()
+            norm_t_data = t_data/abs(t_data).max()
+            posi_part = norm_t_data*(norm_t_data>0)*65535
+            nega_part = norm_t_data*(norm_t_data<0)*65535
+            folded_map = cv2.cvtColor(self.average_graph,cv2.COLOR_GRAY2RGB)*0.7
+            folded_map[:,:,0] -= nega_part
+            folded_map[:,:,2] += posi_part
+            folded_map = np.clip(folded_map,0,65535).astype('u2')
+            cv2.imwrite(self.save_folder+r'\T_Map_Folded.png',folded_map)
         return t_data
         
         

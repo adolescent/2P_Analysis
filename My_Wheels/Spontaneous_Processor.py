@@ -16,9 +16,10 @@ import Graph_Operation_Kit as gt
 from scipy import stats
 import Statistic_Tools as st
 import random
+from Decorators import Timer
 
 
-class Spontaneous_Processor(object):
+class Single_Run_Spontaneous_Processor(object):
     
     name = 'Spontaneous_Processor'
     
@@ -63,6 +64,24 @@ class Spontaneous_Processor(object):
         del cell_dic
     
     def Series_Select(self,start_time,end_time,mode = 'processed'):
+        '''
+        get series cut at different time.
+
+        Parameters
+        ----------
+        start_time : (int)
+            seconds of series on.
+        end_time : (int)
+            seconds of series stop.
+        mode : ('processed' or 'raw'), optional
+            Which kind of series we use. The default is 'processed'.
+
+        Returns
+        -------
+        selected_series : (Pandas Frame)
+            selected series of data.
+
+        '''
         if mode == 'processed':
             temp_series = self.Spon_Data_Frame_centered
         elif mode == 'raw':
@@ -75,7 +94,7 @@ class Spontaneous_Processor(object):
         selected_series = temp_series.iloc[:,start_frame:end_frame]
         return selected_series
         
-    def Do_PCA(self,start_time = 0,end_time = 9999,plot = True,mode = 'processed'):
+    def Do_PCA(self,start_time = 0,end_time = 99999,plot = True,mode = 'processed'):
         '''
         Do PCA Analyze for spon series of given time.
 
@@ -139,6 +158,25 @@ class Spontaneous_Processor(object):
     
     
     def Component_Visualize(self,input_component):# input component shall be a cell combination.
+        '''
+        Visualize PCA or ICA components, all cells shall be give a data, or fatal error will raise.        
+
+        Parameters
+        ----------
+        input_component : (nd array)
+            Array of cell weights. Cell sequence required.
+
+        Returns
+        -------
+        visualize_data : (nd array)
+            normalized weight data.Not a graph.
+        folded_map : (nd array)
+            graph of PCA/ICA result folded with average graph. BR color added.
+        gray_graph: (nd array)
+            plotable graph of PCA/ICA component. 8bit gray map.
+
+        '''
+
         
         visualize_data = np.zeros(shape = self.base_graph.shape,dtype = 'f8')
         cell_list = self.spon_cellname
@@ -203,6 +241,34 @@ class Spontaneous_Processor(object):
     
     def Pairwise_Correlation_Plot(self,name_lists,start_time,end_time,label,cor_range = (-0.2,0.2),
                                method = 'spearman',mode = 'processed'):
+        '''
+        Plot pair wise correlation graph. Random selected cells folded too.
+
+        Parameters
+        ----------
+        name_lists : (list)
+            Name of cells you want to do pairwise corr.
+        start_time : (int)
+            Seconds of series selection start.
+        end_time : (int)
+            Seconds of series selection end.
+        label : (str)
+            Label of cell groups. Given manually
+        cor_range : (turple), optional
+            X range of correlation. Adjust according to disps. The default is (-0.2,0.2).
+        method : ('spearman' or 'pearson'), optional
+            Correlation method. The default is 'spearman'.
+        mode : ('processed' or 'raw'), optional
+            dF/F or F value. The default is 'processed'.
+
+        Returns
+        -------
+        t : (float)
+            T value of selected cells vs random.
+        p : (float)
+            P value of t test.
+
+        '''
         cell_num = len(name_lists)
         # Do have cell test
         new_name_list = []
@@ -268,63 +334,246 @@ class Spontaneous_Processor(object):
         color_map = color_map.astype('u1')
         cv2.imwrite(self.save_folder+'\Correlation to '+seed_point+'_Color.jpg',color_map)
         return heat_data,color_map
-            
-def Cross_Run_Pair_Correlation(day_folder,name_lists,run_A,run_B,
-                               start_time_A,end_time_A,start_time_B,end_time_B,label_A,label_B,
-                               fps = 1.301,cor_range = (-0.2,0.6),method = 'spearman',mode = 'processed'):
     
-    # First get A and B series seperately
-    save_folder = day_folder+r'\_All_Results\Spon_Analyze'
-    A_SP = Spontaneous_Processor(day_folder,spon_run = run_A)
-    B_SP = Spontaneous_Processor(day_folder,spon_run = run_B)
-    A_sponcell = A_SP.spon_cellname
-    B_sponcell = B_SP.spon_cellname
-    used_name_list = []
-    for i in range(len(name_lists)):
-        cc = name_lists[i]
-        if (cc in A_sponcell) and (cc in B_sponcell):
-            used_name_list.append(cc)
-    real_cellnum = len(used_name_list)
-    print('Really used cell num: '+str(real_cellnum))
-    A_series = A_SP.Series_Select(start_time_A, end_time_A).loc[used_name_list]
-    B_series = B_SP.Series_Select(start_time_B, end_time_B).loc[used_name_list]
-    series_length = min(A_series.shape[1],B_series.shape[1])
-    A_series = A_series.iloc[:,0:series_length]
-    B_series = B_series.iloc[:,0:series_length]
-    # Second we calculate pairwise correlation of A and B.
-    A_pair_corr = []
-    B_pair_corr = []
-    A_matrix = np.array(A_series)
-    B_matrix = np.array(B_series)
-    for i in range(real_cellnum):
-        Ai_series = A_matrix[i,:]
-        Bi_series = B_matrix[i,:]
-        for j in range(i+1,real_cellnum):
-            Aj_series = A_matrix[j,:]
-            Bj_series = B_matrix[j,:]
-            if method == 'spearman':
-                A_pair_corr.append(stats.spearmanr(Ai_series,Aj_series)[0])
-                B_pair_corr.append(stats.spearmanr(Bi_series,Bj_series)[0])
-            elif method == 'pearson':
-                A_pair_corr.append(stats.pearsonr(Ai_series,Aj_series)[0])
-                B_pair_corr.append(stats.pearsonr(Bi_series,Bj_series)[0])
-    # Then plot graphs.
-    fig,ax = plt.subplots(figsize = (12,8))
-    bins = np.linspace(cor_range[0], cor_range[1], 200)
-    ax.hist(A_pair_corr,bins,label = label_A,alpha = 0.8)
-    ax.hist(B_pair_corr,bins,label = label_B,alpha = 0.8)
-    ax.legend(prop={'size': 20})
-    t,p,_ = st.T_Test_Ind(B_pair_corr,A_pair_corr)
-    ax.annotate('t ='+str(round(t,3)),xycoords = 'axes fraction',xy = (0.9,0.7))
-    ax.annotate('p ='+str(round(p,7)),xycoords = 'axes fraction',xy = (0.9,0.65))
-    fig.savefig(save_folder+r'\Cross_Run_Hist.png',dpi=180)
-    # Plot joint graph then 
-    fig2 = sns.jointplot(x=A_pair_corr, y=B_pair_corr,s = 5,height = 8,xlim = cor_range,ylim = cor_range)
-    fig2.set_axis_labels('x', 'y', fontsize=16)
-    fig2.ax_joint.set_xlabel(label_A)
-    fig2.ax_joint.set_ylabel(label_B)
-    fig2.ax_joint.plot([cor_range[0],cor_range[1]],[cor_range[0],cor_range[1]], ls = '--',color = 'gray')
-    fig2.savefig(save_folder+r'\Cross_Run_joint.png',dpi=180)
-    return A_pair_corr,B_pair_corr
     
+    
+    
+#%% Old Function of cross run correlation.
+# =============================================================================
+# def Cross_Run_Pair_Correlation(day_folder,name_lists,run_A,run_B,
+#                                start_time_A,end_time_A,start_time_B,end_time_B,label_A,label_B,
+#                                fps = 1.301,cor_range = (-0.2,0.6),method = 'spearman',mode = 'processed'):
+#     
+#     # First get A and B series seperately
+#     save_folder = day_folder+r'\_All_Results\Spon_Analyze'
+#     A_SP = Single_Run_Spontaneous_Processor(day_folder,spon_run = run_A)
+#     B_SP = Single_Run_Spontaneous_Processor(day_folder,spon_run = run_B)
+#     A_sponcell = A_SP.spon_cellname
+#     B_sponcell = B_SP.spon_cellname
+#     used_name_list = []
+#     for i in range(len(name_lists)):
+#         cc = name_lists[i]
+#         if (cc in A_sponcell) and (cc in B_sponcell):
+#             used_name_list.append(cc)
+#     real_cellnum = len(used_name_list)
+#     print('Really used cell num: '+str(real_cellnum))
+#     A_series = A_SP.Series_Select(start_time_A, end_time_A).loc[used_name_list]
+#     B_series = B_SP.Series_Select(start_time_B, end_time_B).loc[used_name_list]
+#     series_length = min(A_series.shape[1],B_series.shape[1])
+#     A_series = A_series.iloc[:,0:series_length]
+#     B_series = B_series.iloc[:,0:series_length]
+#     # Second we calculate pairwise correlation of A and B.
+#     A_pair_corr = []
+#     B_pair_corr = []
+#     A_matrix = np.array(A_series)
+#     B_matrix = np.array(B_series)
+#     for i in range(real_cellnum):
+#         Ai_series = A_matrix[i,:]
+#         Bi_series = B_matrix[i,:]
+#         for j in range(i+1,real_cellnum):
+#             Aj_series = A_matrix[j,:]
+#             Bj_series = B_matrix[j,:]
+#             if method == 'spearman':
+#                 A_pair_corr.append(stats.spearmanr(Ai_series,Aj_series)[0])
+#                 B_pair_corr.append(stats.spearmanr(Bi_series,Bj_series)[0])
+#             elif method == 'pearson':
+#                 A_pair_corr.append(stats.pearsonr(Ai_series,Aj_series)[0])
+#                 B_pair_corr.append(stats.pearsonr(Bi_series,Bj_series)[0])
+#     # Then plot graphs.
+#     fig,ax = plt.subplots(figsize = (12,8))
+#     bins = np.linspace(cor_range[0], cor_range[1], 200)
+#     ax.hist(A_pair_corr,bins,label = label_A,alpha = 0.8)
+#     ax.hist(B_pair_corr,bins,label = label_B,alpha = 0.8)
+#     ax.legend(prop={'size': 20})
+#     t,p,_ = st.T_Test_Ind(B_pair_corr,A_pair_corr)
+#     ax.annotate('t ='+str(round(t,3)),xycoords = 'axes fraction',xy = (0.9,0.7))
+#     ax.annotate('p ='+str(round(p,7)),xycoords = 'axes fraction',xy = (0.9,0.65))
+#     fig.savefig(save_folder+r'\Cross_Run_Hist.png',dpi=180)
+#     # Plot joint graph then 
+#     fig2 = sns.jointplot(x=A_pair_corr, y=B_pair_corr,s = 5,height = 8,xlim = cor_range,ylim = cor_range)
+#     fig2.set_axis_labels('x', 'y', fontsize=16)
+#     fig2.ax_joint.set_xlabel(label_A)
+#     fig2.ax_joint.set_ylabel(label_B)
+#     fig2.ax_joint.plot([cor_range[0],cor_range[1]],[cor_range[0],cor_range[1]], ls = '--',color = 'gray')
+#     fig2.savefig(save_folder+r'\Cross_Run_joint.png',dpi=180)
+#     return A_pair_corr,B_pair_corr
+# =============================================================================
+    
+#%% Multi run spontaneous processor
+class Multi_Run_Spontaneous_Processor(object):
+    '''
+    Multi run compare function. This function is useful for 
+    
+    
+    '''
+    
+    name = 'Spontaneous Processor cross runs'
+    
+    def __init__(self,day_folder,fps,passed_band = (0.05,0.5)):
+        self.day_folder = day_folder
+        self.fps = fps
+        self.passed_band = passed_band
+        ot.mkdir(day_folder+r'\_All_Results')
+        self.save_folder = day_folder+r'\_All_Results\Spon_Analyze'
+        ot.mkdir(self.save_folder)
+        self.base_graph = cv2.imread(day_folder+r'\Global_Average.tif',-1)
+        cell_file_name = ot.Get_File_Name(day_folder,'.ac')[0]
+        self.cell_dic = ot.Load_Variable(cell_file_name)
+        self.all_cell_name = list(self.cell_dic.keys())
+        self.all_cell_num = len(self.all_cell_name)
+        # get all cell information.
+        self.all_cell_info = {}
+        for i in range(len(self.all_cell_name)):
+            self.all_cell_info[self.all_cell_name[i]] = self.cell_dic[self.all_cell_name[i]]['Cell_Info']
         
+    
+    def Get_Spon_Train(self,runname,start_time = 0,end_time = 99999,mode = 'processed'):
+        '''
+        Get specific time series of specific run. 
+
+        Parameters
+        ----------
+        runname : (str)
+            Runname of series origin.
+        start_time : (int), optional
+            Time of series start,in second. The default is 0.
+        end_time : (int), optional
+            Time of series end,in second. The default is 99999.
+        mode : ('processed' or 'raw'), optional
+            Method of series find. The default is 'processed'.
+
+        Returns
+        -------
+        selected_Spon_Train_Frame : TYPE
+            DESCRIPTION.
+
+        '''
+        # Get filter parameters.
+        fp = self.fps/2
+        if self.passed_band[0] != False:
+            HP_par = self.passed_band[0]/fp
+        else:
+            HP_par = False
+        if self.passed_band[1] != False:
+            LP_par = self.passed_band[1]/fp
+        else:
+            LP_par = False
+        Spon_trains = {}
+        for i in range(self.all_cell_num):
+            c_cell_name = self.all_cell_name[i]
+            tc = self.cell_dic[c_cell_name]
+            if tc['In_Run'][runname]:
+                raw_F_train = tc[runname]['F_train']
+                filted_F_train = Filters.Signal_Filter(raw_F_train,filter_para = (HP_par,LP_par))
+                if mode == 'raw':
+                    Spon_trains[c_cell_name] = filted_F_train
+                elif mode == 'processed':
+                    average_F = filted_F_train.mean()
+                    dF_F_series = (filted_F_train-average_F)/average_F
+                    dF_F_series = np.clip(dF_F_series,dF_F_series.mean()-dF_F_series.std()*3,dF_F_series.mean()+dF_F_series.std()*3)
+                    Spon_trains[c_cell_name] = dF_F_series
+        Spon_Train_Frame = pd.DataFrame(Spon_trains).T
+        # At last, get frame cutted.
+        start_frame = round(start_time*self.fps)
+        end_frame = round(end_time*self.fps)
+        if end_frame > (Spon_Train_Frame.shape[1]-1):
+            end_frame = Spon_Train_Frame.shape[1]-1
+            print('Index exceed, Last Frame: '+str(end_frame))
+        selected_Spon_Train_Frame = Spon_Train_Frame.iloc[:,start_frame:end_frame]
+        return selected_Spon_Train_Frame
+    
+    
+    def Find_Common_Cells(self,cell_name_list,run_lists):
+        '''
+        Find cells in common in 2 or more runs. Cells in common is vital for calculation.
+
+        Parameters
+        ----------
+        cell_name_list : (list)
+            List of cells we start calculation.
+        run_lists : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        common_cell_list : TYPE
+            DESCRIPTION.
+
+        '''
+        run_num = len(run_lists)
+        common_cell_list = []
+        for i in range(len(cell_name_list)):
+            c_cellname = cell_name_list[i]
+            tc = self.cell_dic[c_cellname]
+            flag_in = True
+            for j in range(run_num):
+                flag_in = flag_in*tc['In_Run'][run_lists[j]]
+            if flag_in == True:
+                common_cell_list.append(c_cellname)
+        return common_cell_list
+        
+    def Pairwise_Correlation_Core(self,cell_name,series_Frame,method = 'spearman'):
+        pairwise_correlation_data = []
+        cell_num = len(cell_name)
+        data_matrix = np.array(series_Frame)
+        for i in range(cell_num):
+            A_series = data_matrix[i,:]
+            for j in range(i+1,cell_num):
+                B_series = data_matrix[j,:]
+                if method == 'spearman':
+                    pairwise_correlation_data.append(stats.spearmanr(A_series,B_series)[0])
+                elif method == 'pearson':
+                    pairwise_correlation_data.append(stats.pearsonr(A_series,B_series)[0])
+        
+        return pairwise_correlation_data
+    
+    @Timer
+    def Cross_Run_Pair_Correlation(self,cell_name_list,run_A,run_B,
+                                   start_time_A,end_time_A,
+                                   start_time_B,end_time_B,
+                                   label_A,label_B,
+                                   cor_range = (-0.2,0.6),method = 'spearman',mode = 'processed'):
+        # First, get these 2 series.
+        used_cells = self.Find_Common_Cells(cell_name_list, [run_A,run_B])
+        A_Data_Frame = self.Get_Spon_Train(run_A,start_time_A,end_time_A,mode)
+        B_Data_Frame = self.Get_Spon_Train(run_B,start_time_B,end_time_B,mode)
+        # Second, calculate distribution seperately.
+        pair_cc_A = self.Pairwise_Correlation_Core(used_cells, A_Data_Frame)
+        pair_cc_B = self.Pairwise_Correlation_Core(used_cells, B_Data_Frame)
+        
+        # Third, plot graphs.
+        fig,ax = plt.subplots(figsize = (12,8))
+        bins = np.linspace(cor_range[0], cor_range[1], 200)
+        ax.hist(pair_cc_A,bins,label = label_A,alpha = 0.8)
+        ax.hist(pair_cc_B,bins,label = label_B,alpha = 0.8)
+        ax.legend(prop={'size': 20})
+        t,p,_ = st.T_Test_Ind(pair_cc_B,pair_cc_A)
+        ax.annotate('t ='+str(round(t,3)),xycoords = 'axes fraction',xy = (0.9,0.7))
+        ax.annotate('p ='+str(round(p,7)),xycoords = 'axes fraction',xy = (0.9,0.65))
+        fig.savefig(self.save_folder+r'\Cross_Run_Hist.png',dpi=180)
+        # Plot joint graph then 
+        fig2 = sns.jointplot(x=pair_cc_A, y=pair_cc_B,s = 5,height = 8,xlim = cor_range,ylim = cor_range)
+        fig2.set_axis_labels('x', 'y', fontsize=16)
+        fig2.ax_joint.set_xlabel(label_A)
+        fig2.ax_joint.set_ylabel(label_B)
+        fig2.ax_joint.plot([cor_range[0],cor_range[1]],[cor_range[0],cor_range[1]], ls = '--',color = 'gray')
+        fig2.savefig(self.save_folder+r'\Cross_Run_joint.png',dpi=180)
+        return pair_cc_A,pair_cc_B
+    
+    def Series_Cat(self,**kwarg):
+        pass
+    
+    
+    
+    
+#%%
+if __name__ == '__main__':
+    Mu = Multi_Run_Spontaneous_Processor(r'K:\Test_Data\2P\210604_L76_2P', fps= 1.301)
+    corr_A,corr_B = Mu.Cross_Run_Pair_Correlation(cell_name_list = cell_name, run_A = 'Run001',run_B = 'Run013',
+                                                  start_time_A=0,end_time_A= 1800,
+                                                  start_time_B=0,end_time_B= 1800,
+                                                  label_A = 'Before',label_B =  'After')
+    corr_A,corr_B = Mu.Cross_Run_Pair_Correlation(cell_name,'Run001','Run013',0,1800,0,1800,'Before','After')
+    
+    t_A,t_B =  Mu.Cross_Run_Pair_Correlation(test_cell,'Run001','Run013',0,200,0,200,'Before','After')
+    

@@ -130,31 +130,28 @@ fig2 = plt.figure()
 plt.scatter(trans_c[:,0],trans_c[:,1],s = 1)
 plt.xlim(-0.2,0.2)
 plt.ylim(-0.2,0.2)
-#%%
-
-import pywt
-import numpy as np
-import matplotlib.pyplot as plt
-x = np.arange(512)
-y = np.sin(2*np.pi*x/32)
-coef, freqs=pywt.cwt(y,np.arange(1,512),'cgau7')
-plt.matshow(coef) # doctest: +SKIP
-plt.show() # doctest: +SKIP
-#%%
-######导入模块
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-######这是蝴蝶曲线部分
-df = sns.load_dataset('iris')
-t = np.arange(0.0, 12*np.pi, 0.01)
-x = np.sin(t)*(np.e**np.cos(t) - 2*np.cos(4*t)-np.sin(t/12)**5)
-y = np.cos(t)*(np.e**np.cos(t) - 2*np.cos(4*t)-np.sin(t/12)**5)
-plt.figure(figsize=(8,6))
-
-plt.plot(x,y,color='blue',linewidth = '3')
-plt.xlim(-3,3)
-plt.ylim(-2,4)
-#######这是分割线部分
-plt.hlines(3.5, -1,1,color="red")#横线
-plt.vlines(0, -2, 3,color="red")#竖线
+#%% This is a decorator test.
+def use_log(func): 
+    def wrapper(*args, **kwargs): 
+        print("%s is running" % func.__name__)
+        return func(*args)
+    return wrapper
+@use_log
+def foo(): 
+    print("i am foo")
+foo()
+# A timer we want to use.
+import time    
+def Timer(func):
+    def core_func(*args,**kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        print("%s is running" % func.__name__)
+        end_time = time.time()
+        print('Time Cost: %ss' % (end_time-start_time))
+        return result
+    return core_func
+@Timer
+def Sleep():
+    time.sleep(3)
+Sleep()

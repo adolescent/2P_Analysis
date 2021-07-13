@@ -19,6 +19,7 @@ from Affine_Alignment import Affine_Core_Point_Equal
 import os
 import numpy as np
 import shutil
+from Decorators import Timer
 
 class Standard_Aligner(object):
     
@@ -46,6 +47,7 @@ class Standard_Aligner(object):
         # check base is full frame.
         if self.graph_size[final_base] != full_size:
             raise IOError('Base must be full frame.')
+    
 
     def Seperate_Translation_Align(self):
         for i in range(self.runnum):
@@ -133,7 +135,7 @@ class Standard_Aligner(object):
             else:
                 gt.Show_Graph(total_averaged_graph, 'Global_Average', self.all_resultfolder[i],show_time = 0)
             
-    
+    @Timer
     def One_Key_Aligner(self):
         '''
         One key align function, all work will be done automatically.

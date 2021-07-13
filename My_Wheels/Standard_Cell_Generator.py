@@ -14,6 +14,7 @@ from Spike_Train_Generator import Spike_Train_Generator
 from Spike_Train_Generator import Single_Condition_Train_Generator
 import matplotlib.pyplot as plt 
 import numpy as np
+from Decorators import Timer
 
 
 class Standard_Cell_Generator(object):
@@ -158,7 +159,7 @@ class Standard_Cell_Generator(object):
                     
                     
         
-
+    @Timer
     def Generate_Cells(self):
         self.Cell_Struct_Generator()
         self.Firing_Trains()

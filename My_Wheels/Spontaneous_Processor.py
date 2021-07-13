@@ -560,8 +560,39 @@ class Multi_Run_Spontaneous_Processor(object):
         fig2.savefig(self.save_folder+r'\Cross_Run_joint.png',dpi=180)
         return pair_cc_A,pair_cc_B
     
-    def Series_Cat(self,**kwarg):
-        pass
+    def Series_Cat(self,name_lists,run_dic = {},mode = 'processed'):
+        '''
+        Concat series together, very useful for cutted series.
+
+        Parameters
+        ----------
+        name_lists : (list)
+            List of cells you want to plot. Only common cells will be plotted.
+        run_dic : (dic), optional
+            Dictionary of runs you want to concate. Key will be runname, 2-turple will be start & end time (s). The default is {}.
+        mode : ('processed' or 'raw'), optional
+            Mode of series. The default is 'processed'.
+
+        Returns
+        -------
+        catted_series : (pd Frame)
+            Concated series in given order. 
+
+        '''
+        run_num = len(run_dic.keys())
+        run_lists = list(run_dic.keys())
+        common_cells = self.Find_Common_Cells(name_lists, run_lists)
+        catted_series = pd.DataFrame(index = common_cells)
+        for i in range(run_num):
+            c_runname = run_lists[i]
+            c_frame = self.Get_Spon_Train(run_lists[i],run_dic[c_runname][0],run_dic[c_runname][1],mode).loc[common_cells]
+            catted_series = pd.concat([catted_series,c_frame],axis=1)
+        catted_series.columns = np.range(len(catted_series.columns))
+        return catted_series
+    
+    def Pair_Corr_Time_Window(self,input_frame,used_cells,win_size,bins,corr_range = (-0.2,0.6)):
+        used_data_frame = input_frame.loc[used_cells]
+    
     
     
     

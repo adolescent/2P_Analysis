@@ -69,14 +69,7 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['Orien135-0'] = [[4,8],[0]]
         sub_dics['DirU-D'] = [[2,1,8],[4,5,6]]
         sub_dics['DirL-R'] = [[2,3,4],[6,7,8]]
-        sub_dics['Dir0-0'] = [[1],[0]]
-        sub_dics['Dir45-0'] = [[2],[0]]
-        sub_dics['Dir90-0'] = [[3],[0]]
-        sub_dics['Dir135-0'] = [[4],[0]]
-        sub_dics['Dir180-0'] = [[5],[0]]
-        sub_dics['Dir225-0'] = [[6],[0]]
-        sub_dics['Dir270-0'] = [[7],[0]]
-        sub_dics['Dir315-0'] = [[8],[0]]
+
         
     elif mode == 'RGLum4':
         sub_dics['All-0'] = [[1,2,3,4],[0]]

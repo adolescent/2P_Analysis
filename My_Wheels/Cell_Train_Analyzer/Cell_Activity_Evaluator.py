@@ -7,10 +7,8 @@ Created on Wed Jul 14 12:16:01 2021
 
 
 import Filters
-from API_Tools import All_Cell_To_PD
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 def Spike_Count(data_Frame,window = 5,win_step = 1,
                 fps = 1.301,pass_band = (0.05,0.5)):
@@ -22,9 +20,9 @@ def Spike_Count(data_Frame,window = 5,win_step = 1,
     data_Frame : (pd Frame)
         Data frame of cell data. One row a cell.
     window : (int), optional
-        Second of . The default is 5.
-    win_step : TYPE, optional
-        DESCRIPTION. The default is 20.
+        Average window size. In seconds. The default is 5.
+    win_step : (int), optional
+        . The default is 20.
     fps : TYPE, optional
         DESCRIPTION. The default is 1.3.
     pass_band : TYPE, optional
@@ -56,7 +54,9 @@ def Spike_Count(data_Frame,window = 5,win_step = 1,
     for i in range(win_num):
         c_win = dF_F_Frame.iloc[:,window_step*i:(window_step*i+window_length)]
         c_count = c_win.sum(1)# sum all dF/F values.
-        spike_counter[i] = c_count
-        # 加一个Z分数的功能
-        
-    return spike_counter，Z_counter
+        spike_counter[round(i*win_step/fps,1)] = c_count
+    # 加一个Z分数的功能
+    cell_avr = spike_counter.mean(1)
+    cell_std = spike_counter.std(1)
+    Z_counter = (spike_counter.sub(cell_avr,axis = 0)).div(cell_std,axis = 0)
+    return spike_counter,Z_counter

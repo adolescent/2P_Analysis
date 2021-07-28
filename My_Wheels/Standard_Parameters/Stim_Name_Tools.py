@@ -5,7 +5,7 @@ Created on Thu Mar 25 14:28:17 2021
 @author: ZR
 """
 import numpy as np
-#%% Function1, return 
+#%% Function1, return ID cobine for response curve.
 def Stim_ID_Combiner(mode,para_dic = None):
     
     Stim_IDs = {}
@@ -188,6 +188,34 @@ def Stim_ID_Combiner(mode,para_dic = None):
         
         
     return Stim_IDs
-#%% Function 2, 
-def Ortho_Stim_Name(input_stim_name):
-    pass
+#%% Function 2, get IDs for tuning calculation.
+def Tuning_IDs(mode,para_dic = None):
+    Tuning_Dics = {}
+    if mode == 'G8_2P_Orien':
+        print('ID 1 is moving up.')
+        for i in range(4):
+            c_orien_name = 'Orien'+str(i*45)
+            Tuning_Dics[c_orien_name] = [[i%8+1,(i+4)%8+1],[(i+2)%8+1,(i+6)%8+1]]
+    
+    elif mode =='G8_2P_Dir':
+        print('ID 1 is moving up.')
+        for i in range(8):
+            c_orien_name = 'Dir'+str(i*45)
+            Tuning_Dics[c_orien_name] = [[i%8+1],[(i+4)%8+1]]
+    
+    elif mode == 'G16_2P_Orien':
+        print('ID 1 is moving up.')
+        for i in range(8):
+            if i%2 ==0:
+                c_orien_name = 'Orien'+str(int(i*22.5))
+            else:
+                c_orien_name = 'Orien'+str(i*22.5)
+            Tuning_Dics[c_orien_name] = [[i%16+1,(i+8)%16+1],[(i+4)%16+1,(i+12)%16+1]]
+    
+    elif mode == 'G16_2P_Dir':
+        print('ID 1 is moving up.')
+        for i in range(8):
+            c_orien_name = 'Dir'+str(i*22.5)
+            Tuning_Dics[c_orien_name] = [[i%16+1],[(i+8)%16+1]]
+    
+    return Tuning_Dics

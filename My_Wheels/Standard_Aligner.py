@@ -116,7 +116,7 @@ class Standard_Aligner(object):
             gt.Show_Graph(after_average, 'Final_Averaged_Graph', self.all_resultfolder[i])
     
     def Delete_Middle_Folders(self):
-        print('All middle averag will be deleted. Be cautious!')
+        print('All middle average will be deleted. Be cautious!')
         for i in range(len(self.all_resultfolder)):
             shutil.rmtree(self.all_resultfolder[i]+r'\Aligned_Frames')
             have_affine = os.path.exists(self.all_resultfolder[i]+r'\Affined_Frames')

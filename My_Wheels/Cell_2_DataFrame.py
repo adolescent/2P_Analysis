@@ -9,17 +9,12 @@ As thought might change by time, API need to be adjusted by time.
 """
 import pandas as pd
 import OS_Tools_Kit as ot
+import numpy as np
 
 #%% Function1, Single Run to Data Frame.
-def Single_Run_To_PD(day_folder,runname):
-    
-
-
-
-#%% Function1, All cell data to pandas frame
-def All_Cell_To_PD(day_folder,runname,mode = 'raw'):
+def Single_Run_Fvalue_Frame(day_folder,runname):
     '''
-    Get Single run data frame from .ac file.
+    Get Single run data frame from .ac file. ONLY F 
 
     Parameters
     ----------
@@ -27,8 +22,6 @@ def All_Cell_To_PD(day_folder,runname,mode = 'raw'):
         Day folder of data. Cell data need to be generated first.
     runname : (str)
         Data of which run? e.g. 'Run001'
-    mode : 'raw' or 'processed', optional
-        Use F train or dF/F train. The default is 'raw'.
 
     Returns
     -------
@@ -43,12 +36,42 @@ def All_Cell_To_PD(day_folder,runname,mode = 'raw'):
     for i in range(len(acn)):
         c_cn = acn[i]
         tc = ac_dic[c_cn]
-        if mode == 'raw':
+        if tc['In_Run'][runname]:
             tc_train = tc[runname]['F_train']
-        elif mode == 'processed':
-            tc_train = tc[runname]['dF_F_train']
-        cell_frame[c_cn] = tc_train
+            cell_frame[c_cn] = tc_train
     # To make column as dimension, row as cell num, we need a transfer.
     cell_frame = cell_frame.T
     return cell_frame
+
+#%% Function2, Multiple Run Cat
+def Multi_Run_Fvalue_Cat(day_folder,runlists,rest_time = (600,600),fps = 1.301):
+    
+    ac_fn = ot.Get_File_Name(day_folder,'.ac')[0]
+    ac_dic = ot.Load_Variable(ac_fn)
+    acn = list(ac_dic.keys())
+    All_Data_Frame = pd.DataFrame()
+    # Get all runs one by one.
+    for i in range(len(runlists)):
+        c_runname = runlists[i]
+        c_run_frame = pd.DataFrame()
+        for j in range(len(acn)):
+            c_cn = acn[j]
+            tc = ac_dic[c_cn]
+            if tc['In_Run'][c_runname]:
+                tc_train = tc[c_runname]['F_train']
+                # add blank frame as last value.
+                if i <(len(runlists)-1):
+                    blank_frames = int(rest_time[i]*fps)
+                    blank_array = np.ones(blank_frames)*tc_train[-1]
+                    tc_train = np.concatenate((tc_train,blank_array), axis=0)
+                c_run_frame[c_cn] = tc_train
+        # To make column as dimension, row as cell num, we need a transfer.
+        c_run_frame = c_run_frame.T
+        All_Data_Frame = pd.concat([All_Data_Frame,c_run_frame],axis = 1)
+    # Remove any zero frame, avoid null cell.
+    All_Data_Frame = All_Data_Frame.dropna(axis =0,how ='any')
+    return All_Data_Frame
+    
+    
+    
 

@@ -337,7 +337,7 @@ class Cell_Processor(object):
     
     
     def Index_Calculator_Core(self,run_name,A_ID_list,B_ID_list,
-                              used_frame = [4,5],mode = 'processed'):
+                              used_frame = [4,5],mode = 'processed',thres = 0.05):
         '''
         Generate single pair tuning index.
 
@@ -394,6 +394,10 @@ class Cell_Processor(object):
             all_Index[c_cell_name]['p_value'] = p_value
             all_Index[c_cell_name]['Origin_Value'] = (A_mean,B_mean)
             all_Index[c_cell_name]['Cohen_D'] = t_value/np.sqrt(sample_size)
+            if p_value<thres:
+                all_Index[c_cell_name]['Significant'] = True
+            else:
+                all_Index[c_cell_name]['Significant'] = False
         return all_Index
     
     def Black_Cell_Identifier(self,run_name_lists,used_frame = [4,5],p_thres = 0.01,mode ='processed'):

@@ -215,7 +215,22 @@ def Tuning_IDs(mode,para_dic = None):
     elif mode == 'G16_2P_Dir':
         print('ID 1 is moving up.')
         for i in range(8):
-            c_orien_name = 'Dir'+str(i*22.5)
-            Tuning_Dics[c_orien_name] = [[i%16+1],[(i+8)%16+1]]
-    
+            if i%2 == 0:
+                c_dir_name = 'Dir'+str(int(i*22.5))
+            else:
+                c_dir_name = 'Dir'+str(i*22.5)
+            Tuning_Dics[c_dir_name] = [[i%16+1],[(i+8)%16+1]]
+            
+    elif mode == 'OD_2P_Orien':
+        print('Use OD for orientation, ID 1 is moving up.')
+        Tuning_Dics['Orien0'] = [[1,2],[5,6]]
+        Tuning_Dics['Orien45'] = [[3,4],[7,8]]
+        Tuning_Dics['Orien90'] = [[5,6],[1,2]]
+        Tuning_Dics['Orien135'] = [[7,8],[3,4]]
+        
+            
+    elif mode == 'OD_2P':
+        Tuning_Dics['LE'] = [[1,3,5,7],[2,4,6,8]]
+        Tuning_Dics['RE'] = [[2,4,6,8],[1,3,5,7]]
+        
     return Tuning_Dics

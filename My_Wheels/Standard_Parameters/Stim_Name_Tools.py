@@ -228,9 +228,21 @@ def Tuning_IDs(mode,para_dic = None):
         Tuning_Dics['Orien90'] = [[5,6],[1,2]]
         Tuning_Dics['Orien135'] = [[7,8],[3,4]]
         
-            
     elif mode == 'OD_2P':
         Tuning_Dics['LE'] = [[1,3,5,7],[2,4,6,8]]
         Tuning_Dics['RE'] = [[2,4,6,8],[1,3,5,7]]
+        
+    elif mode == 'RGLum':
+        Tuning_Dics['RG'] = [[1,2],[3,4]]
+        Tuning_Dics['Lum'] = [[3,4],[1,2]]
+        
+    elif mode == 'HueNOrien4':
+        all_hue = para_dic['Hue']
+        hue_num = len(all_hue)
+        white_id = all_hue.index('White')
+        white_conds = [white_id+1,white_id+1+hue_num,white_id+1+hue_num*2,white_id+1+hue_num*3]
+        for i,c_hue in enumerate(all_hue):
+            if i != white_id:
+                Tuning_Dics[c_hue] = [[i+1,i+1+hue_num,i+1+hue_num*2,i+1+hue_num*3],white_conds]
         
     return Tuning_Dics

@@ -42,9 +42,9 @@ def Tuning_Property_Calculator(day_folder,
     Tuning_Property_Dic = {}
     for i in range(len(acn)):
         Tuning_Property_Dic[acn[i]] = {}
-        Tuning_Property_Dic[acn[i]]['Significant_Tunings'] = []
+        Tuning_Property_Dic[acn[i]]['_Significant_Tunings'] = []
         
-    # Calculate Orientation tunings
+    #%% Calculate Orientation tunings
     if Orien_para[0] != False:
         Orien_Tuning_Dic = Tuning_IDs(Orien_para[1]+'_Orien')
         all_oriens = list(Orien_Tuning_Dic.keys())
@@ -57,32 +57,32 @@ def Tuning_Property_Calculator(day_folder,
                     ccn = acn[j]
                     Tuning_Property_Dic[ccn][c_orien] = c_orien_tunings[ccn]
                     if c_orien_tunings[ccn]['Significant'] and c_orien_tunings[ccn]['t_value']>0:
-                        Tuning_Property_Dic[ccn]['Significant_Tunings'].append(c_orien)
+                        Tuning_Property_Dic[ccn]['_Significant_Tunings'].append(c_orien)
     else:
         print('No Orientation Run.')
         
-    # Get best tuning & best G8 tuning(for OD)
+    #%% Get best tuning & best G8 tuning(for OD)
     for i,ccn in enumerate(acn):
         cc = Tuning_Property_Dic[ccn]
-        c_sig_tuning = cc['Significant_Tunings']
-        c_sig_tuning_G8 = list(set(c_sig_tuning) & set(['Orien0','Orien45','Orien90','Orien135',]))
+        c_sig_tuning = cc['_Significant_Tunings']
+        c_sig_tuning_G8 = list(set(c_sig_tuning) & set(['Orien0','Orien45','Orien90','Orien135']))
         if c_sig_tuning == []: # if no tuning
-            Tuning_Property_Dic[ccn]['Best_Orien'] = 'No_Tuning'
+            Tuning_Property_Dic[ccn]['_Best_Orien'] = 'No_Tuning'
         else:
             best_tuning = c_sig_tuning[0]
             for i,ct in enumerate(c_sig_tuning):
                 if cc[best_tuning]['Cohen_D']<cc[ct]['Cohen_D']:
                     best_tuning = ct
-            Tuning_Property_Dic[ccn]['Best_Orien'] = best_tuning
+            Tuning_Property_Dic[ccn]['_Best_Orien'] = best_tuning
         if c_sig_tuning_G8 == []:# if no G8 tuning
-            Tuning_Property_Dic[ccn]['Best_Orien_G8'] = 'No_Tuning'
+            Tuning_Property_Dic[ccn]['_Best_Orien_G8'] = 'No_Tuning'
         else:
             best_tuning = c_sig_tuning_G8[0]
             for i,ct in enumerate(c_sig_tuning_G8):
                 if cc[best_tuning]['Cohen_D']<cc[ct]['Cohen_D']:
                     best_tuning = ct
-            Tuning_Property_Dic[ccn]['Best_Orien_G8'] = best_tuning
-    # Get OD tuning from best orientation.
+            Tuning_Property_Dic[ccn]['_Best_Orien_G8'] = best_tuning
+    #%% Get OD tuning from best orientation.
     if OD_para[0] == False:
         print('No OD runs.')
     else:
@@ -97,54 +97,63 @@ def Tuning_Property_Calculator(day_folder,
                 if c_od_tunings[acn[j]] != None:
                     Tuning_Property_Dic[ccn][c_od] = c_od_tunings[ccn]
                     if c_od_tunings[ccn]['Significant'] and c_od_tunings[ccn]['t_value']>0:
-                        Tuning_Property_Dic[ccn]['Significant_Tunings'].append(c_od)
-    # Get OD Tuning
+                        Tuning_Property_Dic[ccn]['_Significant_Tunings'].append(c_od)
+    #%% Get OD Tuning Property
     for i,ccn in enumerate(acn):
         cc = Tuning_Property_Dic[ccn]
-        if 'LE' in cc['Significant_Tunings']:
-            Tuning_Property_Dic[ccn]['OD_Preference'] = 'LE'
-        elif 'RE' in cc['Significant_Tunings']:
-            Tuning_Property_Dic[ccn]['OD_Preference'] = 'RE'
+        if 'LE' in cc['_Significant_Tunings']:
+            Tuning_Property_Dic[ccn]['_OD_Preference'] = 'LE'
+        elif 'RE' in cc['_Significant_Tunings']:
+            Tuning_Property_Dic[ccn]['_OD_Preference'] = 'RE'
         else:
-            Tuning_Property_Dic[ccn]['OD_Preference'] = 'No_Tuning'
+            Tuning_Property_Dic[ccn]['_OD_Preference'] = 'No_Tuning'
         
 
-    # Calculate Direction Tunings.
+    #%% Calculate Direction Tunings.
     if Orien_para[1] == 'G8_2P' or Orien_para[1] == 'G16_2P':
         Dir_Tuning_Dic = Tuning_IDs(Orien_para[1]+'_Dir')
         all_dirs = list(Dir_Tuning_Dic.keys())
         for i,c_dir in enumerate(all_dirs):
             c_tuning_ids = Dir_Tuning_Dic[c_dir]
-            c_dir_tunings = Cp.Index_Calculator_Core(OD_para[0],c_tuning_ids[0],c_tuning_ids[1],thres = sig_thres)
+            c_dir_tunings = Cp.Index_Calculator_Core(Orien_para[0],c_tuning_ids[0],c_tuning_ids[1],thres = sig_thres)
             for j,ccn in enumerate(acn):
                 if c_dir_tunings[ccn] != None:
                     Tuning_Property_Dic[ccn][c_dir] = c_dir_tunings[ccn]
                     if c_dir_tunings[ccn]['Significant'] and c_dir_tunings[ccn]['t_value']>0:
-                        Tuning_Property_Dic[ccn]['Significant_Tunings'].append(c_dir)
+                        Tuning_Property_Dic[ccn]['_Significant_Tunings'].append(c_dir)
     else:
         print('No_Direction_Run.')
-    # Calculate Best Direction Tunings.
+    #%% Calculate Best Direction Tunings.
     for i,ccn in enumerate(acn):
-        all_tunings = Tuning_Property_Dic[ccn]['Significant_Tunings']
-        all_dir_tunings = []# Get all direction tunings
+        all_tunings = Tuning_Property_Dic[ccn]['_Significant_Tunings']
+        all_dir_tunings = []
+        # Get all direction tunings
         for j,ct in enumerate(all_tunings):
             if 'Dir' in ct:
                 all_dir_tunings.append(ct)
         # Get best direction tuning.
         if all_dir_tunings == []:
-            Tuning_Property_Dic[ccn]['Best_Dir'] = 'No_Tuning'
+            Tuning_Property_Dic[ccn]['_Best_Dir'] = 'No_Tuning'
         else:
             best_dir = all_dir_tunings[0]
             for j,ct in enumerate(all_dir_tunings):
                 if Tuning_Property_Dic[ccn][ct]['Cohen_D']>Tuning_Property_Dic[ccn][best_dir]['Cohen_D']:
                     best_dir = ct
-            Tuning_Property_Dic[ccn]['Best_Dir'] = best_dir
-                
-    # Calculate color Tunings.
-    
+            Tuning_Property_Dic[ccn]['_Best_Dir'] = best_dir
+    #%% Calculate color Tunings.
+    if Hue_para[0] == False:
+        print('No Color Run.')
+    else:
+        Hue_Tuing_Dic = Tuning_IDs(Hue_para[1],Hue_para[2])
+        all_hues = list(Hue_Tuing_Dic.keys())
+        for i,c_hue in enumerate(all_hues):
+            c_tuning_ids = Hue_Tuing_Dic[c_hue]
+            c_hue_tuning = Cp.Index_Calculator_Core(Hue_para[0],c_tuning_ids[0],c_tuning_ids[1],thres = sig_thres)
+            for j,ccn in enumerate(acn):
+                if c_hue_tuning != None:
+                    Tuning_Property_Dic[ccn][c_hue] = c_hue_tuning[ccn]
+                    if c_hue_tuning[ccn]['Significant'] and c_hue_tuning[ccn]['t_value']>0:
+                        Tuning_Property_Dic[ccn]['_Significant_Tunings'].append(c_hue)
+                        
     return Tuning_Property_Dic
 
-
-def Tuning_sort(Tuning_dic,tuning_name,thres = 0.05):
-    pass
-    return good_tuning_cells

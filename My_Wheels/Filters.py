@@ -115,7 +115,7 @@ def Signal_Filter(
         DESCRIPTION.
 
     '''
-    straight_power = data_train.mean()
+    straight_power = float(data_train.mean())
     HP_prop = filter_para[0]
     LP_prop = filter_para[1]
     if filter_design == 'butter':

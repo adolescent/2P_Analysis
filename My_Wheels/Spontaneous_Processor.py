@@ -599,12 +599,4 @@ class Multi_Run_Spontaneous_Processor(object):
     
 #%%
 if __name__ == '__main__':
-    Mu = Multi_Run_Spontaneous_Processor(r'K:\Test_Data\2P\210604_L76_2P', fps= 1.301)
-    corr_A,corr_B = Mu.Cross_Run_Pair_Correlation(cell_name_list = cell_name, run_A = 'Run001',run_B = 'Run013',
-                                                  start_time_A=0,end_time_A= 1800,
-                                                  start_time_B=0,end_time_B= 1800,
-                                                  label_A = 'Before',label_B =  'After')
-    corr_A,corr_B = Mu.Cross_Run_Pair_Correlation(cell_name,'Run001','Run013',0,1800,0,1800,'Before','After')
-    
-    t_A,t_B =  Mu.Cross_Run_Pair_Correlation(test_cell,'Run001','Run013',0,200,0,200,'Before','After')
-    
+    print('This is Test location.')

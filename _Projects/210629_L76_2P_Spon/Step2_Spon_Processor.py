@@ -47,16 +47,57 @@ before_spectrum = fft.FFT_Window_Slide(all_cell_before_avr,window_length=120)
 after_spectrum = fft.FFT_Window_Slide(all_cell_after_avr,window_length=120)
 frequency_stick = np.array(before_spectrum.loc[:,'Frequency'])
 before_time_stick = np.arange(0,318,1)
+#%% Plot average graph of all cell before/after spontaneous.
+all_before = Z_count.mean(0).to_frame()
+before_time_series = np.arange(0,25018)/1.301/60
+all_before.insert(0,'Times',before_time_series)
+all_before.columns = ['Times (min)','Before dF/F Average']
+ax = plt.figure(figsize = (20,10))
+ax = sns.lineplot(data = all_before,x = 'Times (min)',y = 'Before dF/F Average')
+plt.savefig('AVR_Before.png')
 
+all_after = after_Z.mean(0).to_frame()
+after_time_series = np.arange(0,4620)/1.301/60
+all_after.insert(0,'Times',after_time_series)
+all_after.columns = ['Times (min)','After dF/F Average']
+ax = plt.figure(figsize = (20,10))
+ax = sns.lineplot(data = all_after,x = 'Times (min)',y = 'After dF/F Average')
+plt.savefig('AVR_After.png')
+
+#%% Plot Before Stim Spon Spectrum
 num_ticks = 14
 yticks = np.linspace(0,len(frequency_stick)-1, num_ticks,dtype = np.int)
 yticklabels = [frequency_stick[idx] for idx in yticks]
-ax = plt.figure(figsize = (12,8))
-ax = sns.heatmap(before_spectrum.iloc[:,1:],yticklabels = [0,'',1])
+ax = plt.figure(figsize = (24,10))
+plt.title('Power Spectrum Before Stim',fontsize = 25)
+ax = sns.heatmap(before_spectrum.iloc[:,1:])
 ax.set_yticks(yticks)
 ax.set_yticklabels(np.round(yticklabels,2),rotation = 30)
 ax.set_ylabel('Frequency(Hz)')
-
+xticks = np.linspace(0,len(before_time_stick)-1, 18,dtype = np.int)
+xticklabels = [before_time_stick[idx] for idx in xticks]
+ax.set_xticks(xticks)
+ax.set_xticklabels(np.round(xticklabels,2),rotation = 0)
+ax.set_xlabel('Window Start Time(min)')
+plt.savefig('Before_Spectrum.png')
+#%% Plot After Stim Spon Spectrum
+after_time_ticks = np.arange(0,60)
+num_y_ticks = 14
+num_x_ticks = 20
+yticks = np.linspace(0,len(frequency_stick)-1, num_y_ticks,dtype = np.int)
+yticklabels = [frequency_stick[idx] for idx in yticks]
+ax = plt.figure(figsize = (24,10))
+plt.title('Power Spectrum Aefore Stim',fontsize = 25)
+ax = sns.heatmap(after_spectrum.iloc[:,1:])
+ax.set_yticks(yticks)
+ax.set_yticklabels(np.round(yticklabels,2),rotation = 30)
+ax.set_ylabel('Frequency(Hz)')
+xticks = np.linspace(0,len(after_time_ticks)-1,num_x_ticks,dtype = np.int)
+xticklabels = [before_time_stick[idx] for idx in xticks]
+ax.set_xticks(xticks)
+ax.set_xticklabels(np.round(xticklabels,2),rotation = 0)
+ax.set_xlabel('Window Start Time(min)')
+plt.savefig('After_Spectrum.png')
 
 #%% Get Tuing property of this day's run.
 from Stimulus_Cell_Processor.Tuning_Property_Calculator import Tuning_Property_Calculator
@@ -69,7 +110,9 @@ Tuning_0629 = Tuning_Property_Calculator(r'K:\Test_Data\2P\210629_L76_2P',
 
 
 ot.Save_Variable(r'K:\Test_Data\2P\210629_L76_2P', 'All_Cell_Tuning', Tuning_0629,'.tuning')
-#%% Evaluate Tuing Property after stim.
-
+#%% Do PCA for Spon Before..
+day_folder = r'K:\Test_Data\2P\210629_L76_2P'
+from Series_Analyzer import Spontaneous_Preprocessing as Prepro
+Before_Cell_Data = Prepro.Pre_Processor(day_folder,runname = 'Run002')
 
 

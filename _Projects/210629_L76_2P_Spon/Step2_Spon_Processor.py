@@ -112,7 +112,43 @@ Tuning_0629 = Tuning_Property_Calculator(r'K:\Test_Data\2P\210629_L76_2P',
 ot.Save_Variable(r'K:\Test_Data\2P\210629_L76_2P', 'All_Cell_Tuning', Tuning_0629,'.tuning')
 #%% Do PCA for Spon Before..
 day_folder = r'K:\Test_Data\2P\210629_L76_2P'
+save_folder = r'K:\Test_Data\2P\210629_L76_2P\_All_Results\Spon_Analyze'
 from Series_Analyzer import Spontaneous_Preprocessing as Prepro
+from Series_Analyzer import Cell_Frame_PCA as PCA
+all_cell_dic = ot.Load_Variable(r'K:\Test_Data\2P\210629_L76_2P\L76_210629A_All_Cells.ac')
 Before_Cell_Data = Prepro.Pre_Processor(day_folder,runname = 'Run002')
+Before_PCs,Before_PC_info = PCA.Do_PCA(Before_Cell_Data)
+import Plotter.Line_Plotter as Plo
+Plo.EZLine(Before_PC_info['Accumulated_Variance_Ratio'],
+           save_folder = save_folder,graph_name = 'ROC_Before',
+           title = 'Accumulated Variance In Before PCs',
+           figsize = (8,4),x_label = 'PCs',y_label = 'Ratio',
+           y_range = (0,1.1))
+ot.Save_Variable(save_folder, 'Before_PCA_Info', Before_PC_info)
+PCA.Compoment_Visualize(Before_PCs, all_cell_dic, save_folder)
+
+After_Cell_Data = Prepro.Pre_Processor(day_folder,runname = 'Run005')
+After_PCs,After_PC_info = PCA.Do_PCA(After_Cell_Data)
+Plo.EZLine(After_PC_info['Accumulated_Variance_Ratio'],
+           save_folder = save_folder,graph_name = 'ROC_After',
+           title = 'Accumulated Variance In After PCs',
+           figsize = (8,4),x_label = 'PCs',y_label = 'Ratio',
+           y_range = (0,1.1))
+ot.Save_Variable(save_folder, 'After_PCA_Info', After_PC_info)
+PCA.Compoment_Visualize(After_PCs, all_cell_dic, save_folder)
+# Compare Before& After PCA ROC
+Plo.Multi_Line_Plot([Before_PC_info['Accumulated_Variance'],After_PC_info['Accumulated_Variance']],
+                    legends=['Variance Before','Variance After'],save_folder = save_folder,
+                    graph_name = 'Variance Compare',title = 'PCA Explained Variance',
+                    x_label='PCs',y_label = 'Explained Variance')
+Plo.Multi_Line_Plot([Before_PC_info['Accumulated_Variance_Ratio'],After_PC_info['Accumulated_Variance_Ratio']],
+                    legends=['Variance Before','Variance After'],save_folder = save_folder,
+                    graph_name = 'Variance Compare2',title = 'PCA Explained Variance Ratio',
+                    x_label='PCs',y_label = 'Explained Variance Ratio')
+
+
+
+
+
 
 

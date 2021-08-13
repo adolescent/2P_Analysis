@@ -98,6 +98,6 @@ def Multi_Line_Plot(line_lists,legends, x_series = 'Default',
 
 
 
-def Plot_with_Given_Stick():
+def Plot_with_Given_Ticks():
     
     pass

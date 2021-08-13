@@ -146,9 +146,40 @@ Plo.Multi_Line_Plot([Before_PC_info['Accumulated_Variance_Ratio'],After_PC_info[
                     graph_name = 'Variance Compare2',title = 'PCA Explained Variance Ratio',
                     x_label='PCs',y_label = 'Explained Variance Ratio')
 
+#%% Calculater pairwise correlation.
+from Series_Analyzer import Pairwise_Corr
+from Statistic_Tools import T_Test_Pair
+# to make Before & After comparable, we cut them to same series.
+Whole_Series_corr_Before = Before_Cell_Data.iloc[:,0:4625]
+Whole_Series_corr_After = After_Cell_Data
+all_cell_names = Whole_Series_corr_Before.index.tolist()
+Before_Pair_Corr = Pairwise_Corr.Pair_Corr_Core(Whole_Series_corr_Before,
+                                                all_cell_names,set_name = 'All_Cell_Before')
 
+After_Pair_Corr = Pairwise_Corr.Pair_Corr_Core(Whole_Series_corr_After,
+                                                all_cell_names,set_name = 'All_Cell_After')
+from Plotter.Hist_Plotter import Multi_Hist_Plot
+Multi_Hist_Plot([Before_Pair_Corr,After_Pair_Corr],label_lists = ['Before','After'],
+                save_folder = save_folder,graph_name = 'Pair_Corr',
+                title = 'Pairwise Correlation',x_label = 'spearman r')
+t,p,D = T_Test_Pair(np.array(After_Pair_Corr).flatten(),np.array(Before_Pair_Corr).flatten())
+#%% Pairwise corelation control
+Before_A = Before_Cell_Data.iloc[:,0:4500]
+Before_B = Before_Cell_Data.iloc[:,4500:9000]
+Corr_A = Pairwise_Corr.Pair_Corr_Core(Before_A,
+                                      all_cell_names,set_name = 'First 1h')
+Corr_B = Pairwise_Corr.Pair_Corr_Core(Before_B,
+                                      all_cell_names,set_name = 'Last 1h')
 
+Multi_Hist_Plot([Corr_A,Corr_B],label_lists = ['Previous','Latter'],
+                save_folder = save_folder,graph_name = 'Test',
+                title = 'Pairwise Correlation Before Stimulus',x_label = 'spearman r')
+#%% Calculate pairwise correlation of whole frame.
+Before_Corr_Windowed = Pairwise_Corr.Pair_Corr_Window_Slide(Before_Cell_Data, all_cell_names)
+ot.Save_Variable(save_folder, 'Pair_Corr_Train_Before', Before_Corr_Windowed)
 
+After_Corr_Windowed = Pairwise_Corr.Pair_Corr_Window_Slide(After_Cell_Data, all_cell_names)
+ot.Save_Variable(save_folder, 'Pair_Corr_Train_After', After_Corr_Windowed)
 
-
+# Then,plot statistic pairwise correlation and sorted correlation.
 

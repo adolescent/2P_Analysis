@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from Decorators import Timer
+from Statistic_Tools import T_Test_Pair
 
 @Timer
 def Pair_Corr_Core(data_frame,cell_names,set_name = 'All_Cells',method = 'spearman'):
@@ -102,7 +103,52 @@ def Sort_Corr_By_Mean(pair_corr_frames,mean_range = (0,99999)):
 
 
 
-def Corr_Histo(pari_corr_frames,bins,corr_lim = (0,1)):
-    return histo_frames
+def Corr_Histo(pair_corr_frames,bins = 200,corr_lim = 'auto'):
+    '''
+    Generate histogram for Windows pair correlation graphs.
+
+    Parameters
+    ----------
+    pair_corr_frames : (pd Frame)
+        Windowed correlation data frames.
+    bins : (int),optional
+        How many bins you want to plot. The default is 200.
+    corr_lim : (2-element-turple), optional
+        Limitation of correlations. Set auto to skip. The default is 'auto'.
+
+    Returns
+    -------
+    histo_frames : (pd Frame)
+        .
+
+    '''
+    histo_frames = pd.DataFrame(columns = range(pair_corr_frames.shape[1]))
+    # Get range from data
+    example_slice = pair_corr_frames.iloc[:,0]
+    if corr_lim == 'auto':
+        bin_boulders = np.histogram(example_slice,bins=bins)[1] # This is 1 bit bigger than bin number(right boulder)
+        corr_lim = (bin_boulders[0],bin_boulders[-1])
+    else:
+        bin_boulders = np.linspace(corr_lim[0],corr_lim[1],bins+1)
+    # Cycle time windows
+    for i in range(pair_corr_frames.shape[1]):
+        c_window = pair_corr_frames.iloc[:,i]
+        c_histo = np.histogram(c_window,bins = bins,range=corr_lim,density = True)[0]
+        histo_frames[i] = c_histo
+    # Rename row names
+    row_dic = {}
+    for i in range(len(bin_boulders)-1):
+        row_dic[i] = round(bin_boulders[i],2)
+    histo_frames = histo_frames.rename(index = row_dic)
+    histo_frames = histo_frames.iloc[::-1]
+    # Calculate t value from first time window.
+    t_train = []
+    origin_disp = pair_corr_frames.iloc[:,0]
+    for i in range(pair_corr_frames.shape[1]):
+        target_disp = pair_corr_frames.iloc[:,i]
+        c_tvalue,_,_ = T_Test_Pair(target_disp,origin_disp)
+        t_train.append(c_tvalue)
+        
+    return histo_frames,t_train
 
 

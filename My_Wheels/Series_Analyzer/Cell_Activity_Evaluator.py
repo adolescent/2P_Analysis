@@ -20,11 +20,11 @@ def Spike_Count(data_Frame,window = 5,win_step = 1,
     data_Frame : (pd Frame)
         Data frame of cell data. One row a cell.
     window : (int), optional
-        Average window size. In seconds. The default is 5.
+        Average window size in seconds. The default is 5.
     win_step : (int), optional
-        . The default is 20.
-    fps : TYPE, optional
-        DESCRIPTION. The default is 1.3.
+        window step in seconds. The default is 1.
+    fps : (float), optional
+        Capture frequency. The default is 1.3.
     pass_band : TYPE, optional
         DESCRIPTION. The default is (0.05,0.5).
 

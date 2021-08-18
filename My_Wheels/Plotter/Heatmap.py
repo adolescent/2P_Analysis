@@ -12,7 +12,7 @@ def Heat_Maps(input_frame,
               square = False,center = None,
               xticklabels = 'auto',yticklabels = 'auto',
               save_folder = 'None',graph_name = 'Heat_Map',dpi = 180,
-              title = 'Heat Map', figsize = (16,12),
+              title = 'Heat Map', figsize = (20,12),
               x_label = 'Time',y_label = 'Value',
               y_tick_num = 20,x_tick_num = 20,
               ):
@@ -41,4 +41,7 @@ def Heat_Maps(input_frame,
     if save_folder != 'None':
         fig.savefig(save_folder+r'\\'+graph_name+'.png',dpi = dpi)
     return True
+
+
+
     

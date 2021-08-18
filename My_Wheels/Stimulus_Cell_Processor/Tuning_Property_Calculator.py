@@ -140,7 +140,7 @@ def Tuning_Property_Calculator(day_folder,
                 if Tuning_Property_Dic[ccn][ct]['Cohen_D']>Tuning_Property_Dic[ccn][best_dir]['Cohen_D']:
                     best_dir = ct
             Tuning_Property_Dic[ccn]['_Best_Dir'] = best_dir
-    #%% Calculate color Tunings.
+#%% Calculate color Tunings.
     if Hue_para[0] == False:
         print('No Color Run.')
     else:

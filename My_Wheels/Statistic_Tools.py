@@ -15,6 +15,9 @@ def T_Test_Pair(A_set,B_set):
     selected_A = random.sample(list(A_set),sample_size)
     selected_B = random.sample(list(B_set),sample_size)
     t_value,p_value = ttest_rel(selected_A,selected_B)
+    if np.isnan(t_value):
+        t_value = 0.0
+        p_value = 1
     CohenD = t_value/np.sqrt(sample_size)
     return t_value,p_value,CohenD
 
@@ -23,5 +26,8 @@ def T_Test_Ind(A_set,B_set):
     selected_A = random.sample(list(A_set),sample_size)
     selected_B = random.sample(list(B_set),sample_size)
     t_value,p_value = ttest_ind(selected_A,selected_B)
+    if np.isnan(t_value):
+        t_value = 0.0
+        p_value = 1
     CohenD = t_value/np.sqrt(sample_size)
     return t_value,p_value,CohenD

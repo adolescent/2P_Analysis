@@ -35,7 +35,11 @@ def FFT_Power(input_series,signal_name = 'Input',fps = 1.301):
     raw_power = abs(raw_fft)[:spec_size]
     #normalized_power = raw_power/raw_power.sum()
     freq_list = np.linspace(0,fps/2,num = spec_size)
-    Power_Spectrum = pd.DataFrame({'Frequency':freq_list,signal_name:raw_power[:spec_size]})
+    Power_Spectrum = pd.DataFrame({signal_name:raw_power[:spec_size]})
+    new_index = {}
+    for i,c_freq in enumerate(freq_list):
+        new_index[i] = round(c_freq,3)
+    Power_Spectrum = Power_Spectrum.rename(index = new_index)
     return Power_Spectrum
 
 def FFT_Window_Slide(whole_train,window_length = 300,window_step = 60,fps=1.301): 
@@ -49,5 +53,8 @@ def FFT_Window_Slide(whole_train,window_length = 300,window_step = 60,fps=1.301)
         c_window = (i*window_frame_step,i*window_frame_step+window_frame_length)
         c_series = whole_train[c_window[0]:c_window[1]]
         c_power = FFT_Power(c_series,signal_name=i,fps = fps)
-        slided_power_spectrum = pd.merge(slided_power_spectrum,c_power)
+        slided_power_spectrum = pd.concat([slided_power_spectrum,c_power],axis=1)
+        
+        
+    
     return slided_power_spectrum

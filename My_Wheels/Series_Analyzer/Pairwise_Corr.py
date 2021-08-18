@@ -98,7 +98,8 @@ def Pair_Corr_Window_Slide(data_frame,cell_names,window_size = 300,window_step =
 
 @Timer
 def Sort_Corr_By_Mean(pair_corr_frames,mean_range = (0,99999)):
-    pass
+    print('Function Not Finished Yet.')
+    sorted_corr_frames = None
     return sorted_corr_frames
 
 
@@ -140,7 +141,7 @@ def Corr_Histo(pair_corr_frames,bins = 200,corr_lim = 'auto'):
     for i in range(len(bin_boulders)-1):
         row_dic[i] = round(bin_boulders[i],2)
     histo_frames = histo_frames.rename(index = row_dic)
-    histo_frames = histo_frames.iloc[::-1]
+    histo_frames = histo_frames.iloc[::-1]# Reverse y axis.
     # Calculate t value from first time window.
     t_train = []
     origin_disp = pair_corr_frames.iloc[:,0]
@@ -152,3 +153,17 @@ def Corr_Histo(pair_corr_frames,bins = 200,corr_lim = 'auto'):
     return histo_frames,t_train
 
 
+def Window_by_Window_T_Testor(dataframe_A,dataframe_B,thres = 0.001):
+    
+    all_window = dataframe_A.columns.tolist()
+    t_series = []
+    p_series = []
+    for i,c_win in enumerate(all_window):
+        c_A_series = dataframe_A.iloc[:,i].tolist()
+        c_B_series = dataframe_B.iloc[:,i].tolist()
+        c_t,c_p,_ = T_Test_Pair(c_A_series, c_B_series)
+        if c_p>thres:
+            c_t = 0
+        t_series.append(c_t)
+        p_series.append(c_p)
+    return t_series,p_series

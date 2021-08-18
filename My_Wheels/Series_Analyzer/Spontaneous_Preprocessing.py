@@ -46,7 +46,7 @@ def Pre_Processor(day_folder,runname = 'Run001',
         cc = cell_dic[ccn]
         if cc['In_Run'][runname]:
             c_series = cc[runname]['F_train']
-            filted_c_series = Signal_Filter(c_series,filter_para = passed_band)
+            filted_c_series = Signal_Filter(c_series,filter_para = (passed_band[0]*2/fps,passed_band[1]*2/fps))
             # then calculate dF/F series.
             c_dF_F_series = (filted_c_series-filted_c_series.mean())/filted_c_series.mean()
             raw_frame.loc[:,ccn] = c_dF_F_series
@@ -56,5 +56,15 @@ def Pre_Processor(day_folder,runname = 'Run001',
     
     return processed_cell_frame
             
-
+def Pre_Processor_By_Frame(input_frame,fps = 1.301,passed_band=(0.05,0.5)):
+    all_cell_name = input_frame.index.tolist()
+    raw_frame = pd.DataFrame(columns = all_cell_name)
+    for i,ccn in enumerate(all_cell_name):
+        c_series = np.array(input_frame.loc[ccn,:])
+        filted_c_series = Signal_Filter(c_series,filter_para = (passed_band[0]*2/fps,passed_band[1]*2/fps))
+        # then calculate dF/F series.
+        c_dF_F_series = (filted_c_series-filted_c_series.mean())/filted_c_series.mean()
+        raw_frame.loc[:,ccn] = c_dF_F_series
+    processed_cell_frame = raw_frame.T
+    return processed_cell_frame
             

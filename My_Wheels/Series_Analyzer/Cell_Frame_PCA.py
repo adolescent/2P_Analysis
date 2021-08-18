@@ -104,4 +104,6 @@ def Compoment_Visualize(components,all_cell_dic,output_folder,graph_shape = (512
         fig = sns.heatmap(c_graph,square=True,yticklabels=False,xticklabels=False,center = 0)
         fig.figure.savefig(PCA_folder+r'\\'+current_PC+'.png')
         plt.clf()
-    return PC_Graph_Data
+    #%% Fit PCA, get fitted results
+    fitted_weights = None
+    return PC_Graph_Data,fitted_weights

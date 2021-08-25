@@ -155,3 +155,7 @@ def Timer(func):
 def Sleep():
     time.sleep(3)
 Sleep()
+#%% Test skimage with spyder
+
+
+

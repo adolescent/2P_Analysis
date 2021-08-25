@@ -89,7 +89,7 @@ def Cell_Find_From_Graph(
     # Then, wash bigger and oversize cell
     for i in range(len(All_Cells)-1,-1,-1): # opposite sequence to avoid id change of pop.
         current_cell = All_Cells[i]
-        area = current_cell.convex_area # Cell areas
+        area = current_cell.area # Cell areas
         # wash too big cell
         if area > max_pix:
             All_Cells.pop(i)

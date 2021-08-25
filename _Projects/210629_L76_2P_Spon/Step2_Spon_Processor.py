@@ -57,7 +57,6 @@ fig = sns.heatmap(after_Z,square=False,yticklabels=False,center = 0)
 fig.figure.savefig(save_folder+'\Count_After.png')
 plt.clf()
 #%% Calculate average freq spectrum
-
 all_cell_before_avr = np.array(Z_count.mean(0))
 all_cell_after_avr = np.array(after_Z.mean(0))
 before_spectrum = fft.FFT_Window_Slide(all_cell_before_avr,window_length=120)

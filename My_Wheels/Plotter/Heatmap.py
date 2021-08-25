@@ -30,12 +30,12 @@ def Heat_Maps(input_frame,
         ax.set_yticks(yticks)
         ax.set_yticklabels(np.round(yticklabels,2),rotation = 20,fontsize = 18)
     # get x ticks label
-    if yticklabels != False:
+    if xticklabels != False:
         all_x_ticks = input_frame.columns.tolist()
         xticks = np.linspace(0,len(all_x_ticks)-1,x_tick_num,dtype = np.int)
         xticklabels = [all_x_ticks[idx] for idx in xticks]
         ax.set_xticks(xticks)
-        ax.set_xticklabels(np.round(xticklabels,2),rotation = 0,fontsize = 18)
+        ax.set_xticklabels(np.round(xticklabels,2),rotation = 20,fontsize = 18)
     
     
     if save_folder != 'None':

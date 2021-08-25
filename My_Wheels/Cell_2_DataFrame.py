@@ -70,6 +70,7 @@ def Multi_Run_Fvalue_Cat(day_folder,runlists,rest_time = (600,600),fps = 1.301):
         All_Data_Frame = pd.concat([All_Data_Frame,c_run_frame],axis = 1)
     # Remove any zero frame, avoid null cell.
     All_Data_Frame = All_Data_Frame.dropna(axis =0,how ='any')
+    All_Data_Frame = All_Data_Frame.copy()
     return All_Data_Frame
     
     

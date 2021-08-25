@@ -55,8 +55,10 @@ def Do_PCA(input_frame):
         accu_var.append(accu_var[i]+pca.explained_variance_[i])
     PCA_info['Accumulated_Variance_Ratio'] = accu_ratio
     PCA_info['Accumulated_Variance'] = accu_var
-    
-    return components,PCA_info
+#%% Fit PCA, get fitted results
+    fitted_weights = None
+
+    return components,PCA_info,fitted_weights
 
 
 
@@ -94,7 +96,8 @@ def Compoment_Visualize(components,all_cell_dic,output_folder,graph_shape = (512
     for i,current_PC in enumerate(all_PC_names):
         c_component = components[current_PC]
         c_graph = np.zeros(shape = graph_shape,dtype = 'f8')
-        for j,ccn in enumerate(acn):
+        cells_in_PC = c_component.index.tolist()
+        for j,ccn in enumerate(cells_in_PC):
             c_cell_info = all_cell_info[ccn]
             y_list,x_list = c_cell_info.coords[:,0],c_cell_info.coords[:,1]
             c_graph[y_list,x_list] = c_component[ccn]
@@ -104,6 +107,6 @@ def Compoment_Visualize(components,all_cell_dic,output_folder,graph_shape = (512
         fig = sns.heatmap(c_graph,square=True,yticklabels=False,xticklabels=False,center = 0)
         fig.figure.savefig(PCA_folder+r'\\'+current_PC+'.png')
         plt.clf()
-    #%% Fit PCA, get fitted results
-    fitted_weights = None
-    return PC_Graph_Data,fitted_weights
+        plt.close()
+
+    return PC_Graph_Data

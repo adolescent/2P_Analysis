@@ -53,7 +53,7 @@ def Pre_Processor(day_folder,runname = 'Run001',
     start_frame = int(start_time*fps)
     stop_frame = int(min(stop_time*fps,len(raw_frame)))
     processed_cell_frame = raw_frame.iloc[start_frame:stop_frame,:].T
-    
+    processed_cell_frame = processed_cell_frame.dropna().copy()# to avoid highly fragment warning
     return processed_cell_frame
             
 def Pre_Processor_By_Frame(input_frame,fps = 1.301,passed_band=(0.05,0.5)):
@@ -66,5 +66,6 @@ def Pre_Processor_By_Frame(input_frame,fps = 1.301,passed_band=(0.05,0.5)):
         c_dF_F_series = (filted_c_series-filted_c_series.mean())/filted_c_series.mean()
         raw_frame.loc[:,ccn] = c_dF_F_series
     processed_cell_frame = raw_frame.T
+    processed_cell_frame = processed_cell_frame.copy()
     return processed_cell_frame
             

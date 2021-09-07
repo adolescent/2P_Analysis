@@ -283,6 +283,8 @@ def Sub_Dic_Generator(mode,para = None):
     elif mode == 'HueNOrien4':
         if para == None:
             raise IOError('Please give RF paras.')
+        elif para == 'Default':
+            para = {'Hue':['Red','Yellow','Green','Cyan','Blue','Purple','White']}
         print('Have 0, and id 1 is moving up color 1.')
         all_hue = para['Hue']
         hue_num = len(all_hue)

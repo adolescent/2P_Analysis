@@ -156,6 +156,7 @@ class Standard_Cell_Generator(object):
         ax.annotate('Average:'+str(round(hc_mean,2)),xycoords='figure fraction',xy=(0.7, 0.83))
         ax.annotate('STD:'+str(round(hc_std,2)),xycoords='figure fraction',xy=(0.7, 0.78))
         fig.savefig(F_folder+'\\_All_Cells_F_disps',dpi = 120)
+        
                     
                     
         

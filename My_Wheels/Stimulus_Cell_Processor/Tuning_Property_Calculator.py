@@ -7,6 +7,9 @@ Created on Wed Jul 28 14:14:49 2021
 
 from Cell_Processor import Cell_Processor
 from Standard_Parameters.Stim_Name_Tools import Tuning_IDs
+import OS_Tools_Kit as ot
+from Tuning_Selector import Get_Tuning_Checklists
+
 def Tuning_Property_Calculator(day_folder,
                                Orien_para = ('Run002','G16_2P'),
                                OD_para = ('Run006','OD_2P'),
@@ -155,5 +158,8 @@ def Tuning_Property_Calculator(day_folder,
                     if c_hue_tuning[ccn]['Significant'] and c_hue_tuning[ccn]['t_value']>0:
                         Tuning_Property_Dic[ccn]['_Significant_Tunings'].append(c_hue)
                         
-    return Tuning_Property_Dic
+#%% Last, save tuning property and get tuning check lists.
+    ot.Save_Variable(day_folder, 'All_Tuning_Property', Tuning_Property_Dic,'.tuning')
+    tuning_checklist = Get_Tuning_Checklists(day_folder)
+    return Tuning_Property_Dic,tuning_checklist
 

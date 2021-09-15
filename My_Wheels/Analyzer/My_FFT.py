@@ -54,7 +54,5 @@ def FFT_Window_Slide(whole_train,window_length = 300,window_step = 60,fps=1.301)
         c_series = whole_train[c_window[0]:c_window[1]]
         c_power = FFT_Power(c_series,signal_name=i,fps = fps)
         slided_power_spectrum = pd.concat([slided_power_spectrum,c_power],axis=1)
-        
-        
     
     return slided_power_spectrum

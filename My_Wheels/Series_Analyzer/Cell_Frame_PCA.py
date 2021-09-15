@@ -55,9 +55,12 @@ def Do_PCA(input_frame):
         accu_var.append(accu_var[i]+pca.explained_variance_[i])
     PCA_info['Accumulated_Variance_Ratio'] = accu_ratio
     PCA_info['Accumulated_Variance'] = accu_var
-#%% Fit PCA, get fitted results
-    fitted_weights = None
-
+    # Fit PCA, get fitted results
+    raw_fitted_weight = pca.transform(data_for_pca)
+    column_names = list(range(1,1+raw_fitted_weight.shape[1]))
+    for i,c_column in enumerate(column_names):
+        column_names[i] = 'PC'+ot.Bit_Filler(c_column,3)
+    fitted_weights = pd.DataFrame(raw_fitted_weight,columns = column_names)
     return components,PCA_info,fitted_weights
 
 

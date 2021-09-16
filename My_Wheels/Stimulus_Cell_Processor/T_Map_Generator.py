@@ -7,7 +7,13 @@ Created on Fri Sep 10 16:26:15 2021
 """
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import cv2
+import OS_Tools_Kit as ot
+import Graph_Operation_Kit as gt
 from Analyzer.Statistic_Tools import T_Test_Pair
+from Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
 
 
 def T_Map_Core(all_cell_dic,runname,
@@ -73,9 +79,47 @@ def T_Map_Core(all_cell_dic,runname,
         p_map[y,x] = used_cell_response.loc['p',c_cell]
         if used_cell_response.loc['p',c_cell]<p_thres:
             D_map_raw[y,x] = used_cell_response.loc['CohenD',c_cell]
-    
+            
     return D_map_raw,p_map,used_cell_response
 
 
-def One_Key_T_Maps():
-    pass
+def One_Key_T_Maps(day_folder,runname,runtype = 'OD_2P',para = None,
+                   p_thres = 0.05,used_frame = [4,5]):
+    
+    save_folder = day_folder+r'\_All_Results\\'+runtype+'_t_Maps'
+    ot.mkdir(save_folder)
+    all_t_map_info = {}
+    all_t_map_info['D_maps'] = {}
+    all_t_map_info['p_maps'] = {}
+    all_t_map_info['cell_info'] = {}
+    cd_name = ot.Get_File_Name(day_folder,'.ac')[0]
+    all_cell_dic = ot.Load_Variable(cd_name)
+    sub_dics = Sub_Dic_Generator(runtype,para)
+    all_graph_name = list(sub_dics.keys())
+    for i,c_graph in enumerate(all_graph_name):
+        A_id,B_id = sub_dics[c_graph]
+        c_D_map,c_p_map,c_response = T_Map_Core(all_cell_dic, runname, A_id, B_id,p_thres,used_frame)
+        all_t_map_info['D_maps'][c_graph] = c_D_map
+        all_t_map_info['p_maps'][c_graph] = c_p_map
+        all_t_map_info['cell_info'][c_graph] = c_response
+    # Visualize cells in all t graphs
+    average_graph = cv2.imread(day_folder+'\\Global_Average.tif',1)
+    for i,c_graph in enumerate(all_graph_name):
+        c_D_map = all_t_map_info['D_maps'][c_graph]
+        # First standard D map
+        fig = plt.figure(figsize = (15,15))
+        plt.title(c_graph+' D Map',fontsize=36)
+        fig = sns.heatmap(c_D_map,square=True,yticklabels=False,xticklabels=False,center = 0)
+        fig.figure.savefig(save_folder+r'\\'+c_graph+'_D_Map.png')
+        plt.close()
+        # Then get folded map.
+        folded_map = average_graph*0.7
+        normed_c_D_map = c_D_map/abs(c_D_map).max()
+        posi_part = normed_c_D_map*(normed_c_D_map>0)
+        nega_part = -normed_c_D_map*(normed_c_D_map<0)
+        folded_map[:,:,2] += posi_part*255
+        folded_map[:,:,0] += nega_part*255
+        folded_map = np.clip(folded_map,0,255).astype('u1')
+        gt.Show_Graph(folded_map, c_graph+'_Folded', save_folder,0)
+    ot.Save_Variable(save_folder, 'All_T_Info', all_t_map_info)
+    return all_t_map_info

@@ -11,7 +11,7 @@ import OS_Tools_Kit as ot
 import matplotlib.pyplot as plt
 import cv2
 import Graph_Operation_Kit as gt
-import Statistic_Tools as st
+import Analyzer.Statistic_Tools as st
 import random
 import seaborn as sns
 

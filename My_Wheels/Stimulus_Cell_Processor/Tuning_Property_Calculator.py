@@ -8,7 +8,7 @@ Created on Wed Jul 28 14:14:49 2021
 from Cell_Processor import Cell_Processor
 from Standard_Parameters.Stim_Name_Tools import Tuning_IDs
 import OS_Tools_Kit as ot
-from Tuning_Selector import Get_Tuning_Checklists
+from Stimulus_Cell_Processor.Tuning_Selector import Get_Tuning_Checklists
 
 def Tuning_Property_Calculator(day_folder,
                                Orien_para = ('Run002','G16_2P'),

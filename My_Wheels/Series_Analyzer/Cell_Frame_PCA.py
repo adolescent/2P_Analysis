@@ -10,6 +10,7 @@ from sklearn import decomposition
 import OS_Tools_Kit as ot
 import seaborn as sns
 import matplotlib.pyplot as plt
+from Series_Analyzer.Spontaneous_Preprocessing import Pre_Processor
 
 
 def Do_PCA(input_frame):
@@ -27,6 +28,8 @@ def Do_PCA(input_frame):
         PCA components(row as a cell, column as a component).
     PCA_info : (Dic)
         Information of PCA result.
+    fitted_weights : (pd Frame)
+        
 
     '''
     # Initialization
@@ -111,5 +114,48 @@ def Compoment_Visualize(components,all_cell_dic,output_folder,graph_shape = (512
         fig.figure.savefig(PCA_folder+r'\\'+current_PC+'.png')
         plt.clf()
         plt.close()
-
     return PC_Graph_Data
+
+def One_Key_PCA(day_folder,runname,tag = 'Spon_Before'):
+    
+    '''
+    One key generate PCA graphs. Most function generated.
+
+    Parameters
+    ----------
+    day_folder : (str)
+        Day of run folder.
+    runname : (str)
+        Runname of run to be processed. e.g.'Run001'
+    tag : (str),optional
+        Tag of PCA we 
+
+    Returns
+    -------
+    components : (pd Frame)
+        DESCRIPTION.
+    PCA_info : (Dic)
+        DESCRIPTION.
+    fitted_weights : (pd Frame)
+        DESCRIPTION.
+
+    '''
+    save_folder = day_folder+r'\_All_Results\PCA_'+tag
+    _ = ot.mkdir(save_folder,mute = True)
+    # First, calculate PC components
+    all_cell_dic_folder = ot.Get_File_Name(day_folder,'.ac')[0]
+    all_cell_dic = ot.Load_Variable(all_cell_dic_folder)
+    data_frame = Pre_Processor(day_folder,runname)
+    components,PCA_info,fitted_weights = Do_PCA(data_frame)
+    ot.Save_Variable(save_folder, 'All_PC_Components', components)
+    ot.Save_Variable(save_folder, 'All_PC_Info', PCA_info)
+    ot.Save_Variable(save_folder, 'fitted_weights', fitted_weights)
+    # Second, Generate PCA graphs.
+    _ = Compoment_Visualize(components,all_cell_dic,save_folder)
+    return components,PCA_info,fitted_weights
+
+
+
+
+def PCA_Regression(PC_info,fitted_weights,ignore_PC = [1],var_ratio = 0.9):
+    pass

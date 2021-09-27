@@ -13,7 +13,7 @@ import pickle
 import List_Operation_Kit as List_Tools
 
 #%% Function1:Make Dictionary
-def mkdir(path):
+def mkdir(path,mute = False):
     '''
     
     This function will generate folder at input path. If the folder already exists, then do nothing.\n
@@ -22,6 +22,8 @@ def mkdir(path):
     ----------
     path : (str)
         Target path you want to generate folder on.
+    mute : (bool),optional
+        Message will be ignored if mute is True. Default is False
         
     Returns
     -------
@@ -33,7 +35,8 @@ def mkdir(path):
     isExists=os.path.exists(path)
     if isExists:
         # 如果目录存在则不创建，并提示目录已存在
-        print('Folder',path,'already exists!')
+        if mute == False:
+            print('Folder',path,'already exists!')
         return False
     else:
         os.mkdir(path)

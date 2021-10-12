@@ -11,6 +11,7 @@ import OS_Tools_Kit as ot
 import seaborn as sns
 import matplotlib.pyplot as plt
 from Series_Analyzer.Spontaneous_Preprocessing import Pre_Processor
+import List_Operation_Kit as lt
 
 
 def Do_PCA(input_frame):
@@ -116,7 +117,8 @@ def Compoment_Visualize(components,all_cell_dic,output_folder,graph_shape = (512
         plt.close()
     return PC_Graph_Data
 
-def One_Key_PCA(day_folder,runname,tag = 'Spon_Before'):
+def One_Key_PCA(day_folder,runname,tag = 'Spon_Before',
+                start_time = 0,end_time = 99999):
     
     '''
     One key generate PCA graphs. Most function generated.
@@ -129,6 +131,11 @@ def One_Key_PCA(day_folder,runname,tag = 'Spon_Before'):
         Runname of run to be processed. e.g.'Run001'
     tag : (str),optional
         Tag of PCA we 
+    start_time : (int),optional
+        Seconds of frame start. Can be used to ignore initial supression.
+    end_time : (int),optional
+        Seconds of frame end.
+        
 
     Returns
     -------
@@ -145,7 +152,7 @@ def One_Key_PCA(day_folder,runname,tag = 'Spon_Before'):
     # First, calculate PC components
     all_cell_dic_folder = ot.Get_File_Name(day_folder,'.ac')[0]
     all_cell_dic = ot.Load_Variable(all_cell_dic_folder)
-    data_frame = Pre_Processor(day_folder,runname)
+    data_frame = Pre_Processor(day_folder,runname,start_time,end_time)
     components,PCA_info,fitted_weights = Do_PCA(data_frame)
     ot.Save_Variable(save_folder, 'All_PC_Components', components)
     ot.Save_Variable(save_folder, 'All_PC_Info', PCA_info)
@@ -157,5 +164,48 @@ def One_Key_PCA(day_folder,runname,tag = 'Spon_Before'):
 
 
 
-def PCA_Regression(PC_info,fitted_weights,ignore_PC = [1],var_ratio = 0.9):
-    pass
+def PCA_Regression(PC_components,PC_info,fitted_weights,ignore_PC = [1],var_ratio = 0.9):
+    '''
+    Regress specific PC component, used for global detraction.
+    
+
+    Parameters
+    ----------
+    PC_components : (pd Frame)
+        Component of each PCA.
+    PC_info : (dic)
+        Dictionary of PCA information.
+    fitted_weights : (pd Frame)
+        Fitted PC weights of all frames. CORE input.
+    ignore_PC : (list), optional
+        List of PC need to be ignored. Just input number. The default is [1].
+    var_ratio : (float), optional
+        Propotion of variation we use. Least important PCs will be ignored. The default is 0.9.
+
+    Returns
+    -------
+    regressed_data_trains : (pd Frame)
+        Trains of regressed data. Cell trains.
+
+    '''
+    # get PC frames here.
+    acc_ratio = np.array(PC_info['Accumulated_Variance_Ratio'])
+    last_pc = np.where(acc_ratio>var_ratio)[0][0]+1
+    all_pc_name = []
+    for i in range(1,last_pc+1):
+        all_pc_name.append('PC'+ot.Bit_Filler(i,3))
+    ignored_pc_name = []
+    for i,ig_pc in enumerate(ignore_PC):
+        ignored_pc_name.append('PC'+ot.Bit_Filler(ig_pc,3))
+    used_pc_name = lt.List_Subtraction(all_pc_name, ignored_pc_name)
+    # get regressed data.
+    acn = PC_components.index
+    all_frame_name = fitted_weights.index
+    regressed_frame = pd.DataFrame(index = all_frame_name,columns = acn)
+    for i,c_frame in enumerate(all_frame_name):
+        c_weight = fitted_weights.loc[c_frame]
+        
+    
+
+    return regressed_data_trains
+

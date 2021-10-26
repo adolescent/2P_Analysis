@@ -584,7 +584,7 @@ def Graph_Twister(origin_graph,angle):
     # 调整旋转矩阵的移动距离（t_{x}, t_{y}）
     M[0,2] += (nW/2) - cx
     M[1,2] += (nH/2) - cy
-    twisted_graph = cv2.warpAffine(origin_graph,M,(nW,nH),borderValue=(255,255,255))
+    twisted_graph = cv2.warpAffine(origin_graph,M,(nW,nH),borderValue=(0,0,0))
     return twisted_graph
 #%% Function 17, Global average generator
 def Global_Averagor(all_folder_list,

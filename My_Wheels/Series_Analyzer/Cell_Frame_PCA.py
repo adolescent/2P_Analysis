@@ -12,6 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from Series_Analyzer.Spontaneous_Preprocessing import Pre_Processor
 import List_Operation_Kit as lt
+from Decorators import Timer
 
 
 def Do_PCA(input_frame):
@@ -163,8 +164,8 @@ def One_Key_PCA(day_folder,runname,tag = 'Spon_Before',
 
 
 
-
-def PCA_Regression(PC_components,PC_info,fitted_weights,ignore_PC = [1],var_ratio = 0.9):
+@Timer
+def PCA_Regression(PC_components,PC_info,fitted_weights,ignore_PC = [1],var_ratio = 0.95):
     '''
     Regress specific PC component, used for global detraction.
     
@@ -204,8 +205,11 @@ def PCA_Regression(PC_components,PC_info,fitted_weights,ignore_PC = [1],var_rati
     regressed_frame = pd.DataFrame(index = all_frame_name,columns = acn)
     for i,c_frame in enumerate(all_frame_name):
         c_weight = fitted_weights.loc[c_frame]
-        
-    
-
-    return regressed_data_trains
+        c_regressed_graph = np.zeros(fitted_weights.shape[1])
+        for j,c_pc in enumerate(used_pc_name):
+            c_regressed_graph += PC_components[c_pc]*c_weight[c_pc]
+        c_regressed_graph = np.array(c_regressed_graph)
+        regressed_frame.iloc[c_frame,:] = c_regressed_graph
+    regressed_frame = regressed_frame.T # keep shape the same.
+    return regressed_frame
 

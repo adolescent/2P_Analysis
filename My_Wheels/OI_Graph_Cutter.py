@@ -27,13 +27,14 @@ def OI_Graph_Cutter(
     mask_graph = cv2.imread(area_mask_path,0)# Read in 8bit gray.
     mask_graph = mask_graph>(mask_graph.max()/2)
     mask_graph = skimage.morphology.remove_small_objects(mask_graph,100,connectivity = 1)
-    for i in range(OI_Graph_Num):
+    for i in range(OI_Graph_Num):	
         current_OI_graph = cv2.imread(all_OI_Map_Name[i],-1)
         current_graph_name = all_OI_Map_Name[i].split('\\')[-1][:-4]
         non_zero_loc = np.where(mask_graph>0)# unmasked location.
         LU_loc = (non_zero_loc[0].min(),non_zero_loc[1].min())#Left upper graph
         RD_loc = (non_zero_loc[0].max()+1,non_zero_loc[1].max()+1)
         current_masked_OI_graph = current_OI_graph*mask_graph
+        #current_masked_OI_graph = current_OI_graph
         cutted_graph = current_masked_OI_graph[LU_loc[0]:RD_loc[0],LU_loc[1]:RD_loc[1]]
         rotated_graph = Graph_Tools.Graph_Twister(cutted_graph, rotate_angle)
         origin_shape = rotated_graph.shape

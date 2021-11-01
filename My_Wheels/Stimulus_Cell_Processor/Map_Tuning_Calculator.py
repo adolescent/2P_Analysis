@@ -7,6 +7,9 @@ Created on Fri Sep 17 14:17:32 2021
 
 
 import pandas as pd
+import OS_Tools_Kit as ot
+from Decorators import Timer
+
 
 
 def Map_Tuning_Core(tuning_dic,input_cell_frame):
@@ -54,6 +57,40 @@ def Map_Tuning_Core(tuning_dic,input_cell_frame):
     return map_tunings
 
 
+
+
+@Timer
+def PC_Tuning_Calculation(all_PCA_comp,day_folder):
+    '''
+    This function is used to calculate average tuning of specific graph.
+    Can be used to graph which is different from global average.
+    Parameters
+    ----------
+    all_PCA_comp : (pd Frame)
+        All PCA components.
+    day_folder : (str)
+        Data save folder. tuning need to be calculated first.
+
+    Returns
+    -------
+    PC_Tunings : TYPE
+        DESCRIPTION.
+
+    '''
+    
+    tuning_dic = ot.Load_Variable(day_folder,'All_Tuning_Property.tuning')
+    all_PC_names = all_PCA_comp.columns.tolist()
+    PC_Tunings = {}
+    for i,c_pc in enumerate(all_PC_names):
+        c_pc_comp = all_PCA_comp.loc[:,c_pc]
+        normed_c_comp = c_pc_comp/abs(c_pc_comp).max()
+        c_PC_tunings = Map_Tuning_Core(tuning_dic,normed_c_comp)
+        PC_Tunings[c_pc] = (c_PC_tunings,c_PC_tunings.idxmax())# get tunings and max tuning graph
+        
+        
+        
+    return PC_Tunings
+    
 
 
 

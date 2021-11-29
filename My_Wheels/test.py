@@ -155,7 +155,21 @@ def Timer(func):
 def Sleep():
     time.sleep(3)
 Sleep()
-#%% Test skimage with spyder
+#%% Test Vector Autoregression model.
+import statsmodels.api as sm
+from statsmodels.tsa.api import VAR
+mdata = smapi.datasets.macrodata.load_pandas().data
+dates = mdata[['year', 'quarter']].astype(int).astype(str)
+quarterly = dates["year"] + "Q" + dates["quarter"]
+from statsmodels.tsa.base.datetools import dates_from_str
+quarterly = dates_from_str(quarterly)
+mdata = mdata[['realgdp','realcons','realinv']]
+mdata.index = pd.DatetimeIndex(quarterly)
+data = np.log(mdata).diff().dropna()
+model = VAR(data)
+#results = model.fit(2)# 2 order data, meaning 2 lag at most.
+results = model.fit(maxlags=15, ic='aic')
+results.summary()
 
 
 

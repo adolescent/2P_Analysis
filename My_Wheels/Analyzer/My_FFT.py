@@ -49,7 +49,7 @@ def FFT_Window_Slide(whole_train,window_length = 300,window_step = 60,fps=1.301)
     frame_num = len(whole_train)
     window_num = 1+int((frame_num-window_frame_length)/window_frame_step)
     slided_power_spectrum = FFT_Power(input_series = whole_train[0:window_frame_length],signal_name = 0,fps = fps)
-    for i in range(1,window_num):
+    for i in range(0,window_num):
         c_window = (i*window_frame_step,i*window_frame_step+window_frame_length)
         c_series = whole_train[c_window[0]:c_window[1]]
         c_power = FFT_Power(c_series,signal_name=i,fps = fps)

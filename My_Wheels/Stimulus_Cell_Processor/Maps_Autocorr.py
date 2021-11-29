@@ -23,3 +23,18 @@ def T_Graph_AutoCorr(All_t_Graphs):
             Corr_Matrix.loc[A_map,B_map] = c_r
             p_Matrix.loc[A_map,B_map] = c_p
     return Corr_Matrix,p_Matrix
+
+
+def PC_Comps_AutoCorr(used_PC_comps):
+    Corr_Matrix = pd.DataFrame()
+    p_Matrix = pd.DataFrame()
+    used_all_PC_name = used_PC_comps.columns.tolist()
+    for i,A_name in enumerate(used_all_PC_name):
+        for j,B_name in enumerate(used_all_PC_name):
+            set_A = used_PC_comps.loc[:,A_name]
+            set_B = used_PC_comps.loc[:,B_name]
+            c_r,c_p = Correlation_Core(set_A, set_B)
+            Corr_Matrix.loc[A_name,B_name] = c_r
+            p_Matrix.loc[A_name,B_name] = c_p
+    return Corr_Matrix,p_Matrix
+    

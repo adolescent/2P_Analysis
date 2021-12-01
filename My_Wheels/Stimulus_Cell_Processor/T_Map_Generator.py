@@ -85,8 +85,33 @@ def T_Map_Core(all_cell_dic,runname,
 
 def One_Key_T_Maps(day_folder,runname,runtype = 'OD_2P',para = None,
                    p_thres = 0.05,used_frame = [4,5]):
+    '''
+    Get T Maps from one key.
+
+    Parameters
+    ----------
+    day_folder : (str)
+        Day folder of a, expt.
+    runname : (str)
+        Name of run. In format 'Run001'
+    runtype : (str or dic), optional
+        If str, calculate sub dic inside. Dic can be given directly. The default is 'OD_2P'.
+    para : (str), optional
+        Used in sub dic calculation. The default is None.
+    p_thres : float, optional
+        Threshold of t map plot. The default is 0.05.
+    used_frame : (list), optional
+        List of frames used as stim on. The default is [4,5].
+
+    Returns
+    -------
+    all_t_map_info : (dic)
+        A dictionary of all t maps. Information.
+
+    '''
     
-    save_folder = day_folder+r'\_All_Results\\'+runtype+'_t_Maps'
+    
+    save_folder = day_folder+r'\_All_Results\\'+'t_Maps'
     ot.mkdir(save_folder)
     all_t_map_info = {}
     all_t_map_info['D_maps'] = {}
@@ -94,7 +119,10 @@ def One_Key_T_Maps(day_folder,runname,runtype = 'OD_2P',para = None,
     all_t_map_info['cell_info'] = {}
     cd_name = ot.Get_File_Name(day_folder,'.ac')[0]
     all_cell_dic = ot.Load_Variable(cd_name)
-    sub_dics = Sub_Dic_Generator(runtype,para)
+    if type(runtype) == str:
+        sub_dics = Sub_Dic_Generator(runtype,para)
+    else:
+        sub_dics = runtype
     all_graph_name = list(sub_dics.keys())
     for i,c_graph in enumerate(all_graph_name):
         A_id,B_id = sub_dics[c_graph]

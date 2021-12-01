@@ -151,8 +151,23 @@ class Standard_Aligner(object):
         self.Get_Final_Average()
         self.Delete_Middle_Folders()
 
-
-
+    @Timer
+    def One_Key_Aligner_No_Affine(self):
+        '''
+        One key align only use translation align. Very useful for weak signal.
+        '''
+        print('Start Aligning to each run..')
+        self.Seperate_Translation_Align()
+        print('Affine based on each average graphs')
+        # No affine align, so we need to rename folder here.
+        for i,c_run in enumerate(self.all_resultfolder):
+            os.chdir(c_run)
+            os.system('copy Run_Average_After_Align.tif Graph_After_Affine.tif')
+            os.rename(c_run+r'\Aligned_Frames',c_run+r'\Affined_Frames')
+        print('Cross run aligning')
+        self.Cross_Run_Align()
+        print('Jobs done, generating averag graph.')
+        self.Get_Final_Average()
 
 
     

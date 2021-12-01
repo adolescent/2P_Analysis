@@ -104,11 +104,12 @@ from statsmodels.tsa.api import VAR
 
 VAR_Data_Before = used_PCA_weight_Before.T
 model_Before = VAR(VAR_Data_Before)
-results = model_Before.fit(maxlags=5, ic='aic')
+results = model_Before.fit( ic='aic')
 a = results.summary()
 
 #Calculate long-term state change.
 VAR_Data_Before_Windowed = Spike_Count_Before
-model_Before_Windowed = 
-
+model_Before_Windowed = VAR(VAR_Data_Before_Windowed)
+results_windowed = model_Before_Windowed.fit( ic='aic')
+a = results_windowed.summary()
 

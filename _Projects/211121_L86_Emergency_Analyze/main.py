@@ -29,6 +29,7 @@ Run09_Sub_Dic['All_Color_AO'] = [[4,8,12,16,20,24,28,32,36,40,44,48],[2,6,10,14,
 Run09_Sub_Dic['Red-White'] = [list(range(1,9)),list(range(33,41))]
 Run09_Sub_Dic['Green-White'] = [list(range(9,17)),list(range(33,41))]
 Run09_Sub_Dic['Blue-White'] = [list(range(25,33)),list(range(33,41))]
+Run09_Sub_Dic['Circle-Bar'] = [list(range(49,97)),list(range(1,49))]
 from Standard_Stim_Processor import One_Key_Frame_Graphs
 One_Key_Frame_Graphs(r'G:\Test_Data\2P\211121_L86_2P\1-009', Run09_Sub_Dic)
 from My_Wheels.Stimulus_Cell_Processor.T_Map_Generator import One_Key_T_Maps

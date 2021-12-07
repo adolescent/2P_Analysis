@@ -85,10 +85,9 @@ plt.plot(Orien_compare_Frame)
 #%% Plot PC count 
 PCA_weight_before = ot.Load_Variable(r'G:\_Processed_Results\211027_Spon_Net_Correlation\PCA_Results\0831_Before_PCA\fitted_weights.pkl')
 all_PC_comp = ot.Load_Variable(r'G:\_Processed_Results\211027_Spon_Net_Correlation\PCA_Results\0831_Before_PCA\PC_Components.pkl')
-used_PCA_weight_Before = PCA_weight_Before.iloc[:,2:12].T
+used_PCA_weight_Before = PCA_weight_before.iloc[:,2:12].T
 used_PC_name = used_PCA_weight_Before.index.tolist()
-
-Spike_Count_Before = pd.DataFrame(columns = used_PC_name)
+Spike_Count_Before = pd.DataFrame(colu8mns = used_PC_name)
 for i,c_PC in enumerate(used_PC_name):
     c_count_series = Peak_Counter(used_PCA_weight_Before.loc[c_PC],win_size=120,win_step = 30)
     Spike_Count_Before.loc[:,c_PC] = c_count_series
@@ -110,6 +109,6 @@ a = results.summary()
 #Calculate long-term state change.
 VAR_Data_Before_Windowed = Spike_Count_Before
 model_Before_Windowed = VAR(VAR_Data_Before_Windowed)
-results_windowed = model_Before_Windowed.fit( ic='aic')
+results_windowed = model_Before_Windowed.fit(ic='aic')
 a = results_windowed.summary()
 

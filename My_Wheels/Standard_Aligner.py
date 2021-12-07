@@ -168,7 +168,7 @@ class Standard_Aligner(object):
         self.Cross_Run_Align()
         print('Jobs done, generating averag graph.')
         self.Get_Final_Average()
-        pirnt('Manual Delete Middle Folders PLZ.')
+        print('Manual Delete Middle Folders PLZ.')
 
     
     

@@ -14,7 +14,7 @@ import pandas as pd
 import Analyzer.My_FFT as FFT
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import numpy as np
 from Series_Analyzer.TC_Analyze import Peak_Counter
 import statsmodels.api as sm
 
@@ -111,4 +111,48 @@ VAR_Data_Before_Windowed = Spike_Count_Before
 model_Before_Windowed = VAR(VAR_Data_Before_Windowed)
 results_windowed = model_Before_Windowed.fit(ic='aic')
 a = results_windowed.summary()
+#%% Sliding Cross Correlation
+kernel = used_PCA_weight_Before.loc['PC003'][:-300]
+#kernel -= kernel.mean()
+correlated_matrix = pd.DataFrame()
+for i,c_PC in enumerate(used_PCA_weight_Before.index):
+    target_series = used_PCA_weight_Before.loc[c_PC,:]
+    conv_series = np.correlate(target_series,kernel)
+    norm = np.linalg.norm(kernel)*np.linalg.norm(target_series[:-300])
+    normed_conv_series = conv_series/norm
+    correlated_matrix.loc[:,c_PC] = normed_conv_series
+correlated_matrix = correlated_matrix.T
+from My_FFT import FFT_Power
+FFT_result = pd.DataFrame()
+for i,c_PC in enumerate(correlated_matrix.index):
+    c_series = correlated_matrix.loc[c_PC]
+    c_power = FFT_Power(c_series,signal_name = c_PC)
+    FFT_result[c_PC] = c_power
+FFT_result = FFT_result.T
+#%% Plot 3D Scatter graph.
+# =============================================================================
+# xs = PCA_weight_before.loc[:,'PC001']
+# ys = PCA_weight_before.loc[:,'PC002']
+# zs = PCA_weight_before.loc[:,'PC012']
+# fig = plt.figure()
+# ax = fig.add_subplot(projection='3d')
+# ax.scatter(xs, ys, zs,s = 1)
+# ax.set_xlabel('X Label')
+# ax.set_ylabel('Y Label')
+# ax.set_zlabel('Z Label')
+# =============================================================================
+#%% Plot 2D Scatter graph.
+# =============================================================================
+# xs = PCA_weight_before.loc[:,'PC003']
+# ys = PCA_weight_before.loc[:,'PC006']
+# fig = plt.figure()
+# ax = fig.add_subplot()
+# ax.scatter(xs, ys,s = 1)
+# ax.set_xlabel('PC003')
+# ax.set_ylabel('PC006')
+# #sns.scatterplot(xs,ys,s = 2)
+# =============================================================================
+#%%
+data = pd.DataFrame([xs,ys])
+sns.regplot(x = 'PC003',y = 'PC006',data = PCA_weight_after,scatter_kws={'s':2})
 

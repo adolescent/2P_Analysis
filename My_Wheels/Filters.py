@@ -94,6 +94,7 @@ def Filter_2D(
 from scipy import signal
 def Signal_Filter(
         data_train,
+        order = 5,
         filter_design = 'butter',
         filter_para = (0.1,0.9)
         ):
@@ -120,16 +121,16 @@ def Signal_Filter(
     LP_prop = filter_para[1]
     if filter_design == 'butter':
         if HP_prop != False and LP_prop != False:# Meaning we need band pass filter here.
-            b, a = signal.butter(2, [HP_prop,LP_prop], 'bandpass')
+            b, a = signal.butter(order, [HP_prop,LP_prop], 'bandpass')
             filtedData = signal.filtfilt(b, a, data_train)
         elif HP_prop == False and LP_prop == False:
             print('No filt.')
             filtedData = data_train
         elif LP_prop == False:
-            b, a = signal.butter(2, HP_prop, 'highpass')
+            b, a = signal.butter(order, HP_prop, 'highpass')
             filtedData = signal.filtfilt(b, a, data_train)
         elif HP_prop == False:
-            b, a = signal.butter(2, LP_prop, 'lowpass')
+            b, a = signal.butter(order, LP_prop, 'lowpass')
             filtedData = signal.filtfilt(b, a, data_train)
             
         if HP_prop != False:

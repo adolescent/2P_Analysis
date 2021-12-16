@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import OS_Tools_Kit as ot
 
 
-def FFT_Power(input_series,signal_name = 'Input',fps = 1.301):
+def FFT_Power(input_series,signal_name = 'Input',normalize = False,fps = 1.301):
     '''
     Single FFT Power spectrum
 
@@ -23,6 +23,8 @@ def FFT_Power(input_series,signal_name = 'Input',fps = 1.301):
         Capture frequency of signal. The default is 1.301.
     signal_name : (str), optional
         Name of input signal. The default is 'Input'.
+    normalize : (bool),optional
+        Whether we return spectrum of normalized spectrum.
 
     Returns
     -------
@@ -33,12 +35,13 @@ def FFT_Power(input_series,signal_name = 'Input',fps = 1.301):
     spec_size = round(len(input_series)/2)
     raw_fft = np.fft.fft(input_series)
     raw_power = abs(raw_fft)[:spec_size]
-    #normalized_power = raw_power/raw_power.sum()
+    if normalize == True:
+        raw_power = raw_power/raw_power.sum()
     freq_list = np.linspace(0,fps/2,num = spec_size)
     Power_Spectrum = pd.DataFrame({signal_name:raw_power[:spec_size]})
     new_index = {}
     for i,c_freq in enumerate(freq_list):
-        new_index[i] = round(c_freq,3)
+        new_index[i] = round(c_freq,7)
     Power_Spectrum = Power_Spectrum.rename(index = new_index)
     return Power_Spectrum
 

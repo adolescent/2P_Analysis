@@ -47,17 +47,17 @@ def Multi_components_Granger(input_frame,lag = 5,sig_thres = 0.001):
 
     Parameters
     ----------
-    input_frame : TYPE
-        DESCRIPTION.
-    lag : TYPE, optional
-        DESCRIPTION. The default is 5.
-    sig_thres : TYPE, optional
-        DESCRIPTION. The default is 0.001.
+    input_frame : pd Frame
+        Input time series. Each row shall be a series, columns as different times.
+    lag : int, optional
+        Lags used for granger test. The default is 5.
+    sig_thres : float, optional
+        Significant threshold for granger test. The default is 0.001.
 
     Returns
     -------
-    GCA_Matrix : TYPE
-        DESCRIPTION.
+    GCA_Matrix : (pd Frame)
+        Matrix of GCA Test Result. Only T/F given.
 
     '''
     all_PC_name = input_frame.index

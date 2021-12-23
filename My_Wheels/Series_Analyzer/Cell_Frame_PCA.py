@@ -153,7 +153,7 @@ def One_Key_PCA(day_folder,runname,tag = 'Spon_Before',
     # First, calculate PC components
     all_cell_dic_folder = ot.Get_File_Name(day_folder,'.ac')[0]
     all_cell_dic = ot.Load_Variable(all_cell_dic_folder)
-    data_frame = Pre_Processor(day_folder,runname,start_time,end_time)
+    data_frame = Pre_Processor(day_folder,runname,start_time,end_time,passed_band=(0.005,0.3),order = 7)
     components,PCA_info,fitted_weights = Do_PCA(data_frame)
     ot.Save_Variable(save_folder, 'All_PC_Components', components)
     ot.Save_Variable(save_folder, 'All_PC_Info', PCA_info)

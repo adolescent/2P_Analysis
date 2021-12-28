@@ -12,7 +12,8 @@ from Filters import Signal_Filter
 
 def Pre_Processor(day_folder,runname = 'Run001',
                   start_time = 0,stop_time = 99999,
-                  fps = 1.301,passed_band = (0.05,0.5),order = 5):
+                  fps = 1.301,passed_band = (0.005,0.3),order = 7,
+                  base_mode = 'average',prop = 0.05):
     '''
     Proprocess of spontaneous data frame.
 
@@ -30,6 +31,12 @@ def Pre_Processor(day_folder,runname = 'Run001',
         Capture frequency. The default is 1.301.
     passed_band : (2-element-turple), optional
         High pass and Low pass frequency. The default is (0.05,0.5).
+        
+        
+    base_mode : ('average' or 'most_unactive'),optional
+        Method of F0 selection. The default is 'most_unactive'
+    prop : (float),optional
+        Propotion of F0 for most unactive. The default is 0.05.
 
     Returns
     -------
@@ -52,27 +59,39 @@ def Pre_Processor(day_folder,runname = 'Run001',
             # then calculate dF/F series.
             stop_frame = int(min(stop_time*fps,len(filted_c_series)))
             used_filted_c_series = filted_c_series[start_frame:stop_frame]
-            c_dF_F_series = (used_filted_c_series-used_filted_c_series.mean())/used_filted_c_series.mean()
+            if base_mode == 'average':
+                c_dF_F_series = (used_filted_c_series-used_filted_c_series.mean())/used_filted_c_series.mean()
+            elif base_mode == 'most_unactive':
+                base_num = int(len(used_filted_c_series)*prop)
+                base_id = np.argpartition(used_filted_c_series, base_num)[:base_num]
+                base = used_filted_c_series[base_id].mean()
+                c_dF_F_series = (used_filted_c_series-base)/base
+            else:
+                raise IOError('Invalid F0 mode.')
             raw_frame.loc[:,ccn] = c_dF_F_series
     processed_cell_frame = raw_frame.T
     processed_cell_frame = processed_cell_frame.dropna().copy()# to avoid highly fragment warning
     return processed_cell_frame
             
-def Pre_Processor_By_Frame(input_frame,fps = 1.301,passed_band=(0.05,0.5),order = 5):
-    all_cell_name = input_frame.index.tolist()
-    raw_frame = pd.DataFrame(columns = all_cell_name)
-    for i,ccn in enumerate(all_cell_name):
-        c_series = np.array(input_frame.loc[ccn,:])
-        filted_c_series = Signal_Filter(c_series,order,filter_para = (passed_band[0]*2/fps,passed_band[1]*2/fps))
-        # then calculate dF/F series.
-        c_dF_F_series = (filted_c_series-filted_c_series.mean())/filted_c_series.mean()
-        raw_frame.loc[:,ccn] = c_dF_F_series
-    processed_cell_frame = raw_frame.T
-    processed_cell_frame = processed_cell_frame.copy()
-    return processed_cell_frame
+# =============================================================================
+# #Old function...
+# def Pre_Processor_By_Frame(input_frame,fps = 1.301,passed_band=(0.005,0.3),order = 7):
+#     all_cell_name = input_frame.index.tolist()
+#     raw_frame = pd.DataFrame(columns = all_cell_name)
+#     for i,ccn in enumerate(all_cell_name):
+#         c_series = np.array(input_frame.loc[ccn,:])
+#         filted_c_series = Signal_Filter(c_series,order,filter_para = (passed_band[0]*2/fps,passed_band[1]*2/fps))
+#         # then calculate dF/F series.
+#         c_dF_F_series = (filted_c_series-filted_c_series.mean())/filted_c_series.mean()
+#         raw_frame.loc[:,ccn] = c_dF_F_series
+#     processed_cell_frame = raw_frame.T
+#     processed_cell_frame = processed_cell_frame.copy()
+#     return processed_cell_frame
+# =============================================================================
             
 def Pre_Processor_Multi_Run(day_folder,run_list,start_time = 0,stop_time = 99999,
-                            fps = 1.301,passed_band = (0.05,0.5),order = 5):
+                            fps = 1.301,passed_band = (0.005,0.3),order = 7,
+                            base_mode = 'average',prop = 0.05):
     
     
     cell_file_name = ot.Get_File_Name(day_folder,'.ac')[0]
@@ -100,7 +119,15 @@ def Pre_Processor_Multi_Run(day_folder,run_list,start_time = 0,stop_time = 99999
         # then calculate dF/F series.
         stop_frame = int(min(stop_time*fps,len(filted_c_series)))
         used_filted_c_series = filted_c_series[start_frame:stop_frame]
-        c_dF_F_series = (used_filted_c_series-used_filted_c_series.mean())/used_filted_c_series.mean()
+        if base_mode == 'average':
+            c_dF_F_series = (used_filted_c_series-used_filted_c_series.mean())/used_filted_c_series.mean()
+        elif base_mode == 'most_unactive':
+            base_num = int(len(used_filted_c_series)*prop)
+            base_id = np.argpartition(used_filted_c_series, base_num)[:base_num]
+            base = used_filted_c_series[base_id].mean()
+            c_dF_F_series = (used_filted_c_series-base)/base
+        else:
+            raise IOError('Invalid F0 mode.')
         raw_frame.loc[:,ccn] = c_dF_F_series
     processed_cell_frame = raw_frame.T
     processed_cell_frame = processed_cell_frame.dropna().copy()# to avoid highly fragment warning

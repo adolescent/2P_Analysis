@@ -12,7 +12,7 @@ import numpy as np
 
 def Granger_Core(series_A,series_B,lag = 5,sig_thres = 0.001):
     '''
-    Granger test whether B caused A.
+    Granger test whether B cause A.
 
     Parameters
     ----------

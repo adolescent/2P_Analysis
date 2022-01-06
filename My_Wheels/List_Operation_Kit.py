@@ -127,7 +127,7 @@ def List_Subtraction(list_A,list_B):
     subtracted_list : (list)
         All element in A but not in B.
     """
-    subtracted_list = list_A
+    subtracted_list = list_A.copy()
     if len(set(list_A)) != len(list_A):
         raise IOError('Repeat element in lists, check please.')
     for i in range(len(list_B)):

@@ -34,5 +34,5 @@ def Single_Comp_Visualize(all_cell_dic,input_frame,shape = (512,512)):
         cc_info = c_dic['Cell_Info']
         y_list,x_list = cc_info.coords[:,0],cc_info.coords[:,1]
         graph[y_list,x_list] = input_frame[cc]
-    sns.heatmap(graph,center = 0,square = 1)
+    sns.heatmap(graph,center = 0,square = 1, xticklabels=False, yticklabels=False)
     return graph

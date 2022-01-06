@@ -20,11 +20,12 @@ Map_LE = T_values_OD['L-0'].loc['t',:]
 Map_RE = T_values_OD['R-0'].loc['t',:]
 frame_num = Run01_Frame.shape[1]
 
+
+
+#%% get LE/RE corr plot here.
 OD_corr_plot = np.zeros(frame_num)
 LE_corr_plot = np.zeros(frame_num)
 RE_corr_plot = np.zeros(frame_num)
-
-#%% get LE/RE corr plot here.
 for i in range(frame_num):
     c_frame = Run01_Frame.iloc[:,i]
     OD_corr_plot[i],_ = Correlation_Core(Map_OD, c_frame)
@@ -227,6 +228,7 @@ plt.plot(b)
 
 #%% Get Granger causality
 # Get windowed data structure first.
+from Timecourse_Tools.Series_Cross_Granger import Granger_Core
 window_size = 300
 win_step = 60
 fps = 1.301
@@ -239,4 +241,56 @@ all_cutted_RE_corr = np.zeros(shape = (win_frame,win_num))
 
 for i in range(win_num):
     all_cutted_LE_corr[:,i] = LE_corr_plot[i*step_frame:i*step_frame+win_frame]
-    all_cutted_RE_corr[:,i] = LE_corr_plot[i*step_frame:i*step_frame+win_frame]
+    all_cutted_RE_corr[:,i] = RE_corr_plot[i*step_frame:i*step_frame+win_frame]
+# Get cross Granger for each time point.
+LE_cause_RE = np.zeros(win_num)
+RE_cause_LE = np.zeros(win_num)
+for i in range(win_num):
+    sig_flag_LR,_ = Granger_Core(all_cutted_RE_corr[:,i],all_cutted_LE_corr[:,i],lag = 7,sig_thres=0.01)
+    sig_flag_RL,_ = Granger_Core(all_cutted_LE_corr[:,i],all_cutted_RE_corr[:,i],lag = 7,sig_thres=0.01)
+    LE_cause_RE[i] = sig_flag_LR
+    RE_cause_LE[i] = sig_flag_RL
+
+plt.plot(LE_cause_RE)
+plt.plot(RE_cause_LE)
+#%% Get Spiking Rate (Time windowed)
+from Series_Analyzer.Series_Cutter import Generate_Windowed_Series
+# 5min,1min step first.
+wined_LE_spike = Generate_Windowed_Series(LE_rasters,win_size = 300,win_step = 60)
+wined_RE_spike = Generate_Windowed_Series(RE_rasters,win_size = 300,win_step = 60)
+win_num = wined_LE_spike.shape[1]
+LE_firing_rate = np.zeros(win_num)
+RE_firing_rate = np.zeros(win_num)
+for i in range(win_num):
+    LE_firing_rate[i] = wined_LE_spike.sum(0)[i]/5
+    RE_firing_rate[i] = wined_RE_spike.sum(0)[i]/5
+plt.plot(LE_firing_rate)
+plt.plot(RE_firing_rate)
+
+LE_kernel = LE_firing_rate[:30]
+RE_kernel = RE_firing_rate[:30]
+LE_along_RE = np.correlate(RE_firing_rate, LE_kernel)
+RE_along_LE = np.correlate(LE_firing_rate, RE_kernel)
+plt.plot(LE_along_RE)
+plt.plot(RE_along_LE)
+# Then calculate 1min window,30s step.
+wined_LE_spike = Generate_Windowed_Series(LE_rasters,win_size = 60,win_step = 30)
+wined_RE_spike = Generate_Windowed_Series(RE_rasters,win_size = 60,win_step = 30)
+win_num = wined_LE_spike.shape[1]
+LE_firing_rate = np.zeros(win_num)
+RE_firing_rate = np.zeros(win_num)
+for i in range(win_num):
+    LE_firing_rate[i] = wined_LE_spike.sum(0)[i]/1
+    RE_firing_rate[i] = wined_RE_spike.sum(0)[i]/1
+plt.plot(LE_firing_rate)
+plt.plot(RE_firing_rate)
+LE_kernel = LE_firing_rate[:70]
+RE_kernel = RE_firing_rate[:70]
+LE_along_RE = np.correlate(RE_firing_rate, LE_kernel)
+RE_along_LE = np.correlate(LE_firing_rate, RE_kernel)
+plt.plot(LE_along_RE)
+plt.plot(RE_along_LE)
+
+
+plt.plot(LE_firing_rate[0:124])
+plt.plot(RE_firing_rate[2:126])

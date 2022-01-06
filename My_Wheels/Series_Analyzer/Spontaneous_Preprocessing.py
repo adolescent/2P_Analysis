@@ -67,7 +67,7 @@ def Pre_Processor(day_folder,runname = 'Run001',
                 base_id = np.argpartition(used_filted_c_series, base_num)[:base_num]
                 base = used_filted_c_series[base_id].mean()
                 c_dF_F_series = (used_filted_c_series-base)/base
-                c_dF_F_series = c_dF_F_series/c_dF_F_series.std()
+                #c_dF_F_series = c_dF_F_series/c_dF_F_series.std()
             else:
                 raise IOError('Invalid F0 mode.')
             raw_frame.loc[:,ccn] = c_dF_F_series

@@ -71,18 +71,9 @@ plt.plot(RE_train_avr_cen)
 comp_cen,info_cen,weights_cen = Do_PCA(Run01_0831_centered)
 _ = Compoment_Visualize(comp_cen, all_cell_dic, r'C:\Users\ZR\Desktop\temp')
 
-
-
-# Shuffle
-
-
-
-
 #%% use regressed train here
 regressed_PCA_cen = PCA_Regression(comp_cen, info_cen, weights_cen,
                                    ignore_PC=[1],var_ratio = 0.75)
-
-
 LE_cell_trains_reg = regressed_PCA_cen.loc[LE_cells]
 LE_train_avr_reg = LE_cell_trains_reg.mean(0)
 RE_cell_trains_reg = regressed_PCA_cen.loc[RE_cells]

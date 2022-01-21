@@ -294,3 +294,4 @@ plt.plot(RE_along_LE)
 
 plt.plot(LE_firing_rate[0:124])
 plt.plot(RE_firing_rate[2:126])
+

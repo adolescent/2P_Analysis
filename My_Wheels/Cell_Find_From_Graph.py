@@ -116,7 +116,7 @@ def Cell_Find_And_Plot(
         graph_folder,
         graph_name,
         Cell_Label,
-        find_thres = 2.5,
+        find_thres = 1.5,
         max_pix = 1000,
         min_pix = 20,
         shape_boulder = [20,20,20,20], 

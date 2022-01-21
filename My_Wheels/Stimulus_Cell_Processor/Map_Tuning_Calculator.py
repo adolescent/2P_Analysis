@@ -49,7 +49,7 @@ def Map_Tuning_Core(tuning_dic,input_cell_frame):
         for j,c_prop in enumerate(all_property_names):
             if c_prop in c_D_value:
                 c_tuning = c_D_value[c_prop]['Cohen_D']
-                c_weight = c_tuning*normed_input_cell_frame.loc[cc]
+                c_weight = c_tuning*float(normed_input_cell_frame.loc[cc])
                 cell_property_frame.loc[c_prop,cc] = c_weight
     # Till now, we get all all cell tuning property, then we will sum them together.
     used_cell_each_prop = cell_property_frame.count(1)

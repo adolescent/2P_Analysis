@@ -170,6 +170,7 @@ def Affine_Core_Point_Equal(
     matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
     matches = matcher.match(descriptors1, descriptors2, None)
     # Then eliminate match with bigger dist.
+    matches = list(matches)# to avoid version bugs
     matches.sort(key=lambda x: x.distance, reverse=False)
     while (matches[-1].distance>dist_lim):
         matches.pop(-1)

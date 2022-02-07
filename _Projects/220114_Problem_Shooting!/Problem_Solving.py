@@ -26,8 +26,6 @@ day_folder = r'G:\Test_Data\2P\210831_L76_2P'
 all_cell_dic = ot.Load_Variable(day_folder,r'L76_210831A_All_Cells.ac')
 
 
-
-
 Run01_Frame =  Pre_Processor(day_folder,start_time=7000)
 acn = list(Run01_Frame.index)
 correlation_matrix = pd.DataFrame(index = acn,columns = acn)

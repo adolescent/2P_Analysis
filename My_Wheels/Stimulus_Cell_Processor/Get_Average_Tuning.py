@@ -32,8 +32,10 @@ def Get_Average_Tuning(cell_lists,tuning_dic,target_tuning = 'LE',mode = 'Cohen_
     all_tunings = np.zeros(len(cell_lists))
     for i,cc in enumerate(cell_lists):
         c_tuning = tuning_dic[cc][target_tuning]
-        if mode == 'Cohen_D':
-            
-            
-        
+        if (mode == 'Cohen_D') or (mode == 't_value') or (mode == 'Tuning_Index'):
+            all_tunings[i] = c_tuning[mode]
+        else:
+            raise IOError('Invalid tuning mode.')
+    # Average all tunings to get avr tuning.
+    averaged_tuning = all_tunings.mean()
     return averaged_tuning

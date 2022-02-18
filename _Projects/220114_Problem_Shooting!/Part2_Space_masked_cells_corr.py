@@ -98,7 +98,27 @@ dist_corr_frame['Corr'] = dist_corr_frame['Corr'].astype('f8')
 sns.lmplot(data = dist_corr_frame,x = 'Dist',y = 'Corr',scatter_kws={"s": 3})
 
 #%% Dist adjustable correlation
-
-
-
-
+dists = list(range(270,350,10))
+times = 3000
+corr_frame_raw = pd.DataFrame(columns = ['Correlation','Tuning_Difference','Dist'])
+corr_frame_regressed = pd.DataFrame(columns = ['Correlation','Tuning_Difference','Dist'])
+counter = 0
+for i,c_dist in enumerate(dists):
+    for j in tqdm(range(times)):
+        c_mask_A,c_mask_B,_ = Two_Circle_Mask(radius = 70,dist = c_dist)
+        cell_in_A,_ = Cell_In_Mask(all_cell_dic,acn,c_mask_A)
+        cell_in_B,_ = Cell_In_Mask(all_cell_dic,acn,c_mask_B)
+        cell_A_avr = Run01_Frame.loc[cell_in_A,:].mean(0)
+        cell_B_avr = Run01_Frame.loc[cell_in_B,:].mean(0)
+        corr,_ = stats.pearsonr(cell_A_avr,cell_B_avr)
+        Avr_Tuning_A = Get_Average_Tuning(cell_in_A, tuning_dic)
+        Avr_Tuning_B = Get_Average_Tuning(cell_in_B, tuning_dic)
+        c_tuning_diff = abs(Avr_Tuning_A-Avr_Tuning_B)
+        corr_frame_raw.loc[counter] = [corr,c_tuning_diff,c_dist]
+        cell_A_avr_reg = Run01_Frame_regressed.loc[cell_in_A,:].mean(0)
+        cell_B_avr_reg = Run01_Frame_regressed.loc[cell_in_B,:].mean(0)
+        corr_reg,_ = stats.pearsonr(cell_A_avr_reg,cell_B_avr_reg)
+        corr_frame_regressed.loc[counter] = [corr_reg,c_tuning_diff,c_dist]
+        counter += 1
+ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results','Corr_Dist_270_350_R_70_raw', corr_frame_raw)
+ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results','Corr_Dist_270_350_R_70_regressed', corr_frame_regressed)

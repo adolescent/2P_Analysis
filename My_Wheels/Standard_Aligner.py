@@ -170,6 +170,7 @@ class Standard_Aligner(object):
         self.Get_Final_Average()
         print('Manual Delete Middle Folders PLZ.')
 
+
     
     
     

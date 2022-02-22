@@ -122,3 +122,134 @@ for i,c_dist in enumerate(dists):
         counter += 1
 ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results','Corr_Dist_270_350_R_70_raw', corr_frame_raw)
 ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results','Corr_Dist_270_350_R_70_regressed', corr_frame_regressed)
+corr_frame_raw_150_260 = ot.Load_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results\Corr_Dist_150_260_R_70_raw.pkl')
+corr_frame_regressed_150_260 = ot.Load_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results\Corr_Dist_150_260_R_70_regressed.pkl')
+corr_frame_raw_whole = pd.concat([corr_frame_raw_150_260,corr_frame_raw_270_340])
+corr_frame_regressed_whole = pd.concat([corr_frame_regressed_150_260,corr_frame_regressed_270_340])
+#%% statastic of all corr in 
+raw_corr_by_dist = list(corr_frame_raw_whole.groupby(['Dist']))
+step = 0.02
+Dist_Tuning_Corr_Frame = pd.DataFrame(columns = ['Dist','Tuning_Group','Avr_Corr'])
+
+counter = 0
+for i in range(20):
+    c_group = raw_corr_by_dist[i][1]
+    c_dist = raw_corr_by_dist[i][0]
+    c_group['Tuning_Group'] = c_group['Tuning_Difference']//step+1
+    cg_tuning_lists = list(c_group.groupby(['Tuning_Group']))
+    for j,c_tuning_group in enumerate(cg_tuning_lists):
+        c_tuning_group_frame = c_tuning_group[1]
+        c_tg = c_tuning_group[0]
+        avr_corr = c_tuning_group_frame['Correlation'].mean()
+        Dist_Tuning_Corr_Frame.loc[counter] = [c_dist,c_tg,avr_corr]
+        counter +=1
+     
+Dist_Tuning_Corr_Frame['Group_Tuning_Max'] = Dist_Tuning_Corr_Frame['Tuning_Group']*step
+ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results', 'Corr_Dist_Tuning_Raw', Dist_Tuning_Corr_Frame)
+# Do the same on regressed data.
+regressed_corr_by_dist = list(corr_frame_regressed_whole.groupby(['Dist']))
+step = 0.02
+Dist_Tuning_Corr_Frame_Reg = pd.DataFrame(columns = ['Dist','Tuning_Group','Avr_Corr'])
+counter = 0
+for i in range(20):
+    c_group = regressed_corr_by_dist[i][1]
+    c_dist = regressed_corr_by_dist[i][0]
+    c_group['Tuning_Group'] = c_group['Tuning_Difference']//step+1
+    cg_tuning_lists = list(c_group.groupby(['Tuning_Group']))
+    for j,c_tuning_group in enumerate(cg_tuning_lists):
+        c_tuning_group_frame = c_tuning_group[1]
+        c_tg = c_tuning_group[0]
+        avr_corr = c_tuning_group_frame['Correlation'].mean()
+        Dist_Tuning_Corr_Frame_Reg.loc[counter] = [c_dist,c_tg,avr_corr]
+        counter +=1
+
+Dist_Tuning_Corr_Frame_Reg['Group_Tuning_Max'] = Dist_Tuning_Corr_Frame['Tuning_Group']*step
+ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results', 'Corr_Dist_Tuning_Regressed', Dist_Tuning_Corr_Frame_Reg)
+
+# Plot Dist-Tuning Similarity correlation heat map.
+Dist_vs_Tuning_Diff_raw = Dist_Tuning_Corr_Frame.pivot(index = 'Dist',columns = 'Group_Tuning_Max',values = 'Avr_Corr')
+Dist_vs_Tuning_Diff_regressed = Dist_Tuning_Corr_Frame_Reg.pivot(index = 'Dist',columns = 'Group_Tuning_Max',values = 'Avr_Corr')
+sns.heatmap(Dist_vs_Tuning_Diff_raw,center = 0.55,vmax = 0.85)
+sns.heatmap(Dist_vs_Tuning_Diff_regressed,center = 0)
+
+#%% Get Cell by Cell results here.
+cell_by_cell_tuning_dist = pd.DataFrame(columns = ['Cell_A','Cell_B','Dist','Corr','Tuning_Diff'])
+counter = 0
+for i,A_cell in tqdm(enumerate(acn)):
+    for j in range(i+1,len(acn)):
+        B_cell = acn[j]
+        c_dist = all_cell_dist.loc[A_cell,B_cell]
+        c_A_series = Run01_Frame.loc[A_cell,:]
+        c_B_series = Run01_Frame.loc[B_cell,:]
+        c_corr,_ = stats.pearsonr(c_A_series,c_B_series)
+        c_A_tuning = tuning_dic[A_cell]['LE']['Cohen_D']
+        c_B_tuning = tuning_dic[B_cell]['LE']['Cohen_D']
+        c_tuning_diff = abs(c_A_tuning-c_B_tuning)
+        cell_by_cell_tuning_dist.loc[counter] = [A_cell,B_cell,c_dist,c_corr,c_tuning_diff]
+        counter +=1
+# Do the same on regressed data.
+cell_by_cell_tuning_dist_regressed = pd.DataFrame(columns = ['Cell_A','Cell_B','Dist','Corr','Tuning_Diff'])
+counter = 0
+for i,A_cell in tqdm(enumerate(acn)):
+    for j in range(i+1,len(acn)):
+        B_cell = acn[j]
+        c_dist = all_cell_dist.loc[A_cell,B_cell]
+        c_A_series = Run01_Frame_regressed.loc[A_cell,:]
+        c_B_series = Run01_Frame_regressed.loc[B_cell,:]
+        c_corr,_ = stats.pearsonr(c_A_series,c_B_series)
+        c_A_tuning = tuning_dic[A_cell]['LE']['Cohen_D']
+        c_B_tuning = tuning_dic[B_cell]['LE']['Cohen_D']
+        c_tuning_diff = abs(c_A_tuning-c_B_tuning)
+        cell_by_cell_tuning_dist_regressed.loc[counter] = [A_cell,B_cell,c_dist,c_corr,c_tuning_diff]
+        counter +=1        
+        
+#%% Plot Series dist-tuning relationship.
+dist_step = 20 # group step of distance.
+tuning_step = 0.02 # step of tuning difference.
+Dist_Tuning_Corr_Cell_Raw = pd.DataFrame(columns = ['Dist_Group','Tuning_Group','Avr_Corr'])
+cell_by_cell_tuning_dist['Dist_group'] = cell_by_cell_tuning_dist['Dist']//dist_step+1
+cell_by_cell_tuning_dist['Td_group'] = cell_by_cell_tuning_dist['Tuning_Diff']//tuning_step+1
+counter = 0
+tuning_groups = list(cell_by_cell_tuning_dist.groupby('Td_group'))
+for i,c_tuning_group in enumerate(tuning_groups):
+    c_tuning = c_tuning_group[0]
+    c_tuning_group_frame = c_tuning_group[1]
+    c_dist_groups = list(c_tuning_group_frame.groupby('Dist_group'))
+    for j in range(len(c_dist_groups)):
+        c_dist = c_dist_groups[j][0]
+        c_tuning_avr = c_dist_groups[j][1]['Corr'].mean()
+        Dist_Tuning_Corr_Cell_Raw.loc[counter] = [c_dist,c_tuning,c_tuning_avr]
+        counter +=1
+Dist_Tuning_Corr_Cell_Raw['Dist'] =  Dist_Tuning_Corr_Cell_Raw['Dist_Group']*dist_step
+Dist_Tuning_Corr_Cell_Raw['Tuning_Diff'] =  round(Dist_Tuning_Corr_Cell_Raw['Tuning_Group']*tuning_step,3)
+# Do the same on regressed data
+Dist_Tuning_Corr_Cell_Reg = pd.DataFrame(columns = ['Dist_Group','Tuning_Group','Avr_Corr'])
+cell_by_cell_tuning_dist_regressed['Dist_group'] = cell_by_cell_tuning_dist_regressed['Dist']//dist_step+1
+cell_by_cell_tuning_dist_regressed['Td_group'] = cell_by_cell_tuning_dist_regressed['Tuning_Diff']//tuning_step+1
+counter = 0
+tuning_groups = list(cell_by_cell_tuning_dist_regressed.groupby('Td_group'))
+for i,c_tuning_group in enumerate(tuning_groups):
+    c_tuning = c_tuning_group[0]
+    c_tuning_group_frame = c_tuning_group[1]
+    c_dist_groups = list(c_tuning_group_frame.groupby('Dist_group'))
+    for j in range(len(c_dist_groups)):
+        c_dist = c_dist_groups[j][0]
+        c_tuning_avr = c_dist_groups[j][1]['Corr'].mean()
+        Dist_Tuning_Corr_Cell_Reg.loc[counter] = [c_dist,c_tuning,c_tuning_avr]
+        counter +=1
+Dist_Tuning_Corr_Cell_Reg['Dist'] =  Dist_Tuning_Corr_Cell_Reg['Dist_Group']*dist_step
+Dist_Tuning_Corr_Cell_Reg['Tuning_Diff'] =  round(Dist_Tuning_Corr_Cell_Reg['Tuning_Group']*tuning_step,3)
+ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results', 'Corr_Dist_Tuning_Cell_Raw',Dist_Tuning_Corr_Cell_Raw)
+ot.Save_Variable(r'G:\Test_Data\2P\210831_L76_2P\_All_Results', 'Corr_Dist_Tuning_Cell_Regressed',Dist_Tuning_Corr_Cell_Reg)
+# get cell by cell heat map.
+Corr_Heatmap_Cell = Dist_Tuning_Corr_Cell_Raw.pivot(index = 'Dist',columns = 'Tuning_Diff',values = 'Avr_Corr')
+Corr_Heatmap_Cell_reg = Dist_Tuning_Corr_Cell_Reg.pivot(index = 'Dist',columns = 'Tuning_Diff',values = 'Avr_Corr')
+
+#%% Do linear regression for cell by cell data.
+from sklearn.linear_model import LinearRegression
+X = cell_by_cell_tuning_dist_regressed.loc[:,['Dist','Tuning_Diff']]
+Y = cell_by_cell_tuning_dist_regressed.loc[:,['Corr']]
+model = LinearRegression()
+model.fit(X,Y)
+model.score(X,Y)
+sns.pairplot(cell_by_cell_tuning_dist_regressed,x_vars = ['Dist','Tuning_Diff'] ,y_vars = 'Corr',plot_kws=dict(scatter_kws=dict(s=1)),aspect = 1.5,kind = 'reg',size = 7)

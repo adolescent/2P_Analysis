@@ -80,5 +80,20 @@ sns.lmplot(data = hued_cell_by_cell_corr,x = 'Tuning_Diff',y = 'Corr',hue = 'Typ
 #%% group data.
 grouped_cell_by_cell_corr = list(hued_cell_by_cell_corr.groupby('Type'))
 #same_sets = grouped_cell_by_cell_corr[2][1]
-sns.lmplot(data = grouped_cell_by_cell_corr[3][1],x = 'Tuning_Diff',y = 'Corr',hue = 'Type',scatter_kws = {'s':3,'alpha':0.5})    
+sns.lmplot(data = grouped_cell_by_cell_corr[0][1],x = 'Tuning_Diff',y = 'Corr',hue = 'Type',scatter_kws = {'s':3,'alpha':0.5})    
+
+
+# get group data hists.
+sns.histplot(data = grouped_cell_by_cell_corr[0][1],x = 'Corr',hue = 'Type',bins = 200)    
+sns.histplot(data = grouped_cell_by_cell_corr[2][1],x = 'Corr',hue = 'Type',bins = 200) 
+
+plt.hist(grouped_cell_by_cell_corr[0][1]['Corr'][0:3800],bins= 150,alpha = 0.6,color = 'r')
+plt.hist(grouped_cell_by_cell_corr[2][1]['Corr'][3800:7600],bins= 150,alpha = 0.6,color = 'b')
+	
+# Do welch's t test to see differences.
+# This shall use ttest_ind and equal_var=False
+from scipy import stats
+stats.ttest_ind(grouped_cell_by_cell_corr[0][1]['Corr'], grouped_cell_by_cell_corr[2][1]['Corr'], equal_var=False)
+
+
 

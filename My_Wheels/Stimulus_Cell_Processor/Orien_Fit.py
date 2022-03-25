@@ -116,7 +116,13 @@ class Orientation_Pref_Fit(object):
         try:
             parameters, covariance = curve_fit(Mises_Function, cc_response.loc[:,'angle_rad'],cc_response.loc[:,'response'],maxfev=30000)
         except RuntimeError:
-            parameters, covariance = curve_fit(Mises_Function, cc_response.loc[:,'angle_rad'],cc_response.loc[:,'response'],maxfev=30000,p0 = [0,0,0,0,0,0])
+            try:
+                parameters, covariance = curve_fit(Mises_Function, cc_response.loc[:,'angle_rad'],cc_response.loc[:,'response'],maxfev=50000,p0 = [0,0,0,0,0,0])
+            except RuntimeError:
+                try:
+                    parameters, covariance = curve_fit(Mises_Function, cc_response.loc[:,'angle_rad'],cc_response.loc[:,'response'],maxfev=50000,p0 = [0.2,1,-0.4,-0.2,1,1.5])
+                except RuntimeError:
+                    return None,None,None,None,None,None
         # fit function using fitted results.
         filled_angle = np.arange(0,2*np.pi,0.01)
         pred_y = Mises_Function(filled_angle,parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5])        
@@ -160,19 +166,25 @@ class Orientation_Pref_Fit(object):
             self.Cell_Orientation_Tuning[cc] = {}
             cc_response = self.Orientation_Response_Dic[cc]
             c_best_angle,c_best_reaction,c_para,c_cov,c_FWHM,c_SNR = self.Angle_Fit_Core(cc_response,angle_width = 45)
-            self.Cell_Orientation_Tuning[cc]['Best_Angle'] = c_best_angle
-            self.Cell_Orientation_Tuning[cc]['Best_Reaction'] = c_best_reaction
-            self.Cell_Orientation_Tuning[cc]['Parameters'] = c_para
-            self.Cell_Orientation_Tuning[cc]['Coviriance'] = c_cov
-            self.Cell_Orientation_Tuning[cc]['FWHM'] = c_FWHM
-            self.Cell_Orientation_Tuning[cc]['SNR'] = c_SNR
+            if c_best_angle != None:
+                self.Cell_Orientation_Tuning[cc]['Best_Angle'] = c_best_angle
+                self.Cell_Orientation_Tuning[cc]['Best_Reaction'] = c_best_reaction
+                self.Cell_Orientation_Tuning[cc]['Parameters'] = c_para
+                self.Cell_Orientation_Tuning[cc]['Coviriance'] = c_cov
+                self.Cell_Orientation_Tuning[cc]['FWHM'] = c_FWHM
+                self.Cell_Orientation_Tuning[cc]['SNR'] = c_SNR
+                
+                filled_angle = np.arange(0,2*np.pi,0.01)
+                pred_y = Mises_Function(filled_angle,c_para[0],c_para[1],c_para[2],c_para[3],c_para[4],c_para[5])        
+                sns.lineplot(data = cc_response,x = 'angle',y = 'response')
+                sns.lineplot(x = filled_angle*180/np.pi,y = pred_y)
+                plt.savefig(save_folder+r'\\'+cc+'.png', dpi = 180)
+                plt.close()
+            else:
+                self.Cell_Orientation_Tuning[cc] = None
             
-            filled_angle = np.arange(0,2*np.pi,0.01)
-            pred_y = Mises_Function(filled_angle,c_para[0],c_para[1],c_para[2],c_para[3],c_para[4],c_para[5])        
-            sns.lineplot(data = cc_response,x = 'angle',y = 'response')
-            sns.lineplot(x = filled_angle*180/np.pi,y = pred_y)
-            plt.savefig(save_folder+r'\\'+cc+'.png', dpi = 180)
-            plt.close()
+
+            
             
             
             

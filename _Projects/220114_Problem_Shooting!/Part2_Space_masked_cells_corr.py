@@ -253,3 +253,6 @@ model = LinearRegression()
 model.fit(X,Y)
 model.score(X,Y)
 sns.pairplot(cell_by_cell_tuning_dist_regressed,x_vars = ['Dist','Tuning_Diff'] ,y_vars = 'Corr',plot_kws=dict(scatter_kws=dict(s=1)),aspect = 1.5,kind = 'reg',size = 7)
+
+
+

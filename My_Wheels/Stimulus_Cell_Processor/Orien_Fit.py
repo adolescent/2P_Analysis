@@ -184,7 +184,11 @@ class Orientation_Pref_Fit(object):
                 self.Cell_Orientation_Tuning[cc] = None
             
 
-            
+    def One_Key_Fit(self):
+        Oft.ID_Angle_Response()
+        Oft.Get_Orien_Data()
+        Oft.Angle_Fit_All()
+        return self.Cell_Orientation_Tuning
             
             
             

@@ -32,3 +32,4 @@ My_Wheels/.pylint.d/main1.stats
 *.tif
 *.exe
 Other Usage Codes/Screen_Capture/bless.ico
+*.npz

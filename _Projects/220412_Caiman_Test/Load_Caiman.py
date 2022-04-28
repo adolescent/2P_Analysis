@@ -25,13 +25,27 @@ from caiman.source_extraction.cnmf.params import CNMFParams
 #%%
 
 day_folder = r'G:\Test_Data\2P\222222_L76_Fake_Data_For_Caiman'
-cnm_obj = load_CNMF(day_folder+r'\analysis_results.hdf5')
-cnm_obj.mmap_file = day_folder+r'\memmap__d1_512_d2_512_d3_1_order_C_frames_945_.mmap'
+cnm2 = load_CNMF(day_folder+r'\analysis_results.hdf5')
+cnm2.mmap_file = day_folder+r'\memmap__d1_512_d2_512_d3_1_order_C_frames_945_.mmap'
 
-Yr, dims, T = cm.load_memmap(cnm_obj.mmap_file)
+Yr, dims, T = cm.load_memmap(cnm2.mmap_file)
+images = np.reshape(Yr.T, [T] + list(dims), order='F') 
+Cn = cm.local_correlations(images.transpose(1,2,0))
+Cn[np.isnan(Cn)] = 0
+cnm2.estimates.plot_contours_nb(img=Cn)
 
-denoised = cm.movie(cnm_obj.estimates.A.dot(cnm_obj.estimates.C) + \
-                    cnm_obj.estimates.b.dot(cnm_obj.estimates.f)).reshape(dims + (-1,), order='F').transpose([2, 0, 1])
-    
-cnm_obj.estimates.W = None
-cnm_obj.estimates.play_movie(denoised,save_movie = True)
+
+#%% Extract DF/F values
+cnm2.estimates.detrend_df_f(quantileMin=8, frames_window=250)
+#cnm2.estimates.nb_view_components(img=Cn, denoised_color='red')# This will include not passed comp in.
+cnm2.estimates.nb_view_components(img=Cn, denoised_color='red',idx = cnm2.estimates.idx_components)
+import matplotlib.pyplot as plt
+plt.figure()
+#To view the spatial components, their corresponding vectors need first to be reshaped into 2d images. For example if you want to view the i-th component you can type
+# This will get component i's spatial map.
+plt.imshow(np.reshape(cnm2.estimates.A[:,0].toarray(), dims, order='F'))
+# this will get components i's temperal map.
+temperal_series = cnm2.estimates.C[0,:]
+dF_F = cnm2.estimates.F_dff[0,:]*1000
+plt.plot(temperal_series)
+plt.plot(dF_F)

@@ -12,6 +12,7 @@ import os
 import pickle
 import List_Operation_Kit as List_Tools
 
+
 #%% Function1:Make Dictionary
 def mkdir(path,mute = False):
     '''
@@ -261,3 +262,15 @@ def Bit_Filler(number,bit_num = 4):
     added_num = base_num+int(number)
     filled_num = str(added_num)[1:]
     return filled_num
+
+
+#%% Memory_Log
+def Memory_Logging(save_path,interval = 10):
+    import psutil
+    import time    
+    with open(save_path+r'\\Memory_Log.txt','w') as f:
+        while(1):
+            c_mem_use = psutil.virtual_memory().used/ 1024 / 1024 / 1024
+            print('Current Memory Usage: %.4f GB' % c_mem_use)
+            f.write(str(c_mem_use)+' GB Memory Used.\n')
+            time.sleep(interval)

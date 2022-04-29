@@ -5,7 +5,7 @@ Created on Tue Apr 19 16:50:07 2022
 @author: ZR
 """
 
-
+import os
 from Decorators import Timer
 import time
 import Graph_Operation_Kit as gt
@@ -27,14 +27,14 @@ from caiman.source_extraction.cnmf import params as params
 from caiman.utils.utils import download_demo
 from caiman.utils.visualization import plot_contours, nb_view_patches, nb_plot_contour
 
-#
+
 
 
 class One_Key_Caiman(object):
     
     name = r'Caiman operation '
     
-    def __init__(self,day_folder,run_lists,fps = 1.301):
+    def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003'):
         self.day_folder = day_folder
         self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)
         all_data_folders = lt.List_Annex([day_folder], self.run_subfolders)
@@ -42,6 +42,7 @@ class One_Key_Caiman(object):
         ot.mkdir(self.work_path)
         self.frame_lists = Graph_Packer(all_data_folders, self.work_path)
         self.fps = fps
+        self.align_base = align_base
         
     def Parameter_Initial(self):
         self.all_stack_names = ot.Get_File_Name(self.work_path)
@@ -77,6 +78,8 @@ class One_Key_Caiman(object):
         self.opts = params.CNMFParams(params_dict=opts_dict)   
         
     def Motion_Correct(self):
+        if 'dview' in locals():
+            cm.stop_server(dview=dview)
         #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
         c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
         mc = MotionCorrect(self.all_stack_names, dview=dview , **self.opts.get_group('motion'))
@@ -84,24 +87,86 @@ class One_Key_Caiman(object):
         mc.motion_correct(save_movie=True)
         stop_time = time.time()
         print('Motion Correction Cost:'+str(stop_time-start_time)+'s.')
-        m_els = cm.load(mc.fname_tot_els)
         border_to_0 = 0 if mc.border_nan == 'copy' else mc.border_to_0 
-        display_movie = True
-        if display_movie:
-            m_orig = cm.load_movie_chain(self.all_stack_names)
-            ds_ratio = 0.2
-            cm.concatenate([m_orig.resize(1, 1, ds_ratio) - mc.min_mov*mc.nonneg_movie,
-                            m_els.resize(1, 1, ds_ratio)], 
-                           axis=2).play(fr=60, gain=1, magnification=2, offset=0,
-                                        save_movie = True,opencv_codec = 'MPGE',movie_name = self.work_path+r'\Align_Compare.mp4')  # press q to exit
+# =============================================================================
+#         m_els = cm.load(mc.fname_tot_els)
+#         display_movie = True
+#         if display_movie:
+#             m_orig = cm.load_movie_chain(self.all_stack_names)
+#             ds_ratio = 0.1
+#             cm.concatenate([m_orig.resize(1, 1, ds_ratio) - mc.min_mov*mc.nonneg_movie,
+#                             m_els.resize(1, 1, ds_ratio)], 
+#                            axis=2).play(fr=60, gain=1, magnification=2, offset=0,
+#                                         save_movie = True,opencv_codec = 'MPGE',movie_name = self.work_path+r'\Align_Compare.mp4')  # press q to exit
+# =============================================================================
         # Save corrected graph in mmap files.
-        fname_new = cm.save_memmap(mc.mmap_file, base_name='memmap_', order='C',
-                                   border_to_0=border_to_0, dview=dview) # exclude borders
+        fname_new = cm.save_memmap(mc.mmap_file, base_name='memmap_', order='C',border_to_0=border_to_0, dview=dview) # exclude borders
+        # Clost the cluster to release memory.
+        cm.stop_server(dview=dview)
         # now load the file
         self.Yr, self.dims, self.T = cm.load_memmap(fname_new)
         self.images = np.reshape(self.Yr.T, [self.T] + list(self.dims), order='F') 
-        # Clost the cluster to release memory.
+        
+        
+    def Motion_Correct_Single_File(self,c_runname,tamplate = None):
+        
+        used_filename = c_runname.split('\\')[-1][:-4]
+        if 'dview' in locals():
+            cm.stop_server(dview=dview)
+        #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
+        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
+        mc = MotionCorrect(c_runname, dview=dview , **self.opts.get_group('motion'))
+        mc.motion_correct(template = tamplate,save_movie=True)
+        border_to_0 = 0 if mc.border_nan == 'copy' else mc.border_to_0 
+        fname_new = cm.save_memmap(mc.mmap_file, base_name=used_filename, order='C',border_to_0=border_to_0, dview=dview) # exclude borders
         cm.stop_server(dview=dview)
+        os.remove(mc.mmap_file[0])
+        # now load the file
+# =============================================================================
+#         Yr, dims, T = cm.load_memmap(fname_new)
+#         crun_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
+#         run_averaged_graph = crun_series.mean(0)
+# =============================================================================
+        return fname_new
+        
+        
+    def Motion_Correction_Low_Memory(self):
+        
+        all_stack_names = ot.Get_File_Name(self.work_path,'.tif')
+        tamplate_runname = self.work_path+'\\'+self.align_base+'.tif'
+        # get tamplate average first.
+        tamplate_filename = self.Motion_Correct_Single_File(tamplate_runname)
+        Yr, dims, T = cm.load_memmap(tamplate_filename)
+        tamplate_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
+        tamplate = tamplate_series.mean(0)
+        clipped_tamplate = gt.Clip_And_Normalize(tamplate,clip_std = 5)
+        gt.Show_Graph(clipped_tamplate, 'Align_Template', self.work_path)
+        del Yr,dims,T,tamplate_series
+        # Then align other runs.
+        for i,c_run in enumerate(all_stack_names):
+            if c_run.split('\\')[-1][:-4] != self.align_base:
+                self.Motion_Correct_Single_File(c_run,tamplate = tamplate)
+        # Then, we need to get global image file for cell find.
+        all_mmap_name = ot.Get_File_Name(self.work_path,file_type = '.mmap')
+        final_name = cm.save_memmap_join(all_mmap_name)
+        Yr, self.dims, T = cm.load_memmap(final_name)
+        self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F')
+# =============================================================================
+#         if len(all_mmap_name) == 1:
+#             Yr, self.dims, T = cm.load_memmap(all_mmap_name[0])
+#             self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F') 
+#         else:
+#             Yr, self.dims, T = cm.load_memmap(all_mmap_name[0])
+#             for i in range(1,len(all_mmap_name)):
+#                 c_append_Yr, _, c_append_T = cm.load_memmap(all_mmap_name[i])
+#                 Yr = np.concatenate((Yr,c_append_Yr),axis = 1)
+#                 T += c_append_T
+#         self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F')
+#         
+# =============================================================================
+        return True
+        
+        
         
     @Timer
     def Cell_Find(self):
@@ -122,6 +187,7 @@ class One_Key_Caiman(object):
         
     def Series_Generator(self):
         # This part is used to generate able cell parts.
+        self.cnm2.estimates.plot_contours_nb(img=self.Cn, idx=self.cnm2.estimates.idx_components)
         self.cell_series_dic = {}
         for i,cc in tqdm(enumerate(self.real_cell_ids)):
             self.cell_series_dic[i+1] = {}
@@ -145,21 +211,34 @@ class One_Key_Caiman(object):
         gt.Show_Graph(clipped_avr, 'Global_Average_cai', self.work_path)
         # Then plot counter graph.
         self.cnm2.estimates.plot_contours(img=clipped_avr, idx=self.cnm2.estimates.idx_components)
-        for i,cc in enumerate(self.real_cell_ids):
-            
-    
-    def Do_Caiman_Calculation(self):
+        graph_base = cv2.cvtColor(clipped_avr, cv2.COLOR_GRAY2BGR) 
+        for i in range(len(self.cell_series_dic)):
+            c_y,c_x = self.cell_series_dic[i+1]['Cell_Loc']
+            cv2.circle(graph_base,(int(c_x),int(c_y)),radius = 5,color = (0,0,65535),thickness =1)
+        gt.Show_Graph(graph_base, 'Annotated_Graph', self.work_path)
         
+    def Do_Caiman_Calculation_Huge_Memory(self):
+        # One key from align to cell find.
+        # This only work is memory is large enough. In most time we have to use following ones.
         self.Parameter_Initial()
         self.Motion_Correct()
         self.Cell_Find()
         self.Series_Generator()
         self.Plot_Necessary_Graphs()
         
+    def Do_Caiman_Calculation(self):
+        self.Parameter_Initial()
+        self.Motion_Correction_Low_Memory()
+        self.Cell_Find()
+        self.Series_Generator()
+        self.Plot_Necessary_Graphs()
         
  #%% Test run part.       
 if __name__ == '__main__' :
     day_folder = r'G:\Test_Data\2P\220421_L85'
-    run_lists = [4,5]
-    Okc = One_Key_Caiman(day_folder, run_lists)
+    run_lists = [4,5,6]
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-004')
     Okc.Do_Caiman_Calculation()
+    #Okc.Do_Caiman_Calculation()
+    # Check memory using problems.
+    

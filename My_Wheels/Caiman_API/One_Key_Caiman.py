@@ -33,34 +33,38 @@ from caiman.utils.visualization import plot_contours, nb_view_patches, nb_plot_c
 class One_Key_Caiman(object):
     
     name = r'Caiman operation '
-    
-    def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003'):
+    # Boulder in range Up,Down,Left,Right.
+    def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20)):
         self.day_folder = day_folder
         self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)
-        all_data_folders = lt.List_Annex([day_folder], self.run_subfolders)
+        self.all_data_folders = lt.List_Annex([day_folder], self.run_subfolders)
         self.work_path = day_folder+r'\_CAIMAN'
         ot.mkdir(self.work_path)
-        self.frame_lists = Graph_Packer(all_data_folders, self.work_path)
+        #self.frame_lists = Graph_Packer(all_data_folders, self.work_path)
         self.fps = fps
         self.align_base = align_base
+        self.boulder = boulder
+        
+    def Pack_Graphs(self):
+        self.frame_lists = Graph_Packer(self.all_data_folders, self.work_path)
         
     def Parameter_Initial(self):
         self.all_stack_names = ot.Get_File_Name(self.work_path)
         opts_dict = {'fnames': self.all_stack_names,# Name list of all 
                      # dataset dependent parameters
                      'fr': self.fps,# Capture frequency
-                     'decay_time': 2.5,# length of a typical transient in seconds
+                     'decay_time': 2,# length of a typical transient in seconds
                      # motion correction parameters
-                     'strides': (48, 48),# start a new patch for pw-rigid motion correction every x pixels
+                     'strides': (100,100),# start a new patch for pw-rigid motion correction every x pixels
                      'overlaps': (24, 24),# overlap between pathes (size of patch strides+overlaps)
-                     'max_shifts': (6,6),# maximum allowed rigid shifts (in pixels)
+                     'max_shifts': (36,36),# maximum allowed rigid shifts (in pixels)
                      'max_deviation_rigid': 3, # maximum shifts deviation allowed for patch with respect to rigid shifts
                      'pw_rigid': True,# flag for performing non-rigid motion correction
                       # parameters for source extraction and deconvolution
                      'p': 1,# order of the autoregressive system
-                     'nb': 2,# number of global background components
-                     'rf': 15,# half-size of the patches in pixels. e.g., if rf=25, patches are 50x50
-                     'K': 4, # number of components per patch
+                     'nb': 5,# number of global background components
+                     'rf': 25,# half-size of the patches in pixels. e.g., if rf=25, patches are 50x50
+                     'K': 6, # number of components per patch
                      'stride': 6,# amount of overlap between the patches in pixels
                      'method_init': 'greedy_roi',# initialization method (if analyzing dendritic data using 'sparse_nmf')
                      'rolling_sum': True,
@@ -68,7 +72,7 @@ class One_Key_Caiman(object):
                      'ssub': 1,# spatial subsampling during initialization
                      'tsub': 1,# temporal subsampling during intialization
                      'merge_thr': 0.85, # merging threshold, max correlation allowed
-                     'min_SNR': 2.0,# signal to noise ratio for accepting a component
+                     'min_SNR': 2,# signal to noise ratio for accepting a component
                      'rval_thr':0.85,# space correlation threshold for accepting a component
                      'use_cnn': True,
                      'min_cnn_thr': 0.99,# threshold for CNN based classifier
@@ -104,12 +108,15 @@ class One_Key_Caiman(object):
         # Clost the cluster to release memory.
         cm.stop_server(dview=dview)
         # now load the file
-        self.Yr, self.dims, self.T = cm.load_memmap(fname_new)
-        self.images = np.reshape(self.Yr.T, [self.T] + list(self.dims), order='F') 
-        
+        Yr, self.dims, T = cm.load_memmap(fname_new)
+        self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F') 
+        # Plot global average
+        global_avr = self.images.mean(0)
+        self.clipped_avr = gt.Clip_And_Normalize(global_avr,clip_std = 5)
+        gt.Show_Graph(self.clipped_avr, 'Global_Average_cai', self.work_path)
         
     def Motion_Correct_Single_File(self,c_runname,tamplate = None):
-        
+        # this is the core file of motion correction.
         used_filename = c_runname.split('\\')[-1][:-4]
         if 'dview' in locals():
             cm.stop_server(dview=dview)
@@ -151,6 +158,10 @@ class One_Key_Caiman(object):
         final_name = cm.save_memmap_join(all_mmap_name)
         Yr, self.dims, T = cm.load_memmap(final_name)
         self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F')
+        # Plot global average
+        global_avr = self.images.mean(0)
+        self.clipped_avr = gt.Clip_And_Normalize(global_avr,clip_std = 5)
+        gt.Show_Graph(self.clipped_avr, 'Global_Average_cai', self.work_path)
 # =============================================================================
 #         if len(all_mmap_name) == 1:
 #             Yr, self.dims, T = cm.load_memmap(all_mmap_name[0])
@@ -182,12 +193,22 @@ class One_Key_Caiman(object):
         self.cnm2 = cnm.refit(self.images, dview=dview)
         self.cnm2.estimates.evaluate_components(self.images, self.cnm2.params, dview=dview)
         self.cnm2.estimates.detrend_df_f(quantileMin=8, frames_window=250)
-        self.real_cell_ids = self.cnm2.estimates.idx_components
+        self.cnm2.estimates.plot_contours_nb(img=self.Cn, idx=self.cnm2.estimates.idx_components)
+        
+        # Wash cells, delete cell near boulder.
+        self.real_cell_ids = []
+        y_range = (self.boulder[0],self.dims[0]-self.boulder[1])
+        x_range = (self.boulder[2],self.dims[1]-self.boulder[3])
+        for i,c_comp in enumerate(self.cnm2.estimates.idx_components):
+            c_loc = self.cnm2.estimates.coordinates[c_comp]['CoM']
+            if (c_loc[0]>x_range[0] and c_loc[0]<x_range[1]) and (c_loc[1]>y_range[0] and c_loc[1]<y_range[1]):
+                self.real_cell_ids.append(c_comp)
+            
         self.cnm2.save(self.work_path+r'\analysis_results.hdf5')
         
     def Series_Generator(self):
         # This part is used to generate able cell parts.
-        self.cnm2.estimates.plot_contours_nb(img=self.Cn, idx=self.cnm2.estimates.idx_components)
+        self.cnm2.estimates.plot_contours_nb(img=self.Cn, idx=self.real_cell_ids)
         self.cell_series_dic = {}
         for i,cc in tqdm(enumerate(self.real_cell_ids)):
             self.cell_series_dic[i+1] = {}
@@ -205,13 +226,10 @@ class One_Key_Caiman(object):
     
     def Plot_Necessary_Graphs(self):
         # This part is used to generate personal used parts of data.
-        # First,plot global average
-        global_avr = self.images.mean(0)
-        clipped_avr = gt.Clip_And_Normalize(global_avr,clip_std = 5)
-        gt.Show_Graph(clipped_avr, 'Global_Average_cai', self.work_path)
+        
         # Then plot counter graph.
-        self.cnm2.estimates.plot_contours(img=clipped_avr, idx=self.cnm2.estimates.idx_components)
-        graph_base = cv2.cvtColor(clipped_avr, cv2.COLOR_GRAY2BGR) 
+        self.cnm2.estimates.plot_contours(img=self.clipped_avr, idx=self.real_cell_ids)
+        graph_base = cv2.cvtColor(self.clipped_avr, cv2.COLOR_GRAY2BGR) 
         for i in range(len(self.cell_series_dic)):
             c_y,c_x = self.cell_series_dic[i+1]['Cell_Loc']
             cv2.circle(graph_base,(int(c_x),int(c_y)),radius = 5,color = (0,0,65535),thickness =1)
@@ -220,6 +238,7 @@ class One_Key_Caiman(object):
     def Do_Caiman_Calculation_Huge_Memory(self):
         # One key from align to cell find.
         # This only work is memory is large enough. In most time we have to use following ones.
+        self.Pack_Graphs()
         self.Parameter_Initial()
         self.Motion_Correct()
         self.Cell_Find()
@@ -227,6 +246,7 @@ class One_Key_Caiman(object):
         self.Plot_Necessary_Graphs()
         
     def Do_Caiman_Calculation(self):
+        self.Pack_Graphs()
         self.Parameter_Initial()
         self.Motion_Correction_Low_Memory()
         self.Cell_Find()
@@ -235,10 +255,19 @@ class One_Key_Caiman(object):
         
  #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'G:\Test_Data\2P\220421_L85'
-    run_lists = [4,5,6]
-    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-004')
-    Okc.Do_Caiman_Calculation()
-    #Okc.Do_Caiman_Calculation()
+    day_folder = r'G:\Test_Data\2P\220415_L76'
+    run_lists = [1,2,3,6,7,8]
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003')
+    Okc.Do_Caiman_Calculation_Huge_Memory()
+# =============================================================================
+#   Use this for debug.
+#     Okc.Pack_Graphs()
+#     Okc.Parameter_Initial()
+#     Okc.Motion_Correction_Low_Memory()
+#     Okc.Cell_Find()
+#     Okc.Series_Generator()
+#     Okc.Plot_Necessary_Graphs()
+# =============================================================================
+    #
     # Check memory using problems.
     

@@ -57,7 +57,7 @@ class One_Key_Caiman(object):
                      # motion correction parameters
                      'strides': (100,100),# start a new patch for pw-rigid motion correction every x pixels
                      'overlaps': (24, 24),# overlap between pathes (size of patch strides+overlaps)
-                     'max_shifts': (36,36),# maximum allowed rigid shifts (in pixels)
+                     'max_shifts': (50,50),# maximum allowed rigid shifts (in pixels)
                      'max_deviation_rigid': 3, # maximum shifts deviation allowed for patch with respect to rigid shifts
                      'pw_rigid': True,# flag for performing non-rigid motion correction
                       # parameters for source extraction and deconvolution
@@ -162,6 +162,7 @@ class One_Key_Caiman(object):
         global_avr = self.images.mean(0)
         self.clipped_avr = gt.Clip_And_Normalize(global_avr,clip_std = 5)
         gt.Show_Graph(self.clipped_avr, 'Global_Average_cai', self.work_path)
+        time.sleep(300)
 # =============================================================================
 #         if len(all_mmap_name) == 1:
 #             Yr, self.dims, T = cm.load_memmap(all_mmap_name[0])
@@ -182,6 +183,7 @@ class One_Key_Caiman(object):
     @Timer
     def Cell_Find(self):
         # restart cluster to clean up memory
+        print('Start Cell Finding...')
         c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
         # RUN CNMF ON PATCHES
         cnm = cnmf.CNMF(n_processes, params=self.opts, dview=dview)
@@ -235,6 +237,7 @@ class One_Key_Caiman(object):
             cv2.circle(graph_base,(int(c_x),int(c_y)),radius = 5,color = (0,0,65535),thickness =1)
         gt.Show_Graph(graph_base, 'Annotated_Graph', self.work_path)
         
+    @Timer
     def Do_Caiman_Calculation_Huge_Memory(self):
         # One key from align to cell find.
         # This only work is memory is large enough. In most time we have to use following ones.
@@ -245,6 +248,7 @@ class One_Key_Caiman(object):
         self.Series_Generator()
         self.Plot_Necessary_Graphs()
         
+    @Timer    
     def Do_Caiman_Calculation(self):
         self.Pack_Graphs()
         self.Parameter_Initial()
@@ -255,10 +259,10 @@ class One_Key_Caiman(object):
         
  #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'G:\Test_Data\2P\220415_L76'
-    run_lists = [1,2,3,6,7,8]
-    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003')
-    Okc.Do_Caiman_Calculation_Huge_Memory()
+    day_folder = r'D:\ZR\_Temp_Data\210721_L76_2P'
+    run_lists = [3]
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (25,25,25,25))
+    Okc.Do_Caiman_Calculation()
 # =============================================================================
 #   Use this for debug.
 #     Okc.Pack_Graphs()

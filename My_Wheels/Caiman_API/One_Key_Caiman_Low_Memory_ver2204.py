@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 """
+Created on Thu May 12 14:42:50 2022
+
+@author: adolescent
+
+This function will not use multi thread, in order to save memory usage.
+"""
+
+
+# -*- coding: utf-8 -*-
+"""
 Created on Tue Apr 19 16:50:07 2022
 
 @author: ZR
@@ -28,7 +38,7 @@ from caiman.utils.utils import download_demo
 from caiman.utils.visualization import plot_contours, nb_view_patches, nb_plot_contour
 
 
-
+#%%
 
 class One_Key_Caiman(object):
     
@@ -57,7 +67,7 @@ class One_Key_Caiman(object):
                      # motion correction parameters
                      'strides': (100,100),# start a new patch for pw-rigid motion correction every x pixels
                      'overlaps': (24, 24),# overlap between pathes (size of patch strides+overlaps)
-                     'max_shifts': (50,50),# maximum allowed rigid shifts (in pixels)
+                     'max_shifts': (75,75),# maximum allowed rigid shifts (in pixels)
                      'max_deviation_rigid': 3, # maximum shifts deviation allowed for patch with respect to rigid shifts
                      'pw_rigid': True,# flag for performing non-rigid motion correction
                       # parameters for source extraction and deconvolution
@@ -77,16 +87,12 @@ class One_Key_Caiman(object):
                      'use_cnn': True,
                      'min_cnn_thr': 0.99,# threshold for CNN based classifier
                      'cnn_lowest': 0.1,# neurons with cnn probability lower than this value are rejected
-                     'use_cuda' : True # Set this to use cuda for motion correction.
+                     'use_cuda' : False # Set this to use cuda for motion correction.
                      }
         self.opts = params.CNMFParams(params_dict=opts_dict)   
         
     def Motion_Correct(self):
-        if 'dview' in locals():
-            cm.stop_server(dview=dview)
-        #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
-        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
-        mc = MotionCorrect(self.all_stack_names, dview=dview , **self.opts.get_group('motion'))
+        mc = MotionCorrect(self.all_stack_names, **self.opts.get_group('motion'))
         start_time = time.time()
         mc.motion_correct(save_movie=True)
         stop_time = time.time()
@@ -104,9 +110,9 @@ class One_Key_Caiman(object):
 #                                         save_movie = True,opencv_codec = 'MPGE',movie_name = self.work_path+r'\Align_Compare.mp4')  # press q to exit
 # =============================================================================
         # Save corrected graph in mmap files.
-        fname_new = cm.save_memmap(mc.mmap_file, base_name='memmap_', order='C',border_to_0=border_to_0, dview=dview) # exclude borders
+        fname_new = cm.save_memmap(mc.mmap_file, base_name='memmap_', order='C',border_to_0=border_to_0) # exclude borders
         # Clost the cluster to release memory.
-        cm.stop_server(dview=dview)
+        cm.stop_server()
         # now load the file
         Yr, self.dims, T = cm.load_memmap(fname_new)
         self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F') 
@@ -118,15 +124,11 @@ class One_Key_Caiman(object):
     def Motion_Correct_Single_File(self,c_runname,tamplate = None):
         # this is the core file of motion correction.
         used_filename = c_runname.split('\\')[-1][:-4]
-        if 'dview' in locals():
-            cm.stop_server(dview=dview)
-        #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
-        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
-        mc = MotionCorrect(c_runname, dview=dview , **self.opts.get_group('motion'))
+        mc = MotionCorrect(c_runname, **self.opts.get_group('motion'))
         mc.motion_correct(template = tamplate,save_movie=True)
         border_to_0 = 0 if mc.border_nan == 'copy' else mc.border_to_0 
-        fname_new = cm.save_memmap(mc.mmap_file, base_name=used_filename, order='C',border_to_0=border_to_0, dview=dview) # exclude borders
-        cm.stop_server(dview=dview)
+        fname_new = cm.save_memmap(mc.mmap_file, base_name=used_filename, order='C',border_to_0=border_to_0) # exclude borders
+        cm.stop_server()
         os.remove(mc.mmap_file[0])
         # now load the file
 # =============================================================================
@@ -184,16 +186,15 @@ class One_Key_Caiman(object):
     def Cell_Find(self):
         # restart cluster to clean up memory
         print('Start Cell Finding...')
-        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
         # RUN CNMF ON PATCHES
-        cnm = cnmf.CNMF(n_processes, params=self.opts, dview=dview)
+        cnm = cnmf.CNMF(1, params=self.opts)
         cnm = cnm.fit(self.images)
         # plot contours of found components
         self.Cn = cm.local_correlations(self.images.transpose(1,2,0))
         self.Cn[np.isnan(self.Cn)] = 0
         cnm.estimates.plot_contours_nb(img=self.Cn)
-        self.cnm2 = cnm.refit(self.images, dview=dview)
-        self.cnm2.estimates.evaluate_components(self.images, self.cnm2.params, dview=dview)
+        self.cnm2 = cnm.refit(self.images)
+        self.cnm2.estimates.evaluate_components(self.images, self.cnm2.params)
         self.cnm2.estimates.detrend_df_f(quantileMin=8, frames_window=250)
         self.cnm2.estimates.plot_contours_nb(img=self.Cn, idx=self.cnm2.estimates.idx_components)
         
@@ -259,8 +260,8 @@ class One_Key_Caiman(object):
         
  #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'D:\ZR\_Temp_Data\210721_L76_2P'
-    run_lists = [3]
+    day_folder = r'D:\Test_Data\2P\220505_L85'
+    run_lists = [1,2,3,6,7,]
     Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (25,25,25,25))
     Okc.Do_Caiman_Calculation()
 # =============================================================================

@@ -1,0 +1,237 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 18 12:53:44 2022
+
+@author: adolescent
+
+New caiman operator finished on 220518, this part is parameter adjustable,
+
+"""
+
+import os
+from Decorators import Timer
+import time
+import Graph_Operation_Kit as gt
+import OS_Tools_Kit as ot
+import List_Operation_Kit as lt
+from Caiman_API.Pack_Graphs import Graph_Packer
+import bokeh.plotting as bpl
+from tqdm import tqdm
+import cv2
+import glob
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import caiman as cm
+from caiman.motion_correction import MotionCorrect
+from caiman.source_extraction.cnmf import cnmf as cnmf
+from caiman.source_extraction.cnmf import params as params
+from caiman.utils.utils import download_demo
+from caiman.utils.visualization import plot_contours, nb_view_patches, nb_plot_contour
+from PIL import ImageFont
+from PIL import Image
+from PIL import ImageDraw
+import skimage.io
+
+#%%
+
+class One_Key_Caiman(object):
+    
+    name = r'Caiman Align and Cell Find.'
+    # Boulder in UDLR sequense.
+    def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),
+                 max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
+                 bk_comp_num = 3,rf = 25,k = 6,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.85,
+                 min_cnn_thres = 0.99,cnn_lowest = 0.1,use_cuda = True):
+        
+        self.day_folder = day_folder
+        self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)
+        self.all_data_folders = lt.List_Annex([day_folder], self.run_subfolders)
+        self.work_path = day_folder+r'\_CAIMAN'
+        ot.mkdir(self.work_path)
+        #self.frame_lists = Graph_Packer(all_data_folders, self.work_path)
+        self.fps = fps
+        self.align_base = align_base
+        self.boulder = boulder
+        # Check stack frame
+        self.all_stack_names = ot.Get_File_Name(self.work_path)
+        if self.all_stack_names == []:# if stack is unfinished
+            print('Frame Stacks not Generated yet, stacking frames..')
+            self.frame_lists = Graph_Packer(self.all_data_folders, self.work_path)
+            self.all_stack_names = ot.Get_File_Name(self.work_path)
+        else:
+            print('Frame stacks already done.')
+            self.frame_lists = []
+            for i,c_path in enumerate(self.all_stack_names):
+                c_frame_num = skimage.io.imread(c_path).shape[0]
+                self.frame_lists.append(c_frame_num)
+        # Generate Parameter dictionary.
+        opts_dict = {'fnames': self.all_stack_names,# Name list of all 
+                     # dataset dependent parameters
+                     'fr': self.fps,# Capture frequency
+                     'decay_time': 2,# length of a typical transient in seconds
+                     # motion correction parameters
+                     'strides': align_batchsize,# start a new patch for pw-rigid motion correction every x pixels
+                     'overlaps': align_overlap,# overlap between pathes (size of patch strides+overlaps)
+                     'max_shifts': max_shift,# maximum allowed rigid shifts (in pixels)
+                     'max_deviation_rigid': align_std, # maximum shifts deviation allowed for patch with respect to rigid shifts
+                     'pw_rigid': True,# flag for performing non-rigid motion correction
+                      # parameters for source extraction and deconvolution
+                     'p': 1,# order of the autoregressive system
+                     'nb': bk_comp_num,# number of global background components
+                     'rf': rf,# half-size of the patches in pixels. e.g., if rf=25, patches are 50x50
+                     'K': k, # number of components per patch
+                     'stride': cnmf_overlap,# amount of overlap between the patches in pixels
+                     'method_init': 'greedy_roi',# initialization method (if analyzing dendritic data using 'sparse_nmf')
+                     'rolling_sum': True,
+                     'only_init': True,
+                     'ssub': 1,# spatial subsampling during initialization
+                     'tsub': 1,# temporal subsampling during intialization
+                     'merge_thr': merge_thr, # merging threshold, max correlation allowed
+                     'min_SNR': snr,# signal to noise ratio for accepting a component
+                     'rval_thr':rval_thr,# space correlation threshold for accepting a component
+                     'use_cnn': True,
+                     'min_cnn_thr': min_cnn_thres,# threshold for CNN based classifier
+                     'cnn_lowest': cnn_lowest,# neurons with cnn probability lower than this value are rejected
+                     'use_cuda' : use_cuda # Set this to use cuda for motion correction.
+                     }
+        self.opts = params.CNMFParams(params_dict=opts_dict)
+        
+    def Motion_Corr_Single(self,c_runname,tamplate = None):
+        used_filename = c_runname.split('\\')[-1][:-4]
+        if 'dview' in locals():
+            cm.stop_server(dview=dview)
+        #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
+        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
+        mc = MotionCorrect(c_runname, dview=dview , **self.opts.get_group('motion'))
+        mc.motion_correct(template = tamplate,save_movie=True)
+        border_to_0 = 0 if mc.border_nan == 'copy' else mc.border_to_0 
+        fname_new = cm.save_memmap(mc.mmap_file, base_name=used_filename, order='C',border_to_0=border_to_0, dview=dview) # exclude borders
+        cm.stop_server(dview=dview)
+        os.remove(mc.mmap_file[0])
+        # now load the file
+# =============================================================================
+#         Yr, dims, T = cm.load_memmap(fname_new)
+#         crun_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
+#         run_averaged_graph = crun_series.mean(0)
+# =============================================================================
+        return fname_new
+    
+    def Motion_Correction_All(self):
+        tamplate_runname = self.work_path+'\\'+self.align_base+'.tif'
+        # get tamplate average first.
+        tamplate_filename = self.Motion_Corr_Single(tamplate_runname)
+        Yr, dims, T = cm.load_memmap(tamplate_filename)
+        tamplate_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
+        tamplate = tamplate_series.mean(0)
+        clipped_tamplate = gt.Clip_And_Normalize(tamplate,clip_std = 5)
+        gt.Show_Graph(clipped_tamplate, 'Align_Template', self.work_path)
+        del Yr,dims,T,tamplate_series
+        # Then align other runs.
+        for i,c_run in enumerate(self.all_stack_names):
+            if c_run.split('\\')[-1][:-4] != self.align_base:
+                self.Motion_Corr_Single(c_run,tamplate = tamplate)
+        # Then, we need to get global image file for cell find.
+        all_mmap_name = ot.Get_File_Name(self.work_path,file_type = '.mmap')
+        final_name = cm.save_memmap_join(all_mmap_name)
+        Yr, self.dims, T = cm.load_memmap(final_name)
+        self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F')
+        # Plot global average
+        self.global_avr = self.images.mean(0)
+        self.clipped_avr = gt.Clip_And_Normalize(self.global_avr,clip_std = 5)
+        gt.Show_Graph(self.clipped_avr, 'Global_Average_cai', self.work_path)
+        time.sleep(15)
+        return True
+
+    def Cell_Find(self,boulders):
+        # Parrel process cost too much memory, here we use no par.
+        # RUN CNMF ON PATCHES
+        cnm = cnmf.CNMF(2,params=self.opts)
+        cnm = cnm.fit(self.images)
+        # plot contours of found components
+        cnm.estimates.plot_contours_nb(img=self.global_avr)
+        # Refit to get real cell
+        self.cnm2 = cnm.refit(self.images)
+        self.cnm2.estimates.evaluate_components(self.images, self.cnm2.params)
+        self.cnm2.estimates.detrend_df_f(quantileMin=8, frames_window=250)
+        self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.cnm2.estimates.idx_components)
+        
+        # Wash cells, delete cell near boulder.
+        self.real_cell_ids = []
+        y_range = (boulders[0],self.dims[0]-boulders[1])
+        x_range = (boulders[2],self.dims[1]-boulders[3])
+        for i,c_comp in enumerate(self.cnm2.estimates.idx_components):
+            c_loc = self.cnm2.estimates.coordinates[c_comp]['CoM']
+            if (c_loc[0]>x_range[0] and c_loc[0]<x_range[1]) and (c_loc[1]>y_range[0] and c_loc[1]<y_range[1]):
+                self.real_cell_ids.append(c_comp)
+        self.cnm2.save(self.work_path+r'\analysis_results.hdf5')
+        comp_id_dict = {}
+        for i,cc in enumerate(self.real_cell_ids):
+            comp_id_dict[i+1] = cc
+        ot.Save_Variable(self.work_path, 'Component_ID_Lists', comp_id_dict)
+    
+        # Plot cell graph, both raw and labled.
+        # Raw graph
+        annotated_graph = np.zeros(shape = (512,512,3),dtype = 'f8')
+        for i,c_id in enumerate(self.real_cell_ids):
+            c_cell = np.reshape(self.cnm2.estimates.A[:,c_id].toarray(), (512,512), order='F')*100
+            annotated_graph[:,:,0] += c_cell
+            annotated_graph[:,:,1] += c_cell
+            annotated_graph[:,:,2] += c_cell
+        annotated_graph = gt.Clip_And_Normalize(annotated_graph,clip_std = 8,bit = 'u1')
+        gt.Show_Graph(annotated_graph, 'Cell_Location', self.work_path)
+        # Annotated graph
+        font = ImageFont.truetype('arial.ttf',11)
+        im = Image.fromarray(annotated_graph)
+        for i,c_id in enumerate(self.real_cell_ids):
+            y,x = self.cnm2.estimates.coordinates[c_id]['CoM']
+            draw = ImageDraw.Draw(im)
+            draw.text((x+5,y+5),str(i+1),(0,255,100),font = font,align = 'center')
+        final_graph = np.array(im)
+        gt.Show_Graph(final_graph, 'Numbers', self.work_path)
+        
+        
+    def Series_Generator(self):
+        # This part is used to generate able cell parts.
+        self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
+        self.cell_series_dic = {}
+        for i,cc in tqdm(enumerate(self.real_cell_ids)):
+            self.cell_series_dic[i+1] = {}
+            # Annotate cell location in graph. Sequence X,Y.
+            self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
+            self.cell_series_dic[i+1]['Cell_Mask'] = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+            cc_series_all = self.cnm2.estimates.F_dff[cc,:]
+            # cut series in different runs.
+            frame_counter = 0
+            for j,c_run in enumerate(self.run_subfolders):
+                c_frame_num = self.frame_lists[j]
+                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+                frame_counter+=c_frame_num
+        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
+        
+    @Timer 
+    def Do_Caiman(self):
+        self.Motion_Correction_All()
+        self.Cell_Find(boulders= self.boulder)
+        self.Series_Generator()
+    
+    
+#%% Test run part.       
+if __name__ == '__main__' :
+    day_folder = r'D:\Test_Data\2P\222222_L76_Fake_Data_For_Caiman'
+    run_lists = [6,8]
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-008',boulder = (20,20,20,20))
+    Okc.Do_Caiman()
+# =============================================================================
+#   Use this for debug.
+#     Okc.Pack_Graphs()
+#     Okc.Parameter_Initial()
+#     Okc.Motion_Correction_Low_Memory()
+#     Okc.Cell_Find()
+#     Okc.Series_Generator()
+#     Okc.Plot_Necessary_Graphs()
+# =============================================================================
+    #
+    # Check memory using problems.
+    

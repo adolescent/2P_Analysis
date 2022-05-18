@@ -29,7 +29,7 @@ from caiman.utils.visualization import plot_contours, nb_view_patches, nb_plot_c
 
 
 
-
+#%%
 class One_Key_Caiman(object):
     
     name = r'Caiman operation '

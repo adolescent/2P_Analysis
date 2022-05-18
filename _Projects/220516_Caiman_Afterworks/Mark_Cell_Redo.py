@@ -69,6 +69,6 @@ for i,c_id in enumerate(all_cell_ids):
     draw = ImageDraw.Draw(im)
     draw.text((x+5,y+5),str(i+1),(0,255,100),font = font,align = 'center')
 final_graph = np.array(im)
-gt.Show_Graph(final_graph, 'Numbers', caiman_folder) 
+gt.Show_Graph(final_graph, 'Numbers', caiman_folder)
 
 

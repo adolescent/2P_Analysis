@@ -213,3 +213,34 @@ def Element_Same_length(input_list,start = 'head'):
             current_length = len(input_list[i])
             cutted_element_list.append(input_list[i][current_length-element_length:])
     return cutted_element_list
+
+#%% Function 8: 2p runname style change.
+def Change_Runid_Style(input_list):
+    '''
+    Change style of runid interpreter. change between 'Run001' into '1-001'.
+
+    Parameters
+    ----------
+    input_list : (list)
+        List of run ids.
+
+    Returns
+    -------
+    another_style : (list)
+        Another style of runid.
+
+    '''
+    testor = input_list[0]
+    another_style = []
+    if testor[:2] == '1-': # meaning we have '1-001' mode names.
+        for i,c_run in enumerate(input_list):
+            another_style.append('Run'+c_run[2:])
+    elif testor[:3] == 'Run': # meaning we have 'Run001' mode names.
+        for i,c_run in enumerate(input_list):
+            another_style.append('1-'+c_run[3:])
+    else:
+        raise IOError('Invalid run style.')
+    
+    
+    
+    return another_style

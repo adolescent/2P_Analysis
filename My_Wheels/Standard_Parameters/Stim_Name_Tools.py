@@ -46,6 +46,17 @@ def Stim_ID_Combiner(mode,para_dic = None):
         Stim_IDs['While'] = list(range(49,57))
         Stim_IDs['All'] = list(range(1,57))
         
+    elif mode == 'Hue7Orien4_Colors':
+        Stim_IDs['Red'] = list(range(1,5))
+        Stim_IDs['Yellow'] = list(range(5,9))
+        Stim_IDs['Green'] = list(range(9,13))
+        Stim_IDs['Cyan'] = list(range(13,17))
+        Stim_IDs['Blue'] = list(range(17,21))
+        Stim_IDs['Purple'] = list(range(21,25))
+        Stim_IDs['While'] = list(range(25,29))
+        Stim_IDs['All'] = list(range(1,29))
+        
+        
     elif mode == 'OD_2P':
         print('1357L,2468R,12 up moving.')
         print('Subshape recommend:(3,5)')

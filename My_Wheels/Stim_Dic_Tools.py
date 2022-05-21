@@ -126,8 +126,8 @@ def CR_Train_Combiner(CR_Trains,Condition_Dics):
         c_stim_list = Condition_Dics[c_name]
         c_cond_array = CR_Trains[c_stim_list[0]]
         if len(c_stim_list)>1:# meaning we need to concatenate.
-            for i in range(len(c_stim_list)-1):
-                c_cond_array = np.concatenate((c_cond_array,CR_Trains[c_stim_list[i+1]]))
+            for j in range(len(c_stim_list)-1):
+                c_cond_array = np.concatenate((c_cond_array,CR_Trains[c_stim_list[j+1]]))
         combined_condition_datas[c_name] = c_cond_array
 
     return combined_condition_datas

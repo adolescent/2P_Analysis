@@ -264,7 +264,7 @@ def Bit_Filler(number,bit_num = 4):
     return filled_num
 
 
-#%% Memory_Log
+#%% Function10, Memory_Log
 def Memory_Logging(save_path,interval = 10):
     import psutil
     import time    
@@ -274,3 +274,7 @@ def Memory_Logging(save_path,interval = 10):
             print('Current Memory Usage: %.4f GB' % c_mem_use)
             f.write(str(c_mem_use)+' GB Memory Used.\n')
             time.sleep(interval)
+#%% Function11, join path in more standart method.
+def join(path_A,path_B):
+    new_path = os.path.join(path_A,path_B)
+    return new_path

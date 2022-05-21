@@ -47,13 +47,13 @@ def Stim_ID_Combiner(mode,para_dic = None):
         Stim_IDs['All'] = list(range(1,57))
         
     elif mode == 'Hue7Orien4_Colors':
-        Stim_IDs['Red'] = list(range(1,5))
-        Stim_IDs['Yellow'] = list(range(5,9))
-        Stim_IDs['Green'] = list(range(9,13))
-        Stim_IDs['Cyan'] = list(range(13,17))
-        Stim_IDs['Blue'] = list(range(17,21))
-        Stim_IDs['Purple'] = list(range(21,25))
-        Stim_IDs['While'] = list(range(25,29))
+        Stim_IDs['Red'] = [1,8,15,22]
+        Stim_IDs['Yellow'] = [2,9,16,23]
+        Stim_IDs['Green'] = [3,10,17,24]
+        Stim_IDs['Cyan'] = [4,11,18,25]
+        Stim_IDs['Blue'] = [5,12,19,26]
+        Stim_IDs['Purple'] = [6,13,20,27]
+        Stim_IDs['While'] = [7,14,21,28]
         Stim_IDs['All'] = list(range(1,29))
         
         

@@ -124,7 +124,7 @@ def Signal_Filter(
             b, a = signal.butter(order, [HP_prop,LP_prop], 'bandpass')
             filtedData = signal.filtfilt(b, a, data_train)
         elif HP_prop == False and LP_prop == False:
-            print('No filt.')
+            #print('No filt.')
             filtedData = data_train
         elif LP_prop == False:
             b, a = signal.butter(order, HP_prop, 'highpass')

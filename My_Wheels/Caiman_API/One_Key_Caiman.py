@@ -70,7 +70,7 @@ class One_Key_Caiman(object):
         opts_dict = {'fnames': self.all_stack_names,# Name list of all 
                      # dataset dependent parameters
                      'fr': self.fps,# Capture frequency
-                     'decay_time': 2,# length of a typical transient in seconds
+                     'decay_time': 1.4,# length of a typical transient in seconds
                      # motion correction parameters
                      'strides': align_batchsize,# start a new patch for pw-rigid motion correction every x pixels
                      'overlaps': align_overlap,# overlap between pathes (size of patch strides+overlaps)
@@ -201,7 +201,7 @@ class One_Key_Caiman(object):
             # Annotate cell location in graph. Sequence X,Y.
             self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
             self.cell_series_dic[i+1]['Cell_Mask'] = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
-            cc_series_all = self.cnm2.estimates.F_dff[cc,:]
+            cc_series_all = self.cnm2.estimates.F_dff[cc,:]# This have some problems..
             # cut series in different runs.
             frame_counter = 0
             for j,c_run in enumerate(self.run_subfolders):
@@ -210,11 +210,30 @@ class One_Key_Caiman(object):
                 frame_counter+=c_frame_num
         ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
         
+    def Series_Generator_Manual(self):
+        self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
+        self.cell_series_dic = {}
+        for i,cc in tqdm(enumerate(self.real_cell_ids)):
+            self.cell_series_dic[i+1] = {}
+            # Annotate cell location in graph. Sequence X,Y.
+            self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
+            c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+            self.cell_series_dic[i+1]['Cell_Mask'] = c_mask/c_mask.sum()
+            cc_series_all = (self.images*c_mask/c_mask.sum()).sum(axis = (1,2))
+            # cut series in different runs.
+            frame_counter = 0
+            for j,c_run in enumerate(self.run_subfolders):
+                c_frame_num = self.frame_lists[j]
+                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+                frame_counter+=c_frame_num
+        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
+            
+        
     @Timer 
     def Do_Caiman(self):
         self.Motion_Correction_All()
         self.Cell_Find(boulders= self.boulder)
-        self.Series_Generator()
+        self.Series_Generator_Manual()
     
     
 #%% Test run part.       
@@ -222,7 +241,10 @@ if __name__ == '__main__' :
     day_folder = r'D:\Test_Data\2P\222222_L76_Fake_Data_For_Caiman'
     run_lists = [6,8]
     Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-008',boulder = (20,20,20,20))
-    Okc.Do_Caiman()
+    Okc.Motion_Correction_All()
+    Okc.Cell_Find(boulders = Okc.boulder)
+    Okc.Series_Generator_Manual()
+    #Okc.Do_Caiman()
 # =============================================================================
 #   Use this for debug.
 #     Okc.Pack_Graphs()

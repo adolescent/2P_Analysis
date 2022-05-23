@@ -36,7 +36,7 @@ import skimage.io
 import pandas as pd
 from caiman.source_extraction.cnmf.cnmf import load_CNMF
 from caiman.source_extraction.cnmf.params import CNMFParams
-from Analyzer.Statistic_Tools import T_Test_Pair
+from Analyzer.Statistic_Tools import T_Test_Welch,T_Test_Ind
 import seaborn as sns
 from Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
 #%%
@@ -91,7 +91,10 @@ def T_Map_Core(Cell_Cond_Response,runname,all_cell_dic,
                 B_responses = np.hstack((B_responses,single_cond_response))
         A_ON_data = A_responses[used_frame,:].flatten()
         B_ON_data = B_responses[used_frame,:].flatten()
-        c_cell_t,c_cell_p,c_cell_D = T_Test_Pair(A_ON_data, B_ON_data)
+        if len(A_ON_data) == len(B_ON_data):
+            c_cell_t,c_cell_p,c_cell_D = T_Test_Ind(A_ON_data, B_ON_data)
+        else:
+            c_cell_t,c_cell_p,c_cell_D = T_Test_Welch(A_ON_data, B_ON_data)
         used_cell_response[ccn] = [c_cell_t,c_cell_p,c_cell_D]
     # get visualized graph from given 
     graph_shape = all_cell_dic[used_all_cell_name[0]]['Cell_Mask'].shape
@@ -103,16 +106,16 @@ def T_Map_Core(Cell_Cond_Response,runname,all_cell_dic,
         #clipped_c_mask = c_mask
         p_map += clipped_c_mask*used_cell_response.loc['p',c_cell]
         if used_cell_response.loc['p',c_cell]<p_thres:
-            D_map_raw += clipped_c_mask*used_cell_response.loc['CohenD',c_cell]
+            D_map_raw += clipped_c_mask*used_cell_response.loc['t',c_cell]
     # Plot circle map for visualization.
     colored_circle_map = np.zeros(shape = graph_shape,dtype = 'f8')
     sized_circle_map = np.zeros(shape = graph_shape,dtype = 'f8')
-    normed_response = used_cell_response.loc['CohenD']/abs(used_cell_response.loc['CohenD']).max()
+    normed_response = used_cell_response.loc['t']/abs(used_cell_response.loc['t']).max()
     # Colored circle map represent response as color.
     for i,cc in enumerate(used_all_cell_name):
         if used_cell_response.loc['p',cc] < p_thres:# as significant cell
             cc_loc = (all_cell_dic[cc]['Cell_Loc'].astype('i4')[1],all_cell_dic[cc]['Cell_Loc'].astype('i4')[0])
-            colored_circle_map = cv2.circle(colored_circle_map,cc_loc,4,used_cell_response.loc['CohenD',cc],-1)
+            colored_circle_map = cv2.circle(colored_circle_map,cc_loc,4,used_cell_response.loc['t',cc],-1)
     # sized map use circle size as response.
     response_std = normed_response.std()
     response_mean = normed_response.mean()
@@ -144,14 +147,17 @@ def One_Key_T_Map(day_folder,runname,run_type,
     graph_path = ot.join(workpath,runname+'_T_Maps')
     ot.mkdir(graph_path)
     all_map_name = list(sub_dic.keys())
+    all_cell_response = {}
     for i,map_name in enumerate(all_map_name):
         [A_lists,B_lists] = sub_dic[map_name]
         c_D_map,_,c_circle_map,c_size_map,c_cell_resp = T_Map_Core(cell_condition_response, runname, all_cell_dic, A_lists, B_lists)
+        # Save cell response first.
+        all_cell_response[map_name] = c_cell_resp
         # Save D Map
         fig = plt.figure(figsize = (15,15))
-        plt.title(map_name+' D Map',fontsize=36)
+        plt.title(map_name+' t Map',fontsize=36)
         fig = sns.heatmap(c_D_map,square=True,yticklabels=False,xticklabels=False,center = 0)
-        fig.figure.savefig(graph_path+r'\\'+map_name+'_D_Map.png')
+        fig.figure.savefig(graph_path+r'\\'+map_name+'_t_Map.png')
         plt.close()
         # Save Circle Map
         fig = plt.figure(figsize = (15,15))
@@ -174,7 +180,8 @@ def One_Key_T_Map(day_folder,runname,run_type,
         folded_map[:,:,0] += nega_part*255
         folded_map = np.clip(folded_map,0,255).astype('u1')
         gt.Show_Graph(folded_map, map_name+'_Folded', graph_path,0)
-        
+    # After map generation, save cell response data.
+    ot.Save_Variable(graph_path, 'All_Map_Response', all_cell_response)
     
     return True
 
@@ -192,6 +199,8 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore")
     day_folder = r'D:\Test_Data\2P\220421_L85'
     One_Key_T_Map(day_folder,'Run007',run_type = 'OD_2P')
+    One_Key_T_Map(day_folder,'Run008',run_type = 'G16_2P')
+    One_Key_T_Map(day_folder,'Run009',run_type = 'HueNOrien4')
 # =============================================================================
 #     #change mask file in celldics.
 #     compare_dic = ot.Load_Variable(r'D:\Test_Data\2P\220421_L85\_CAIMAN\comp_id_dic.pkl')
@@ -202,4 +211,5 @@ if __name__ == '__main__':
 #         cell_dics[cc]['Cell_Mask'] = c_mask_new
 #     ot.Save_Variable(r'D:\Test_Data\2P\220421_L85\_CAIMAN', 'All_Series_Dic.pkl', cell_dics)
 # =============================================================================
-
+    # Compare Cai 126(273) and raw 101 in Run07
+    #frame 24016-25621

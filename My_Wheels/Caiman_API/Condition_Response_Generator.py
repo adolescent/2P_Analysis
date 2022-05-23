@@ -47,6 +47,7 @@ def Condition_Response_Core(dF_train,c_run_SFA,head_extend=3,tail_extend = 3,fil
     # extend and filt F_train to avoid error. 
     dF_train = np.append(dF_train,dF_train[0:tail_extend])
     dF_train_filted = Filter.Signal_Filter(dF_train,filter_para = (filter_band[0]*2/fps,filter_band[1]*2/fps))
+    #dF_train_filted -= dF_train_filted.mean()# Remove straight power.
     # Generate train of all conditions.
     Response_Train = {}
     # get each condition have same length.

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed May 25 11:05:26 2022
+Created on Wed May 18 12:53:44 2022
 
 @author: adolescent
 
-Final version of caiman. This function solves the problem of files over 4GB.
+New caiman operator finished on 220518, this part is parameter adjustable,
 
 """
 
@@ -14,7 +14,7 @@ import time
 import Graph_Operation_Kit as gt
 import OS_Tools_Kit as ot
 import List_Operation_Kit as lt
-import Caiman_API.Pack_Graphs as Graph_Packer
+from Caiman_API.Pack_Graphs import Graph_Packer
 import bokeh.plotting as bpl
 from tqdm import tqdm
 import cv2
@@ -33,7 +33,6 @@ from PIL import ImageFont
 from PIL import Image
 from PIL import ImageDraw
 import skimage.io
-
 
 #%%
 
@@ -59,13 +58,14 @@ class One_Key_Caiman(object):
         self.all_stack_names = ot.Get_File_Name(self.work_path)
         if self.all_stack_names == []:# if stack is unfinished
             print('Frame Stacks not Generated yet, stacking frames..')
-            self.frame_lists,self.runname_dic = Graph_Packer.Graph_Packer_Cut(self.all_data_folders, self.work_path)
+            self.frame_lists = Graph_Packer(self.all_data_folders, self.work_path)
             self.all_stack_names = ot.Get_File_Name(self.work_path)
         else:
             print('Frame stacks already done.')
-            self.frame_lists = Graph_Packer.Count_Frame_Num(self.all_data_folders)
-            self.runname_dic = Graph_Packer.Get_Runname_Dic(run_lists, self.work_path)
-
+            self.frame_lists = []
+            for i,c_path in enumerate(self.all_stack_names):
+                c_frame_num = skimage.io.imread(c_path).shape[0]
+                self.frame_lists.append(c_frame_num)
         # Generate Parameter dictionary.
         opts_dict = {'fnames': self.all_stack_names,# Name list of all 
                      # dataset dependent parameters
@@ -99,48 +99,39 @@ class One_Key_Caiman(object):
         self.opts = params.CNMFParams(params_dict=opts_dict)
         
     def Motion_Corr_Single(self,c_runname,tamplate = None):
-        
-        used_filename = self.runname_dic[c_runname]
+        used_filename = c_runname.split('\\')[-1][:-4]
         if 'dview' in locals():
             cm.stop_server(dview=dview)
         #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
         c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes=None, single_thread=False)
-        mc = MotionCorrect(used_filename, dview=dview , **self.opts.get_group('motion'))
+        mc = MotionCorrect(c_runname, dview=dview , **self.opts.get_group('motion'))
         mc.motion_correct(template = tamplate,save_movie=True)
         border_to_0 = 0 if mc.border_nan == 'copy' else mc.border_to_0 
-        # Save each memmap file.
-        fname_each = cm.save_memmap_each(mc.mmap_file, base_name=c_runname.split('\\')[-1]+'_', order='C',border_to_0=border_to_0, dview=dview)
-        #fname_new = cm.save_memmap(mc.mmap_file, base_name=c_runname.split('\\')[-1], order='C',border_to_0=border_to_0, dview=dview) # exclude borders
-        fname_new = cm.save_memmap_join(fname_each)
+        fname_new = cm.save_memmap(mc.mmap_file, base_name=used_filename, order='C',border_to_0=border_to_0, dview=dview) # exclude borders
         cm.stop_server(dview=dview)
-        for i,c_mmap in enumerate(mc.mmap_file):
-            os.remove(c_mmap)
-        for i,c_cmmap in enumerate(fname_each):
-            os.remove(c_cmmap)
-
+        os.remove(mc.mmap_file[0])
+        # now load the file
+# =============================================================================
+#         Yr, dims, T = cm.load_memmap(fname_new)
+#         crun_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
+#         run_averaged_graph = crun_series.mean(0)
+# =============================================================================
         return fname_new
     
-    def Motion_Corr_All(self):
-        
+    def Motion_Correction_All(self):
+        tamplate_runname = self.work_path+'\\'+self.align_base+'.tif'
         # get tamplate average first.
-        self.all_avr_dic = {}
-        tamplate_filename = self.Motion_Corr_Single(self.align_base)
+        tamplate_filename = self.Motion_Corr_Single(tamplate_runname)
         Yr, dims, T = cm.load_memmap(tamplate_filename)
         tamplate_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
         tamplate = tamplate_series.mean(0)
-        self.all_avr_dic[self.align_base] = tamplate
         clipped_tamplate = gt.Clip_And_Normalize(tamplate,clip_std = 5)
         gt.Show_Graph(clipped_tamplate, 'Align_Template', self.work_path)
         del Yr,dims,T,tamplate_series
         # Then align other runs.
-        for i,c_run in enumerate(self.run_subfolders):
-            if c_run != self.align_base:
-                c_filename = self.Motion_Corr_Single(c_run,tamplate = tamplate)
-                Yr, dims, T = cm.load_memmap(c_filename)
-                c_series = np.reshape(Yr.T, [T] + list(dims), order='F') 
-                c_avr = c_series.mean(0)
-                self.all_avr_dic[c_run] = c_avr
-                del Yr,dims,T,c_series
+        for i,c_run in enumerate(self.all_stack_names):
+            if c_run.split('\\')[-1][:-4] != self.align_base:
+                self.Motion_Corr_Single(c_run,tamplate = tamplate)
         # Then, we need to get global image file for cell find.
         all_mmap_name = ot.Get_File_Name(self.work_path,file_type = '.mmap')
         final_name = cm.save_memmap_join(all_mmap_name)
@@ -148,17 +139,13 @@ class One_Key_Caiman(object):
             os.remove(c_mmap)
         Yr, self.dims, T = cm.load_memmap(final_name)
         self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F')
-        # Plot global average. Save memory so we will not load images file here.
-        ot.Save_Variable(self.work_path, 'Run_Averages', self.all_avr_dic)
-        self.global_avr = np.zeros(shape = self.dims,dtype = 'f8')
-        for i,c_run in enumerate(self.run_subfolders):
-            c_frame_num = self.frame_lists[i]
-            self.global_avr += self.all_avr_dic[c_run]*c_frame_num
+        # Plot global average
+        self.global_avr = self.images.mean(0)
         self.clipped_avr = gt.Clip_And_Normalize(self.global_avr,clip_std = 5)
         gt.Show_Graph(self.clipped_avr, 'Global_Average_cai', self.work_path)
-        time.sleep(5)
+        time.sleep(15)
         return True
-        
+
     def Cell_Find(self,boulders):
         # Parrel process cost too much memory, here we use no par.
         # RUN CNMF ON PATCHES
@@ -206,6 +193,25 @@ class One_Key_Caiman(object):
         final_graph = np.array(im)
         gt.Show_Graph(final_graph, 'Numbers', self.work_path)
         
+        
+    def Series_Generator(self):
+        # This part is used to generate able cell parts.
+        self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
+        self.cell_series_dic = {}
+        for i,cc in tqdm(enumerate(self.real_cell_ids)):
+            self.cell_series_dic[i+1] = {}
+            # Annotate cell location in graph. Sequence X,Y.
+            self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
+            self.cell_series_dic[i+1]['Cell_Mask'] = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+            cc_series_all = self.cnm2.estimates.F_dff[cc,:]# This have some problems..
+            # cut series in different runs.
+            frame_counter = 0
+            for j,c_run in enumerate(self.run_subfolders):
+                c_frame_num = self.frame_lists[j]
+                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+                frame_counter+=c_frame_num
+        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
+        
     def Series_Generator_Manual(self):
         self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
         self.cell_series_dic = {}
@@ -230,15 +236,26 @@ class One_Key_Caiman(object):
         self.Motion_Correction_All()
         self.Cell_Find(boulders= self.boulder)
         self.Series_Generator_Manual()
-        
     
-        
-        
+    
 #%% Test run part.       
 if __name__ == '__main__' :
     day_folder = r'D:\Test_Data\2P\222222_L76_Fake_Data_For_Caiman'
     run_lists = [6,8]
     Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-008',boulder = (20,20,20,20))
-    Okc.Motion_Corr_All()
-    Okc.Cell_Find()
+    Okc.Motion_Correction_All()
+    Okc.Cell_Find(boulders = Okc.boulder)
     Okc.Series_Generator_Manual()
+    #Okc.Do_Caiman()
+# =============================================================================
+#   Use this for debug.
+#     Okc.Pack_Graphs()
+#     Okc.Parameter_Initial()
+#     Okc.Motion_Correction_Low_Memory()
+#     Okc.Cell_Find()
+#     Okc.Series_Generator()
+#     Okc.Plot_Necessary_Graphs()
+# =============================================================================
+    #
+    # Check memory using problems.
+    

@@ -20,14 +20,14 @@ from Standard_Parameters.Stim_Name_Tools import Stim_ID_Combiner
 import matplotlib.pyplot as plt
 #import  Stim_Dic_Tools as SDT
 #%%
-def Condition_Response_Core(dF_train,c_run_SFA,head_extend=3,tail_extend = 3,filter_band = (0.005,0.3),fps = 1.301):
+def Condition_Response_Core(F_train,c_run_SFA,head_extend=3,tail_extend = 3,filter_band = (0.005,0.3),fps = 1.301,base_frame = [1,2]):
     '''
     Core function of condition response generator. This function will generate single run,single cell.
 
     Parameters
     ----------
-    dF_train : (np array)
-        dF/F train,single cells train .
+    F_train : (np array)
+        F value train,single cells train. This will be processed into dF/F trains.
     c_run_SFA : (dic)
         Stim Frame Align dic of given run.
     head_extend : (int), optional
@@ -45,11 +45,12 @@ def Condition_Response_Core(dF_train,c_run_SFA,head_extend=3,tail_extend = 3,fil
     '''
     condition_frames = SDT.Condition_Response_Frames(c_run_SFA,head_extend,tail_extend)
     # extend and filt F_train to avoid error. 
-    dF_train = np.append(dF_train,dF_train[0:tail_extend])
-    dF_train_filted = Filter.Signal_Filter(dF_train,filter_para = (filter_band[0]*2/fps,filter_band[1]*2/fps))
+    F_train = np.append(F_train,F_train[0:tail_extend])
+    F_train_filted = Filter.Signal_Filter(F_train,filter_para = (filter_band[0]*2/fps,filter_band[1]*2/fps))
     #dF_train_filted -= dF_train_filted.mean()# Remove straight power.
     # Generate train of all conditions.
-    Response_Train = {}
+    F_Train = {}
+    dF_F_Train = {}
     # get each condition have same length.
     condition_length = 65535
     all_conditions = list(condition_frames.keys())
@@ -65,12 +66,19 @@ def Condition_Response_Core(dF_train,c_run_SFA,head_extend=3,tail_extend = 3,fil
     # Get condition response.
     for i,c_condition in enumerate(all_conditions):
         c_frame_lists = condition_frames[c_condition]
-        c_dF_matrix = np.zeros(shape = (len(c_frame_lists[0]),len(c_frame_lists)),dtype = 'f8')
+        F_matrix = np.zeros(shape = (len(c_frame_lists[0]),len(c_frame_lists)),dtype = 'f8')
         for j in range(len(c_frame_lists)):
             cs_cond = c_frame_lists[j]
-            c_dF_matrix[:,j] = dF_train_filted[cs_cond]
-        Response_Train[c_condition] = c_dF_matrix
-    return Response_Train
+            F_matrix[:,j] = F_train_filted[cs_cond]
+        # get dF matrix.
+        base_lines = F_matrix[base_frame,:].mean(0)
+        dF_F_matrix = (F_matrix-base_lines)/base_lines
+        F_Train[c_condition] = F_matrix
+        dF_F_Train[c_condition] = dF_F_matrix
+    # Change F value train into dF/F train
+    
+        
+    return F_Train,dF_F_Train
 
 
 def All_Cell_Condition_Generator(day_folder,head_extend=3,tail_extend = 3,filter_band = (0.005,0.3),fps = 1.301,
@@ -96,7 +104,7 @@ def All_Cell_Condition_Generator(day_folder,head_extend=3,tail_extend = 3,filter
         for j,c_run in enumerate(used_runs):
             if all_sfa[c_run] != None:
                 c_dF_train = all_cell_dic[cc][lt.Change_Runid_Style([c_run])[0]]
-                Cell_Condition_Dic[cc][c_run] = Condition_Response_Core(c_dF_train, all_sfa[c_run],head_extend,tail_extend,filter_band,fps)
+                _,Cell_Condition_Dic[cc][c_run] = Condition_Response_Core(c_dF_train, all_sfa[c_run],head_extend,tail_extend,filter_band,fps)
 
     ot.Save_Variable(work_path, 'Cell_Condition_Response', Cell_Condition_Dic)
     return Cell_Condition_Dic

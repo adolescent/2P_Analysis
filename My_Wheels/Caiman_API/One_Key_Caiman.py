@@ -264,12 +264,13 @@ class One_Key_Caiman(object):
                 del c_frame_group
                              
         # cut series in different runs.
-        frame_counter = 0
-        cc_series_all = all_cell_data[i,:]
-        for j,c_run in enumerate(self.run_subfolders):
-            c_frame_num = self.frame_lists[j]
-            self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
-            frame_counter+=c_frame_num
+        for i,cc in enumerate(self.real_cell_ids):
+            frame_counter = 0
+            cc_series_all = all_cell_data[i,:]
+            for j,c_run in enumerate(self.run_subfolders):
+                c_frame_num = self.frame_lists[j]
+                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+                frame_counter+=c_frame_num
         ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
         
 

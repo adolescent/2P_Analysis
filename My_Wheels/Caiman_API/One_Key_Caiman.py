@@ -33,7 +33,7 @@ from PIL import ImageFont
 from PIL import Image
 from PIL import ImageDraw
 import skimage.io
-
+from caiman.source_extraction.cnmf.cnmf import load_CNMF
 
 #%%
 
@@ -162,14 +162,14 @@ class One_Key_Caiman(object):
     def Cell_Find(self,boulders):
         # Parrel process cost too much memory, here we use no par.
         # RUN CNMF ON PATCHES
-        cnm = cnmf.CNMF(2,params=self.opts)
-        cnm = cnm.fit(self.images)
+        self.cnm = cnmf.CNMF(2,params=self.opts)
+        self.cnm = cnm.fit(self.images)
         # plot contours of found components
-        cnm.estimates.plot_contours_nb(img=self.global_avr)
+        self.cnm.estimates.plot_contours_nb(img=self.global_avr)
         # Refit to get real cell
-        self.cnm2 = cnm.refit(self.images)
+        self.cnm2 = self.cnm.refit(self.images)
         self.cnm2.estimates.evaluate_components(self.images, self.cnm2.params)
-        self.cnm2.estimates.detrend_df_f(quantileMin=8, frames_window=250)
+        #self.cnm2.estimates.detrend_df_f(quantileMin=8, frames_window=250)
         self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.cnm2.estimates.idx_components)
         
         # Wash cells, delete cell near boulder.
@@ -178,7 +178,7 @@ class One_Key_Caiman(object):
         x_range = (boulders[2],self.dims[1]-boulders[3])
         for i,c_comp in enumerate(self.cnm2.estimates.idx_components):
             c_loc = self.cnm2.estimates.coordinates[c_comp]['CoM']
-            if (c_loc[0]>x_range[0] and c_loc[0]<x_range[1]) and (c_loc[1]>y_range[0] and c_loc[1]<y_range[1]):
+            if (c_loc[1]>x_range[0] and c_loc[1]<x_range[1]) and (c_loc[0]>y_range[0] and c_loc[0]<y_range[1]):
                 self.real_cell_ids.append(c_comp)
         self.cnm2.save(self.work_path+r'\analysis_results.hdf5')
         comp_id_dict = {}
@@ -224,21 +224,73 @@ class One_Key_Caiman(object):
                 frame_counter+=c_frame_num
         ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
             
+    def Series_Generator_Low_Memory(self):
+        
+        self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
+        self.cell_series_dic = {}
+        # get cell location mask.
+        for i,cc in enumerate(self.real_cell_ids):
+            self.cell_series_dic[i+1] = {}
+            # Annotate cell location in graph. Sequence X,Y.
+            self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
+            c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+            self.cell_series_dic[i+1]['Cell_Mask'] = c_mask/c_mask.sum()
+        # ot.Save_Variable(self.work_path,'Cell_Masks', self.cell_series_dic)
+        # get cell response
+        total_frame_num  = self.images.shape[0]
+        cell_num = len(self.real_cell_ids)
+        all_cell_data = np.zeros(shape = (cell_num,total_frame_num),dtype = 'f8')
+        # A compromise between memory and speed.
+        #for i,cc in tqdm(enumerate(self.real_cell_ids)):
+        group_step = 3000
+        group_num = np.ceil(total_frame_num/group_step).astype('int')
+        
+        #c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+        for i in tqdm(range(group_num)):
+            if i != group_num-1:# not the last group
+                c_frame_group = np.array(self.images[i*group_step:(i+1)*group_step,:,:])
+                for j,cc in tqdm(enumerate(self.real_cell_ids)):
+                    c_mask = self.cell_series_dic[j+1]['Cell_Mask']
+                    cc_resp = (c_frame_group*c_mask).sum(axis = (1,2))
+                    all_cell_data[j,i*group_step:(i+1)*group_step] = cc_resp
+                del c_frame_group
+            else:# the last group
+                c_frame_group = np.array(self.images[i*group_step:,:,:])
+                for j,cc in tqdm(enumerate(self.real_cell_ids)):
+                    cc = self.real_cell_ids[j]
+                    c_mask = self.cell_series_dic[j+1]['Cell_Mask']
+                    cc_resp = (c_frame_group*c_mask).sum(axis = (1,2))
+                    all_cell_data[j,i*group_step:] = cc_resp 
+                del c_frame_group
+                             
+        # cut series in different runs.
+        frame_counter = 0
+        cc_series_all = all_cell_data[i,:]
+        for j,c_run in enumerate(self.run_subfolders):
+            c_frame_num = self.frame_lists[j]
+            self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+            frame_counter+=c_frame_num
+        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
+        
+
+                
+        
         
     @Timer 
     def Do_Caiman(self):
         self.Motion_Correction_All()
         self.Cell_Find(boulders= self.boulder)
-        self.Series_Generator_Manual()
+        self.Series_Generator_Low_Memory()
         
     
         
         
 #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'D:\Test_Data\2P\222222_L76_Fake_Data_For_Caiman'
-    run_lists = [6,8]
-    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-008',boulder = (20,20,20,20))
+    day_folder = r'F:\_Data_Temp\220420_L91'
+    run_lists = [1,2,3,6,7,8]
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (20,20,20,35))
     Okc.Motion_Corr_All()
-    Okc.Cell_Find()
-    Okc.Series_Generator_Manual()
+    Okc.Cell_Find(boulders= Okc.boulder)
+    #Okc.Series_Generator_Manual()
+    Okc.Series_Generator_Low_Memory()

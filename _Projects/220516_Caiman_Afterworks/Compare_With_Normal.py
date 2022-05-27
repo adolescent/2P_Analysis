@@ -52,26 +52,48 @@ all_cell_dic = ot.Load_Variable(r'D:\Test_Data\2P\220421_L85\L85_220421A_All_Cel
 acn_old = list(all_cell_dic.keys())
 global_avr = cv2.imread(day_folder+r'\Global_Average.tif')
 # Caiman 329 =morpho 88.
-caiman_stacked_graph = global_avr.copy().astype('f8')
-caiman_stacked_graph[:,:,1] += all_cell_cai[329]['Cell_Mask']*100
-caiman_stacked_graph = np.clip(caiman_stacked_graph,0,255).astype('u1')
-gt.Show_Graph(caiman_stacked_graph, 'Cell329', save_folder)
 # Get old & new cell trains.
 new_tc = all_cell_cai[329]
 old_tc = all_cell_dic[acn_old[88]]
 new_train = new_tc['1-001']
-old_train = old_tc['Run001']['dF_F_train']
-plt.plot(old_train)
-plt.plot(new_train)
+old_train = old_tc['Run001']['F_train']
+old_dFF_train = old_train/old_train.mean()-1
+new_dFF_train = new_train/new_train.mean()-1
+plt.plot(old_dFF_train)
+plt.plot(new_dFF_train)
 # frequency analyze and filter.
 from My_FFT import FFT_Power
 from Filters import Signal_Filter
-new_train_fft = FFT_Power(new_train)
-old_train_fft = FFT_Power(old_train)
-filted_new_train = Signal_Filter(new_train,filter_para = (0.005*2/1.301,0.3*2/1.301))
-filted_new_train -= filted_new_train.mean()
-filted_old_train = Signal_Filter(old_train,filter_para = (0.005*2/1.301,0.3*2/1.301))
-filted_old_train -= filted_old_train.mean()
 
+new_train_fft = FFT_Power(new_dFF_train)
+old_train_fft = FFT_Power(old_dFF_train)
+plt.plot(old_train_fft)
+plt.plot(new_train_fft)
 
+filted_new_train = Signal_Filter(new_dFF_train,filter_para = (0.005*2/1.301,0.3*2/1.301))
+#filted_new_train -= filted_new_train.mean()
+filted_old_train = Signal_Filter(old_dFF_train,filter_para = (0.005*2/1.301,0.3*2/1.301))
+#filted_old_train -= filted_old_train.mean()
+plt.plot(filted_new_train)
+plt.plot(filted_old_train)
 
+#%% Get all dF/F responses.
+series_run01 = np.zeros(shape = (380,16827),dtype = 'f8')
+series_run03 = np.zeros(shape = (380,6014),dtype = 'f8')
+for i in range(380):
+    c_F = all_cell_cai[i+1]['1-001']
+    c_F_03 = all_cell_cai[i+1]['1-003']
+    c_filted_F = Signal_Filter(c_F,filter_para = (0.005*2/1.301,0.3*2/1.301))
+    c_filted_F_03 = Signal_Filter(c_F_03,filter_para = (0.005*2/1.301,0.3*2/1.301))
+    c_dff = (c_filted_F-c_filted_F.mean())/c_filted_F.mean()
+    c_dff_03 = (c_filted_F_03-c_filted_F_03.mean())/c_filted_F_03.mean()
+    series_run01[i,:] = c_dff
+    series_run03[i,:] = c_dff_03
+# get raveled
+import pandas as pd
+df = pd.DataFrame(series_run01)
+b = np.tile(df.columns, len(df.index))
+a = np.repeat(df.index, len(df.columns))
+c = df.values.ravel()
+df = pd.DataFrame({'a':a, 'b':b, 'c':c})
+print (df)

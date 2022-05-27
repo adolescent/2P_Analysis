@@ -257,7 +257,6 @@ class One_Key_Caiman(object):
             else:# the last group
                 c_frame_group = np.array(self.images[i*group_step:,:,:])
                 for j,cc in tqdm(enumerate(self.real_cell_ids)):
-                    cc = self.real_cell_ids[j]
                     c_mask = self.cell_series_dic[j+1]['Cell_Mask']
                     cc_resp = (c_frame_group*c_mask).sum(axis = (1,2))
                     all_cell_data[j,i*group_step:] = cc_resp 

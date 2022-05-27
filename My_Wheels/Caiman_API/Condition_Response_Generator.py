@@ -81,7 +81,7 @@ def Condition_Response_Core(F_train,c_run_SFA,head_extend=3,tail_extend = 3,filt
     return F_Train,dF_F_Train
 
 
-def All_Cell_Condition_Generator(day_folder,head_extend=3,tail_extend = 3,filter_band = (0.005,0.3),fps = 1.301,
+def All_Cell_Condition_Generator(day_folder,head_extend=3,tail_extend = 3,filter_band = (0.005,0.3),fps = 1.301,base_frame = [1,2],
                                  sub_folder = '_CAIMAN',series_dic_name = 'All_Series_Dic.pkl'):
     
     # Initialize
@@ -104,7 +104,7 @@ def All_Cell_Condition_Generator(day_folder,head_extend=3,tail_extend = 3,filter
         for j,c_run in enumerate(used_runs):
             if all_sfa[c_run] != None:
                 c_dF_train = all_cell_dic[cc][lt.Change_Runid_Style([c_run])[0]]
-                _,Cell_Condition_Dic[cc][c_run] = Condition_Response_Core(c_dF_train, all_sfa[c_run],head_extend,tail_extend,filter_band,fps)
+                _,Cell_Condition_Dic[cc][c_run] = Condition_Response_Core(c_dF_train, all_sfa[c_run],head_extend,tail_extend,filter_band,fps,base_frame)
 
     ot.Save_Variable(work_path, 'Cell_Condition_Response', Cell_Condition_Dic)
     return Cell_Condition_Dic
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     OD_Condition_Dics = Stim_ID_Combiner('OD_2P')
     G16_Condition_Dics = Stim_ID_Combiner('G16_Oriens')
     Hue_Condition_Dics = Stim_ID_Combiner('Hue7Orien4_Colors')
-    All_Cell_Condition_Generator(day_folder)
+    all_cell_condition = All_Cell_Condition_Generator(day_folder)
     Cell_Response_Map(day_folder,OD_Condition_Dics,runname = 'Run007',subshape = (3,5))
     Cell_Response_Map(day_folder,G16_Condition_Dics,runname = 'Run008',subshape = (3,4))
     Cell_Response_Map(day_folder,Hue_Condition_Dics,runname = 'Run009')

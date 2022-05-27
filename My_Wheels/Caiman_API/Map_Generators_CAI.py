@@ -123,11 +123,12 @@ def T_Map_Core(Cell_Cond_Response,runname,all_cell_dic,
     clipped_response = clipped_response/abs(clipped_response).max()
     sized_response = (clipped_response*10).astype('i4')
     for i,cc in enumerate(used_all_cell_name):
-        cc_loc = (all_cell_dic[cc]['Cell_Loc'].astype('i4')[1],all_cell_dic[cc]['Cell_Loc'].astype('i4')[0])
-        if sized_response.loc[cc]>0:
-            sized_circle_map = cv2.circle(sized_circle_map,cc_loc,int(sized_response.loc[cc]),1,-1)
-        elif sized_response.loc[cc]<0:
-            sized_circle_map = cv2.circle(sized_circle_map,cc_loc,int(sized_response.loc[cc])*-1,-1,-1)
+        if used_cell_response.loc['p',cc] < p_thres:# as significant cell
+            cc_loc = (all_cell_dic[cc]['Cell_Loc'].astype('i4')[1],all_cell_dic[cc]['Cell_Loc'].astype('i4')[0])
+            if sized_response.loc[cc]>0:
+                sized_circle_map = cv2.circle(sized_circle_map,cc_loc,int(sized_response.loc[cc]),1,-1)
+            elif sized_response.loc[cc]<0:
+                sized_circle_map = cv2.circle(sized_circle_map,cc_loc,int(sized_response.loc[cc])*-1,-1,-1)
     return D_map_raw,p_map,colored_circle_map,sized_circle_map,used_cell_response
 
 

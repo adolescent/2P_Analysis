@@ -150,6 +150,7 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['DirU-D'] = [[1,2,3,4,14,15,16],[6,7,8,9,10,11,12]]
         sub_dics['DirL-R'] = [[2,3,4,5,6,7,8],[10,11,12,13,14,15,16]]
         sub_dics['HV-AO'] = [[1,5,9,13],[3,7,11,15]]
+        sub_dics['HA-VO'] = [[1,3,9,11],[5,13,7,15]]
         sub_dics['Orien0-0'] = [[1,9],[0]]
         sub_dics['Orien22.5-0'] = [[2,10],[0]]
         sub_dics['Orien45-0'] = [[3,11],[0]]
@@ -158,6 +159,8 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['Orien112.5-0'] = [[6,14],[0]]
         sub_dics['Orien135-0'] = [[7,15],[0]]
         sub_dics['Orien157.5-0'] = [[8,16],[0]]
+        sub_dics['Orien22.5-112.5'] = [[2,10],[6,14]]
+        sub_dics['Orien67.5-157.5'] = [[4,12],[8,16]]
         sub_dics['Dir0-180'] = [[1],[9]]
         sub_dics['Dir22.5-202.5'] = [[2],[10]]
         sub_dics['Dir45-225'] = [[3],[11]]
@@ -166,6 +169,7 @@ def Sub_Dic_Generator(mode,para = None):
         sub_dics['Dir112.5-292.5'] = [[6],[14]]
         sub_dics['Dir135-315'] = [[7],[15]]
         sub_dics['Dir157.5-337.5'] = [[8],[16]]
+        
 
         
     elif mode =='RFSize':

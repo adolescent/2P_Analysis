@@ -44,32 +44,8 @@ from Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
 def T_Map_Core(Cell_Cond_Response,runname,all_cell_dic,
                A_ID_lists,B_ID_lists,
                p_thres = 0.05,used_frame = [4,5]):
-    '''
-    Generate A-B t map from cell data.
-
-    Parameters
-    ----------
-    all_cell_dic : (dic)
-        All Cell Data, usually from '.ac' file.
-    A_ID_lists : (list)
-        List of A conditions.
-    B_ID_lists : (list)
-        List of B conditions.
-    p_thres : (float), optional
-        P threshold of t significant. The default is 0.05.
-    used_frame : (list), optional
-        List of frame used for calculation. The default is [4,5].
-
-    Returns
-    -------
-    D_map_raw : (2D Array)
-        Raw t data matrix. 
-    p_map : (2D Array)
-        p value data matrix.
-    used_cell_response : (pd Frame)
-       Raw t value of different cells.can be used directly.
-
-    '''
+    
+    
     all_cell_name = list(Cell_Cond_Response.keys())
     used_cells_CR_dic = {}
     for i,ccn in enumerate(all_cell_name):

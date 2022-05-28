@@ -9,16 +9,32 @@ import numpy as np
 def Stim_ID_Combiner(mode,para_dic = None):
     
     Stim_IDs = {}
+    if mode == 'G8_2P_Oriens':
+        print('Orientation 0 is horizontal, counterclockwise.')
+        Stim_IDs['Orien0.0'] = [1,5]
+        Stim_IDs['Orien45.0'] = [2,6]
+        Stim_IDs['Orien90.0'] = [3,7]
+        Stim_IDs['Orien135.0'] = [4,8]
+        Stim_IDs['Blank'] = [0]
+    
     if mode == 'G16_Oriens':
         print('Orientation 0 is horizontal, counterclockwise.')
-        Stim_IDs['Orien0'] = [1,9]
+        Stim_IDs['Orien0.0'] = [1,9]
         Stim_IDs['Orien22.5'] = [2,10]
-        Stim_IDs['Orien45'] = [3,11]
+        Stim_IDs['Orien45.0'] = [3,11]
         Stim_IDs['Orien67.5'] = [4,12]
-        Stim_IDs['Orien90'] = [5,13]
+        Stim_IDs['Orien90.0'] = [5,13]
         Stim_IDs['Orien112.5'] = [6,14]
-        Stim_IDs['Orien135'] = [7,15]
+        Stim_IDs['Orien135.0'] = [7,15]
         Stim_IDs['Orien157.5'] = [8,16]
+        Stim_IDs['Blank'] = [0]
+    
+    if mode == 'OD_2P_Oriens':
+        print('Orientation 0 is horizontal, counterclockwise.')
+        Stim_IDs['Orien0.0'] = [1,2]
+        Stim_IDs['Orien45.0'] = [3,4]
+        Stim_IDs['Orien90.0'] = [5,6]
+        Stim_IDs['Orien135.0'] = [7,8]
         Stim_IDs['Blank'] = [0]
         
     elif mode == 'G16_Dirs':

@@ -44,7 +44,7 @@ def Graph_Packer(data_folder_lists,save_folder,graph_shape = (512,512)):
     return frame_num_lists
 
 @Timer
-def Graph_Packer_Cut(data_folder_lists,save_folder,graph_shape = (512,512),cutsize = 1500):
+def Graph_Packer_Cut(data_folder_lists,save_folder,graph_shape = (512,512),cutsize = 1500,min_frame_num = 500):
     '''
     
     Pack all tif frames in data folder,and cut them into small packs. This is used to avoid 4GB problem.
@@ -55,6 +55,12 @@ def Graph_Packer_Cut(data_folder_lists,save_folder,graph_shape = (512,512),cutsi
         List of folder of original data.
     save_folder : (str)
         Folder to save graphs into.
+    graph_shape : (turple)
+        Shape of graphs.
+    cut_size : (int,optional)
+        Frame number of each tif stack. Default is 1500.
+    min_frame_num : (int,optional)
+        Smallest number of last frame. Default is 500.
         
     Return
     ----------
@@ -72,7 +78,11 @@ def Graph_Packer_Cut(data_folder_lists,save_folder,graph_shape = (512,512),cutsi
         c_tif_name = ot.Get_File_Name(c_folder)
         frame_num_lists.append(len(c_tif_name))
         # cut current run into several subfiles.
-        subfile_num = np.ceil(len(c_tif_name)/cutsize).astype('int')
+        last_frame_num = len(c_tif_name)%cutsize
+        if last_frame_num>min_frame_num:# if last frame number <100, concat them into file before.
+            subfile_num = np.ceil(len(c_tif_name)/cutsize).astype('int')
+        else:
+            subfile_num = np.round(len(c_tif_name)/cutsize).astype('int')
         c_folder_name = c_folder.split('\\')[-1]
         run_name_dic[c_folder_name] = []
         # except last one

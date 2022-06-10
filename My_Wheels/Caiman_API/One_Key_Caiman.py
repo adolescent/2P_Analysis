@@ -59,7 +59,7 @@ class One_Key_Caiman(object):
         self.all_stack_names = ot.Get_File_Name(self.work_path)
         if self.all_stack_names == []:# if stack is unfinished
             print('Frame Stacks not Generated yet, stacking frames..')
-            self.frame_lists,self.runname_dic = Graph_Packer.Graph_Packer_Cut(self.all_data_folders, self.work_path)
+            self.frame_lists,self.runname_dic = Graph_Packer.Graph_Packer_Cut(self.all_data_folders, self.work_path,cutsize = 2000)
             self.all_stack_names = ot.Get_File_Name(self.work_path)
         else:
             print('Frame stacks already done.')
@@ -242,7 +242,7 @@ class One_Key_Caiman(object):
         all_cell_data = np.zeros(shape = (cell_num,total_frame_num),dtype = 'f8')
         # A compromise between memory and speed.
         #for i,cc in tqdm(enumerate(self.real_cell_ids)):
-        group_step = 3000
+        group_step = 6000
         group_num = np.ceil(total_frame_num/group_step).astype('int')
         
         #c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
@@ -278,7 +278,7 @@ class One_Key_Caiman(object):
         
     @Timer 
     def Do_Caiman(self):
-        self.Motion_Correction_All()
+        self.Motion_Corr_All()
         self.Cell_Find(boulders= self.boulder)
         self.Series_Generator_Low_Memory()
         
@@ -287,10 +287,11 @@ class One_Key_Caiman(object):
         
 #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'F:\_Data_Temp\220420_L91'
-    run_lists = [1,2,3,6,7,8]
-    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (20,20,20,35))
-    Okc.Motion_Corr_All()
-    Okc.Cell_Find(boulders= Okc.boulder)
+    day_folder = r'D:\ZR\_Temp_Data\220506_L76_2P'
+    run_lists = [1,2,3,6,7]
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (20,20,20,20))
+    Okc.Do_Caiman()
+    #Okc.Motion_Corr_All()
+    #Okc.Cell_Find(boulders= Okc.boulder)
     #Okc.Series_Generator_Manual()
-    Okc.Series_Generator_Low_Memory()
+    #Okc.Series_Generator_Low_Memory()

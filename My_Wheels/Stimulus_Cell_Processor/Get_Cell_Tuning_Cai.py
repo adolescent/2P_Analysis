@@ -68,7 +68,8 @@ class Tuning_Calculator(object):
         # load in
         self.sig_thres = 0.05
         self.used_frame = used_frame
-        self.all_cond_data = ot.Load_Variable(ot.join(day_folder,subfolder),'Cell_Condition_Response.pkl')
+        self.workpath = ot.join(day_folder,subfolder)
+        self.all_cond_data = ot.Load_Variable(self.workpath,'Cell_Condition_Response.pkl')
         self.Cell_Tuning_Dic = {}
         self.Tuning_Property_Cells = {}
         self.acn = list(self.all_cond_data.keys())
@@ -324,8 +325,12 @@ class Tuning_Calculator(object):
         if self.have_orien:
             self.Get_Orientation_Tuning()
             self.Fit_Best_Orientation()
+        if self.have_color:
+            self.Get_Hue_Tuning()
             
-            
+        ot.Save_Variable(self.workpath, 'Cell_Tuning_Dic', self.Cell_Tuning_Dic)
+        ot.Save_Variable(self.workpath, 'Tuning_Property', self.Tuning_Property_Cells)
+        
             
         return self.Cell_Tuning_Dic,self.Tuning_Property_Cells
     

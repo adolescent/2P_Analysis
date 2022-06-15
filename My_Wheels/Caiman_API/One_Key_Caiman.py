@@ -161,9 +161,23 @@ class One_Key_Caiman(object):
         
     def Cell_Find(self,boulders):
         # Parrel process cost too much memory, here we use no par.
+        # Try if we have images.
+        try:
+            self.images
+        except AttributeError:
+            c_mmap_name = ot.Get_File_Name(self.work_path,'.mmap')[0]
+            print('Load mmap file from '+str(c_mmap_name))
+            Yr, self.dims, T = cm.load_memmap(c_mmap_name)
+            self.images = np.reshape(Yr.T, [T] + list(self.dims), order='F')
+            del Yr,T
         # RUN CNMF ON PATCHES
-        self.cnm = cnmf.CNMF(2,params=self.opts)
-        self.cnm = cnm.fit(self.images)
+        try:
+            self.global_avr
+        except AttributeError:
+            print('No Global avr.')
+            self.global_avr = np.zeros(shape = self.dims,dtype = 'u1')
+        self.cnm = cnmf.CNMF(20,params=self.opts)
+        self.cnm = self.cnm.fit(self.images)
         # plot contours of found components
         self.cnm.estimates.plot_contours_nb(img=self.global_avr)
         # Refit to get real cell
@@ -278,8 +292,11 @@ class One_Key_Caiman(object):
         
     @Timer 
     def Do_Caiman(self):
+        print('Motion correcting...')
         self.Motion_Corr_All()
+        print('Cell_Finding')
         self.Cell_Find(boulders= self.boulder)
+        print('Series_Generating...')
         self.Series_Generator_Low_Memory()
         
     

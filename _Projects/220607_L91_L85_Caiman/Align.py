@@ -23,7 +23,7 @@ One_Key_T_Map(day_folder85, 'Run009', 'HueNOrien4')
 #%% And pca here.
 from Series_Analyzer.Cell_Frame_PCA_Cai import One_Key_PCA
 day_folder85 = r'D:\ZR\_Temp_Data\220608_L85_2P'
-comp,info,weight = One_Key_PCA(day_folder85, '1-002',tag = 'Spon_Before',start_time = 4000)
-comp,info,weight = One_Key_PCA(day_folder85, '1-004',tag = 'Spon_After',start_time = 0)
+comp,info,weight = One_Key_PCA(day_folder85, 'Run002',tag = 'Spon_Before',start_time = 4000)
+comp,info,weight = One_Key_PCA(day_folder85, 'Run004',tag = 'Spon_After',start_time = 0)
 
 

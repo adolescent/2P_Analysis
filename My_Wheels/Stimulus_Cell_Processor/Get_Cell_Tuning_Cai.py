@@ -24,7 +24,7 @@ class Tuning_Calculator(object):
     def __init__(self,day_folder,subfolder = '_CAIMAN',
                  od_run = 'Run006',od_type = 'OD_2P',
                  orien_run = 'Run002',orien_type = 'G16_2P',
-                 color_run = 'Run007',color_type = 'Hue7Orien4',
+                 color_run = 'Run007',color_type = 'HueNOrien4',
                  sig_thres = 0.05,used_frame = [4,5]):
         
         print('Make sure condition data have already been calculated.')
@@ -57,7 +57,7 @@ class Tuning_Calculator(object):
             
         if color_run != None:
             self.have_color = True
-            if color_type == 'Hue7Orien4':
+            if color_type == 'HueNOrien4':
                 self.hue_para = Stim_ID_Combiner('Hue7Orien4_Colors')
                 self.hue_run = color_run
             else:
@@ -331,13 +331,13 @@ class Tuning_Calculator(object):
         ot.Save_Variable(self.workpath, 'Cell_Tuning_Dic', self.Cell_Tuning_Dic)
         ot.Save_Variable(self.workpath, 'Tuning_Property', self.Tuning_Property_Cells)
         
-            
+        
         return self.Cell_Tuning_Dic,self.Tuning_Property_Cells
     
-    
 #%% Test run
-day_folder = r'F:\_Data_Temp\220420_L91'
-Tc = Tuning_Calculator(day_folder,od_run = 'Run006',orien_run = 'Run007',color_run = 'Run008')
-Tc.Get_Hue_Tuning()
-Cell_Tuning_Dic,Tuning_Property_Cells = Tc.Calculate_Tuning()
+if __name__ == '__main__':
+    day_folder = r'F:\_Data_Temp\220420_L91'
+    Tc = Tuning_Calculator(day_folder,od_run = 'Run006',orien_run = 'Run007',color_run = 'Run008')
+    Tc.Get_Hue_Tuning()
+    Cell_Tuning_Dic,Tuning_Property_Cells = Tc.Calculate_Tuning()
 

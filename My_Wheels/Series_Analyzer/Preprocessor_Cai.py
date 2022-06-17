@@ -12,8 +12,9 @@ import OS_Tools_Kit as ot
 import numpy as np
 import pandas as pd
 from Filters import Signal_Filter
+import List_Operation_Kit as lt
 
-def Pre_Processor_Cai(day_folder,runname = '1-001',subfolder = '_CAIMAN',
+def Pre_Processor_Cai(day_folder,runname = 'Run001',subfolder = '_CAIMAN',
                   start_frame = 0,stop_frame = 99999,
                   fps = 1.301,passed_band = (0.005,0.3),order = 7,
                   base_mode = 'average',prop = 0.05):
@@ -25,7 +26,7 @@ def Pre_Processor_Cai(day_folder,runname = '1-001',subfolder = '_CAIMAN',
     day_folder : (str)
         Day folder of 2p datas.
     runname : (str), optional
-        Which run? The default is '1-001'.
+        Which run? The default is 'Run001'.
     start_frame : (int), optional
         Series start (in frame). The default is 0.
     stop_frame : (int), optional
@@ -47,6 +48,7 @@ def Pre_Processor_Cai(day_folder,runname = '1-001',subfolder = '_CAIMAN',
         Cell data frame after filter & cut.
 
     '''
+    runname = lt.Change_Runid_Style([runname])[0]
     cell_dic = ot.Load_Variable(ot.join(day_folder,subfolder),'All_Series_Dic.pkl')
     acn = list(cell_dic.keys())
     raw_frame = pd.DataFrame(columns = acn)

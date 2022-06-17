@@ -41,7 +41,7 @@ class One_Key_Caiman(object):
     
     name = r'Caiman Align and Cell Find.'
     # Boulder in UDLR sequense.
-    def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),
+    def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),in_server = True,
                  max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
                  bk_comp_num = 3,rf = 25,k = 6,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.85,
                  min_cnn_thres = 0.99,cnn_lowest = 0.1,use_cuda = True):
@@ -51,6 +51,7 @@ class One_Key_Caiman(object):
         self.all_data_folders = lt.List_Annex([day_folder], self.run_subfolders)
         self.work_path = day_folder+r'\_CAIMAN'
         ot.mkdir(self.work_path)
+        self.in_server = in_server
         #self.frame_lists = Graph_Packer(all_data_folders, self.work_path)
         self.fps = fps
         self.align_base = align_base
@@ -220,24 +221,65 @@ class One_Key_Caiman(object):
         final_graph = np.array(im)
         gt.Show_Graph(final_graph, 'Numbers', self.work_path)
         
-    def Series_Generator_Manual(self):
+# =============================================================================
+#     def Series_Generator_Manual(self):
+#         self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
+#         self.cell_series_dic = {}
+#         for i,cc in tqdm(enumerate(self.real_cell_ids)):
+#             self.cell_series_dic[i+1] = {}
+#             # Annotate cell location in graph. Sequence X,Y.
+#             self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
+#             c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+#             self.cell_series_dic[i+1]['Cell_Mask'] = c_mask/c_mask.sum()
+#             cc_series_all = (self.images*c_mask/c_mask.sum()).sum(axis = (1,2))
+#             # cut series in different runs.
+#             frame_counter = 0
+#             for j,c_run in enumerate(self.run_subfolders):
+#                 c_frame_num = self.frame_lists[j]
+#                 self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+#                 frame_counter+=c_frame_num
+#         ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
+# =============================================================================
+    def Series_Generator_Server(self):
+        
         self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
         self.cell_series_dic = {}
-        for i,cc in tqdm(enumerate(self.real_cell_ids)):
+        # get cell location mask.
+        for i,cc in enumerate(self.real_cell_ids):
             self.cell_series_dic[i+1] = {}
             # Annotate cell location in graph. Sequence X,Y.
             self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
             c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
             self.cell_series_dic[i+1]['Cell_Mask'] = c_mask/c_mask.sum()
-            cc_series_all = (self.images*c_mask/c_mask.sum()).sum(axis = (1,2))
-            # cut series in different runs.
-            frame_counter = 0
-            for j,c_run in enumerate(self.run_subfolders):
-                c_frame_num = self.frame_lists[j]
-                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
-                frame_counter+=c_frame_num
-        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
-            
+        # ot.Save_Variable(self.work_path,'Cell_Masks', self.cell_series_dic)
+        # get cell response
+        total_frame_num  = self.images.shape[0]
+        cell_num = len(self.real_cell_ids)
+        all_cell_data = np.zeros(shape = (cell_num,total_frame_num),dtype = 'f8')
+        # A compromise between memory and speed.
+        #for i,cc in tqdm(enumerate(self.real_cell_ids)):
+        group_step = 50000
+        group_num = np.ceil(total_frame_num/group_step).astype('int')
+        #c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+        for i in tqdm(range(group_num)):
+            if i != group_num-1:# not the last group
+                c_frame_group = np.array(self.images[i*group_step:(i+1)*group_step,:,:])
+                for j,cc in tqdm(enumerate(self.real_cell_ids)):
+                    c_mask = self.cell_series_dic[j+1]['Cell_Mask']
+                    cc_resp = (c_frame_group*c_mask).sum(axis = (1,2))
+                    all_cell_data[j,i*group_step:(i+1)*group_step] = cc_resp
+                del c_frame_group
+            else:# the last group
+                c_frame_group = np.array(self.images[i*group_step:,:,:])
+                for j,cc in tqdm(enumerate(self.real_cell_ids)):
+                    c_mask = self.cell_series_dic[j+1]['Cell_Mask']
+                    cc_resp = (c_frame_group*c_mask).sum(axis = (1,2))
+                    all_cell_data[j,i*group_step:] = cc_resp 
+                del c_frame_group
+                             
+
+
+
     def Series_Generator_Low_Memory(self):
         
         self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
@@ -297,7 +339,10 @@ class One_Key_Caiman(object):
         print('Cell_Finding')
         self.Cell_Find(boulders= self.boulder)
         print('Series_Generating...')
-        self.Series_Generator_Low_Memory()
+        if self.in_server:
+            self.Series_Generator_Server()
+        else:
+            self.Series_Generator_Low_Memory()
         
     
         

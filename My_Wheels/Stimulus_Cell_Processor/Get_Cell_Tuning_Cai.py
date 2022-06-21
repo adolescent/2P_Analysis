@@ -190,7 +190,7 @@ class Tuning_Calculator(object):
     
     
     
-    def Fit_Best_Orientation(self,limit =  1.5):
+    def Fit_Best_Orientation(self,limit =  99999):
         #Initialize
         rad = 180/np.pi
         self.Tuning_Property_Cells['Fitted_Orien'] = {}

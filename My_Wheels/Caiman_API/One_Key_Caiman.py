@@ -43,8 +43,8 @@ class One_Key_Caiman(object):
     # Boulder in UDLR sequense.
     def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),in_server = True,
                  max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
-                 bk_comp_num = 3,rf = 25,k = 6,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.85,
-                 min_cnn_thres = 0.99,cnn_lowest = 0.1,use_cuda = True):
+                 bk_comp_num = 2,rf = 20,k = 5,cnmf_overlap = 6,merge_thr = 0.85,snr = 1.5,rval_thr = 0.75,
+                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = True):
         
         self.day_folder = day_folder
         self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)
@@ -276,7 +276,17 @@ class One_Key_Caiman(object):
                     cc_resp = (c_frame_group*c_mask).sum(axis = (1,2))
                     all_cell_data[j,i*group_step:] = cc_resp 
                 del c_frame_group
-                             
+        # cut series in different runs.
+        for i,cc in enumerate(self.real_cell_ids):
+            frame_counter = 0
+            cc_series_all = all_cell_data[i,:]
+            for j,c_run in enumerate(self.run_subfolders):
+                c_frame_num = self.frame_lists[j]
+                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+                frame_counter+=c_frame_num
+        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
+        
+
 
 
 
@@ -340,7 +350,7 @@ class One_Key_Caiman(object):
         self.Cell_Find(boulders= self.boulder)
         print('Series_Generating...')
         if self.in_server:
-            self.Series_Generator_Server()
+            self.Series_Generator_Low_Memory()
         else:
             self.Series_Generator_Low_Memory()
         
@@ -349,11 +359,12 @@ class One_Key_Caiman(object):
         
 #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'D:\ZR\_Temp_Data\220506_L76_2P'
-    run_lists = [1,2,3,6,7]
+    day_folder = r'G:\Test_Data\2P\220630_L76_2P'
+    run_lists = [3]
     Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (20,20,20,20))
-    Okc.Do_Caiman()
-    #Okc.Motion_Corr_All()
-    #Okc.Cell_Find(boulders= Okc.boulder)
-    #Okc.Series_Generator_Manual()
+    #Okc.Do_Caiman()
+    Okc.Motion_Corr_All()
+    #Okc.global_avr = cv2.imread(r'G:\Test_Data\2P\220630_L76_2P\_CAIMAN\Summarize\Global_Average_cai.tif',-1)
+    Okc.Cell_Find(boulders= Okc.boulder)
+    Okc.Series_Generator_Low_Memory()
     #Okc.Series_Generator_Low_Memory()

@@ -21,7 +21,7 @@ class Preprocess_Pipeline(object):
     name = r'One key preprocess'
     
     def __init__(self,day_folder,runlist,
-                 boulder = (20,20,20,20),in_server = True,
+                 boulder = (20,20,20,20),in_server = True,align_base = '1-003',
                  od_run = 'Run006',od_type = 'OD_2P',
                  orien_run = 'Run002',orien_type = 'G16_2P',
                  color_run = 'Run007',color_type = 'HueNOrien4',
@@ -31,6 +31,7 @@ class Preprocess_Pipeline(object):
         self.boulder = boulder
         self.runlist = runlist
         self.in_server = in_server
+        self.align_base = align_base
         # get stimuli folder.
         all_runfolders = ot.Get_Sub_Folders(self.day_folder)
         for i,c_folder in enumerate(all_runfolders):
@@ -50,7 +51,7 @@ class Preprocess_Pipeline(object):
         One_Key_Stim_Align(self.stim_folder)
         # do align and cell find
         print('Align and Cell Find.\n')
-        Okc = One_Key_Caiman(self.day_folder, self.runlist,boulder = self.boulder,in_server=self.in_server)
+        Okc = One_Key_Caiman(self.day_folder, self.runlist,boulder = self.boulder,in_server=self.in_server,align_base = self.align_base)
         Okc.Do_Caiman()
         # generate all condition dics.
         self.Cell_Cond_Dic = All_Cell_Condition_Generator(self.day_folder)

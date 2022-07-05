@@ -43,7 +43,7 @@ class One_Key_Caiman(object):
     # Boulder in UDLR sequense.
     def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),in_server = True,
                  max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
-                 bk_comp_num = 2,rf = 20,k = 5,cnmf_overlap = 6,merge_thr = 0.85,snr = 1.5,rval_thr = 0.75,
+                 bk_comp_num = 2,rf = 20,k = 5,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.75,
                  min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = True):
         
         self.day_folder = day_folder
@@ -360,7 +360,7 @@ class One_Key_Caiman(object):
 #%% Test run part.       
 if __name__ == '__main__' :
     day_folder = r'G:\Test_Data\2P\220630_L76_2P'
-    run_lists = [3]
+    run_lists = [1,3,6,7,8]
     Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (20,20,20,20))
     #Okc.Do_Caiman()
     Okc.Motion_Corr_All()

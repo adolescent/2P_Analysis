@@ -91,12 +91,12 @@ def Comp_Visualize_Cai(c_comp,all_cell_dic,show = True):
 @Timer
 def One_Key_PCA(day_folder,runname,
                 tag = 'Spon_Before',subfolder = '_CAIMAN',
-                start_time = 0,end_time = 99999):
+                start_frame = 0,end_frame = 99999):
     workpath = ot.join(day_folder,subfolder)
     all_cell_dic = ot.Load_Variable(workpath,'All_Series_Dic.pkl')
     save_folder = ot.join(workpath,tag+'_PCA')
     _ = ot.mkdir(save_folder)
-    data_frame = Pre_Processor_Cai(day_folder,runname,subfolder,start_time,end_time,passed_band=(0.005,0.3),order = 7)
+    data_frame = Pre_Processor_Cai(day_folder,runname,subfolder,start_frame,end_frame,passed_band=(0.005,0.3),order = 7)
     components,PCA_info,fitted_weights = Do_PCA(data_frame)
     ot.Save_Variable(save_folder, 'All_PC_Components', components)
     ot.Save_Variable(save_folder, 'All_PC_Info', PCA_info)

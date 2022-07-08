@@ -51,7 +51,7 @@ for i,cc in enumerate(acn_91):
 for i,cc in enumerate(acn_76):
     if (tuning_dic_76[cc]['Fitted_Orien'] != 'No_Tuning') and (tuning_dic_76[cc]['Orien_Preference'] != 'No_Tuning'):
         c_diff = abs(tuning_dic_76[cc]['Fitted_Orien']-float(tuning_dic_76[cc]['Orien_Preference'][5:]))
-        fit_diff.append(min(c_diff,180-c_diff))        
+        fit_diff.append(min(c_diff,180-c_diff))
 
 plt.hist(fit_diff,bins = 25)
 #%%Get all cell by cell correlation matrix.

@@ -9,34 +9,30 @@ This function is used to cut series into small time windows.
 import numpy as np
 
 
-def Generate_Windowed_Series(input_series,win_size = 300,win_step = 60,fps = 1.301):
+def Series_Window_Slide(input_series,win_size = 300,win_step = 60):
     '''
-    Generate windowed series.
+    Generate a series of slide window data.
 
     Parameters
     ----------
     input_series : (ND array)
         Input series need to be cut.
     win_size : (int), optional
-        Size of each window.(Seconds) The default is 300.
+        Size of each window.(Frame) The default is 300.
     win_step : (int), optional
-        Step of each window.(Seconds) The default is 60.
-    fps : (float), optional
-        Capturing rate. The default is 1.301.
+        Step of each window.(Frame) The default is 60.
+
 
     Returns
     -------
     windowed_series : (ND Array)
         Series of windowed graph.
     '''
-    frame_num = len(input_series)
-    win_frame = int(win_size*fps)
-    step_frame = int(win_step*fps)
-    win_num = (frame_num-win_frame)//step_frame+1 # Ignore last one.
-    windowed_series = np.zeros(shape = (win_frame,win_num),dtype = 'f8')
+    cell_num,frame_num = input_series.shape
+    win_num = (frame_num-win_size)//win_step
+    win_slide_frame = np.zeros(shape = (cell_num,win_size,win_num),dtype = 'f8')
     for i in range(win_num):
-        c_window = input_series[i*step_frame:i*step_frame+win_frame]
-        windowed_series[:,i] = c_window
-    
-    
-    return windowed_series
+        c_window = input_series.iloc[:,i*win_step:i*win_step+win_size]
+        win_slide_frame[:,:,i] = c_window
+
+    return win_slide_frame

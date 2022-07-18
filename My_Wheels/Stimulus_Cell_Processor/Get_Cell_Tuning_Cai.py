@@ -252,6 +252,7 @@ class Tuning_Calculator(object):
                     best_angle_rad = filled_angle[best_angle_loc]
                     best_angle = (best_angle_rad*rad)%180
                     self.Cell_Tuning_Dic[cc]['Fitted_Orien'] = best_angle
+                    self.Cell_Tuning_Dic[cc]['Fit_Parameters'] = parameters
                     self.Tuning_Property_Cells['Fitted_Orien'][cc] = best_angle
 # =============================================================================
 #                     if abs(best_angle-float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])) < limit*orien_step:# a good fit.

@@ -17,6 +17,7 @@ from Series_Analyzer.Pairwise_Correlation import Pairwise_Corr_Core
 import seaborn as sns
 import statsmodels.api as sm
 import pandas as pd
+import numpy as np
 
 day76 = r'D:\ZR\_Temp_Data\220630_L76_2P'
 day85 = r'D:\ZR\_Temp_Data\220706_L85_LM'
@@ -63,7 +64,7 @@ ot.Save_Variable(temp_workfolder, 'Paircorr_Run01_pool', pooled_pc)
 sns.scatterplot(data = pooled_pc,x = 'Dist',y = 'Corr',s = 2,hue = 'Animal',hue_order = ['91','76','85'])
 # or lm plot.
 sns.lmplot(data = pooled_pc,x = 'Dist',y = 'Corr',scatter_kws = {'s':2,'alpha':0.15},hue = 'Animal')
-# fit model to get parameter.
+#%% Linear fit model to get parameter.
 dist91 = pc91_whole['Dist']
 Y = pc91_whole['Corr']
 X = sm.add_constant(dist91)
@@ -84,6 +85,57 @@ X = sm.add_constant(dist76)
 model76 = sm.OLS(Y,X)
 result76 = model76.fit()
 result76.summary()
-#%% Regress distance.
+#%% Non linear fit.
+from scipy.optimize import curve_fit
+from sklearn.metrics import r2_score
+def Reci_Func(dist,const,slope,bias):
+    corr = const+slope*(1/(dist+bias))
+    return corr
+# fit76
+para_76, covar_76 = curve_fit(Reci_Func,xdata = pc76_whole['Dist'],ydata = pc76_whole['Corr'])
+y_pred_76 = Reci_Func(pc76_whole['Dist'], *para_76)
+r2_76 = r2_score(pc76_whole['Corr'], y_pred_76)
+dist_range = np.array(range(1,620))
+plt.scatter(x =  pc76_whole['Dist'],y =  pc76_whole['Corr'],s = 1,alpha = 0.5)
+plt.plot(dist_range,Reci_Func(dist_range,*para_76),color = 'r')
+#fit 85
+para_85, covar_85 = curve_fit(Reci_Func,xdata = pc85_whole['Dist'],ydata = pc85_whole['Corr'])
+y_pred_85 = Reci_Func(pc85_whole['Dist'], *para_85)
+r2_85 = r2_score(pc85_whole['Corr'], y_pred_85)
+dist_range = np.array(range(1,620))
+plt.scatter(x =  pc85_whole['Dist'],y =  pc85_whole['Corr'],s = 1,alpha = 0.5)
+plt.plot(dist_range,Reci_Func(dist_range,*para_85),color = 'r')
+#fit 91
+para_91, covar_91 = curve_fit(Reci_Func,xdata = pc91_whole['Dist'],ydata = pc91_whole['Corr'])
+y_pred_91 = Reci_Func(pc91_whole['Dist'], *para_91)
+r2_91 = r2_score(pc91_whole['Corr'], y_pred_91)
+dist_range = np.array(range(1,620))
+plt.scatter(x =  pc91_whole['Dist'],y =  pc91_whole['Corr'],s = 1,alpha = 0.5)
+plt.plot(dist_range,Reci_Func(dist_range,*para_91),color = 'r')
+#%% Regress correlation on non-linear pattern.
+regressed_pc91_whole = pc91_whole.copy()
+regressed_pc91_whole['Corr'] = pc91_whole['Corr']-Reci_Func(pc91_whole['Dist'], *para_91)+para_91[0]
+plt.scatter(x =  regressed_pc91_whole['Dist'],y =  regressed_pc91_whole['Corr'],s = 1,alpha = 0.5)
+
+regressed_pc85_whole = pc85_whole.copy()
+regressed_pc85_whole['Corr'] = pc85_whole['Corr']-Reci_Func(pc85_whole['Dist'], *para_85)+para_85[0]
+plt.scatter(x =  regressed_pc85_whole['Dist'],y =  regressed_pc85_whole['Corr'],s = 1,alpha = 0.5)
+
+regressed_pc76_whole = pc76_whole.copy()
+regressed_pc76_whole['Corr'] = pc76_whole['Corr']-Reci_Func(pc76_whole['Dist'], *para_76)+para_76[0]
+plt.scatter(x =  regressed_pc76_whole['Dist'],y =  regressed_pc76_whole['Corr'],s = 1,alpha = 0.5)
+
+# Test after regression
+dist_t = regressed_pc76_whole['Dist']
+Y = regressed_pc76_whole['Corr']
+X = sm.add_constant(dist_t)
+model_t = sm.OLS(Y,X)
+result_t = model_t.fit()
+result_t.summary()
+sns.lmplot(data = regressed_pc76_whole,x = 'Dist',y = 'Corr',scatter_kws = {'s':2,'alpha':0.15})
+# generate and save all 
+pooled_pc_reg = pd.concat([regressed_pc91_whole,regressed_pc76_whole,regressed_pc85_whole])
+ot.Save_Variable(temp_workfolder, 'Paircorr_Run01_pool_Dist_Regressed', pooled_pc_reg)
+#%%
 
 

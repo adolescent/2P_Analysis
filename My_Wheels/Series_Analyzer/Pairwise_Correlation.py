@@ -111,7 +111,7 @@ def Series_Cut_Pair_Corr(all_cell_dic,tuning_dic,data_frame,win_size = 300,win_s
     Pair_Corr_info['Orien_B'] = Pair_Corr_info['Orien_B'].astype('f8')
 
     for i in range(frac_num):
-        Pair_Corr_windowed[i] = Pair_Corr_windowed['Orien_B'].astype('f8')
+        Pair_Corr_windowed[i] = Pair_Corr_windowed[i].astype('f8')
 
     
     

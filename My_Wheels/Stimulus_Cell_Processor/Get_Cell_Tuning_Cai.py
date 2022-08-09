@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
 from tqdm import tqdm
+from sklearn.metrics import r2_score
 
 
 class Tuning_Calculator(object):
@@ -263,10 +264,15 @@ class Tuning_Calculator(object):
 #                         self.Cell_Tuning_Dic[cc]['Fitted_Orien'] = float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])
 #                         self.Tuning_Property_Cells['Fitted_Orien'][cc] = float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])
 # =============================================================================
-                
+                    # get r2.
+                    pred_y_r2 =  self.Mises_Function(cc_response.loc[:,'Orien_Rad'],parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5])
+                    r2 = r2_score(cc_response.loc[:,'Response'],pred_y_r2)
+                    self.Cell_Tuning_Dic[cc]['Fit_R2'] = r2
+
                 else:
                     print('Fit failed, use best tuning.')
                     self.Cell_Tuning_Dic[cc]['Fitted_Orien'] = float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])
+                    self.Cell_Tuning_Dic[cc]['Fit_R2'] = 0
                     self.Tuning_Property_Cells['Fitted_Orien'][cc] = float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])
                 # fit function using fitted results.
             
@@ -337,7 +343,7 @@ class Tuning_Calculator(object):
     
 #%% Test run
 if __name__ == '__main__':
-    day_folder = r'F:\_Data_Temp\220420_L91'
+    day_folder = r'D:\ZR\_Temp_Data\220420_L91'
     Tc = Tuning_Calculator(day_folder,od_run = 'Run006',orien_run = 'Run007',color_run = 'Run008')
     Tc.Get_Hue_Tuning()
     Cell_Tuning_Dic,Tuning_Property_Cells = Tc.Calculate_Tuning()

@@ -265,8 +265,9 @@ class Tuning_Calculator(object):
 #                         self.Tuning_Property_Cells['Fitted_Orien'][cc] = float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])
 # =============================================================================
                     # get r2.
-                    pred_y_r2 =  self.Mises_Function(cc_response.loc[:,'Orien_Rad'],parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5])
-                    r2 = r2_score(cc_response.loc[:,'Response'],pred_y_r2)
+                    avr_response = cc_response.groupby('Orien').mean()
+                    pred_y_r2 =  self.Mises_Function(avr_response['Orien_Rad'],parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5])
+                    r2 = r2_score(avr_response['Response'],pred_y_r2)
                     self.Cell_Tuning_Dic[cc]['Fit_R2'] = r2
 
                 else:
@@ -345,6 +346,7 @@ class Tuning_Calculator(object):
 if __name__ == '__main__':
     day_folder = r'D:\ZR\_Temp_Data\220420_L91'
     Tc = Tuning_Calculator(day_folder,od_run = 'Run006',orien_run = 'Run007',color_run = 'Run008')
-    Tc.Get_Hue_Tuning()
-    Cell_Tuning_Dic,Tuning_Property_Cells = Tc.Calculate_Tuning()
+    Tc.Get_Orientation_Tuning()
+    Tc.Fit_Best_Orientation()
+    a = Tc.Cell_Tuning_Dic
 

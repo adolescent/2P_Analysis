@@ -109,7 +109,7 @@ plt.plot(window_ssa['SST'])
 plt.plot(window_ssa['OD'])
 plt.plot(window_ssa['Orien'])
 plt.plot(window_ssa['Dist'])
-#%% do the same on L85 and L91 corr pairs.
+#%% do the same on L85 corr pairs.
 
 pcinfo85 = ot.Load_Variable(wp,'pc85_info.pkl')
 pcwin85 = ot.Load_Variable(wp,'pc85win.pkl')
@@ -166,3 +166,62 @@ plt.plot(window_ssa85['SST'])
 plt.plot(window_ssa85['OD'][60:])
 plt.plot(window_ssa85['Orien'][60:])
 plt.plot(window_ssa85['Distr'])
+
+
+#%% L91 here.
+pcinfo91 = ot.Load_Variable(wp,'pc91_info.pkl')
+pcwin91 = ot.Load_Variable(wp,'pc91win.pkl')
+pc_tuned = pcinfo91[pcinfo91.OD_A != -999]
+pc_tuned = pc_tuned[pc_tuned.OD_B != -999]
+pc_tuned = pc_tuned[pc_tuned.Orien_A != -999]
+pc_tuned = pc_tuned[pc_tuned.Orien_B != -999]
+tuned_lists = pc_tuned.index
+pcwin91_used = pcwin91.loc[tuned_lists,:]
+pcinfo91_used = pcinfo91.loc[tuned_lists,:]
+# get ssa analysis.
+winnum = pcwin91_used.shape[1]
+window_ssa91 = pd.DataFrame(columns = ['SST','Dist','OD','Orien','Distr','ODr','Orienr'],index = range(winnum))
+# use only corrs who have tuning.
+dist = pcinfo91_used['Dist']
+OD_diff = abs(pcinfo91_used['OD_A']-pcinfo91_used['OD_B'])
+raw_orien_diff = abs(pcinfo91_used['Orien_A']-pcinfo91_used['Orien_B'])
+raw_orien_diff[raw_orien_diff>90]=(180-raw_orien_diff)
+Orien_diff = raw_orien_diff
+
+
+for i in range(pcwin91_used.shape[1]):
+    win_temp = pcwin91_used.iloc[:,i]
+    # fit dist first
+    X = dist
+    Y = win_temp
+    X = sm.add_constant(X)
+    model = sm.OLS(Y,X)
+    result = model.fit()
+    ess_dist = result.ess
+    c_sst = result.ess+result.ssr
+    r_dist = ess_dist/c_sst
+    # then fit orien 
+    X = Orien_diff
+    Y = win_temp
+    X = sm.add_constant(X)
+    model = sm.OLS(Y,X)
+    result = model.fit()
+    ess_orien = result.ess
+    r_orien = ess_orien/c_sst
+    # then fit OD
+    X = OD_diff
+    Y = win_temp
+    X = sm.add_constant(X)
+    model = sm.OLS(Y,X)
+    result = model.fit()
+    ess_od = result.ess
+    r_od = ess_od/c_sst
+    window_ssa91.loc[i,:] = [c_sst,ess_dist,ess_od,ess_orien,r_dist,r_od,r_orien]
+    
+# plot graphs.
+plt.plot(window_ssa91['SST'])
+plt.plot(window_ssa91['ODr'][60:])
+plt.plot(window_ssa91['Orienr'][60:])
+plt.plot(window_ssa91['Distr'])
+
+

@@ -233,6 +233,7 @@ class Tuning_Calculator(object):
                         counter+=1
                 # fit data into function.
                 cc_response = cc_response.astype(float)
+                cc_response = cc_response.groupby('Orien').mean()# average before fiting
                 try:
                     parameters, covariance = curve_fit(self.Mises_Function, cc_response.loc[:,'Orien_Rad'],cc_response.loc[:,'Response'],maxfev=30000)
                 except RuntimeError:
@@ -265,9 +266,9 @@ class Tuning_Calculator(object):
 #                         self.Tuning_Property_Cells['Fitted_Orien'][cc] = float(self.Cell_Tuning_Dic[cc]['Orien_Preference'][5:])
 # =============================================================================
                     # get r2.
-                    avr_response = cc_response.groupby('Orien').mean()
-                    pred_y_r2 =  self.Mises_Function(avr_response['Orien_Rad'],parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5])
-                    r2 = r2_score(avr_response['Response'],pred_y_r2)
+                    #avr_response = cc_response.groupby('Orien').mean()
+                    pred_y_r2 = self.Mises_Function(cc_response['Orien_Rad'],parameters[0],parameters[1],parameters[2],parameters[3],parameters[4],parameters[5])
+                    r2 = r2_score(cc_response['Response'],pred_y_r2)
                     self.Cell_Tuning_Dic[cc]['Fit_R2'] = r2
 
                 else:

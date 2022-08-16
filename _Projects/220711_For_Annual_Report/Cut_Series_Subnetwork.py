@@ -18,10 +18,11 @@ from scipy.stats import pearsonr,spearmanr
 import statsmodels.api as sm
 import pandas as pd
 from tqdm import tqdm
-
+from Series_Analyzer.Series_Cutter import Series_Window_Slide
+wp = r'D:\ZR\_Temp_Data\220711_temp'
 
 #%% Initailization
-wp = r'D:\ZR\_Temp_Data\220711_temp'
+
 pcinfo91 = ot.Load_Variable(wp,'pc91_info.pkl')
 pcwin91 = ot.Load_Variable(wp,'pc91win.pkl')
 
@@ -59,7 +60,6 @@ sameorien_win = pcwin91t.loc[sameorien_index,:]
 avr_sameorien = sameorien_win.mean()
 
 
-
 plt.plot(avr_sameeye-avr91)
 plt.plot(avr_sameorien-avr91)
 plt.plot(avr91)
@@ -78,7 +78,6 @@ for i in tqdm(range(time)):
     cr,_ = spearmanr(samp1[30:140],samp2[30:140])
     r_lists.append(cr)
     
-
 
 #%% Then seperate orien,od network here.
 from Series_Analyzer.Pair_Corr_Tools import Win_Corr_Select
@@ -114,11 +113,58 @@ plt.plot(RE_win.mean()-avr91)
 plt.plot(LR_win.mean()-avr91)
 plt.plot(A_matrix.mean(0))
 
+
+plt.plot(orien1_win.mean())
+plt.plot(orien2_win.mean())
+plt.plot(orien3_win.mean())
+plt.plot(orien4_win.mean())
+plt.plot(avr91)
+
+
 plt.plot(orien1_win.mean()-avr91)
 plt.plot(orien2_win.mean()-avr91)
 plt.plot(orien3_win.mean()-avr91)
 plt.plot(orien4_win.mean()-avr91)
+#%% Compare with Cell response, sort cell sequence by tuning.
+acd = ot.Load_Variable(wp,r'Series_91_Run1.pkl')
+sns.heatmap(acd,center = 0)
+# sort them by pref-corr and pref-OD
+all_cell_tuning_91 = ot.Load_Variable(r'D:\ZR\_Temp_Data\220420_L91\_CAIMAN\Cell_Tuning_Dic.pkl')
+acn = list(all_cell_tuning_91.keys())
+tuning_frame = pd.DataFrame(columns = ['OD','Orien'])
+for i,cc in enumerate(acn):
+    c_od = all_cell_tuning_91[cc]['OD']['Tuning_Index']
+    c_orien = all_cell_tuning_91[cc]['Fitted_Orien']
+    if c_orien != 'No_Tuning':
+        tuning_frame.loc[cc] = [c_od,c_orien]
+OD_sorted = tuning_frame.sort_values('OD')
+Orien_sorted = tuning_frame.sort_values('Orien')
+od_sorted_cell = acd.reindex(index = OD_sorted.index)
+sns.heatmap(od_sorted_cell,center = 0)
+# regress global avr
+global_avr = od_sorted_cell.mean(0)
+a = od_sorted_cell-global_avr
+sns.heatmap(a,center = 0,vmax = 2,vmin = -2)
+# orien map.
+orien_sorted_cell = acd.reindex(index = Orien_sorted.index)
+sns.heatmap(orien_sorted_cell,center = 0)
+# sort pairwise corr and avr by group.
+global_avr = orien_sorted_cell.mean(0)
+a = orien_sorted_cell-global_avr
+sns.heatmap(a,center = 0)
+# firing counter in time window, let's see whether they are related.
+thres_od_sorted_cell =od_sorted_cell[od_sorted_cell>3]
+thres_od_sorted_cell = thres_od_sorted_cell.fillna(0)
+#thres_od_sorted_cell = od_sorted_cell>3
+cutted_od_sorted_cell = Series_Window_Slide(thres_od_sorted_cell)
+a = cutted_od_sorted_cell.sum(1)
+sns.heatmap(a,vmax = 100)
+#%% Resort pairwise-corr to see how inner relationship effect corr.
+
 
 
 
 #%% Do ther same thing on L76 & L85 data.
+
+
+

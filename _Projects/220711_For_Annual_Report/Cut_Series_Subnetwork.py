@@ -153,16 +153,40 @@ global_avr = orien_sorted_cell.mean(0)
 a = orien_sorted_cell-global_avr
 sns.heatmap(a,center = 0)
 # firing counter in time window, let's see whether they are related.
-thres_od_sorted_cell =od_sorted_cell[od_sorted_cell>3]
+thres_od_sorted_cell =orien_sorted_cell[orien_sorted_cell>3]
 thres_od_sorted_cell = thres_od_sorted_cell.fillna(0)
 #thres_od_sorted_cell = od_sorted_cell>3
 cutted_od_sorted_cell = Series_Window_Slide(thres_od_sorted_cell)
 a = cutted_od_sorted_cell.sum(1)
-sns.heatmap(a,vmax = 100)
+sns.heatmap(a,center = 0,vmax = 150)
 #%% Resort pairwise-corr to see how inner relationship effect corr.
+pc91_tuned = ot.Load_Variable(wp,'pc91tuned_info.pkl')
+pc_od_sort = pcwin91.reindex(pc91_tuned.sort_values('OD_diff').index)
+pc_orien_sort = pcwin91.reindex(pc91_tuned.sort_values('Orien_diff').index)
+pc_dist_sort = pcwin91.reindex(pc91_tuned.sort_values('Dist').index)
 
+a = pc_od_sort.groupby(np.arange(len(pc_od_sort))//355).mean()
+#pc_rand = pcwin91.sample(177310)
+#a = pc_rand.groupby(np.arange(len(pc_rand))//355).mean()
+c_info = pc91_tuned.sort_values('OD_diff').groupby(np.arange(len(pc91_tuned.sort_values('OD_diff')))//355).mean()
 
-
+num_ticks = 50
+# the index of the position of yticks
+yticks = np.linspace(0, 500-1, num_ticks, dtype=np.int)
+# the content of labels of these yticks
+yticklabels = [c_info['OD_diff'].round(3)[idx] for idx in yticks]
+ax = sns.heatmap(a)
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticklabels)
+ax.set_title('OD diff vs Correlation')
+plt.show()
+# mean subtraction
+b = a-a.mean(0)
+ax = sns.heatmap(b,center = 0)
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticklabels)
+ax.set_title('Orien diff vs Correlation')
+plt.show()
 
 #%% Do ther same thing on L76 & L85 data.
 

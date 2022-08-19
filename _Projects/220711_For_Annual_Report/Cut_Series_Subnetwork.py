@@ -43,8 +43,8 @@ pcwin91_tuned = pcwin91.loc[tuned_lists,:]
 ot.Save_Variable(wp, 'pc91win_tuned', pcwin91_tuned)
 
 #%% get subnetworks.
-pcinfo91t = ot.Load_Variable(wp,'pc91tuned_info.pkl')
-pcwin91t = ot.Load_Variable(wp,'pc91win_tuned.pkl')
+pcinfo91t = ot.Load_Variable(wp,'pc85tuned_info.pkl')
+pcwin91t = ot.Load_Variable(wp,'pc85win_tuned.pkl')
 avr91 = pcwin91t.mean()
 # similar eyes
 RE_pairs = pcinfo91t[pcinfo91t['OD_A']<-0.5][pcinfo91t['OD_B']<-0.5]
@@ -59,9 +59,12 @@ sameorien_index = sameorien_pairs.index
 sameorien_win = pcwin91t.loc[sameorien_index,:]
 avr_sameorien = sameorien_win.mean()
 
+plt.plot(avr_sameeye[60:])
+plt.plot(avr_sameorien[60:])
+plt.plot(avr91[60:])
 
-plt.plot(avr_sameeye-avr91)
-plt.plot(avr_sameorien-avr91)
+plt.plot((avr_sameeye-avr91)[60:])
+plt.plot((avr_sameorien-avr91)[60:])
 plt.plot(avr91)
 
 # need shuffle to see it's not random results.
@@ -96,35 +99,54 @@ orien1_win = Win_Corr_Select(pcinfo91t['Orien_group']==1, pcwin91t)
 orien2_win = Win_Corr_Select(pcinfo91t['Orien_group']==2, pcwin91t)
 orien3_win = Win_Corr_Select(pcinfo91t['Orien_group']==3, pcwin91t)
 orien4_win = Win_Corr_Select(pcinfo91t['Orien_group']==4, pcwin91t)
+# get similar orientation subgroups.
+pcinfo91t['Orien_A_group'] = pcinfo91t['Orien_A']//45+1
+pcinfo91t['Orien_B_group'] = pcinfo91t['Orien_B']//45+1
+orien11_win = Win_Corr_Select((pcinfo91t['Orien_A_group']==1)*(pcinfo91t['Orien_B_group']==1)*(pcinfo91t['Orien_group']==1),pcwin91t)
+orien22_win = Win_Corr_Select((pcinfo91t['Orien_A_group']==2)*(pcinfo91t['Orien_B_group']==2)*(pcinfo91t['Orien_group']==1),pcwin91t)
+orien33_win = Win_Corr_Select((pcinfo91t['Orien_A_group']==3)*(pcinfo91t['Orien_B_group']==3)*(pcinfo91t['Orien_group']==1),pcwin91t)
+orien44_win = Win_Corr_Select((pcinfo91t['Orien_A_group']==4)*(pcinfo91t['Orien_B_group']==4)*(pcinfo91t['Orien_group']==1),pcwin91t)
 
-plt.plot(orien1_win.mean())
-plt.plot(orien2_win.mean())
-plt.plot(orien3_win.mean())
-plt.plot(orien4_win.mean())
+
+
+plt.plot(orien11_win.mean())
+plt.plot(orien22_win.mean())
+plt.plot(orien33_win.mean())
+plt.plot(orien44_win.mean())
+#plt.plot(orien1_win.mean())
 plt.plot(avr91)
 
-plt.plot(LE_win.mean())
-plt.plot(RE_win.mean())
-plt.plot(LR_win.mean())
-plt.plot(avr91)
+plt.plot(orien11_win.mean()[60:])
+plt.plot(orien22_win.mean()[60:])
+plt.plot(orien33_win.mean()[60:])
+plt.plot(orien44_win.mean()[60:])
+plt.plot(avr91[60:])
 
-plt.plot(LE_win.mean()-avr91)
-plt.plot(RE_win.mean()-avr91)
-plt.plot(LR_win.mean()-avr91)
-plt.plot(A_matrix.mean(0))
+plt.plot(LE_win.mean()[60:])
+plt.plot(RE_win.mean()[60:])
+plt.plot(LR_win.mean()[60:])
+plt.plot(avr91[60:])
+
+plt.plot((LE_win.mean()-avr91)[60:])
+plt.plot((RE_win.mean()-avr91)[60:])
+plt.plot((LR_win.mean()-avr91)[60:])
+#plt.plot((A_matrix.mean(0))[60:])
 
 
-plt.plot(orien1_win.mean())
-plt.plot(orien2_win.mean())
-plt.plot(orien3_win.mean())
-plt.plot(orien4_win.mean())
-plt.plot(avr91)
+plt.plot(orien1_win.mean()[60:])
+plt.plot(orien2_win.mean()[60:])
+plt.plot(orien3_win.mean()[60:])
+plt.plot(orien4_win.mean()[60:])
+plt.plot(avr91[60:])
 
 
-plt.plot(orien1_win.mean()-avr91)
-plt.plot(orien2_win.mean()-avr91)
-plt.plot(orien3_win.mean()-avr91)
-plt.plot(orien4_win.mean()-avr91)
+plt.plot((orien11_win.mean()-avr91))
+plt.plot((orien22_win.mean()-avr91))
+plt.plot((orien33_win.mean()-avr91))
+plt.plot((orien44_win.mean()-avr91))
+plt.plot((LE_win.mean()-avr91)[60:])
+plt.plot((RE_win.mean()-avr91)[60:])
+plt.plot((LR_win.mean()-avr91)[60:])
 #%% Compare with Cell response, sort cell sequence by tuning.
 acd = ot.Load_Variable(wp,r'Series_91_Run1.pkl')
 sns.heatmap(acd,center = 0)
@@ -182,13 +204,72 @@ ax.set_title('OD diff vs Correlation')
 plt.show()
 # mean subtraction
 b = a-a.mean(0)
-ax = sns.heatmap(b,center = 0)
+ax = sns.heatmap(b,center = 0,vmax = 0.1,vmin = -0.1)
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticklabels)
+ax.set_title('OD diff vs Correlation')
+plt.show()
+
+#%% Do ther same thing on L76 & L85 data.
+pcinfo85 = ot.Load_Variable(wp,'pc85tuned_info.pkl')
+pcwin85 = ot.Load_Variable(wp,'pc85win_tuned.pkl')
+
+pc_od_sort = pcwin85.reindex(pcinfo85.sort_values('OD_diff').index)
+pc_orien_sort = pcwin85.reindex(pcinfo85.sort_values('Orien_diff').index)
+pc_dist_sort = pcwin85.reindex(pcinfo85.sort_values('Dist').index)
+
+a = pc_od_sort.groupby(np.arange(len(pc_od_sort))//324).mean()
+#pc_rand = pcwin91.sample(177310)
+#a = pc_rand.groupby(np.arange(len(pc_rand))//325).mean()
+c_info = pcinfo85.sort_values('OD_diff').groupby(np.arange(len(pcinfo85.sort_values('OD_diff')))//324).mean()
+
+num_ticks = 50
+# the index of the position of yticks
+yticks = np.linspace(0, 500-1, num_ticks, dtype=np.int)
+# the content of labels of these yticks
+yticklabels = [c_info['OD_diff'].round(3)[idx] for idx in yticks]
+ax = sns.heatmap(a)
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticklabels)
+ax.set_title('OD diff vs Correlation')
+plt.show()
+# mean subtraction
+b = a-a.mean(0)
+ax = sns.heatmap(b,center = 0,vmax = 0.075,vmin = -0.075)
+#ax = sns.heatmap(b,center = 0)
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticklabels)
+ax.set_title('OD diff vs Correlation')
+plt.show()
+
+##############L76###############
+pcinfo76 = ot.Load_Variable(wp,'pc76tuned_info.pkl')
+pcwin76 = ot.Load_Variable(wp,'pc76win_tuned.pkl')
+
+pc_od_sort = pcwin76.reindex(pcinfo76.sort_values('OD_diff').index)
+pc_orien_sort = pcwin76.reindex(pcinfo76.sort_values('Orien_diff').index)
+pc_dist_sort = pcwin76.reindex(pcinfo76.sort_values('Dist').index)
+
+a = pc_orien_sort.groupby(np.arange(len(pc_orien_sort))//174).mean()
+#pc_rand = pcwin91.sample(177310)
+#a = pc_rand.groupby(np.arange(len(pc_rand))//325).mean()
+c_info = pcinfo76.sort_values('Orien_diff').groupby(np.arange(len(pcinfo76.sort_values('Orien_diff')))//174).mean()
+
+num_ticks = 50
+# the index of the position of yticks
+yticks = np.linspace(0, 500-1, num_ticks, dtype=np.int)
+# the content of labels of these yticks
+yticklabels = [c_info['Orien_diff'].round(3)[idx] for idx in yticks]
+ax = sns.heatmap(a.iloc[:,60:])
 ax.set_yticks(yticks)
 ax.set_yticklabels(yticklabels)
 ax.set_title('Orien diff vs Correlation')
 plt.show()
-
-#%% Do ther same thing on L76 & L85 data.
-
-
-
+# mean subtraction
+b = a-a.mean(0)
+ax = sns.heatmap(b.iloc[:,60:],center = 0,vmax = 0.1,vmin = -0.1)
+#ax = sns.heatmap(b.iloc[:,60:],center = 0)
+ax.set_yticks(yticks)
+ax.set_yticklabels(yticklabels)
+ax.set_title('Orien diff vs Correlation')
+plt.show()

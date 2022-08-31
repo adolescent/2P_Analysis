@@ -115,15 +115,17 @@ for i in tqdm(range(framenum)):
             cell_response_frame.loc[i,'Orien135_Num'] +=1
             cell_response_frame.loc[i,'Orien135_spike'] += firing_cells[cc]
     
-# find peak test.
+ot.Save_Variable(wp, 'Network_activity_91',cell_response_frame)
+# find peak
 from scipy.signal import find_peaks
-x = cell_response_frame['All_Num']/596
-peaks, _ = find_peaks(x, height=10/596,distance = 3)
+x = cell_response_frame['All_Num']
+peaks, properties = find_peaks(x, height=10,distance = 3,width = 0)
 plt.plot(x)
-plt.plot(peaks, x[peaks], "x")
 plt.plot(np.zeros_like(x), "--", color="gray")
-#plt.plot(cell_response_frame['LE_spike']/89)
-#plt.plot(cell_response_frame['RE_spike']/135)
+#plt.plot(cell_response_frame['All_Num'])
+#plt.plot(cell_response_frame['LE_Num']/89)
+#plt.plot(cell_response_frame['RE_Num']/135)
+plt.plot(peaks, x[peaks], "x")
 plt.show()
 
 # =============================================================================
@@ -134,6 +136,14 @@ plt.show()
 #     a.append(len(peaks))
 # plt.plot(a)
 # =============================================================================
+#%%
+peak_info = cell_response_frame.loc[peaks,:]
 
-
+LE_ON = (peak_info[peak_info['LE_Num']>5]).index
+RE_ON = (peak_info[peak_info['RE_Num']>5]).index
+plt.plot(x)
+plt.plot(peaks, x[peaks], "o",color = 'gray')# all peak
+plt.plot(RE_ON, x[RE_ON], "+",color = 'red')# all peak
+plt.plot(LE_ON, x[LE_ON], "x",color = 'yellow')# all peak
+plt.show()
     

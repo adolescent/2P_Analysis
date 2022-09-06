@@ -50,6 +50,7 @@ sns.heatmap(od_sorted_frame,center = 0)
 tuned_spikes = spikes.reindex(actune.index)
 cellnum,framenum = tuned_spikes.shape
 tuned_cell = list(tuned_spikes.index)
+ot.Save_Variable(wp, 'Tuned_Spikes_91', tuned_spikes)
 #%% Video generation
 all_run01_frame = np.zeros(shape = (512,512,framenum))
 for i,cc in tqdm(enumerate(tuned_cell)):
@@ -136,14 +137,95 @@ plt.show()
 #     a.append(len(peaks))
 # plt.plot(a)
 # =============================================================================
-#%%
+#%% Use spike cell num to define active events.
 peak_info = cell_response_frame.loc[peaks,:]
-
-LE_ON = (peak_info[peak_info['LE_Num']>5]).index
-RE_ON = (peak_info[peak_info['RE_Num']>5]).index
+peak_info['LE_ON'] = peak_info['LE_Num']>5
+peak_info['RE_ON'] = peak_info['RE_Num']>5
+LE_ON = (peak_info[peak_info['LE_ON']==True]).index
+RE_ON = (peak_info[peak_info['RE_ON']==True]).index
 plt.plot(x)
 plt.plot(peaks, x[peaks], "o",color = 'gray')# all peak
 plt.plot(RE_ON, x[RE_ON], "+",color = 'red')# all peak
 plt.plot(LE_ON, x[LE_ON], "x",color = 'yellow')# all peak
 plt.show()
+
+
+#%% determine how event thres affect event number.
+peak_info = cell_response_frame.loc[peaks,:]
+thres = np.arange(300,0,-2)
+thres_frame = pd.DataFrame(0,columns = ['thres','LE_all','RE_all','Coactive','LE_alone','RE_alone'],index = range(len(thres)))
+for i,c_thres in enumerate(thres):
+    peak_info['LE_ON'] = peak_info['LE_Num']>c_thres
+    peak_info['RE_ON'] = peak_info['RE_Num']>c_thres
+    c_LE = peak_info['LE_ON'].sum()
+    c_RE = peak_info['RE_ON'].sum()
+    c_coact = ((peak_info['RE_ON']==True)*(peak_info['LE_ON']==True)).sum()
+    c_LE_alone = c_LE-c_coact
+    c_RE_alone = c_RE-c_coact
+    thres_frame.loc[i,:] = [c_thres,c_LE,c_RE,c_coact,c_LE_alone,c_RE_alone]
     
+used_frame = thres_frame.melt(id_vars = ['thres'], var_name='Type',value_name = 'Count')
+
+fig, ax = plt.subplots()
+sns.lineplot(data = used_frame,x = 'thres',y = 'Count',hue = 'Type',ax = ax)  # distplot is deprecate and replaced by histplot
+ax.set_xlim(150,0)
+plt.show()
+#%% determine thres of BIG and SMALL response,
+peak_info = cell_response_frame.loc[peaks,:]
+peak_info['LE_ON'] = peak_info['LE_Num']>5
+peak_info['RE_ON'] = peak_info['RE_Num']>5
+peak_info['Single_ON'] = (peak_info['LE_ON']!=peak_info['RE_ON'])
+peak_info['Both_ON'] = (peak_info['LE_ON']*peak_info['RE_ON'])
+peak_info['Eye_ON'] = (peak_info['LE_ON']+peak_info['RE_ON'])# at least one eye network on.
+ot.Save_Variable(wp, 'peak_info_91', peak_info)
+# count big/small number and single/both propotion.
+# =============================================================================
+# big_thres = 35 # define which peak is big and which is small.
+# peak_info['Big'] = peak_info['All_Num']>big_thres
+# big_num = peak_info['Big'].sum()
+# small_num = (peak_info['Big']==False).sum()
+# big_both_prop = (peak_info[peak_info['Big']==True])['Both_ON'].sum()/big_num
+# big_single_prop = (peak_info[peak_info['Big']==True])['Single_ON'].sum()/big_num
+# small_both_prop = (peak_info[peak_info['Big']==False])['Both_ON'].sum()/small_num
+# small_single_prop = (peak_info[peak_info['Big']==False])['Single_ON'].sum()/small_num
+# =============================================================================
+# cycle network smaller than specific, and calculate single/both prop.
+
+Peak_Prop = pd.DataFrame(0,columns = ['Scale','Peak_Num','Peak_Num_Eye','Single_prop','Both_prop','Single_prop_eye','Both_prop_eye'],index = range(11,150))
+for i in tqdm(range(11,150)):
+    c_net = peak_info[(peak_info['All_Num']>i)*(peak_info['All_Num']<i+20)]
+    c_peak_num = len(c_net)
+    c_Both_num = c_net['Both_ON'].sum()
+    c_Single_num = c_net['Single_ON'].sum()
+    c_Eye_num = c_net['Eye_ON'].sum()
+    Peak_Prop.loc[i,:] = [i,c_peak_num,c_Eye_num,c_Single_num/c_peak_num,c_Both_num/c_peak_num,c_Single_num/c_Eye_num,c_Both_num/c_Eye_num]
+  
+    
+plt.plot(Peak_Prop['Single_prop'])
+plt.plot(Peak_Prop['Both_prop'])
+plt.plot(Peak_Prop['Both_prop']+Peak_Prop['Single_prop'])
+
+plt.plot(Peak_Prop['Single_prop_eye'])
+plt.plot(Peak_Prop['Both_prop_eye'])
+
+#%% return maps.
+# first,return all map avr.
+LE_peaks = peak_info[(peak_info['RE_ON']==True)*(peak_info['LE_ON']==False)].sort_values('RE_spike',ascending = False)
+#LE_peaks = peak_info[(peak_info['RE_ON']==True)].sort_values('RE_spike',ascending = False)
+
+LE_best_frames = LE_peaks.index[:100]
+LE_restore = tuned_spikes.loc[:,LE_best_frames].mean(1)
+LE_restore_map = np.zeros(shape = (512,512))
+for i,cc in enumerate(LE_restore.index):
+    ccy,ccx = acd[cc]['Cell_Loc']
+    ccy = int(ccy)
+    ccx = int(ccx)
+    LE_restore_map = cv2.circle(img = np.float32(LE_restore_map),center = (ccx,ccy),radius = 5,color = LE_restore[cc],thickness = -1)
+    
+sns.heatmap(LE_restore_map,center = 0,square = True,xticklabels=False,yticklabels=False)
+# count network scale of single and both networks.
+single_peaks = peak_info[peak_info['Single_ON']==True]['All_Num']
+both_peaks = peak_info[peak_info['Both_ON']==True]['All_Num']
+
+
+

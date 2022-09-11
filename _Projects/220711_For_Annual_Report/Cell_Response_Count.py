@@ -22,7 +22,7 @@ from tqdm import tqdm
 from Series_Analyzer.Series_Cutter import Series_Window_Slide
 import cv2
 
-wp = r'D:\ZR\_Temp_Data\220711_temp'
+wp = r'F:\_Data_Temp\220711_temp'
 
 #%% Initailization
 acd = ot.Load_Variable(wp,'All_Series_Dic91.pkl')
@@ -227,5 +227,65 @@ sns.heatmap(LE_restore_map,center = 0,square = True,xticklabels=False,yticklabel
 single_peaks = peak_info[peak_info['Single_ON']==True]['All_Num']
 both_peaks = peak_info[peak_info['Both_ON']==True]['All_Num']
 
+#%% Count cell tuning bais of each peak.
+peak_info['LE_prop'] = peak_info['LE_spike']/LE_cell_Num
+peak_info['RE_prop'] = peak_info['RE_spike']/RE_cell_Num
+peak_info['Bias'] = abs(peak_info['LE_prop']-peak_info['RE_prop'])/(peak_info['LE_prop']+peak_info['RE_prop'])
+peak_info['Scale'] = (peak_info['All_Num']//10)*10
+
+sns.scatterplot(data = peak_info[peak_info['Eye_ON']==True],x = 'All_Num',y = 'Bias')
+#sns.kdeplot(data = peak_info[peak_info['Eye_ON']==True],x = 'All_Num',y = 'Bias',fill=True, thresh=0, levels=100, cmap="mako")
+sns.lmplot(data = peak_info,x = 'All_Num',y = 'Bias')
 
 
+a = peak_info[peak_info['Eye_ON']==True].groupby('Scale').mean()
+#a = peak_info.groupby('Scale').mean()
+ax = plt.subplots()
+sns.kdeplot(data = peak_info[peak_info['Eye_ON']==True],x = 'All_Num',y = 'Bias',fill=True, thresh=0, levels=100, cmap="mako")
+sns.lineplot(data = a,x = 'Scale',y = 'Bias')
+#%% count all network tuning. count all peak have at least one peak.
+all_peak_name = peak_info.index
+peak_bias = pd.DataFrame(columns = ['All_Num','Tune'])
+for i,cp in enumerate(all_peak_name):
+    cp_info = peak_info.loc[cp,:]
+    if (cp_info['LE_Num']<5)*(cp_info['LE_Num']<5)*(cp_info['Orien0_Num']<5)*(cp_info['Orien45_Num']<5)*(cp_info['Orien90_Num']<5)*(cp_info['Orien135_Num']<5):
+        continue
+    c_LE_prop = cp_info['LE_Num']/LE_cell_Num
+    c_RE_prop = cp_info['RE_Num']/RE_cell_Num
+    c_Orien0_prop = cp_info['Orien0_Num']/Orien0_cell_Num
+    c_Orien45_prop = cp_info['Orien45_Num']/Orien45_cell_Num
+    c_Orien90_prop = cp_info['Orien90_Num']/Orien90_cell_Num
+    c_Orien135_prop = cp_info['Orien135_Num']/Orien135_cell_Num
+    c_group = np.array([c_LE_prop,c_RE_prop,c_Orien0_prop,c_Orien45_prop,c_Orien90_prop,c_Orien135_prop])
+    c_mean = c_group.mean()
+    c_max = c_group.max()
+    c_tune = abs((c_max-c_mean)/c_mean)
+    peak_bias.loc[i,:] = [cp_info['All_Num'],c_tune]
+    
+    
+sns.scatterplot(data = peak_bias,x = 'All_Num',y = 'Tune',s = 2)
+sns.kdeplot(data = peak_bias,x = 'All_Num',y = 'Tune',fill=True, thresh=0, levels=100, cmap="mako")
+
+peak_bias['Scale'] = (peak_bias['All_Num']//10)*10
+a = peak_bias.groupby('Scale').mean()
+#a = peak_info.groupby('Scale').mean()
+ax = plt.subplots()
+sns.kdeplot(data = peak_bias,x = 'All_Num',y = 'Tune',fill=True, thresh=0, levels=100, cmap="mako")
+sns.lineplot(data = a,x = 'Scale',y = 'Tune')
+#%% simulate random signle network, will they make bigger network?
+LE_num =(peak_info['LE_ON'] == True).sum()
+RE_num =(peak_info['RE_ON'] == True).sum()
+LE_rand = np.zeros(1040)
+LE_rand[:LE_num]=1
+RE_rand = np.zeros(1040)
+RE_rand[:RE_num]=1
+coact_num = []
+for i in tqdm(range(100000)):
+    np.random.seed(i)
+    np.random.shuffle(LE_rand)
+    np.random.shuffle(RE_rand)
+    c_coact = (LE_rand*RE_rand).sum()
+    coact_num.append(c_coact)
+
+#plt.hist(coact_num,bins = 200)
+plt.hist(coact_num, bins=range(int(min(coact_num)),int(max(coact_num)) + 2,2))

@@ -22,7 +22,7 @@ from tqdm import tqdm
 from Series_Analyzer.Series_Cutter import Series_Window_Slide
 import cv2
 
-wp = r'F:\_Data_Temp\220711_temp'
+wp = r'D:\ZR\_Temp_Data\220711_temp'
 
 #%% Initailization
 acd = ot.Load_Variable(wp,'All_Series_Dic91.pkl')
@@ -289,3 +289,24 @@ for i in tqdm(range(100000)):
 
 #plt.hist(coact_num,bins = 200)
 plt.hist(coact_num, bins=range(int(min(coact_num)),int(max(coact_num)) + 2,2))
+
+
+#%% Do the same on orien map, return best orien map and best orien-only map.
+peak_info['Orien0_ON'] = peak_info['Orien0_Num']>5
+peak_info['Orien45_ON'] = peak_info['Orien45_Num']>5
+peak_info['Orien90_ON'] = peak_info['Orien90_Num']>5
+peak_info['Orien135_ON'] = peak_info['Orien135_Num']>5
+
+#Orien_peaks = peak_info[peak_info['Orien135_ON']== True].sort_values('Orien135_spike',ascending = False)
+#Orien_peaks = peak_info[(peak_info['Orien0_ON']==False)*(peak_info['Orien45_ON']==False)*(peak_info['Orien90_ON']==False)*(peak_info['Orien135_ON']==True)].sort_values('Orien135_spike',ascending = False)
+Orien_peaks = peak_info[(peak_info['Orien135_ON']==True)*(peak_info['Orien45_ON']==False)].sort_values('Orien135_spike',ascending = False)
+best_frames = Orien_peaks.index[:100]
+restore = tuned_spikes.loc[:,best_frames].mean(1)
+restore_map = np.zeros(shape = (512,512))
+for i,cc in enumerate(restore.index):
+    ccy,ccx = acd[cc]['Cell_Loc']
+    ccy = int(ccy)
+    ccx = int(ccx)
+    restore_map = cv2.circle(img = np.float32(restore_map),center = (ccx,ccy),radius = 5,color = restore[cc],thickness = -1)
+sns.heatmap(restore_map,center = 0,square = True,xticklabels=False,yticklabels=False)
+

@@ -128,7 +128,7 @@ plt.hist(both_peaks['All_Num'],bins = 50,alpha = 0.8)
 plt.hist(single_peaks['All_Num'],bins = 20,alpha = 0.8)
 
 #%% Restore spon maps.
-LE_only_peak = peak_info[(peak_info['RE_ON']== True)*(peak_info['Single_ON']== True)]
+LE_only_peak = peak_info[(peak_info['RE_Num']>5)*(peak_info['Single_ON']== True)]
 LE_only_peak = LE_only_peak.sort_values('RE_spike',ascending=False)
 #LE_only_peak = peak_info.sort_values('RE_spike',ascending=False)
 restore = tuned_spikes.loc[:,LE_only_peak.index[:100]].mean(1)

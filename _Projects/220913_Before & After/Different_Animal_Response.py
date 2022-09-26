@@ -30,10 +30,11 @@ ot.Save_Variable(wp, 'Series76_Run01_4000', series76)
 series85 = Pre_Processor_Cai(r'D:\ZR\_Temp_Data\220706_L85_LM',start_frame = 3000)
 ot.Save_Variable(wp, 'Series85_Run01_3000', series85)
 #%% Initailization
-acd = ot.Load_Variable(wp,'All_Series_Dic91.pkl')
-acinfo = ot.Load_Variable(wp,'Cell_Tuning_Dic91.pkl')
-dataframe1 = ot.Load_Variable(wp,'Series_91_Run1.pkl')
+acd = ot.Load_Variable(wp,'All_Series_Dic76.pkl')
+acinfo = ot.Load_Variable(wp,'Cell_Tuning_Dic76.pkl')
+dataframe1 = ot.Load_Variable(wp,'Series76_Run01_4000.pkl')
 spikes = dataframe1[dataframe1>2]
+#spikes = dataframe1 # for raw data compare.
 spikes = spikes.fillna(0).clip(lower = -5,upper = 5)
 sns.heatmap(spikes,center = 0,vmax = 5)
 #%% get tuning frames.
@@ -102,8 +103,9 @@ for i in tqdm(range(framenum)):
     
 # find peak
 from scipy.signal import find_peaks
-x = cell_response_frame['All_spike']
+x = cell_response_frame['All_Num']
 peaks, properties = find_peaks(x, height=10,distance = 3,width = 0)
+#plt.plot(cell_response_frame_raw['All_spike'])
 plt.plot(x)
 plt.plot(np.zeros_like(x), "--", color="gray")
 #plt.plot(cell_response_frame['All_Num'])
@@ -111,6 +113,51 @@ plt.plot(np.zeros_like(x), "--", color="gray")
 #plt.plot(cell_response_frame['RE_Num']/135)
 plt.plot(peaks, x[peaks], "x")
 plt.show()
+#%% get peak info and co activation.
+peak_info = cell_response_frame.loc[peaks,:]
+peak_info['LE_ON'] = peak_info['LE_Num']>5
+peak_info['RE_ON'] = peak_info['RE_Num']>5
+peak_info['Single_ON'] = (peak_info['LE_ON'] != peak_info['RE_ON'])
+peak_info['Both_ON'] = (peak_info['LE_ON'] * peak_info['RE_ON'])
+peak_info['Eye_ON'] = (peak_info['LE_ON'] + peak_info['RE_ON'])
+ot.Save_Variable(wp, 'peak_info_76', peak_info)
+single_peaks = peak_info[peak_info['Single_ON']==True]
+both_peaks = peak_info[peak_info['Both_ON']==True]
+
+plt.hist(both_peaks['All_Num'],bins = 50,alpha = 0.8)
+plt.hist(single_peaks['All_Num'],bins = 20,alpha = 0.8)
+
+#%% Restore spon maps.
+LE_only_peak = peak_info[(peak_info['RE_ON']== True)*(peak_info['Single_ON']== True)]
+LE_only_peak = LE_only_peak.sort_values('RE_spike',ascending=False)
+#LE_only_peak = peak_info.sort_values('RE_spike',ascending=False)
+restore = tuned_spikes.loc[:,LE_only_peak.index[:100]].mean(1)
+restore_map = np.zeros(shape = (512,512))
+for i,cc in enumerate(restore.index):
+    ccy,ccx = acd[cc]['Cell_Loc']
+    ccy = int(ccy)
+    ccx = int(ccx)
+    restore_map = cv2.circle(img = np.float32(restore_map),center = (ccx,ccy),radius = 4,color = restore[cc],thickness = -1)
+    
+sns.heatmap(restore_map,center = 0,square = True,xticklabels=False,yticklabels=False)
+
+#%% simulate random signle network, will they make bigger network?
+LE_num =(peak_info['LE_ON'] == True).sum()
+RE_num =(peak_info['RE_ON'] == True).sum()
+LE_rand = np.zeros(1000)
+LE_rand[:LE_num]=1
+RE_rand = np.zeros(1000)
+RE_rand[:RE_num]=1
+coact_num = []
+for i in tqdm(range(100000)):
+    np.random.seed(i)
+    np.random.shuffle(LE_rand)
+    np.random.shuffle(RE_rand)
+    c_coact = (LE_rand*RE_rand).sum()
+    coact_num.append(c_coact)
+#plt.hist(coact_num,bins = 200)
+plt.hist(coact_num, bins=range(int(min(coact_num)),int(max(coact_num)) + 2,2))
+#%%
 
 
 

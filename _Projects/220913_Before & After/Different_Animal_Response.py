@@ -128,8 +128,8 @@ plt.hist(both_peaks['All_Num'],bins = 50,alpha = 0.8)
 plt.hist(single_peaks['All_Num'],bins = 20,alpha = 0.8)
 
 #%% Restore spon maps.
-LE_only_peak = peak_info[(peak_info['RE_Num']>5)*(peak_info['Single_ON']== True)]
-LE_only_peak = LE_only_peak.sort_values('RE_spike',ascending=False)
+LE_only_peak = peak_info[(peak_info['Orien0_Num']>5)*(peak_info['Single_ON']== True)]
+LE_only_peak = LE_only_peak.sort_values('Orien0_spike',ascending=False)
 #LE_only_peak = peak_info.sort_values('RE_spike',ascending=False)
 restore = tuned_spikes.loc[:,LE_only_peak.index[:100]].mean(1)
 restore_map = np.zeros(shape = (512,512))
@@ -157,7 +157,10 @@ for i in tqdm(range(100000)):
     coact_num.append(c_coact)
 #plt.hist(coact_num,bins = 200)
 plt.hist(coact_num, bins=range(int(min(coact_num)),int(max(coact_num)) + 2,2))
+
+
 #%%
+
 
 
 

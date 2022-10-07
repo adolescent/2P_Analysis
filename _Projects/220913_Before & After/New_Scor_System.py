@@ -31,10 +31,10 @@ import cv2
 wp = r'F:\_Data_Temp\220711_temp'
 
 #%% read in and get cell info.
-peak_info = ot.Load_Variable(wp,'peak_info_91.pkl')
-acd = ot.Load_Variable(wp,'All_Series_Dic91.pkl')
-acinfo = ot.Load_Variable(wp,'Cell_Tuning_Dic91.pkl')
-dataframe1 = ot.Load_Variable(wp,'Series_91_Run1.pkl')
+peak_info = ot.Load_Variable(wp,'peak_info_85.pkl')
+acd = ot.Load_Variable(wp,'All_Series_Dic85.pkl')
+acinfo = ot.Load_Variable(wp,'Cell_Tuning_Dic85.pkl')
+dataframe1 = ot.Load_Variable(wp,'Series85_Run01_3000.pkl')
 spikes = dataframe1[dataframe1>2]
 spikes = spikes.fillna(0).clip(lower = -5,upper = 5)
 OD_thres = 0.5
@@ -73,10 +73,10 @@ peak_info['RE_Score'] = peak_info['RE_Prop'] - peak_info['LE_Prop']
 
 
 #%% and regenerate graphs.
-Best_peak = peak_info.sort_values('RE_Score',ascending=False)
+Best_peak = peak_info.sort_values('Orien135_Score',ascending=False)
 #Best_peak = peak_info[(peak_info['Orien0_Num']>5)*(peak_info['Single_ON']== True)]
 #LE_only_peak = peak_info.sort_values('RE_spike',ascending=False)
-restore = tuned_spikes.loc[:,Best_peak.index[:100]].mean(1)
+restore = tuned_spikes.loc[:,Best_peak.index[:50]].mean(1)
 restore_map = np.zeros(shape = (512,512))
 for i,cc in enumerate(restore.index):
     ccy,ccx = acd[cc]['Cell_Loc']

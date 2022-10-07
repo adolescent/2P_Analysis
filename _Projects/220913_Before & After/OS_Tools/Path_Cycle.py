@@ -5,7 +5,7 @@ Created on Sun Mar  1 20:03:50 2020
 @author: zhang
 """
 
-target_root_path = r'G:\Test_Data\2P\220223_L85_2P_Check'
+target_root_path = r'C:\Users\ZR\Desktop\可移动磁盘'
 mode = 'left'
 ignore_level = 1 # which level of path will be ignored.
 

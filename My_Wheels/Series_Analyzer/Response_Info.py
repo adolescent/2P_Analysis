@@ -36,7 +36,7 @@ def Get_Frame_Response(series,cell_tuning_dic,thres = 2,clip = 5,OD_thres = 0.5)
     firing_data = series[series>thres].fillna(0).clip(upper = clip)
     # get tuning
     actune = pd.DataFrame(columns = ['OD','Orien'])
-    acn = list(all_cell_dic.keys())
+    acn = firing_data.index
     for i,cc in enumerate(acn):
         tc = cell_tuning_dic[cc]
         if tc['Fitted_Orien'] != 'No_Tuning':
@@ -91,9 +91,14 @@ def Get_Frame_Response(series,cell_tuning_dic,thres = 2,clip = 5,OD_thres = 0.5)
         frame_response['Orien45_prop'] = frame_response['Orien45_spike']/Orien45_cell_Num
         frame_response['Orien90_prop'] = frame_response['Orien90_spike']/Orien90_cell_Num
         frame_response['Orien135_prop'] = frame_response['Orien135_spike']/Orien135_cell_Num
-                
-
-        
+        #define cell_num_dic
+        cell_num_dic = {}
+        cell_num_dic['LE'] = LE_cell_Num
+        cell_num_dic['RE'] = RE_cell_Num
+        cell_num_dic['Orien0'] = Orien0_cell_Num
+        cell_num_dic['Orien45'] = Orien45_cell_Num
+        cell_num_dic['Orien90'] = Orien90_cell_Num
+        cell_num_dic['Orien135'] = Orien135_cell_Num
         
     
-    return frame_response
+    return frame_response,cell_num_dic,actune

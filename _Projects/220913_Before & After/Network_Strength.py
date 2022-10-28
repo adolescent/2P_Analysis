@@ -21,6 +21,8 @@ import pandas as pd
 from tqdm import tqdm
 from Series_Analyzer.Series_Cutter import Series_Window_Slide
 import cv2
+from scipy.stats import ttest_ind
+
 
 wp = r'D:\ZR\_Temp_Data\220711_temp'
 
@@ -39,36 +41,24 @@ def Peak_Finder(x,thres = 0):
 
 
 #%% Initialization same as New score system.
-peak_info = ot.Load_Variable(wp,'peak_info_91.pkl')
+from Series_Analyzer.Response_Info import Get_Frame_Response
+
+Run03_frame = Pre_Processor_Cai(r'D:\ZR\_Temp_Data\220420_L91',runname = 'Run003')
+ot.Save_Variable(wp, r'Series91_Run03_0',Run03_frame)
+peak_info = ot.Load_Variable(wp,'peak_info_91_before.pkl')
 acd = ot.Load_Variable(wp,'All_Series_Dic91.pkl')
 acinfo = ot.Load_Variable(wp,'Cell_Tuning_Dic91.pkl')
-dataframe1 = ot.Load_Variable(wp,'Series91_Run01.pkl')
-spikes = dataframe1[dataframe1>2]
-spikes = spikes.fillna(0).clip(lower = -5,upper = 5)
-OD_thres = 0.5
-acn = list(acd.keys())
-tune_info = pd.DataFrame(columns = ['OD','Orien'])
-for i,cc in tqdm(enumerate(acn)):
-    ccd = acinfo[cc]
-    #if ccd['OD_Preference'] != 'No_Tuning':
-    if ccd['Orien_Preference'] != 'No_Tuning':
-        tune_info.loc[cc,:] = [ccd['OD']['Tuning_Index'],ccd['Fitted_Orien']]
-tune_info = tune_info.astype('f8')
-tune_info['Orien_Group'] = (((tune_info['Orien']+22.5)%180)//45)*45
-tuned_spikes = spikes.loc[tune_info.index]
-LE_num = (tune_info['OD']>0.5).sum()
-RE_num = (tune_info['OD']<-0.5).sum()
-Orien0_num = (tune_info['Orien_Group'] == 0).sum()
-Orien45_num = (tune_info['Orien_Group'] == 45).sum()
-Orien90_num = (tune_info['Orien_Group'] == 90).sum()
-Orien135_num = (tune_info['Orien_Group'] == 135).sum()
-# get different network firing props.
-peak_info['LE_Prop'] = peak_info['LE_spike']/LE_num
-peak_info['RE_Prop'] = peak_info['RE_spike']/RE_num
-peak_info['Orien0_Prop'] = peak_info['Orien0_spike']/Orien0_num
-peak_info['Orien45_Prop'] = peak_info['Orien45_spike']/Orien45_num
-peak_info['Orien90_Prop'] = peak_info['Orien90_spike']/Orien90_num
-peak_info['Orien135_Prop'] = peak_info['Orien135_spike']/Orien135_num
+Run01_frame = ot.Load_Variable(wp,'Series91_Run01_0.pkl')
+Run03_frame = Pre_Processor_Cai(r'D:\ZR\_Temp_Data\220420_L91',runname = 'Run003')
+# ot.Save_Variable(wp, r'Series91_Run03_0',Run03_frame) # Already Done.
+frame_response_before,cell_num_dic = Get_Frame_Response(Run01_frame,acinfo)
+frame_response_after,_ = Get_Frame_Response(Run03_frame,acinfo)
+peak_info['LE_prop'] = peak_info['LE_spike']/cell_num_dic['LE']
+peak_info['RE_prop'] = peak_info['RE_spike']/cell_num_dic['RE']
+peak_info['Orien0_prop'] = peak_info['Orien0_spike']/cell_num_dic['Orien0']
+peak_info['Orien45_prop'] = peak_info['Orien45_spike']/cell_num_dic['Orien45']
+peak_info['Orien90_prop'] = peak_info['Orien90_spike']/cell_num_dic['Orien90']
+peak_info['Orien135_prop'] = peak_info['Orien135_spike']/cell_num_dic['Orien135']
 #%% Get LE/RE peaks 
 # This part discarded.
 # =============================================================================
@@ -102,7 +92,7 @@ peak_info['Orien135_Prop'] = peak_info['Orien135_spike']/Orien135_num
 #RE_fires = RE_trains[RE_peak]
 #plt.hist(LE_fires,bins = 50,alpha = 0.75)
 #plt.hist(RE_fires,bins = 50,alpha = 0.75)
-from scipy.stats import ttest_ind
+
 plt.hist(peak_info['LE_Prop'],bins = 20,alpha = 0.75)
 plt.hist(peak_info['RE_Prop'],bins = 20,alpha = 0.75)
 t,p = ttest_ind(peak_info['LE_Prop'],peak_info['RE_Prop'],equal_var = False) # Do Welch's Test
@@ -114,10 +104,16 @@ for i in peak_info.index:
         c_index =(c_peak['LE_Prop']-c_peak['RE_Prop'])/(c_peak['LE_Prop']+c_peak['RE_Prop'])
         index.append(c_index)
 
-#%% Calculate after train into peak-info mode.
-from Series_Analyzer.Preprocessor_Cai import Pre_Processor_Cai
-Run03_frame = Pre_Processor_Cai(r'D:\ZR\_Temp_Data\220420_L91',runname = 'Run003')
-ot.Save_Variable(wp, r'Series91_Run03_0',Run03_frame)
-# get frame response.
-from Series_Analyzer.Response_Info import Get_Frame_Response
+#%% Compare before & After series 
+after_peak,after_peak_info = Peak_Finder(frame_response_after['All_Num'],thres = 10)
+peak_info_after = frame_response_after.loc[after_peak,:]
+
+
+LE_after = peak_info_after['LE_prop']
+RE_after = peak_info_after['RE_prop']
+ttest_ind(LE_after, RE_after,equal_var = False)
+plt.hist(LE_after,bins=list(np.arange(0,4,0.2)),alpha = 0.75)
+plt.hist(RE_after,bins=list(np.arange(0,4,0.2)),alpha = 0.75)
+
+
 

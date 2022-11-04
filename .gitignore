@@ -33,3 +33,13 @@ My_Wheels/.pylint.d/main1.stats
 *.exe
 Other Usage Codes/Screen_Capture/bless.ico
 *.npz
+Celldata_S10_270_L86_211229/stimuli/npc_2p_stim_1.h5
+Celldata_S10_270_L86_211229/stimuli/npc_2p_stim_0.h5
+data/FashionMNIST/raw/t10k-images-idx3-ubyte
+data/FashionMNIST/raw/t10k-images-idx3-ubyte.gz
+data/FashionMNIST/raw/t10k-labels-idx1-ubyte
+data/FashionMNIST/raw/t10k-labels-idx1-ubyte.gz
+data/FashionMNIST/raw/train-images-idx3-ubyte
+data/FashionMNIST/raw/train-images-idx3-ubyte.gz
+data/FashionMNIST/raw/train-labels-idx1-ubyte
+data/FashionMNIST/raw/train-labels-idx1-ubyte.gz

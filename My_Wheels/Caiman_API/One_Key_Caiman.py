@@ -339,6 +339,8 @@ class One_Key_Caiman(object):
         ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)
         
 
+    def Series_Generator_NG(self):# Use weighted sum to replace matric multiplication, hoping better performance.
+        pass
                 
         
         

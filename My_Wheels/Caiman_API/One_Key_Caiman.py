@@ -163,6 +163,7 @@ class One_Key_Caiman(object):
     def Cell_Find(self,boulders):
         # Parrel process cost too much memory, here we use no par.
         # Try if we have images.
+        print('Cell Finding...')
         try:
             self.images
         except AttributeError:
@@ -340,7 +341,41 @@ class One_Key_Caiman(object):
         
 
     def Series_Generator_NG(self):# Use weighted sum to replace matric multiplication, hoping better performance.
-        pass
+        self.cnm2.estimates.plot_contours_nb(img=self.global_avr, idx=self.real_cell_ids)
+        self.cell_series_dic = {}
+        # get cell location mask.
+        for i,cc in enumerate(self.real_cell_ids):
+            self.cell_series_dic[i+1] = {}
+            # Annotate cell location in graph. Sequence X,Y.
+            self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
+            c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
+            self.cell_series_dic[i+1]['Cell_Mask'] = c_mask/c_mask.sum()
+        # ot.Save_Variable(self.work_path,'Cell_Masks', self.cell_series_dic)
+        # get cell response
+        total_frame_num  = self.images.shape[0]
+        cell_num = len(self.real_cell_ids)
+        all_cell_data = np.zeros(shape = (cell_num,total_frame_num),dtype = 'f8')
+        # cycle all cells to get series.
+        print('Generating Cell F Trains...')
+        all_frame = self.images.reshape(total_frame_num,-1)
+        for i in tqdm(range(cell_num)):
+            # get mask location and mask weight
+            c_mask = self.cell_series_dic[i+1]['Cell_Mask'].flatten()
+            c_mask_area = np.where(c_mask!=0)[0]
+            c_weight = c_mask[c_mask_area] 
+            # take out only mask weeight.
+            c_train = np.dot(all_frame[:,c_mask_area],c_weight)
+            all_cell_data[i,:] = c_train
+        # cut series in different runs.
+        for i,cc in enumerate(self.real_cell_ids):
+            frame_counter = 0
+            cc_series_all = all_cell_data[i,:]
+            for j,c_run in enumerate(self.run_subfolders):
+                c_frame_num = self.frame_lists[j]
+                self.cell_series_dic[i+1][c_run] = cc_series_all[frame_counter:frame_counter+c_frame_num]
+                frame_counter+=c_frame_num
+        ot.Save_Variable(self.work_path, 'All_Series_Dic', self.cell_series_dic)            
+            
                 
         
         
@@ -352,21 +387,24 @@ class One_Key_Caiman(object):
         self.Cell_Find(boulders= self.boulder)
         print('Series_Generating...')
         if self.in_server:
-            self.Series_Generator_Low_Memory()
+            # self.Series_Generator_Low_Memory()
+            self.Series_Generator_NG()
         else:
-            self.Series_Generator_Low_Memory()
+            print('Warning: memory might not enough.')
+            self.Series_Generator_NG()
         
     
         
         
 #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'G:\Test_Data\2P\220630_L76_2P'
-    run_lists = [1,3,6,7,8]
-    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-003',boulder = (20,20,20,20))
+    day_folder = r'D:\ZR\_Temp_Data\222222_L76_Test'
+    run_lists = [4,5,6]
+    plt.switch_backend('webAgg')
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-004',boulder = (20,20,20,20))
     #Okc.Do_Caiman()
     Okc.Motion_Corr_All()
     #Okc.global_avr = cv2.imread(r'G:\Test_Data\2P\220630_L76_2P\_CAIMAN\Summarize\Global_Average_cai.tif',-1)
     Okc.Cell_Find(boulders= Okc.boulder)
-    Okc.Series_Generator_Low_Memory()
-    #Okc.Series_Generator_Low_Memory()
+    # Okc.Series_Generator_Low_Memory()
+    Okc.Series_Generator_NG()

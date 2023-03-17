@@ -7,6 +7,7 @@ Created on Thu Jun 16 13:51:07 2022
 Generate all pre process in one key.
 
 """
+#%%
 from Caiman_API.One_Key_Caiman import One_Key_Caiman
 import OS_Tools_Kit as ot
 from Stim_Frame_Align import One_Key_Stim_Align
@@ -48,6 +49,7 @@ class Preprocess_Pipeline(object):
     @Timer
     def Do_Preprocess(self):
         # do stim frame align
+        print('Stim Frame Align First...\n')
         One_Key_Stim_Align(self.stim_folder)
         # do align and cell find
         print('Align and Cell Find.\n')
@@ -75,10 +77,12 @@ class Preprocess_Pipeline(object):
 #%%
 if __name__ == '__main__':
     
-    day_folder = r'F:\_Data_Temp\220407_L85'
+    day_folder = r'D:\ZR\_Temp_Data\210920_L76_2P'
     run_list = [1,2,3,6,7]
-    pp = Preprocess_Pipeline(day_folder, run_list,boulder = (20,20,20,20),in_server = False)
+    pp = Preprocess_Pipeline(day_folder, run_list,boulder = (20,20,20,20),in_server = True,align_base='1-003')
     pp.Do_Preprocess()
+    
+    
     
     
     

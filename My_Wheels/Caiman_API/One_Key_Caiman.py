@@ -44,7 +44,7 @@ class One_Key_Caiman(object):
     def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),in_server = True,
                  max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
                  bk_comp_num = 2,rf = 20,k = 5,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.75,
-                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = True,cut_size = 2000,n_process = None):
+                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = True,cut_size = 2000,n_process = None,single_thread = True):
         
         self.day_folder = day_folder
         self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)
@@ -57,6 +57,7 @@ class One_Key_Caiman(object):
         self.align_base = align_base
         self.boulder = boulder
         self.n_process = n_process
+        self.single_thread = single_thread
         # Check stack frame
         self.all_stack_names = ot.Get_File_Name(self.work_path)
         if self.all_stack_names == []:# if stack is unfinished
@@ -106,7 +107,7 @@ class One_Key_Caiman(object):
         if 'dview' in locals():
             cm.stop_server(dview=dview)
         #start a cluster for parallel processing (if a cluster already exists it will be closed and a new session will be opened)
-        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes= self.n_process, single_thread=False)
+        c, dview, n_processes = cm.cluster.setup_cluster(backend='local', n_processes= self.n_process, single_thread=self.single_thread)
         mc = MotionCorrect(used_filename, dview=dview , **self.opts.get_group('motion'))
         mc.motion_correct(template = tamplate,save_movie=True)
         border_to_0 = 0 if mc.border_nan == 'copy' else mc.border_to_0 

@@ -111,7 +111,7 @@ def T_Map_Core(Cell_Cond_Response,runname,all_cell_dic,
 
 
 def One_Key_T_Map(day_folder,runname,run_type,
-                  subfolder = '_CAIMAN',
+                  subfolder = '_CAIMAN',para = 'Default',
                   p_thres = 0.05,used_frame = [4,5]):
     
     
@@ -120,7 +120,7 @@ def One_Key_T_Map(day_folder,runname,run_type,
     global_average = cv2.imread(ot.join(workpath,'Global_Average_cai.tif'),-1)
     all_cell_dic = ot.Load_Variable(workpath,'All_Series_Dic.pkl')
     cell_condition_response = ot.Load_Variable(workpath,'Cell_Condition_Response.pkl')
-    sub_dic = Sub_Dic_Generator(mode = run_type,para = 'Default')
+    sub_dic = Sub_Dic_Generator(mode = run_type,para = para)
     graph_path = ot.join(workpath,runname+'_T_Maps')
     ot.mkdir(graph_path)
     all_map_name = list(sub_dic.keys())

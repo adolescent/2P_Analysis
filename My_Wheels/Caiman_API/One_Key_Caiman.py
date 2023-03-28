@@ -44,7 +44,7 @@ class One_Key_Caiman(object):
     def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),in_server = True,
                  max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
                  bk_comp_num = 2,rf = 20,k = 5,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.75,
-                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = True,cut_size = 2000,n_process = None,single_thread = True):
+                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = False,cut_size = 2000,n_process = 20,single_thread = True):
         
         self.day_folder = day_folder
         self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)

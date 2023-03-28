@@ -4,6 +4,7 @@ Created on Tue Nov 10 13:18:31 2020
 
 @author: ZR
 """
+#%%
 import numpy as np
 
 def Sub_Dic_Generator(mode,para = None):
@@ -316,7 +317,17 @@ def Sub_Dic_Generator(mode,para = None):
                 B_ind = all_hue.index(c_pairs[1])
                 sub_dics[c_pairs[0]+'-'+c_pairs[1]] = [[A_ind+1,A_ind+1+hue_num,A_ind+1+hue_num*2,A_ind+1+hue_num*3],[B_ind+1,B_ind+1+hue_num,B_ind+1+hue_num*2,B_ind+1+hue_num*3]]
                 
+    elif mode == 'Manual':
+        print('Manually input subtrtaction parameter.')
+        sub_dics = para
+
+    
     else:
         raise IOError('Method not understand, please check.')
             
+
+    
     return sub_dics
+
+
+    #%%

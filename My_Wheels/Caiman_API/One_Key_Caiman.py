@@ -250,7 +250,7 @@ class One_Key_Caiman(object):
         # get cell location mask.
         for i,cc in enumerate(self.real_cell_ids):
             self.cell_series_dic[i+1] = {}
-            # Annotate cell location in graph. Sequence X,Y.
+            # Annotate cell location in graph. Sequence Y,X.
             self.cell_series_dic[i+1]['Cell_Loc'] = self.cnm2.estimates.coordinates[cc]['CoM']
             c_mask = np.reshape(self.cnm2.estimates.A[:,cc].toarray(), self.dims, order='F')
             self.cell_series_dic[i+1]['Cell_Mask'] = c_mask/c_mask.sum()

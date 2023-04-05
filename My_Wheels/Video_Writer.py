@@ -4,12 +4,14 @@ Created on Sat Sep 19 15:53:39 2020
 
 @author: ZR
 """
+#%%
 import My_Wheels.OS_Tools_Kit as OS_Tools
 import My_Wheels.Graph_Operation_Kit as Graph_Tools
 import cv2
 import numpy as np
 import My_Wheels.Filters as Filters
-
+from tqdm import tqdm
+#%%
 def Video_From_File(
         data_folder,
         plot_range = (0,9999),
@@ -58,7 +60,7 @@ def Video_From_File(
     graph_num = len(all_tif_name)
     video_writer = cv2.VideoWriter(data_folder+r'\\Video.mp4',cv2.VideoWriter_fourcc('X','V','I','D'),fps,graph_size,0)
     #video_writer = cv2.VideoWriter(data_folder+r'\\Video.avi',-1,fps,graph_size,0)
-    for i in range(graph_num):
+    for i in tqdm(range(graph_num)):
         raw_graph = cv2.imread(all_tif_name[i],-1).astype('f8')
         # Cut graph boulder.
         raw_graph = Graph_Tools.Graph_Cut(raw_graph, cut_boulder)
@@ -68,9 +70,31 @@ def Video_From_File(
         if LP_Gaussian != False:
             u1_writable_graph = Filters.Filter_2D(gained_graph,LP_Gaussian,False)
         else:
-            u1_writable_graph = gained_graph
+            u1_writable_graph = gained_graph.astype('f8')
         if frame_annotate == True:
             cv2.putText(u1_writable_graph,'Stim ID = '+str(i),(250,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
         video_writer.write(u1_writable_graph)
     del video_writer 
+    return True
+
+#%%
+def Video_From_mat(input_matrix,
+        save_path,
+        fps = 4,
+        frame_annotate = True
+        ):
+
+    print('Generate video from file, make sure input file is u1 type.')
+    graph_size = (input_matrix.shape[1],input_matrix.shape[0])
+    graph_num = input_matrix.shape[2]
+    video_writer = cv2.VideoWriter(save_path+r'\\Video.mp4',cv2.VideoWriter_fourcc('X','V','I','D'),fps,graph_size,0)
+    for i in tqdm(range(graph_num)):
+        c_graph = input_matrix[:,:,i]
+        u1_writable_graph = c_graph.astype('f8')
+        if frame_annotate == True:
+            cv2.putText(u1_writable_graph,'Stim ID = '+str(i),(250,30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255),1)
+        u1_writable_graph = u1_writable_graph.astype('u1')
+        video_writer.write(u1_writable_graph)
+    del video_writer 
+
     return True

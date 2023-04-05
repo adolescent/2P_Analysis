@@ -17,7 +17,7 @@ import List_Operation_Kit as lt
 def Pre_Processor_Cai(day_folder,runname = 'Run001',subfolder = '_CAIMAN',
                   start_frame = 0,stop_frame = 99999,
                   fps = 1.301,passed_band = (0.005,0.3),order = 7,
-                  base_mode = 'average',prop = 0.05):
+                  base_mode = 'average',prop = 0.05,use_z = True):
     '''
     Proprocess of spontaneous data frame.
 
@@ -60,13 +60,15 @@ def Pre_Processor_Cai(day_folder,runname = 'Run001',subfolder = '_CAIMAN',
         used_filted_c_series = filted_c_series[start_frame:stop_frame]
         if base_mode == 'average':
             c_dF_F_series = (used_filted_c_series-used_filted_c_series.mean())/used_filted_c_series.mean()
-            c_dF_F_series = c_dF_F_series/c_dF_F_series.std()
+            if use_z == True:
+                c_dF_F_series = c_dF_F_series/c_dF_F_series.std()
         elif base_mode == 'most_unactive':
             base_num = int(len(used_filted_c_series)*prop)
             base_id = np.argpartition(used_filted_c_series, base_num)[:base_num]
             base = used_filted_c_series[base_id].mean()
             c_dF_F_series = (used_filted_c_series-base)/base
-            #c_dF_F_series = c_dF_F_series/c_dF_F_series.std()
+            if use_z == True:
+                c_dF_F_series = c_dF_F_series/c_dF_F_series.std()
         else:
             raise IOError('Invalid F0 mode.')
         raw_frame.loc[:,ccn] = c_dF_F_series

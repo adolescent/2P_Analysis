@@ -15,13 +15,13 @@ import seaborn as sns
 import random
 from tqdm import tqdm
 from scipy.stats import pearsonr
-from scipy.stats import ttest_rel
+from scipy.stats import ttest_rel,ttest_ind
 
 def LinePlot(series) -> None:
     plt.switch_backend('webAgg') 
     plt.plot(series)
     plt.show()
-day_folder = r'F:\_Data_Temp\220630_L76_2P'
+day_folder = r'D:\ZR\_Temp_Data\220630_L76_2P'
 
 
 run01_frame = Pre_Processor_Cai(day_folder,'Run001',base_mode='most_unactive',use_z = False)
@@ -100,3 +100,45 @@ plt.hist(max_dff['Stim'])
 plt.show()
 
 #%% Compare stim ISI and spon dFF.
+import List_Operation_Kit as lt
+sfa = ot.Load_Variable(r'D:\ZR\_Temp_Data\220630_L76_2P\_All_Stim_Frame_Infos.sfa')
+sfa_stim = sfa['Run007']
+all_isi = sfa_stim[-1]
+cell_num = run07_frame.shape[0]
+stim_frame_trains = list(range(run07_frame.shape[1]))
+all_stim_train = lt.List_Subtraction(stim_frame_trains,all_isi)
+all_isi_frame = run07_frame.loc[:,all_isi]
+all_stimon_frame = run07_frame.loc[:,all_stim_train]
+# then compare stim and isi and spon.
+all_isi_avr = []
+all_stim_avr = []
+all_spon_avr = []
+all_stim_both = []
+for i in range(cell_num):
+    spon_avr = run01_frame.iloc[i,7000:8000].mean()
+    stim_avr = all_stimon_frame.iloc[i,:].mean()
+    isi_avr = all_isi_frame.iloc[i,:].mean()
+    all_spon_avr.append(spon_avr)
+    all_stim_avr.append(stim_avr)
+    all_isi_avr.append(isi_avr)
+    all_stim_both.append(run07_frame.iloc[i,:].mean())
+#%% Plot bar plot of stim vs spon.
+plt.switch_backend('webAgg') 
+plt.figure(figsize = (7,7))
+plt.hist(all_spon_avr,bins = 25,alpha = 0.7)
+plt.hist(all_stim_avr,bins = 25,alpha = 0.7)
+plt.hist(all_isi_avr,bins = 25,alpha = 0.7)
+plt.hist(all_stim_both,bins = 25,alpha = 0.7)
+plt.show()
+#%% Plot compare plot of each cell's stim vs spon.
+compare_frame = pd.DataFrame(index = range(cell_num*3),columns = ['Spon','Compare_Value','Compare_type'])
+for i in range(cell_num):
+    compare_frame.iloc[i*3] = [all_spon_avr[i],all_isi_avr[i],'ISI']
+    compare_frame.iloc[i*3+1] = [all_spon_avr[i],all_stim_avr[i],'Stim-ON']
+    compare_frame.iloc[i*3+2] = [all_spon_avr[i],all_stim_both[i],'All_Stim']
+
+plt.switch_backend('webAgg') 
+sns.scatterplot(data = compare_frame,x = 'Spon',y = 'Compare_Value',hue = 'Compare_type',s = 5,palette=['g','r','gray'])
+# sns.scatterplot(data = compare_frame,x = 'Spon',y = 'Compare_Value',hue = 'Compare_type',s = 5,palette='jet')
+sns.lineplot(x = [0,1,2],y = [0,1,2],color = 'black',linestyle="dashed")
+plt.show()

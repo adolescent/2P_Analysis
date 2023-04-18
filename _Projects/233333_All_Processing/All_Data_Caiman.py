@@ -23,6 +23,6 @@ Tc = Tuning_Calculator(day_folder,
 Cell_Tuning_Dic,Tuning_Property_Cells = Tc.Calculate_Tuning()
             
 #%%
-day_folder = r'D:\ZR\_Temp_Data\211015_L76_2P'
-pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,6,7],boulder = (20,20,20,20),od_run = 'Run008')
+day_folder = r'D:\ZR\_Temp_Data\211015_L84_2P'
+pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,6,7,8],boulder = (20,20,20,20),od_run = 'Run008')
 pp.Do_Preprocess()

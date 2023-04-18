@@ -43,3 +43,4 @@ data/FashionMNIST/raw/train-images-idx3-ubyte
 data/FashionMNIST/raw/train-images-idx3-ubyte.gz
 data/FashionMNIST/raw/train-labels-idx1-ubyte
 data/FashionMNIST/raw/train-labels-idx1-ubyte.gz
+*.arff

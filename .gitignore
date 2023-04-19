@@ -44,3 +44,8 @@ data/FashionMNIST/raw/train-images-idx3-ubyte.gz
 data/FashionMNIST/raw/train-labels-idx1-ubyte
 data/FashionMNIST/raw/train-labels-idx1-ubyte.gz
 *.arff
+_Projects/230412_UMAP_Learning/.ipynb_checkpoints/Sparse_Encoding_Method-checkpoint.ipynb
+_Projects/230412_UMAP_Learning/.ipynb_checkpoints/Supervised_Dimension_Reduction-checkpoint.ipynb
+_Projects/230412_UMAP_Learning/.ipynb_checkpoints/UMAP used as Preprocess-checkpoint.ipynb
+_Projects/230412_UMAP_Learning/.ipynb_checkpoints/UMap_Plot_Show-checkpoint.ipynb
+_Projects/230412_UMAP_Learning/.ipynb_checkpoints/UMAP_Reproduce-checkpoint.ipynb

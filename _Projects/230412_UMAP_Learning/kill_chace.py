@@ -18,15 +18,18 @@ def kill_files(folder):
 def kill_numba_cache():
 
 
-    root_folder = r'C:\ProgramData\anaconda3'
-
+    root_folder = r'D:\ZR\Anaconda'
+    i=0
     for root, dirnames, filenames in os.walk(root_folder):
         for dirname in dirnames:
             if dirname == "__pycache__":
                 try:
                     kill_files(root + "/" + dirname)
+                    i = i+1
                 except Exception as e:
                     print("failed on %s", root)
+
+    print(f'Total {i} cache folder killed.')
 
 #%%
 kill_numba_cache()

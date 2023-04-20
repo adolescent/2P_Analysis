@@ -9,8 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns
+#%%
 import umap
-# from Decorators import Timer
+#%% from Decorators import Timer
 
 sns.set(style='white', context='poster', rc={'figure.figsize':(14,10)})
 

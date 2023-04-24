@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 import cv2
 import tifffile as tif
 from tqdm import tqdm
-#%%
-plt.switch_backend('webAgg')
+# plt.switch_backend('webAgg')
 filepath = r'D:\ZR\_Data_Temp\2pt_T151425_A2\aa.mat'
 day_folder = r'D:\ZR\_Data_Temp\2pt_T151425_A2'
+#%%
 arrays = {}
 f = h5py.File(filepath)
 for k, v in f.items():
@@ -49,13 +49,14 @@ for j in tqdm(range(subfile_num)):
         c_tif_struct[k%cut_size,:,:] = c_graph
     tif.imwrite(whole_c_filename,c_tif_struct)
 #%% After generation,caiman will do following work
-Okc = One_Key_Caiman(day_folder, [1],align_base = '1-001',boulder = (20,20,20,20),fps = 31)
+Okc = One_Key_Caiman(day_folder, [1],align_base = '1-001',boulder = (20,20,20,20),fps = 31,decay=0.35)
 Okc.Motion_Corr_All()
 #Okc.global_avr = cv2.imread(r'G:\Test_Data\2P\220630_L76_2P\_CAIMAN\Summarize\Global_Average_cai.tif',-1)
 Okc.Cell_Find(boulders= Okc.boulder)
 # Okc.Series_Generator_Low_Memory()
 Okc.Series_Generator_NG()
-
+#%% Check data plots.
+all_cell_data = ot.Load_Variable(day_folder,r'\_CAIMAN\All_Series_Dic.pkl')
 
 #%%
 plt.switch_backend('webAgg')

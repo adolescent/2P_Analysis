@@ -44,7 +44,7 @@ class One_Key_Caiman(object):
     def __init__(self,day_folder,run_lists,fps = 1.301,align_base = '1-003',boulder = (20,20,20,20),in_server = True,
                  max_shift = (75,75),align_batchsize = (100,100),align_overlap = (24,24),align_std = 3,
                  bk_comp_num = 2,rf = 20,k = 5,cnmf_overlap = 6,merge_thr = 0.85,snr = 2,rval_thr = 0.75,
-                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = False,cut_size = 2000,n_process = 20,single_thread = True):
+                 min_cnn_thres = 0.90,cnn_lowest = 0.1,use_cuda = False,cut_size = 2000,n_process = 20,single_thread = True,decay = 1.4):
         
         self.day_folder = day_folder
         self.run_subfolders = lt.Run_Name_Producer_2P(run_lists)
@@ -58,6 +58,7 @@ class One_Key_Caiman(object):
         self.boulder = boulder
         self.n_process = n_process
         self.single_thread = single_thread
+        self.decay = decay
         # Check stack frame
         self.all_stack_names = ot.Get_File_Name(self.work_path)
         if self.all_stack_names == []:# if stack is unfinished
@@ -73,7 +74,7 @@ class One_Key_Caiman(object):
         opts_dict = {'fnames': self.all_stack_names,# Name list of all 
                      # dataset dependent parameters
                      'fr': self.fps,# Capture frequency
-                     'decay_time': 1.4,# length of a typical transient in seconds
+                     'decay_time': self.decay,# length of a typical transient in seconds
                      # motion correction parameters
                      'strides': align_batchsize,# start a new patch for pw-rigid motion correction every x pixels
                      'overlaps': align_overlap,# overlap between pathes (size of patch strides+overlaps)
@@ -179,7 +180,8 @@ class One_Key_Caiman(object):
             self.global_avr
         except AttributeError:
             print('No Global avr.')
-            self.global_avr = np.zeros(shape = self.dims,dtype = 'u1')
+            self.global_avr = self.images.mean(0)
+            # self.global_avr = np.zeros(shape = self.dims,dtype = 'u1')
         self.cnm = cnmf.CNMF(20,params=self.opts)
         self.cnm = self.cnm.fit(self.images)
         # plot contours of found components

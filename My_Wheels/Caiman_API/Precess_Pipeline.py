@@ -49,8 +49,11 @@ class Preprocess_Pipeline(object):
     @Timer
     def Do_Preprocess(self):
         # do stim frame align
-        print('Stim Frame Align First...\n')
-        One_Key_Stim_Align(self.stim_folder)
+        if ot.Get_File_Name(self.day_folder,'.sfa') != []:
+            print('Stim Frame Align Already Done.')
+        else:
+            print('Stim Frame Align First...\n')
+            One_Key_Stim_Align(self.stim_folder)
         # do align and cell find
         print('Align and Cell Find.\n')
         Okc = One_Key_Caiman(self.day_folder, self.runlist,boulder = self.boulder,in_server=self.in_server,align_base = self.align_base)

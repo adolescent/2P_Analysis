@@ -133,7 +133,9 @@ def Load_Variable(save_folder,file_name=False):
     return loaded_file
 #%% Function 5: Spike2 Data Reader.
 import neo
-def Spike2_Reader(smr_name,physical_channel = 0):
+# updated 230425,MAJOR UPDATE: CHANGE OF NEO API, FOR 0.11.1 version Neo.
+# def Spike2_Reader(smr_name,physical_channel = 0):
+def Spike2_Reader(smr_name,stream_channel = '0'):
     """
     
     Export a single channel from .smr data
@@ -161,13 +163,16 @@ def Spike2_Reader(smr_name,physical_channel = 0):
     all_trains = smr_data.segments[0].analogsignals
     
     for i in range(len(all_trains)):
-        current_physics_ch = all_trains[i].annotations['physical_channel_index']
-        if physical_channel == current_physics_ch:
+        # current_physics_ch = all_trains[i].annotations['physical_channel_index']
+        current_stream_ch = all_trains[i].annotations['stream_id']
+        # if physical_channel == current_physics_ch:
+        if stream_channel == current_stream_ch:
             fs = all_trains[i].sampling_rate
             channel_data = all_trains[i]
             exported_channel['Capture_Frequent'] = fs
             exported_channel['Channel_Data'] = channel_data
-            exported_channel['Physical_Channel'] = physical_channel
+            # exported_channel['Physical_Channel'] = physical_channel
+            exported_channel['Stream_Channel'] = stream_channel
             
     return exported_channel
 #%% Function 6: Get Last Saved file name.

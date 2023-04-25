@@ -47,8 +47,8 @@ def Stim_Frame_Align(
     """
     # Step 1, read in data.
     smr_name = os_tools.Get_File_Name(stim_folder,file_type = '.smr')[0]
-    frame_train = os_tools.Spike2_Reader(smr_name,physical_channel = 3)['Channel_Data']
-    stim_train = os_tools.Spike2_Reader(smr_name,physical_channel = 0)['Channel_Data']
+    frame_train = os_tools.Spike2_Reader(smr_name,stream_channel ='0')['Channel_Data']
+    stim_train = os_tools.Spike2_Reader(smr_name,stream_channel ='1')['Channel_Data']
     txt_name = os_tools.Last_Saved_name(stim_folder,file_type = '.txt')
     
     # Step 2, square wave series processing

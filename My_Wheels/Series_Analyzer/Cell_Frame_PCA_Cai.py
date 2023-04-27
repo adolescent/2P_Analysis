@@ -126,8 +126,13 @@ def PC_Reduction(input_frame,PC_Range = [2,100]):
     all_reps = pca.transform(input_frame) # N Samples*M PC Nums, representation in new space.
     used_PC_lists = list(range(PC_Range[0],PC_Range[1]+1))
     # cycle used PC return data.
-    
-    
+    sample_num = reducted_frame.shape[0]
+    for j in range(sample_num):
+        c_series = np.zeros(reducted_frame.shape[1],dtype = 'f8')
+        for i,cc in enumerate(used_PC_lists):
+            c_weight = all_reps[j,cc-1]
+            c_series += c_weight*all_comps[cc-1,:]
+        reducted_frame[j,:] = c_series
     
     return reducted_frame
 

@@ -116,6 +116,22 @@ def One_Key_PCA(day_folder,runname,
     
     return components,PCA_info,fitted_weights
 
+def PC_Reduction(input_frame,PC_Range = [2,100]):
+    # make sure input frame have struction N_sample*M_Cell
+    print('Generating PC reducted components.')
+    reducted_frame = np.zeros(shape = input_frame.shape,dtype = 'f8')
+    pca = decomposition.PCA(n_components = PC_Range[1])
+    pca.fit(input_frame)
+    all_comps = pca.components_ # N_PCNum*M_Dims, transfer matrix.
+    all_reps = pca.transform(input_frame) # N Samples*M PC Nums, representation in new space.
+    used_PC_lists = list(range(PC_Range[0],PC_Range[1]+1))
+    # cycle used PC return data.
+    
+    
+    
+    return reducted_frame
+
+
 #%% test run
 if __name__ == '__main__':
     

@@ -30,3 +30,12 @@ pp.Do_Preprocess()
 day_folder = r'D:\ZR\_Data_Temp\220111_L76_2P'
 pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,6,7],boulder = (20,20,20,20))
 pp.Do_Preprocess()
+#%%
+day_folder = r'D:\ZR\_Data_Temp\220211_L76_2P'
+pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,4,5],boulder = (20,20,20,20),od_run = None,orien_run = 'Run002',color_run = 'Run005')
+pp.Do_Preprocess()
+#%%
+day_folder = r'D:\ZR\_Data_Temp\220304_L76_2P'
+pp = Preprocess_Pipeline(day_folder,runlist=[1,3,4,7,6],boulder = (20,20,20,20),orien_run = 'Run003',od_run = 'Run007',color_run = 'Run008')
+pp.Do_Preprocess()
+

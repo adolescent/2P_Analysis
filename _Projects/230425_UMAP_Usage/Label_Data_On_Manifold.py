@@ -19,7 +19,7 @@ from tqdm import tqdm
 #%%
 wp = r'D:\ZR\_Data_Temp\_Temp_Data\220711_temp\UMAP_Datas'
 labeled_data = ot.Load_Variable(wp,'Frame_ID_infos.pkl')
-dff_data = ot.Load_Variable(wp,'Dff_mean_Run01.pkl')
+dff_data = ot.Load_Variable(wp,'Z_mean_Run01.pkl')
 #%% encode label data of orientation only.
 total_frame_num = labeled_data.shape[0]
 cell_num = dff_data.shape[1]
@@ -31,14 +31,22 @@ for i in tqdm(range(total_frame_num)):
     raw_orien_label = labeled_data.iloc[i,4]
     if raw_orien_label == 'Orien0':
         all_labels[i] = 1
-    elif raw_orien_label == 'Orien45':
+    elif raw_orien_label == 'Orien22.5':
         all_labels[i] = 2
-    elif raw_orien_label == 'Orien90':
+    elif raw_orien_label == 'Orien45':
         all_labels[i] = 3
-    elif raw_orien_label == 'Orien135':
+    elif raw_orien_label == 'Orien67.5':
         all_labels[i] = 4
-    else:# for non-orientation frames.
+    elif raw_orien_label == 'Orien90':
         all_labels[i] = 5
+    elif raw_orien_label == 'Orien112.5':
+        all_labels[i] = 6
+    elif raw_orien_label == 'Orien135':
+        all_labels[i] = 7
+    elif raw_orien_label == 'Orien157.5':
+        all_labels[i] = 8
+    else:# for non-orientation frames.
+        all_labels[i] = 9
     
 #%% train umap for given G16 data.
 reducer = umap.UMAP(n_neighbors = 10,min_dist=0.01,n_components=2)
@@ -46,7 +54,13 @@ reducer.fit(all_frames,all_labels)
 #%% plot trained umap data.
 plt.switch_backend('webAgg')
 fig,ax = plt.subplots(1,figsize = (12,12))
+# ax.plot(reducer.embedding_[:,0],reducer.embedding_[:,1],alpha = 0.3,color ='w')
+# ax.plot(g16_embeddings[:,0],g16_embeddings[:,1],alpha = 0.3,color ='w')
 umap.plot.points(reducer,ax = ax,labels = all_labels,theme = 'fire')
+# plt.setp(ax, xticks=[], yticks=[])
+# cbar = plt.colorbar(boundaries=np.arange(10)-0.5)
+# cbar.set_ticks(np.arange(9))
+# plt.legend(['0','22.5','45','67.5','90','112.5','135','157.5','ISI'])
 plt.show()
 #%% plot connectivity
 plt.switch_backend('webAgg')
@@ -74,7 +88,7 @@ plt.show()
 #%% Do DBSCAN cluster on given data.
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
-db = DBSCAN(eps=0.6, min_samples=10).fit(reduced_spon_data)
+db = DBSCAN(eps=0.5, min_samples=10).fit(reduced_spon_data)
 labels = db.labels_
 # Number of clusters in labels, ignoring noise if present.
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
@@ -83,10 +97,10 @@ print("Estimated number of clusters: %d" % n_clusters_)
 print("Estimated number of noise points: %d" % n_noise_)
 plt.switch_backend('webAgg')
 fig,ax = plt.subplots(1,figsize = (10,10))
-ax = sns.scatterplot(x = reduced_spon_data[:,0],y = reduced_spon_data[:,1],s = 10,hue = labels,palette = 'tab10')
+ax = sns.scatterplot(x = reduced_spon_data[:,0],y = reduced_spon_data[:,1],s = 10,hue = labels,palette = 'tab20')
 plt.show()
 #%% get specific labels.
-label2_ids = np.where(labels == 7)[0]
+label2_ids = np.where(labels == 2)[0]
 label2_frames = np.array(dff_data)[label2_ids,:]
 mean_graph = label2_frames.mean(0)
 # show each groups.
@@ -102,5 +116,7 @@ def Cell_weight_visualization(weights,acd):
 label2_visual = Cell_weight_visualization(mean_graph,acd)
 plt.switch_backend('webAgg')
 fig,ax = plt.subplots(1,figsize = (10,10))
-ax = sns.heatmap(label2_visual,center = 0, xticklabels=False, yticklabels=False,square = True)
+ax = sns.heatmap(label2_visual, xticklabels=False, yticklabels=False,square = True)
 plt.show()
+
+

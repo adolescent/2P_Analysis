@@ -56,3 +56,15 @@ pp.Do_Preprocess()
 day_folder = r'D:\ZR\_Data_Temp\220405_L91'
 pp = Preprocess_Pipeline(day_folder,runlist=[2,3,4,7,8],boulder = (20,20,20,20),orien_run = 'Run003',od_run = 'Run007',color_run = 'Run008')
 pp.Do_Preprocess()
+#%%
+day_folder = r'D:\ZR\_Data_Temp\220407_L85'
+pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,6,7],boulder = (20,20,20,20),orien_run = 'Run002',od_run = 'Run006',color_run = 'Run007')
+pp.Do_Preprocess()
+#%%
+day_folder = r'D:\ZR\_Data_Temp\220415_L76'
+pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,6,7,8],boulder = (20,20,20,20),orien_run = 'Run007',od_run = 'Run006',color_run = 'Run008')
+pp.Do_Preprocess()
+#%%
+day_folder = r'D:\ZR\_Data_Temp\220420_L91'
+pp = Preprocess_Pipeline(day_folder,runlist=[1,2,3,6,7,8],boulder = (20,20,20,20),orien_run = 'Run007',od_run = 'Run006',color_run = 'Run008')
+pp.Do_Preprocess()

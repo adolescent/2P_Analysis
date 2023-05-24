@@ -140,6 +140,11 @@ for i,cc in enumerate(hue_ids[5]+hue_ids[12]+hue_ids[19]+hue_ids[26]):
     c_frame = hue_frames.loc[cc,:]
     total_label_frame.loc[counter,:] = [c_frame,'Hue7Orien4','5/12/19/26','BothEye','False','Blue']
     counter +=1    
+for i,cc in enumerate(hue_ids[7]+hue_ids[14]+hue_ids[21]+hue_ids[28]):
+    c_frame = hue_frames.loc[cc,:]
+    total_label_frame.loc[counter,:] = [c_frame,'Hue7Orien4','7/14/21/28','BothEye','False','White']
+    counter +=1    
+
 #%% Calculate numerical ids.
 real_total_label_frame = total_label_frame.dropna()
 od_label_list = []
@@ -186,6 +191,8 @@ for i in range(real_total_label_frame.shape[0]):
         hue_label_list.append(2)
     elif raw_hue_label == 'Blue':
         hue_label_list.append(3)
+    elif raw_hue_label == 'White':
+        hue_label_list.append(4)
 # Add three new lines on data frame.
 real_total_label_frame['Orien_Label_Num'] = orien_label_list
 real_total_label_frame['OD_Label_Num'] = od_label_list

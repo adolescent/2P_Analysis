@@ -21,7 +21,7 @@ class Preprocess_Pipeline(object):
     
     name = r'One key preprocess'
     
-    def __init__(self,day_folder,runlist,
+    def __init__(self,day_folder,runlist,max_shift = (75,75),
                  boulder = (20,20,20,20),in_server = True,align_base = '1-003',
                  od_run = 'Run006',od_type = 'OD_2P',
                  orien_run = 'Run002',orien_type = 'G16_2P',
@@ -45,6 +45,7 @@ class Preprocess_Pipeline(object):
         self.orien_type = orien_type
         self.color_run = color_run
         self.color_type = color_type
+        self.max_shift = max_shift
         
     @Timer
     def Do_Preprocess(self):
@@ -56,7 +57,7 @@ class Preprocess_Pipeline(object):
             One_Key_Stim_Align(self.stim_folder)
         # do align and cell find
         print('Align and Cell Find.\n')
-        Okc = One_Key_Caiman(self.day_folder, self.runlist,boulder = self.boulder,in_server=self.in_server,align_base = self.align_base)
+        Okc = One_Key_Caiman(self.day_folder, self.runlist,boulder = self.boulder,in_server=self.in_server,align_base = self.align_base,max_shift=self.max_shift)
         Okc.Do_Caiman()
         # generate all condition dics.
         self.Cell_Cond_Dic = All_Cell_Condition_Generator(self.day_folder)

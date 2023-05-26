@@ -59,12 +59,14 @@ ot.Save_Variable(wp,'Stim_No_ISI_UMAP_Unsup_3d',reducer)
 # umap.plot.points(reducer,ax = ax,labels = np.array(all_labels),theme = 'fire')
 # plt.show()
 #%%
+plt.clf()
 plt.switch_backend('webAgg')
 # fig,ax = plt.subplots(1,figsize = (12,12))
 # umap.plot.points(reducer,ax = ax,labels = np.array(all_labels),theme = 'inferno')
-fig = plt.figure()
+fig = plt.figure(figsize = (12,10))
 ax = plt.axes(projection='3d')
 ax.grid(False)
+# ax.axis('off')
 unique_labels = np.unique(eye_labels)
 handles = []
 # scatter = ax.scatter3D(u[:,0],u[:,1],u[:,2], c=orien_labels,label = orien_labels, cmap='jet', s=3)
@@ -78,19 +80,84 @@ ax.legend(handles=handles)
 # ax.set_xlim(2, 8)  # Set X-axis range
 # ax.set_ylim(8, 15)  # Set Y-axis range
 # ax.set_zlim(3, 11)  # Set Z-axis range
+# ax.view_init(elev=30, azim=0)
 plt.show()
 #%% Save current graph as gif
+# Warnings! Using this animation will lead to bug in graph show, do this after all operations on 2D plots.
 from mpl_toolkits import mplot3d
 from matplotlib.animation import FuncAnimation
 x = u[:,0]
 y = u[:,1]
 z = u[:,2]
-n = 2363
+# n = 2363
 def update(frame):
-    ax.view_init(elev=10, azim=frame)  # Update the view angle for each frame
+    ax.view_init(elev=frame, azim=frame)  # Update the view angle for each frame
     return scatter,
 
-animation = FuncAnimation(fig, update, frames=range(0, 360, 5), interval=50)
+animation = FuncAnimation(fig, update, frames=range(0, 360, 5), interval=150)
+animation.save('3D_plot.gif', writer='pillow')
+#%% embedding isi in stim space.
+labeled_data_isi = labeled_data[labeled_data['Raw_ID']== '-1'].reset_index(drop = True)
+all_isi_frame = np.zeros(shape = (labeled_data_isi.shape[0],cell_num),dtype = 'f8')
+for i in range(labeled_data_isi.shape[0]):
+    all_isi_frame[i,:] = np.array(labeled_data_isi.loc[i,'Data'])
+# embed data on 3d reducer.
+isi_embedding = reducer.transform(all_isi_frame)
+#%% Plot data on umap space.
+plt.switch_backend('webAgg')
+fig = plt.figure(figsize = (12,10))
+ax = plt.axes(projection='3d')
+ax.grid(False)
+# ax.axis('off')
+unique_labels = np.unique(eye_labels)
+handles = []
+for label in unique_labels:
+    mask = eye_labels == label
+    scatter = ax.scatter3D(u[:,0][mask], u[:,1][mask], u[:,2][mask], label=label,s = 3,alpha = 0.5)
+    handles.append(scatter)
+ax.scatter3D(isi_embedding[:,0],isi_embedding[:,1],isi_embedding[:,2],s = 5)
+ax.legend(handles=handles)
+plt.show()
+#%% Embed spon data on manifold above.
+spon_embedding = reducer.transform(spon_data)
 
-# Display the animation
+#%% for a consequent time, embedding dynamical trajectory of cell reaction.
+acd = ot.Load_Variable(wp,'All_Series_Dic91.pkl')
+from Filters import Signal_Filter
+def Given_Run_Frame(acd,runname = '1-001',fps = 1.301):
+    acn = list(acd.keys())
+    frame_num = len(acd[1][runname])
+    selected_frames = pd.DataFrame(columns = acn,index= list(range(frame_num)))
+    for i,cc in enumerate(acn):
+        cc_run = acd[cc][runname]
+        filted_cc_run = Signal_Filter(cc_run,order =7,filter_para = (0.01/fps,0.6/fps))
+        selected_frames[cc] = filted_cc_run
+    return selected_frames
+g16_frames = Given_Run_Frame(acd,'1-007')
+g16_frames = (g16_frames-g16_frames.mean())/g16_frames.mean()
+g16_frames = g16_frames/g16_frames.std()
+# embed all g16 on origin reducer.
+g16_embeddings = reducer.transform(g16_frames)
+#%% plot g16 on original 3d scatters.
+used_embeddings = g16_embeddings[500:1000,:]
+plt.switch_backend('webAgg')
+fig = plt.figure(figsize = (12,10))
+ax = plt.axes(projection='3d')
+ax.grid(False)
+
+# scatter = ax.scatter3D(u[:,0],u[:,1],u[:,2],c = 'blue')
+
+def update(frame):
+    # Update the position of the scatter plot
+    ax.cla()
+    # scatter._offsets3d = (u[:,0],u[:,1],u[:,2])
+    scatter = ax.scatter3D(u[:,0],u[:,1],u[:,2],c = 'blue',s = 5,alpha = 0.4)
+    # Update the position of the trajectory point
+    ax.scatter3D(used_embeddings[:,0][frame], used_embeddings[:,1][frame], used_embeddings[:,2][frame], c='red', s = 50)
+    return scatter,
+
+# Create the animation
+animation = FuncAnimation(fig, update, frames=200, interval=730)
+animation.save('3D_plot.mp4', writer='ffmpeg')
+# Show the plot
 plt.show()

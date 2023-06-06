@@ -55,11 +55,11 @@ After label generation, we get all eye, orien, both label.
 1/3/5/7 as LE, 9/11/13/15 as RE, 17-24 as both eye.
 '''    
 #%% UMAP all data with ISI on umap space.
-reducer = umap.UMAP(n_neighbors = 20,min_dist=0.01,n_components=3)
+reducer = umap.UMAP(n_neighbors = 50,min_dist=0.5,n_components=3)
 reducer.fit(all_stim_frame) # supervised learning on G16 data.
 # reducer.fit(g16_datasets) # unsupervised learning on G16 data.
 u = reducer.embedding_
-ot.Save_Variable(wp,'Stim_With_ISI_UMAP_Unsup_3d',reducer)
+ot.Save_Variable(wp,'Stim_With_ISI_UMAP_Unsup_3d_50',reducer)
 #%% Embed spon data on this space.
 spon_embeddings = reducer.transform(spon_data)
 #%% Plot 3D graph.
@@ -77,7 +77,7 @@ for label in unique_labels:
     scatter = ax.scatter3D(u[:,0][mask], u[:,1][mask], u[:,2][mask], label=label,s = 5,alpha = 0.6)
     all_scatters.append(scatter)
     handles.append(scatter)
-ax.scatter3D(spon_embeddings[:,0],spon_embeddings[:,1],spon_embeddings[:,2],s = 3,c = 'r')
+# ax.scatter3D(spon_embeddings[:,0],spon_embeddings[:,1],spon_embeddings[:,2],s = 3,c = 'r')
 # ax.scatter3D(shuffle_embeddings[:,0],shuffle_embeddings[:,1],shuffle_embeddings[:,2],s = 3,c = 'black')
 ax.legend(handles=handles)
 plt.show()

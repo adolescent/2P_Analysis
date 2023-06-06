@@ -1,22 +1,25 @@
 
 '''
 
-This is the class formation of Cell information, given specific run and 
-After All_Cell_Dic generation, Use this claa can process all basic operation.
-This method need proper work of My_Wheel model.
+This class will generate item based coding method, we give in data with calculated caiman, all results will be returned.
 
 '''
+#%% Imports 
+import OS_Tools_Kit as ot
+import numpy as np
 
 
 
+#%%
 class Cell(object):
     
     name = 'Single Run Cell'
     
-    def __init__(self,all_cell_dic,avr_graph = 'Not_Given',stim_frame_align = 'Not_Given',runname = 'Run001'):
-        pass
+    def __init__(self,day_folder,od_run = 6,orienrun = 2,color_run = 7,sub_folder = '_CAIMAN'):
+        print('Using Cell Class for data process, make sure data have already been caimaned.')
+        self.wp = ot.join(day_folder,sub_folder)
     
-    def __getitem__(self,key):# return specific cell 
+    def __getitem__(self,key):# return raw specific cell all run are in series.
         pass
     
     def __len__(self):
@@ -38,4 +41,6 @@ class Cell(object):
         pass
     
     
-    
+#%% Test parts
+if __name__ == '__main__':
+    day_folder = r'E:\2P_Raws\220630_L76_2P'

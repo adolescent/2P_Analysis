@@ -73,6 +73,8 @@ def Condition_Response_Core(F_train,c_run_SFA,head_extend=3,tail_extend = 3,filt
         # get dF matrix.
         base_lines = F_matrix[base_frame,:].mean(0)
         dF_F_matrix = (F_matrix-base_lines)/base_lines
+        # Add new line to generate Z score = =
+        
         F_Train[c_condition] = F_matrix
         dF_F_Train[c_condition] = dF_F_matrix
     # Change F value train into dF/F train

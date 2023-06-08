@@ -103,6 +103,11 @@ class Cell(object):
         visualized_graph = Cell_Weight_Visualization(weight,acd = self.all_cell_dic)
         return visualized_graph
     
+    def Wash_by_Bright(self,thres_std = 2):
+        print(f'Cell Brightness less than {thres_std} std are ignored, others are in variable self.Real_cell.')
+        
+        return True
+    
     def Save_Class(self,path='Default',name='Cell_Class'): # save the class. Get processed datas.
         if path == 'Default':
             ot.Save_Variable(self.wp,name,self)

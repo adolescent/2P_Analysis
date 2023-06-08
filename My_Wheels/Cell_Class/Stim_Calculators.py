@@ -18,7 +18,9 @@ import matplotlib.pyplot as plt
 from Standard_Parameters.Sub_Graph_Dics import Sub_Dic_Generator
 from Decorators import Timer
 import pandas as pd
-
+from scipy.stats import ttest_ind
+import seaborn as sns
+import pandas as pd
 
 class Stim_Cells(Cell):
     
@@ -145,24 +147,123 @@ class Stim_Cells(Cell):
             self.Plot_Stim_Response(stim=c_stim)
 
     ############### Functions above are CR responses, Below are Tunings #############
-    def T_Calculator_Core(self,cr_response,A_set,B_set,p_thres = 0.05,used_frame = [4,5]):
+    def T_Calculator_Core(self,cr_response,A_set,B_set,used_frame = [4,5]):
         # This function will generate single t test. Input all cell CR Resposne and Generated Subdic
         # Cycle all graphs.
-        ttest_frame = pd.DataFrame(index = self.acn,columns = ['t_value','p_value','A_reponse','B_response',])
-        
+        ttest_frame = pd.DataFrame(columns = self.acn,index = ['t_value','p_value','A_reponse','B_response'])
+        # concat all response.
+        for i,cc in enumerate(self.acn):
+            cc_response = cr_response[cc]
+            # get all data of A set and B set.
+            for j,c_cond in enumerate(A_set):# get a set data.
+                if j == 0: # for first condition
+                    A_response = cc_response[c_cond]
+                else:
+                    A_response = np.hstack((A_response,cc_response[c_cond]))
+            for j,c_cond in enumerate(B_set):# get a set data.
+                if j == 0: # for first condition
+                    B_response = cc_response[c_cond]
+                else:
+                    B_response = np.hstack((B_response,cc_response[c_cond]))
+            used_A_response = A_response[used_frame,:].flatten()
+            used_B_response = B_response[used_frame,:].flatten()
+            c_t,c_p = ttest_ind(used_A_response,used_B_response)
+            A_avr = used_A_response.mean()
+            B_avr = used_B_response.mean()
+            ttest_frame[cc] = [c_t,c_p,A_avr,B_avr]
         return ttest_frame
         
             
+    def Calculate_All_T_Graphs(self):
+        # return 3 dics, OD_t_graphs,Orien_t_graphs,Color_t_graphs
+        self.OD_t_graphs = {}
+        self.Orien_t_graphs = {}
+        self.Color_t_graphs = {}
+        if self.od_type == 'OD_2P':
+            od_subdics = Sub_Dic_Generator('OD_2P')
+            all_od_graphs = list(od_subdics.keys())
+            # get each t graphs.
+            for i,c_od_graph in enumerate(all_od_graphs):
+                c_A,c_B = od_subdics[c_od_graph]
+                c_od_graph_t = self.T_Calculator_Core(self.od_CR_Response,c_A,c_B)
+                self.OD_t_graphs[c_od_graph] = c_od_graph_t
+        if self.orien_type == 'G16':
+            orien_subdics = Sub_Dic_Generator('G16_2P')
+            all_orien_graphs = list(orien_subdics.keys())
+            for i,c_orien_graph in enumerate(all_orien_graphs):
+                c_A,c_B = orien_subdics[c_orien_graph]
+                c_orien_graph_t = self.T_Calculator_Core(self.orien_CR_Response,c_A,c_B)
+                self.Orien_t_graphs[c_orien_graph] = c_orien_graph_t
+        if self.color_type == 'Hue7Orien4':
+            color_subdics = Sub_Dic_Generator('HueNOrien4',para = 'Default')
+            all_color_graphs = list(color_subdics.keys())
+            for i,c_color_graph in enumerate(all_color_graphs):
+                c_A,c_B = color_subdics[c_color_graph]
+                c_color_graph_t = self.T_Calculator_Core(self.color_CR_Response,c_A,c_B)
+                self.Color_t_graphs[c_color_graph] = c_color_graph_t
+
+    def Plot_T_Graphs(self,thres = 0.05):
+        # This will physically plot all t graphs. If you really need it.
+        if not hasattr(self,'OD_t_graphs'):
+            print('T calculation not finished. We need to calculate it first.')
+            self.Calculate_All_T_Graphs()
+
+        OD_path = ot.join(self.wp,'OD_T_Graphs')
+        orien_path = ot.join(self.wp,'Orien_T_Graphs')
+        color_path = ot.join(self.wp,'Color_T_Graphs')
+        ot.mkdir(OD_path)
+        ot.mkdir(orien_path)
+        ot.mkdir(color_path)
+        # OD graph
+        OD_graph_name = list(self.OD_t_graphs)
+        for i,c_od_graph in enumerate(OD_graph_name):
+            c_t_series = self.OD_t_graphs[c_od_graph].loc['t_value',:]
+            c_p_series = self.OD_t_graphs[c_od_graph].loc['p_value',:]
+            t_series_thresed = c_t_series*(c_p_series<thres)
+            visualized_t_graph = self.Generate_Weighted_Cell(t_series_thresed)
+            fig = plt.figure(figsize = (15,15))
+            plt.title(c_od_graph+' t Map',fontsize=36)
+            fig = sns.heatmap(visualized_t_graph,square=True,yticklabels=False,xticklabels=False,center = 0)
+            fig.figure.savefig(OD_path+r'\\'+c_od_graph+'_t_Map.png')
+            plt.close()
+        # Orien graph
+        Orien_graph_name = list(self.Orien_t_graphs)
+        for i,c_orien_graph in enumerate(Orien_graph_name):
+            c_t_series = self.Orien_t_graphs[c_orien_graph].loc['t_value',:]
+            c_p_series = self.Orien_t_graphs[c_orien_graph].loc['p_value',:]
+            t_series_thresed = c_t_series*(c_p_series<thres)
+            visualized_t_graph = self.Generate_Weighted_Cell(t_series_thresed)
+            fig = plt.figure(figsize = (15,15))
+            plt.title(c_orien_graph+' t Map',fontsize=36)
+            fig = sns.heatmap(visualized_t_graph,square=True,yticklabels=False,xticklabels=False,center = 0)
+            fig.figure.savefig(orien_path+r'\\'+c_orien_graph+'_t_Map.png')
+            plt.close()
+        # color graph
+        Color_graph_name = list(self.Color_t_graphs)
+        for i,c_color_graph in enumerate(Color_graph_name):
+            c_t_series = self.Color_t_graphs[c_color_graph].loc['t_value',:]
+            c_p_series = self.Color_t_graphs[c_color_graph].loc['p_value',:]
+            t_series_thresed = c_t_series*(c_p_series<thres)
+            visualized_t_graph = self.Generate_Weighted_Cell(t_series_thresed)
+            fig = plt.figure(figsize = (15,15))
+            plt.title(c_color_graph+' t Map',fontsize=36)
+            fig = sns.heatmap(visualized_t_graph,square=True,yticklabels=False,xticklabels=False,center = 0)
+            fig.figure.savefig(color_path+r'\\'+c_color_graph+'_t_Map.png')
+            plt.close()
             
-        
         
     def Calculate_Cell_Tunings(self):
         # Calculate all cell tunings, return a cell data frame of tuning t/p.
-        pass
+        self.all_cell_tunings = pd.DataFrame(columns = self.acn,index=[])
+        
+        
     def Get_Labels(self):
         # get label of given frame, can be OD,OD-orien,orien,dir,color etc.
         pass
     
+    def Calculate_All(self):
+        # This will calculate all nacessary result and save the class in folder.
+        pass
     
     
 #%%

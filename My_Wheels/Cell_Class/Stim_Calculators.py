@@ -252,14 +252,79 @@ class Stim_Cells(Cell):
             plt.close()
             
         
-    def Calculate_Cell_Tunings(self):
+    def Calculate_Cell_Tunings(self,thres=0.05):
         # Calculate all cell tunings, return a cell data frame of tuning t/p.
-        all_stim = ['LE','RE','OD','Orien0','Orien22.5','Orien45','Orien67.5','Orien90','Orien112.5','Orien135','Orien157.5','Red','Yellow','Green','Cyan','Blue','Purple','Best_Eye','Best_Orien','Best_Color','OD_index']
+        OD_stims = ['L-0','R-0','OD']
+        Orien_stims = ['Orien0-0','Orien22.5-0','Orien45-0','Orien67.5-0','Orien90-0','Orien112.5-0','Orien135-0','Orien157.5-0']
+        Color_stims = ['Red-White','Yellow-White','Green-White','Cyan-White','Blue-White','Purple-White']
+        Tunings = ['Best_Eye','Best_Orien','Best_Color','OD_index','Orien_index']
+        all_stim = OD_stims+Orien_stims+Color_stims+Tunings
         self.all_cell_tunings = pd.DataFrame(columns = self.acn,index=all_stim)
-        # first get OD.
-        
-        
-    def Get_Labels(self):
+        self.all_cell_tunings_p_value = pd.DataFrame(columns = self.acn,index=all_stim[:-5])# record significant status.
+        # Get 3 types of Tunings
+        ODs = self.OD_t_graphs
+        for i,c_od in enumerate(OD_stims):
+            c_t_graph = ODs[c_od].loc['t_value',:]
+            self.all_cell_tunings.loc[c_od,:] = c_t_graph
+            c_p_graph = ODs[c_od].loc['p_value',:]
+            self.all_cell_tunings_p_value.loc[c_od,:] = c_p_graph
+        Oriens = self.Orien_t_graphs
+        for i,c_orien in enumerate(Orien_stims):
+            c_t_graph = Oriens[c_orien].loc['t_value',:]
+            self.all_cell_tunings.loc[c_orien,:] = c_t_graph
+            c_p_graph = Oriens[c_orien].loc['p_value',:]
+            self.all_cell_tunings_p_value.loc[c_orien,:] = c_p_graph
+        Colors = self.Color_t_graphs
+        for i,c_color in enumerate(Color_stims):
+            c_t_graph = Colors[c_color].loc['t_value',:]
+            self.all_cell_tunings.loc[c_color,:] = c_t_graph
+            c_p_graph = Colors[c_color].loc['p_value',:]
+            self.all_cell_tunings_p_value.loc[c_color,:] = c_p_graph
+        # get max eye,orien,color. This will need a cycle on cells.
+        for i,cc in enumerate(self.acn):
+            c_tunings = self.all_cell_tunings[cc]
+            c_tunings_p = self.all_cell_tunings_p_value[cc]
+            # get best eye and OD_index
+            if c_tunings['OD']>0 and c_tunings_p['OD']<thres:
+                c_best_eye = 'LE'
+            elif c_tunings['OD']<0 and c_tunings_p['OD']<thres:
+                c_best_eye = 'RE'
+            else:
+                c_best_eye = 'False'
+            c_od_index = (c_tunings['L-0']-c_tunings['R-0'])/(c_tunings['L-0']+c_tunings['R-0'])
+            # Then best orientation
+            all_oriens = c_tunings[3:11]
+            best_orien = all_oriens[all_oriens == all_oriens.max()].index[0]
+            if c_tunings_p[best_orien]<thres:
+                c_best_orien = best_orien[:-2]
+            else:
+                c_best_orien = 'False'
+            best_orien_numeric = float(best_orien[5:-2])
+            if best_orien_numeric < 90:# +90 to get counter orien.
+                counter_orien_num = best_orien_numeric+90
+            else:
+                counter_orien_num = best_orien_numeric-90
+            if counter_orien_num%45 == 0: # No need for .5
+                counter_orien = 'Orien'+str(int(counter_orien_num))+'-0'
+            else: # .5 need to keep.
+                counter_orien = 'Orien'+str((counter_orien_num))+'-0'
+            best_orien_response = c_tunings[best_orien]
+            counter_orien_response = c_tunings[counter_orien]
+            c_orien_index = (best_orien_response-counter_orien_response)/(best_orien_response+counter_orien_response)
+            # last, get colors.
+            all_colors = c_tunings[11:17]
+            best_color = all_colors[all_colors == all_colors.max()].index[0]
+            if c_tunings_p[best_color]<thres:
+                c_best_color = best_color[:-6]
+            else:
+                c_best_color = 'False'
+            self.all_cell_tunings[cc]['Best_Eye'] = c_best_eye
+            self.all_cell_tunings[cc]['Best_Orien'] = c_best_orien
+            self.all_cell_tunings[cc]['Best_Color'] = c_best_color
+            self.all_cell_tunings[cc]['OD_index'] = c_od_index
+            self.all_cell_tunings[cc]['Orien_index'] = c_orien_index
+            
+    def Get_Labels(self,runname,label_type = 'OD+Orien',have_isi = True):
         # get label of given frame, can be OD,OD-orien,orien,dir,color etc.
         pass
     
@@ -270,8 +335,10 @@ class Stim_Cells(Cell):
     
 #%%
 if __name__ == '__main__':
-    day_folder = r'E:\2P_Raws\220630_L76_2P'
+    day_folder = r'F:\_Data_Temp\220630_L76_2P'
     test_cell = Stim_Cells(day_folder,od = 6,orien = 7, color = 8)
     # test_cell.Get_All_Stim_Response()
     # test_cell.Plot_Stim_Response(stim = 'OD')
+    test_cell.Calculate_All_T_Graphs()
+    test_cell.Calculate_Cell_Tunings()
     

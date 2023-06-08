@@ -32,6 +32,9 @@ class Cell(object):
         self.fps = fps
         self.clip_std = clip_std
         self.global_avr = cv2.imread(ot.join(self.wp,'Global_Average_cai.tif'))
+        self.orien_type = orien_type
+        self.od_type = od_type
+        self.color_type = color_type
         # Get real id of each run. If False, print and ignore 
         if orien != False:
             self.orienrun = '1-'+str(1000+orien)[1:]
@@ -42,9 +45,9 @@ class Cell(object):
         else:
             self.odrun = False
         if color != False:
-            self.color = '1-'+str(1000+color)[1:]
+            self.colorrun = '1-'+str(1000+color)[1:]
         else:
-            self.color = False
+            self.colorrun = False
         # Generate Z frames as an preprocessing. This is the first process of all works.
         _ = self.Get_Z_Frames()
         _ = self.Get_Cell_Loc()

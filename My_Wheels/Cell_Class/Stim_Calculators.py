@@ -254,7 +254,9 @@ class Stim_Cells(Cell):
         
     def Calculate_Cell_Tunings(self):
         # Calculate all cell tunings, return a cell data frame of tuning t/p.
-        self.all_cell_tunings = pd.DataFrame(columns = self.acn,index=[])
+        all_stim = ['LE','RE','OD','Orien0','Orien22.5','Orien45','Orien67.5','Orien90','Orien112.5','Orien135','Orien157.5','Red','Yellow','Green','Cyan','Blue','Purple','Best_Eye','Best_Orien','Best_Color','OD_index']
+        self.all_cell_tunings = pd.DataFrame(columns = self.acn,index=all_stim)
+        # first get OD.
         
         
     def Get_Labels(self):

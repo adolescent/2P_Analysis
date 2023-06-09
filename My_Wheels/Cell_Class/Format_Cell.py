@@ -103,10 +103,37 @@ class Cell(object):
         visualized_graph = Cell_Weight_Visualization(weight,acd = self.all_cell_dic)
         return visualized_graph
     
-    def Wash_by_Bright(self,thres_std = 2):
+    def Wash_by_Bright(self,thres_std = 1):
         print(f'Cell Brightness less than {thres_std} std are ignored, others are in variable self.Real_cell.')
-        
-        return True
+        # get frame weight of all cells.
+        runlists = self.Z_Frames.keys()
+        run_num = len(runlists)
+        frame_num = np.zeros(run_num)
+        for i,c_run in enumerate(runlists):
+            frame_num[i] = self.Z_Frames[c_run].shape[0]
+        frame_num_all = frame_num.sum()
+        # calculate cellular 
+        all_cell_F = np.zeros(self.cellnum)
+        for i,cc in enumerate(self.acn):
+            F_avr = 0
+            for j,c_run in enumerate(runlists):
+                F_avr += self.all_cell_dic[cc][c_run].mean()*frame_num[j]
+            F_avr = F_avr/frame_num_all
+            all_cell_F[i] = F_avr
+        # get threshold of F value.
+        F_thres = all_cell_F.mean()-all_cell_F.std()
+        cell_flag = all_cell_F>F_thres
+        # Get real cell list.
+        self.passed_cells = []
+        cells_after_wash = np.zeros(shape = (512,512),dtype = 'f8')
+        for i,cc in enumerate(self.acn):
+            if cell_flag[i]==True:
+                self.passed_cells.append(cc)
+                cc_mask = self.all_cell_dic[cc]['Cell_Mask']
+                cells_after_wash = cells_after_wash+(cc_mask*255*30)
+        cells_after_wash.astype('u1')
+        cv2.imwrite(ot.join(self.wp,'Cells_After_Wash.png'),cells_after_wash)
+        return self.passed_cells,cells_after_wash
     
     def Save_Class(self,path='Default',name='Cell_Class'): # save the class. Get processed datas.
         if path == 'Default':

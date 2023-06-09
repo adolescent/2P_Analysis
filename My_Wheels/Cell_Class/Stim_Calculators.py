@@ -324,21 +324,105 @@ class Stim_Cells(Cell):
             self.all_cell_tunings[cc]['OD_index'] = c_od_index
             self.all_cell_tunings[cc]['Orien_index'] = c_orien_index
             
-    def Get_Labels(self,runname,label_type = 'OD+Orien',have_isi = True):
-        # get label of given frame, can be OD,OD-orien,orien,dir,color etc.
-        pass
-    
-    def Calculate_All(self):
+    def Calculate_Frame_Labels(self):
+        print('Calculating Frames Labels...')
+        # Calculate label frame for further data process.
+        # First OD.
+        if self.od_type == 'OD_2P':
+            # get raw id train and the extended train.
+            OD_framenum = self.Z_Frames[self.odrun].shape[0]
+            type2_odrun = 'Run'+self.odrun[2:]
+            od_raw_id = np.array(self.Stim_Frame_Align[type2_odrun]['Original_Stim_Train'])
+            tail = -1*np.ones(OD_framenum-len(od_raw_id),dtype = 'i4')
+            od_raw_id_ex = np.concatenate([od_raw_id, tail])
+            self.OD_Frame_Labels = pd.DataFrame(columns = range(OD_framenum),index=['From_Stim','Raw_ID','Eye_Label','Orien_Label','Color_Label','Eye_Label_Num','Orien_Label_Num','Color_Label_Num'])
+            for i,c_id in enumerate(od_raw_id_ex):
+                # OD, all color label are false.
+                c_color_label = 'False'
+                c_color_label_num = 0
+                if c_id == -1: # ISI
+                    c_eye_label = 'False'
+                    c_eye_label_num = 0
+                    c_orien_label = 'False'
+                    c_orien_label_num = 'False'
+                else:
+                    # get Eye info
+                    if c_id%2 != 0:# 1357 as LE
+                        c_eye_label = 'LE'
+                        c_eye_label_num = 1
+                    else:
+                        c_eye_label = 'RE'
+                        c_eye_label_num = 2
+                    # get Orien info
+                    c_orien_label_num = int(np.ceil(c_id/2)*2-1)
+                    c_orien_label = 'Orien'+str(int((c_orien_label_num-1)*22.5))
+                self.OD_Frame_Labels[i] = ['OD',c_id,c_eye_label,c_orien_label,c_color_label,c_eye_label_num,c_orien_label_num,c_color_label_num]
+        # Then Orientations.
+        if self.orien_type == 'G16':
+            Orien_framenum = self.Z_Frames[self.orienrun].shape[0]
+            type2_orienrun = 'Run'+self.orienrun[2:]
+            orien_raw_id = np.array(self.Stim_Frame_Align[type2_orienrun]['Original_Stim_Train'])
+            tail = -1*np.ones(Orien_framenum-len(orien_raw_id),dtype = 'i4')
+            orien_raw_id_ex = np.concatenate([orien_raw_id, tail])
+            self.Orien_Frame_Labels = pd.DataFrame(columns = range(Orien_framenum),index=['From_Stim','Raw_ID','Eye_Label','Orien_Label','Color_Label','Eye_Label_Num','Orien_Label_Num','Color_Label_Num'])
+            for i,c_id in enumerate(orien_raw_id_ex):
+                c_color_label = 'False'
+                c_color_label_num = 0
+                if c_id == -1: # ISI
+                    c_orien_label = 'False'
+                    c_orien_label_num = 0
+                    c_eye_label = 'False'
+                    c_eye_label_num = 0
+                else:# not isi are both eye.
+                    c_eye_label = 'Both'
+                    c_eye_label_num = 3
+                    c_orien_label_num = c_id%8
+                    if c_orien_label_num%2 == 0:# 22.5degrees.
+                        c_orien_label = 'Orien'+str((c_orien_label_num-1)*22.5)
+                    else:
+                        c_orien_label = 'Orien'+str(int((c_orien_label_num-1)*22.5))
+                self.Orien_Frame_Labels[i] = ['G16',c_id,c_eye_label,c_orien_label,c_color_label,c_eye_label_num,c_orien_label_num,c_color_label_num]
+        # Last, label color run.
+        if self.color_type == 'Hue7Orien4':
+            Color_framenum = self.Z_Frames[self.colorrun].shape[0]
+            type2_colorrun = 'Run'+self.colorrun[2:]
+            color_raw_id = np.array(self.Stim_Frame_Align[type2_colorrun]['Original_Stim_Train'])
+            tail = -1*np.ones(Color_framenum-len(color_raw_id),dtype='i4')
+            color_raw_id_ex = np.concatenate([color_raw_id, tail])
+            self.Color_Frame_Labels = pd.DataFrame(columns = range(Color_framenum),index=['From_Stim','Raw_ID','Eye_Label','Orien_Label','Color_Label','Eye_Label_Num','Orien_Label_Num','Color_Label_Num'])
+            color_lists = ['White','Red','Yellow','Green','Cyan','Blue','Purple']
+            for i,c_id in enumerate(color_raw_id_ex):# all with no orien and both eye.
+                c_orien_label = 'False'
+                c_orien_label_num = 0
+                if c_id == -1: # ISI
+                    c_color_label = 'False'
+                    c_color_label_num = 0
+                    c_eye_label = 'False'
+                    c_eye_label_num = 0
+                else:
+                    c_eye_label = 'Both'
+                    c_eye_label_num = 3
+                    c_color_label_num = c_id%7
+                    c_color_label = color_lists[c_color_label_num]
+                self.Color_Frame_Labels[i] = ['Hue7Orien4',c_id,c_eye_label,c_orien_label,c_color_label,c_eye_label_num,c_orien_label_num,c_color_label_num]
+                
+            
+
+    def Calculate_All(self,save = True,name = 'Cell_Class',save_path='Default'):
         # This will calculate all nacessary result and save the class in folder.
-        pass
+        self.Calculate_All_T_Graphs()
+        self.Calculate_Cell_Tunings()
+        self.Calculate_Frame_Labels()
+        if save == True:
+            self.Save_Class(save_path,name)
+        
     
     
 #%%
 if __name__ == '__main__':
-    day_folder = r'F:\_Data_Temp\220630_L76_2P'
+    day_folder = r'D:\ZR\_Data_Temp\Raw_2P_Data\220630_L76_2P'
     test_cell = Stim_Cells(day_folder,od = 6,orien = 7, color = 8)
     # test_cell.Get_All_Stim_Response()
     # test_cell.Plot_Stim_Response(stim = 'OD')
-    test_cell.Calculate_All_T_Graphs()
-    test_cell.Calculate_Cell_Tunings()
+    test_cell.Calculate_All()
     

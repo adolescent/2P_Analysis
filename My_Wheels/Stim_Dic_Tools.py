@@ -58,6 +58,7 @@ def Frame_ID_Extrator_In_Conditions(stim_dic,
         List of each condition frame ids..
 
     '''
+    total_num = len(stim_dic['Original_Stim_Train'])
     origin_list = Frame_ID_Extractor(stim_dic, stim_ID_Lists)
     cutted_origin_list = list(mit.split_when(origin_list,lambda x,y:(y-x)!=1))
     cutted_frame_lists = lt.Element_Same_length(cutted_origin_list)
@@ -77,7 +78,10 @@ def Frame_ID_Extrator_In_Conditions(stim_dic,
             current_frame_list.extend(tail_add_frame)
         elif tail_extend<0: # cut
             current_frame_list = current_frame_list[:tail_extend]
-        adjusted_frame_lists.append(current_frame_list)
+        if current_frame_list[-1]>=total_num: # add a checker.
+            continue
+        else:
+            adjusted_frame_lists.append(current_frame_list)
         
     return adjusted_frame_lists
 
@@ -104,8 +108,6 @@ def Condition_Response_Frames(Stim_Frame_Align,head_extend = 3,tail_extend = 3):
     # Remove ISI and trains.
     import copy
     current_SFA =  copy.deepcopy(Stim_Frame_Align)
-    del current_SFA[-1]
-    del current_SFA['Original_Stim_Train']
     all_stim_ids = list(current_SFA.keys())
     condition_frames = {}
     for i in range(len(all_stim_ids)):

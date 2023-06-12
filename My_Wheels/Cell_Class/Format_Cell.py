@@ -51,6 +51,7 @@ class Cell(object):
         # Generate Z frames as an preprocessing. This is the first process of all works.
         _ = self.Get_Z_Frames()
         _ = self.Get_Cell_Loc()
+        self.Regenerate_Cell_Graph()
         
     def __getitem__(self,key):# return a dictionary of specific cell trains. 
         return self.all_cell_dic[key]
@@ -103,8 +104,8 @@ class Cell(object):
         visualized_graph = Cell_Weight_Visualization(weight,acd = self.all_cell_dic)
         return visualized_graph
     
-    def Wash_by_Bright(self,thres_std = 1):
-        print(f'Cell Brightness less than {thres_std} std are ignored, others are in variable self.Real_cell.')
+    def Regenerate_Cell_Graph(self,clip_std = 10,gain = 2.5):
+        # This will regenerate cell bright graph. 
         # get frame weight of all cells.
         runlists = self.Z_Frames.keys()
         run_num = len(runlists)
@@ -113,16 +114,26 @@ class Cell(object):
             frame_num[i] = self.Z_Frames[c_run].shape[0]
         frame_num_all = frame_num.sum()
         # calculate cellular 
-        all_cell_F = np.zeros(self.cellnum)
+        cells_new = np.zeros(shape = (512,512),dtype = 'f8')
+        self.all_cell_F = np.zeros(self.cellnum)
         for i,cc in enumerate(self.acn):
             F_avr = 0
             for j,c_run in enumerate(runlists):
                 F_avr += self.all_cell_dic[cc][c_run].mean()*frame_num[j]
             F_avr = F_avr/frame_num_all
-            all_cell_F[i] = F_avr
+            self.all_cell_F[i] = F_avr
+            cells_new = cells_new+self.all_cell_dic[cc]['Cell_Mask']*self.all_cell_F[i]
+            
+        cells_new = np.clip(cells_new,0,cells_new+cells_new.std()*clip_std)
+        self.new_avr_graph = (np.clip((cells_new/cells_new.max())*gain,0,1)*255).astype('u1')
+        cv2.imwrite(ot.join(self.wp,'New_All_Cells.png'),self.new_avr_graph)
+    
+    def Wash_by_Bright(self,thres_std = 1):
+        print(f'Cell Brightness less than {thres_std} std are ignored, others are in variable self.Real_cell.')
+        
         # get threshold of F value.
-        F_thres = all_cell_F.mean()-all_cell_F.std()
-        cell_flag = all_cell_F>F_thres
+        F_thres = self.all_cell_F.mean()-self.all_cell_F.std()
+        cell_flag = self.all_cell_F>F_thres
         # Get real cell list.
         self.passed_cells = []
         cells_after_wash = np.zeros(shape = (512,512),dtype = 'f8')
@@ -144,5 +155,6 @@ class Cell(object):
     
 #%% Test parts
 if __name__ == '__main__':
-    day_folder = r'E:\2P_Raws\220630_L76_2P'
+    day_folder = r'D:\ZR\_Data_Temp\Raw_2P_Data\220902_L76_2P'
     test_cell = Cell(day_folder)
+    test_cell.Regenerate_Cell_Graph(clip_std = 2.5)

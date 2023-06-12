@@ -51,7 +51,7 @@ class Stim_Cells(Cell):
         # Calculate Condition Response.
         c_Z_frame = self.Z_Frames[runname]
         all_cell_cr_dic = {}
-        for j,cc in enumerate(self.acn):
+        for k,cc in enumerate(self.acn):
             c_Z_train = np.array(c_Z_frame[cc])
             all_cell_cr_dic[cc] = {}
             for i,c_condition in enumerate(all_conditions):
@@ -259,27 +259,30 @@ class Stim_Cells(Cell):
         Color_stims = ['Red-White','Yellow-White','Green-White','Cyan-White','Blue-White','Purple-White']
         Tunings = ['Best_Eye','Best_Orien','Best_Color','OD_index','Orien_index']
         all_stim = OD_stims+Orien_stims+Color_stims+Tunings
-        self.all_cell_tunings = pd.DataFrame(columns = self.acn,index=all_stim)
-        self.all_cell_tunings_p_value = pd.DataFrame(columns = self.acn,index=all_stim[:-5])# record significant status.
+        self.all_cell_tunings = pd.DataFrame(0,columns = self.acn,index=all_stim)
+        self.all_cell_tunings_p_value = pd.DataFrame(1,columns = self.acn,index=all_stim[:-5])# record significant status.
         # Get 3 types of Tunings
-        ODs = self.OD_t_graphs
-        for i,c_od in enumerate(OD_stims):
-            c_t_graph = ODs[c_od].loc['t_value',:]
-            self.all_cell_tunings.loc[c_od,:] = c_t_graph
-            c_p_graph = ODs[c_od].loc['p_value',:]
-            self.all_cell_tunings_p_value.loc[c_od,:] = c_p_graph
-        Oriens = self.Orien_t_graphs
-        for i,c_orien in enumerate(Orien_stims):
-            c_t_graph = Oriens[c_orien].loc['t_value',:]
-            self.all_cell_tunings.loc[c_orien,:] = c_t_graph
-            c_p_graph = Oriens[c_orien].loc['p_value',:]
-            self.all_cell_tunings_p_value.loc[c_orien,:] = c_p_graph
-        Colors = self.Color_t_graphs
-        for i,c_color in enumerate(Color_stims):
-            c_t_graph = Colors[c_color].loc['t_value',:]
-            self.all_cell_tunings.loc[c_color,:] = c_t_graph
-            c_p_graph = Colors[c_color].loc['p_value',:]
-            self.all_cell_tunings_p_value.loc[c_color,:] = c_p_graph
+        if self.odrun != False:
+            ODs = self.OD_t_graphs
+            for i,c_od in enumerate(OD_stims):
+                c_t_graph = ODs[c_od].loc['t_value',:]
+                self.all_cell_tunings.loc[c_od,:] = c_t_graph
+                c_p_graph = ODs[c_od].loc['p_value',:]
+                self.all_cell_tunings_p_value.loc[c_od,:] = c_p_graph
+        if self.orienrun != False:
+            Oriens = self.Orien_t_graphs
+            for i,c_orien in enumerate(Orien_stims):
+                c_t_graph = Oriens[c_orien].loc['t_value',:]
+                self.all_cell_tunings.loc[c_orien,:] = c_t_graph
+                c_p_graph = Oriens[c_orien].loc['p_value',:]
+                self.all_cell_tunings_p_value.loc[c_orien,:] = c_p_graph
+        if self.colorrun != False:
+            Colors = self.Color_t_graphs
+            for i,c_color in enumerate(Color_stims):
+                c_t_graph = Colors[c_color].loc['t_value',:]
+                self.all_cell_tunings.loc[c_color,:] = c_t_graph
+                c_p_graph = Colors[c_color].loc['p_value',:]
+                self.all_cell_tunings_p_value.loc[c_color,:] = c_p_graph
         # get max eye,orien,color. This will need a cycle on cells.
         for i,cc in enumerate(self.acn):
             c_tunings = self.all_cell_tunings[cc]

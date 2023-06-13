@@ -22,3 +22,12 @@ def Z_PCA(Z_frame,sample = 'Cell'):
     PC_Comps = pca.components_# out n_comp*n_feature
     point_coords = pca.transform(data)# in n_sample*n_feature,out n_sample*n_comp
     return PC_Comps,point_coords,pca
+
+def Remove_ISI(Z_frame,label):# remove label of raw id -1 and 
+    frame_num = label.shape[1]
+    non_isi = label.loc['Raw_ID'] != -1
+    cutted_label = label.T[non_isi == True]
+    non_isi_frame_index = cutted_label.index
+    cutted_Z_frame = Z_frame.loc[non_isi_frame_index]
+    
+    return cutted_Z_frame,cutted_label

@@ -27,7 +27,7 @@ from Cell_Class.Plot_Tools import *
 # wp = r'D:\ZR\_Data_Temp\Raw_2P_Data\220420_L91\_CAIMAN'
 wp = r'D:\ZR\_Data_Temp\Raw_2P_Data\220914_L85_2P\_CAIMAN'
 ac = ot.Load_Variable(wp,'Cell_Class.pkl')
-reducer = ot.Load_Variable(wp,'Spon_Autosuper.pkl')
+reducer = ot.Load_Variable(wp,'Spon_Cell_Seperation_Umap.pkl')
 u = reducer.embedding_
 spon_frame = ac.Z_Frames['1-001']
 #%% Get spon data and do umap by it self.

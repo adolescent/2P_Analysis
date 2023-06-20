@@ -21,6 +21,7 @@ import pandas as pd
 from scipy.stats import ttest_ind
 import seaborn as sns
 import pandas as pd
+from Cell_Class.Advanced_Tools import *
 
 class Stim_Cells(Cell):
     
@@ -409,7 +410,72 @@ class Stim_Cells(Cell):
                     c_color_label = color_lists[c_color_label_num]
                 self.Color_Frame_Labels[i] = ['Hue7Orien4',c_id,c_eye_label,c_orien_label,c_color_label,c_eye_label_num,c_orien_label_num,c_color_label_num]
                 
-            
+    def Combine_Frame_Labels(self,od = True,orien = True,color = False,isi = False):
+        print('Combine method: 1357LE,2468RE,9-16Orien.')
+        all_label = np.array([])
+        all_frame = pd.DataFrame(columns= self.acn)
+        ## get od label first.
+        if od == True:
+            if self.od_type != 'OD_2P':
+                raise IOError('Only support OD_2P method.')
+            od_raw_frame = self.Z_Frames[self.odrun]
+            if isi == True: # we use all isi.
+                od_label = np.array(self.OD_Frame_Labels.loc['Raw_ID'])
+                od_label[od_label == -1] = 0
+                od_frame = od_raw_frame
+            else:
+                od_frame,od_label = Remove_ISI(od_raw_frame,self.OD_Frame_Labels)
+                od_label = np.array(od_label['Raw_ID'])
+            od_label_finale = od_label
+            all_frame = pd.concat([all_frame,od_frame]).reset_index(drop= True)
+            all_label = np.hstack([all_label,od_label_finale])
+        ## add orientation labels below.
+        if orien == True:
+            if self.orien_type != 'G16':
+                raise IOError('Only support G16 method.')
+            orien_raw_frame = self.Z_Frames[self.orienrun]
+            if isi == True:
+                orien_label_raw = np.array(self.Orien_Frame_Labels.loc['Raw_ID'])
+                orien_label_raw[orien_label_raw == -1] = 0
+                orien_frame = orien_raw_frame
+            else:
+                orien_frame,orien_label_raw = Remove_ISI(orien_raw_frame,self.Orien_Frame_Labels)
+                orien_label_raw = np.array(orien_label_raw['Raw_ID'])
+            # calculate orientation label
+            orien_label_finale = np.zeros(len(orien_label_raw))
+            for i,c_label in enumerate(orien_label_raw):
+                if c_label ==0:
+                    orien_label_finale[i]=0
+                elif (c_label == 16) or (c_label ==8):
+                    orien_label_finale[i] = 8+8
+                else:
+                    orien_label_finale[i] = c_label%8 + 8 
+            all_frame = pd.concat([all_frame,orien_frame]).reset_index(drop = True)
+            all_label = np.hstack([all_label,orien_label_finale])
+        ## add color labels if needed.
+        if color == True:
+            if self.color_type != 'Hue7Orien4':
+                raise IOError('Only support Hue7Orien4 method.')
+            color_raw_frame = self.Z_Frames[self.colorrun]
+            if isi == True:
+                color_label_raw = np.array(self.Color_Frame_Labels.loc['Raw_ID'])
+                color_label_raw[color_label_raw == -1] = 0
+                color_frame = color_raw_frame
+            else:
+                color_frame,color_label_raw = Remove_ISI(color_raw_frame,self.Color_Frame_Labels)
+                color_label_raw = np.array(color_label_raw['Raw_ID'])
+            # calculate color label.
+            color_label_finale = np.zeros(len(color_label_raw))
+            for i,c_label in enumerate(color_label_raw):
+                if c_label%7 == 0:
+                    color_label_finale[i] = 0
+                else:
+                    color_label_finale[i] = c_label%7+16
+            all_frame = pd.concat([all_frame,color_frame]).reset_index(drop = True)
+            all_label = np.hstack([all_label,color_label_finale])
+        all_label = all_label.astype('i4')
+        return all_frame,all_label
+
 
     def Calculate_All(self,save = True,name = 'Cell_Class',save_path='Default'):
         # This will calculate all nacessary result and save the class in folder.

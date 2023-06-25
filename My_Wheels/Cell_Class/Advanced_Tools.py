@@ -38,7 +38,7 @@ def SVM_Classifier(embeddings,label,C = 10):
     scores = cross_val_score(classifier,embeddings, list(label), cv=5)
     print(f'Score of 5 fold SVC on OD unsupervised : {scores.mean()*100:.2f}%')
     classifier.fit(embeddings,list(label))
-    return classifier
+    return classifier,scores.mean()
 
 def SVC_Fit(classifier,data,thres_prob=0.6):
     print('Make sure the classifier is already trained.')

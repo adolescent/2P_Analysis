@@ -67,4 +67,21 @@ def Average_Each_Label(Z_Frame,Labels):
         all_response.loc[c_label,:]=c_frame.mean()
     
     return all_response
+############# Tools for series cut and recombine.
+def Label_Event_Cutter(input_series):# input series must be 1/0 frame!
+    indices_on = np.where(input_series == True)[0]
+    cutted_events = np.split(indices_on, np.where(np.diff(indices_on) != 1)[0]+1)
+    all_event_length = np.zeros(len(cutted_events))
+    for i,c_series in enumerate(cutted_events):
+        all_event_length[i] = len(c_series)
+    return cutted_events,all_event_length
 
+
+def Random_Series_Generator(series_len,event_length):
+    combined_series = np.zeros(series_len)
+    for j,c_length in enumerate(event_length):
+        c_start_loc = np.random.randint(series_len-event_length.max())
+        while combined_series[c_start_loc:c_start_loc+int(c_length)].sum()!=0:# make no stack.
+            c_start_loc = np.random.randint(series_len-event_length.max())
+        combined_series[c_start_loc:c_start_loc+int(c_length)] = 1
+    return combined_series

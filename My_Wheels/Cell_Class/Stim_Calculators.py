@@ -410,7 +410,7 @@ class Stim_Cells(Cell):
                     c_color_label = color_lists[c_color_label_num]
                 self.Color_Frame_Labels[i] = ['Hue7Orien4',c_id,c_eye_label,c_orien_label,c_color_label,c_eye_label_num,c_orien_label_num,c_color_label_num]
                 
-    def Combine_Frame_Labels(self,od = True,orien = True,color = False,isi = False):
+    def Combine_Frame_Labels(self,od = True,orien = True,color = False,isi = True):
         print('Combine method: 1357LE,2468RE,9-16Orien.')
         all_label = np.array([])
         all_frame = pd.DataFrame(columns= self.acn)

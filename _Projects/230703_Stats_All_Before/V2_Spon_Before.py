@@ -34,7 +34,8 @@ ac.Calculate_All()
 ac.Save_Class()
 ac.Plot_T_Graphs()
 #%% 220914 L85
-cp = r'D:\ZR\_Data_Temp\All_V2_Cell_Classes\L85_6B_220914'
+all_path = ot.Get_Sub_Folders(r'D:\ZR\_Data_Temp\All_V2_Cell_Classes')
+cp = all_path[0]
 ac = ot.Load_Variable(cp,'Cell_Class.pkl')
 spon_frame = ac.Z_Frames['1-001']
 spon_avr = spon_frame.mean(1)
@@ -44,8 +45,8 @@ plt.plot(spon_avr)
 # plt.plot(reaction_cells)
 plt.show()
 # Save 
-used_spon_frame = spon_frame.loc[6500:13200,:]
-ot.Save_Variable(cp,'Spon_Before',used_spon_frame)
+# used_spon_frame = spon_frame.loc[6500:13200,:]
+# ot.Save_Variable(cp,'Spon_Before',used_spon_frame)
 #%% get umap and generate repeat 
 all_path = ot.Get_Sub_Folders(r'D:\ZR\_Data_Temp\All_V2_Cell_Classes')
 stats_info = pd.DataFrame(0,columns=['SVM_Correct','Spon_Frames','On_Frames','OD_repeats','Orien_repeats','Color_repeats','Spon_SVM_Train'],index=all_path)
@@ -116,7 +117,7 @@ thres = 2
 peak_height = 10
 peak_dist = 5
 determine_thres = 0.5
-cp = all_path[0]
+cp = all_path[1]
 spon_series = ot.Load_Variable(cp,'Spon_Before.pkl')
 c_on_series = np.array((spon_series>thres).sum(1))
 peaks, height = find_peaks(c_on_series, height=peak_height, distance=peak_dist)

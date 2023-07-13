@@ -96,7 +96,7 @@ def Signal_Filter(
         data_train,
         order = 5,
         filter_design = 'butter',
-        filter_para = (0.1,0.9)
+        filter_para = (0.1,0.9),method = 'pad',padtype='odd'
         ):
     '''
     Filt Signal and return filted train.
@@ -119,19 +119,21 @@ def Signal_Filter(
     straight_power = float(data_train.mean())
     HP_prop = filter_para[0]
     LP_prop = filter_para[1]
+    # win = signal.hamming(len(data_train))
+    data_train_win = data_train
     if filter_design == 'butter':
         if HP_prop != False and LP_prop != False:# Meaning we need band pass filter here.
             b, a = signal.butter(order, [HP_prop,LP_prop], 'bandpass')
-            filtedData = signal.filtfilt(b, a, data_train)
+            filtedData = signal.filtfilt(b, a, data_train_win,method = method,padtype = padtype)
         elif HP_prop == False and LP_prop == False:
             #print('No filt.')
-            filtedData = data_train
+            filtedData = data_train_win
         elif LP_prop == False:
             b, a = signal.butter(order, HP_prop, 'highpass')
-            filtedData = signal.filtfilt(b, a, data_train)
+            filtedData = signal.filtfilt(b, a, data_train_win,method = method,padtype = padtype)
         elif HP_prop == False:
             b, a = signal.butter(order, LP_prop, 'lowpass')
-            filtedData = signal.filtfilt(b, a, data_train)
+            filtedData = signal.filtfilt(b, a, data_train_win,method = method,padtype = padtype)
             
         if HP_prop != False:
             filtedData = filtedData+straight_power

@@ -77,6 +77,7 @@ all_od_len = []
 all_orien_len = []
 all_color_len = []
 # cycle all paths.
+link_dist = 5
 for i,cp in enumerate(all_path):
     c_series = stats_info.loc[cp,'Spon_SVM_Train'][0]
     on_series = c_series>0
@@ -84,14 +85,34 @@ for i,cp in enumerate(all_path):
     orien_series = (c_series>8)*(c_series<17)
     color_series = (c_series>16)
     # get each event num and event length.
-    _,on_lens = Label_Event_Cutter(on_series)
-    on_event_num = on_lens.shape
-    _,od_lens = Label_Event_Cutter(od_series)
-    od_event_num = od_lens.shape
-    _,orien_lens = Label_Event_Cutter(orien_series)
-    orien_event_num = orien_lens.shape   
-    _,color_lens = Label_Event_Cutter(color_series)
-    color_event_num = color_lens.shape    
+    on_series_raw,on_lens = Label_Event_Cutter(on_series)
+    real_ons = []
+    for j in range(len(on_series_raw)-1):
+        if (on_series_raw[j+1][-1] - on_series_raw[j][0])>link_dist:
+            real_ons.append(on_series_raw[j])
+    on_event_num = len(real_ons)
+
+    od_series_raw,od_lens = Label_Event_Cutter(od_series)
+    real_ods = []
+    for j in range(len(od_series_raw)-1):
+        if (od_series_raw[j+1][-1] - od_series_raw[j][0])>link_dist:
+            real_ods.append(od_series_raw[j])
+    od_event_num = len(real_ods)
+
+    orien_series_raw,orien_lens = Label_Event_Cutter(orien_series)
+    real_oriens = []
+    for j in range(len(orien_series_raw)-1):
+        if (orien_series_raw[j+1][-1] - orien_series_raw[j][0])>link_dist:
+            real_oriens.append(orien_series_raw[j])
+    orien_event_num = len(real_oriens)
+
+    color_series_raw,color_lens = Label_Event_Cutter(color_series)
+    real_colors = []
+    for j in range(len(color_series_raw)-1):
+        if (color_series_raw[j+1][-1] - color_series_raw[j][0])>link_dist:
+            real_colors.append(color_series_raw[j])
+    color_event_num = len(real_colors)
+
     # write all results into data frame.
     stats_info.loc[cp,'ON_event_num'] = on_event_num
     stats_info.loc[cp,'ON_event_wid'] = on_lens.mean()

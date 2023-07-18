@@ -40,6 +40,7 @@ class Stim_Cells(Cell):
         # get each condition have same length.
         condition_length = 65535
         all_conditions = list(condition_frames.keys())
+        all_conditions.remove('Original_Stim_Train')
         for i in range(len(all_conditions)):# get proper length. Use least length.
             current_cond_length = len(condition_frames[all_conditions[i]][0])
             if current_cond_length < condition_length:

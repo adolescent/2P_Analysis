@@ -7,10 +7,11 @@ This structure is used to do path operations.
 
 
 """
-
+#%%
 import os
 import pickle
 import List_Operation_Kit as List_Tools
+import pandas as pd
 
 
 #%% Function1:Make Dictionary
@@ -283,3 +284,20 @@ def Memory_Logging(save_path,interval = 10):
 def join(path_A,path_B):
     new_path = os.path.join(path_A,path_B)
     return new_path
+
+#%% Function 12 Another version of load, solving the problem of loading pandas.
+def Load_Variable_v2(save_folder,file_name=False):
+    if file_name == False:
+        real_file_path = save_folder
+    else:
+        real_file_path = save_folder+r'\\'+file_name
+    if os.path.exists(real_file_path):
+        pickle_off = open(real_file_path,"rb")
+        loaded_file = pd.read_pickle(pickle_off)
+        pickle_off.close()
+    else:
+        loaded_file = False
+
+    
+    return loaded_file
+    

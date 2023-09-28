@@ -68,3 +68,24 @@ ac = Stim_Cells(day_folder = wp,od =6,orien =2,color = 7)
 ac.Calculate_All()
 ac.Plot_T_Graphs()
 ac.Save_Class()
+#%% And All 3 V2 points.
+#%% 220211 L76 Loc 6B
+wp = r'E:\2P_Raws\220211_L76_2P'
+ac = Stim_Cells(day_folder = wp,od =False,orien =2,color = 5,od_type = False)
+ac.Calculate_All()
+ac.Plot_T_Graphs()
+ac.Save_Class()
+#%% 220825 L85 Loc 6B
+wp = r'E:\2P_Raws\220825_L85_2P'
+ac = Stim_Cells(day_folder = wp,od =6,orien =2,color = 7)
+ac.Calculate_All()
+ac.Plot_T_Graphs()
+ac.Save_Class()
+#%% 230808 L76 Loc 7A
+wp = r'E:\2P_Raws\230808_L76_2P'
+ac = Stim_Cells(day_folder = wp,od =6,orien =2,color = 7)
+ac.Calculate_All()
+ac.Plot_T_Graphs()
+ac.Save_Class()
+
+

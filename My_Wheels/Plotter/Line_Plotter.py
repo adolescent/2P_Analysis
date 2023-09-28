@@ -52,6 +52,7 @@ def EZLine(y_series, x_series = 'Default',
     # Plot parts
     fig = plt.figure(figsize = figsize)
     ax = fig.add_subplot(1,1,1)
+    plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
     if x_series == 'Default':
         x_series = range(len(y_series))
     sns.lineplot(x = x_series,y = y_series)

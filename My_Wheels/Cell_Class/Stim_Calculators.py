@@ -31,16 +31,17 @@ class Stim_Cells(Cell):
         self.Calculate_All_CR_Response()
         self.Calculate_All_Stim_Response()
 
-    def Get_CR_Response_Core(self,runname='1-006',head_extend=3,tail_extend = 3):
+    def Get_CR_Response_Core(self,runname='1-006',head_extend=3,tail_extend = 5):
         # Input a frame, generate CR response of all cells in given frame.
         style2_runname = 'Run'+runname[2:]
         c_stim_frame_align = self.Stim_Frame_Align[style2_runname]
-        self.Cell_Response = {}
+        # self.Cell_Response = {}
         condition_frames = SDT.Condition_Response_Frames(c_stim_frame_align,head_extend,tail_extend)
         # get each condition have same length.
         condition_length = 65535
         all_conditions = list(condition_frames.keys())
         all_conditions.remove('Original_Stim_Train')
+        all_conditions.remove(-1)
         for i in range(len(all_conditions)):# get proper length. Use least length.
             current_cond_length = len(condition_frames[all_conditions[i]][0])
             if current_cond_length < condition_length:
@@ -139,6 +140,7 @@ class Stim_Cells(Cell):
             fig.savefig(c_savepath+r'\\'+str(cc)+'_Response.png',dpi = 180)
             plt.clf()
             plt.close()
+            plt.cla()
         
     @Timer
     def Plot_All_Tuning_Curve(self):

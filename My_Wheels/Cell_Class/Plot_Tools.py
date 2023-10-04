@@ -11,9 +11,10 @@ from matplotlib.animation import FuncAnimation
 from Cell_Tools.Cell_Visualization import Cell_Weight_Visualization
 
 
-def Plot_3D_With_Labels(data,labels,ncol = 2):
+def Plot_3D_With_Labels(data,labels,ncol = 2,use_legend = True):
     n_clusters = len(set(labels))
     colors = cm.turbo(np.linspace(0, 1, n_clusters+1))# colorbars.
+    colors = colors[:,:3] # to solve the problem of meaningless 4D data.
     fig = plt.figure(figsize = (12,10))
     ax = plt.axes(projection='3d')
     ax.grid(False)
@@ -23,11 +24,12 @@ def Plot_3D_With_Labels(data,labels,ncol = 2):
     counter = 0
     for label in unique_labels:
         mask = labels == label
-        scatter = ax.scatter3D(data[:,0][mask], data[:,1][mask], data[:,2][mask], label=label,s = 5,color = colors[counter])
+        scatter = ax.scatter3D(data[:,0][mask], data[:,1][mask], data[:,2][mask], label=label,s = 5,facecolors = colors[counter])
         all_scatters.append(scatter)
         handles.append(scatter)
         counter +=1
-    ax.legend(handles=handles,ncol = 2)
+    if use_legend == True:
+        ax.legend(handles=handles,ncol = 2)
     
     return fig,ax
 

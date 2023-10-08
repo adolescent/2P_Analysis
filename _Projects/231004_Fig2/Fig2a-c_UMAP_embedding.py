@@ -127,6 +127,12 @@ Orien0_map = ac.Orien_t_graphs['Orien0-0'].loc['A_reponse']
 Orien45_map = ac.Orien_t_graphs['Orien45-0'].loc['A_reponse']
 Orien90_map = ac.Orien_t_graphs['Orien90-0'].loc['A_reponse']
 Orien135_map = ac.Orien_t_graphs['Orien135-0'].loc['A_reponse']
+Red_map = ac.Color_t_graphs['Red-0'].loc['A_reponse']
+Yellow_map = ac.Color_t_graphs['Yellow-0'].loc['A_reponse']
+Green_map = ac.Color_t_graphs['Green-0'].loc['A_reponse']
+Cyan_map = ac.Color_t_graphs['Cyan-0'].loc['A_reponse']
+Blue_map = ac.Color_t_graphs['Blue-0'].loc['A_reponse']
+Purple_map = ac.Color_t_graphs['Purple-0'].loc['A_reponse']
 # get spon recovered maps.
 LE_ids = np.where((predicted_spon_label>0)*(predicted_spon_label<9)*(predicted_spon_label%2==1))[0]
 LE_recovered_map = spon_series.iloc[list(LE_ids),:].mean(0)
@@ -140,6 +146,19 @@ Orien90_ids = np.where((predicted_spon_label==13))[0]
 Orien90_recovered_map = spon_series.iloc[list(Orien90_ids ),:].mean(0)
 Orien135_ids = np.where((predicted_spon_label==15))[0]
 Orien135_recovered_map = spon_series.iloc[list(Orien135_ids ),:].mean(0)
+Red_ids = np.where((predicted_spon_label==17))[0]
+Red_recovered_map = spon_series.iloc[list(Red_ids),:].mean(0)
+Yellow_ids = np.where((predicted_spon_label==18))[0]
+Yellow_recovered_map = spon_series.iloc[list(Yellow_ids),:].mean(0)
+Green_ids = np.where((predicted_spon_label==19))[0]
+Green_recovered_map = spon_series.iloc[list(Green_ids),:].mean(0)
+Cyan_ids = np.where((predicted_spon_label==20))[0]
+Cyan_recovered_map = spon_series.iloc[list(Cyan_ids),:].mean(0)
+Blue_ids = np.where((predicted_spon_label==21))[0]
+Blue_recovered_map = spon_series.iloc[list(Blue_ids),:].mean(0)
+Purple_ids = np.where((predicted_spon_label==22))[0]
+Purple_recovered_map = spon_series.iloc[list(Purple_ids),:].mean(0)
+
 # Pad stim and spon graph,
 LE_compare = np.hstack((ac.Generate_Weighted_Cell(LE_map),ac.Generate_Weighted_Cell(LE_recovered_map)))
 RE_compare = np.hstack((ac.Generate_Weighted_Cell(RE_map),ac.Generate_Weighted_Cell(RE_recovered_map)))
@@ -181,3 +200,68 @@ fig.tight_layout()
 plt.show()
 # ac.Generate_Weighted_Cell(LE_recovered_map)
 # axes.set_aspect(aspect = 1)
+#%% Calculate correlation of each graph.
+# Get violin graph of corr distribution.
+distribution_frame = pd.DataFrame(columns = ['Pearson R','Response Pattern','Data'])
+counter = 0
+spon_frame_num = len(spon_series)
+for i,c_id in tqdm(enumerate(predicted_spon_label)):
+    if c_id == 1 or c_id == 3 or c_id == 5 or c_id ==7:
+        c_cond_map = ac.T_Calculator_Core(ac.od_CR_Response,[c_id],[0]).loc['A_reponse']
+        c_r,_ = pearsonr(spon_series.iloc[i],c_cond_map)
+        distribution_frame.loc[counter] = [c_r,'LE','Data']
+        counter += 1
+        # add random selected frame here.
+        c_r_rand,_ = pearsonr(spon_series.iloc[np.random.randint(0,spon_frame_num)],c_cond_map)
+        distribution_frame.loc[counter] = [c_r_rand,'LE','Random']
+        counter += 1
+
+    elif c_id == 2 or c_id == 4 or c_id == 6 or c_id ==8:
+        c_cond_map = ac.T_Calculator_Core(ac.od_CR_Response,[c_id],[0]).loc['A_reponse']
+        c_r,_ = pearsonr(spon_series.iloc[i],c_cond_map)
+        distribution_frame.loc[counter] = [c_r,'RE','Data']
+        counter += 1
+        # add random selected frame here.
+        c_r_rand,_ = pearsonr(spon_series.iloc[np.random.randint(0,spon_frame_num)],c_cond_map)
+        distribution_frame.loc[counter] = [c_r_rand,'RE','Random']
+        counter += 1
+    elif c_id ==9:
+        c_r,_ = pearsonr(spon_series.iloc[i],Orien0_map)
+        distribution_frame.loc[counter] = [c_r,'Orien0','Data']
+        counter += 1
+        # add random selected frame here.
+        c_r_rand,_ = pearsonr(spon_series.iloc[np.random.randint(0,spon_frame_num)],Orien0_map)
+        distribution_frame.loc[counter] = [c_r_rand,'Orien0','Random']
+        counter += 1
+    elif c_id ==11:
+        c_r,_ = pearsonr(spon_series.iloc[i],Orien45_map)
+        distribution_frame.loc[counter] = [c_r,'Orien45','Data']
+        counter += 1
+        # add random selected frame here.
+        c_r_rand,_ = pearsonr(spon_series.iloc[np.random.randint(0,spon_frame_num)],Orien45_map)
+        distribution_frame.loc[counter] = [c_r_rand,'Orien45','Random']
+        counter += 1
+    elif c_id ==13:
+        c_r,_ = pearsonr(spon_series.iloc[i],Orien90_map)
+        distribution_frame.loc[counter] = [c_r,'Orien90','Data']
+        counter += 1
+        # add random selected frame here.
+        c_r_rand,_ = pearsonr(spon_series.iloc[np.random.randint(0,spon_frame_num)],Orien90_map)
+        distribution_frame.loc[counter] = [c_r_rand,'Orien90','Random']
+        counter += 1
+    elif c_id ==15:
+        c_r,_ = pearsonr(spon_series.iloc[i],Orien135_map)
+        distribution_frame.loc[counter] = [c_r,'Orien135','Data']
+        counter += 1
+        # add random selected frame here.
+        c_r_rand,_ = pearsonr(spon_series.iloc[np.random.randint(0,spon_frame_num)],Orien135_map)
+        distribution_frame.loc[counter] = [c_r_rand,'Orien135','Random']
+        counter += 1
+#%%
+plt.clf()
+plt.cla()
+fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(6,4),dpi = 180)
+sns.violinplot(data=distribution_frame, x="Response Pattern", y="Pearson R",order = ['LE','RE','Orien0','Orien45','Orien90','Orien135'],hue = 'Data',split=True, inner="quart",ax = axes,dodge= True)
+axes.set_title('Spontaneous Correlation with Functional map')
+axes.legend_.remove()
+plt.show()

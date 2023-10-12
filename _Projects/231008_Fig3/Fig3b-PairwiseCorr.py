@@ -165,30 +165,30 @@ fig.tight_layout()
 plt.show()
 
 #%% Do Regression model of full model, and getting explained VAR of all Parameters.
-def Full_Model(X_Array,a,c,d,e):# full model of graph fitting.
-    # y = a*np.exp(-X_Array[0]*b)+c*X_Array[1]+d*X_Array[2]+e
-    y = a*X_Array[0]+c*X_Array[1]+d*X_Array[2]+e
-    return y
+# def Full_Model(X_Array,a,c,d,e):# full model of graph fitting.
+#     # y = a*np.exp(-X_Array[0]*b)+c*X_Array[1]+d*X_Array[2]+e
+#     y = a*X_Array[0]+c*X_Array[1]+d*X_Array[2]+e
+#     return y
 
 
-all_loc = list(set(Pair_Corr_Frame['Loc']))
-loc_corrs = Pair_Corr_Frame.groupby('Loc')
-r2_list = []
-for i,c_loc in enumerate(all_loc):
-    c_group = loc_corrs.get_group(c_loc)
-    c_dist = np.array(c_group['Dist'])
-    c_od = np.array(c_group['OD_Diff'])
-    c_orien = np.array(c_group['Orien_Diff'])
-    c_corr = np.array(c_group['PearsonR'])
-    c_X_array = np.array([c_dist,c_od,c_orien])
+# all_loc = list(set(Pair_Corr_Frame['Loc']))
+# loc_corrs = Pair_Corr_Frame.groupby('Loc')
+# r2_list = []
+# for i,c_loc in enumerate(all_loc):
+#     c_group = loc_corrs.get_group(c_loc)
+#     c_dist = np.array(c_group['Dist'])
+#     c_od = np.array(c_group['OD_Diff'])
+#     c_orien = np.array(c_group['Orien_Diff'])
+#     c_corr = np.array(c_group['PearsonR'])
+#     c_X_array = np.array([c_dist,c_od,c_orien])
 
-    parameters, covariance = curve_fit(Full_Model, c_X_array,c_corr,maxfev=30000,p0=[-0.05,-0.1,-0.05,0.4])
-    predicted_corr =np.zeros(c_X_array.shape[1])
-    for j in tqdm(range(len(predicted_corr))):
-        predicted_corr[j] = Full_Model(c_X_array[:,j],parameters[0],parameters[1],parameters[2],parameters[3])
-    r2 = r2_score(c_corr,predicted_corr)
-    r2_list.append(r2)
-    c_group['Corr_Predicted'] = predicted_corr
+#     parameters, covariance = curve_fit(Full_Model, c_X_array,c_corr,maxfev=30000,p0=[-0.05,-0.1,-0.05,0.4])
+#     predicted_corr =np.zeros(c_X_array.shape[1])
+#     for j in tqdm(range(len(predicted_corr))):
+#         predicted_corr[j] = Full_Model(c_X_array[:,j],parameters[0],parameters[1],parameters[2],parameters[3])
+#     r2 = r2_score(c_corr,predicted_corr)
+#     r2_list.append(r2)
+#     c_group['Corr_Predicted'] = predicted_corr
 #%% SKLearn linear regression.
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import explained_variance_score
@@ -238,16 +238,28 @@ c_group['Predicted_Corr'] = predicted_corr
 plt.clf()
 plt.cla()
 selected_points = c_group.sample(20000)
+
 fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15,4),dpi = 180)
 sns.kdeplot(data=selected_points, x="Dist", y="PearsonR",fill=True,levels=100,thresh=0,  cmap="hot",ax = axes[0])
 sns.kdeplot(data=selected_points, x="OD_Diff", y="PearsonR",fill=True,thresh=0, levels=100, cmap="hot",ax = axes[1])
 sns.kdeplot(data=selected_points, x="Orien_Diff", y="PearsonR",fill=True, thresh=0, levels=100, cmap="hot",ax = axes[2])
-sns.scatterplot(data=selected_points, x="Dist", y="Predicted_Corr",color = 'yellow',ax = axes[0],s = 3)
-sns.scatterplot(data=selected_points, x="OD_Diff", y="Predicted_Corr",color = 'yellow',ax = axes[1],s = 3)
-sns.scatterplot(data=selected_points, x="Orien_Diff", y="Predicted_Corr",color = 'yellow',ax = axes[2],s = 3)
-axes[0].set(ylim = (0,0.8))
-axes[1].set(ylim = (0,0.8))
-axes[2].set(ylim = (0,0.8))
+# sns.scatterplot(data=selected_points, x="Dist", y="Predicted_Corr",color = '#39C5BB',ax = axes[0],s = 3,alpha = 0.7)
+# sns.scatterplot(data=selected_points, x="OD_Diff", y="Predicted_Corr",color = '#39C5BB',ax = axes[1],s = 3,alpha = 0.7)
+# sns.scatterplot(data=selected_points, x="Orien_Diff", y="Predicted_Corr",color = '#39C5BB',ax = axes[2],s = 3,alpha = 0.7)
+selected_points['Predicted_Corr'] = selected_points['Predicted_Corr'].astype('f8')
+selected_points['Dist'] = selected_points['Dist'].astype('f8')
+selected_points['OD_Diff'] = selected_points['OD_Diff'].astype('f8')
+selected_points['Orien_Diff'] = selected_points['Orien_Diff'].astype('f8')
+sns.regplot(data=selected_points, x="Dist", y="Predicted_Corr",color='#39C5BB',ax = axes[0],scatter = False,ci = 99,scatter_kws={'alpha':0.7})
+sns.regplot(data=selected_points, x="OD_Diff", y="Predicted_Corr",color='#39C5BB',ax = axes[1],scatter = False,ci = 99,scatter_kws={'alpha':0.7})
+sns.regplot(data=selected_points, x="Orien_Diff", y="Predicted_Corr",color='#39C5BB',ax = axes[2],scatter = False,ci = 99,scatter_kws={'alpha':0.7})
+
+axes[0].set(ylim = (0,0.7))
+axes[1].set(ylim = (0,0.7))
+axes[2].set(ylim = (0,0.7))
+axes[0].set(xlim = (0,600))
+axes[1].set(xlim = (0,2))
+axes[2].set(xlim = (0,90))
 axes[1].yaxis.set_visible(False)
 axes[2].yaxis.set_visible(False)
 

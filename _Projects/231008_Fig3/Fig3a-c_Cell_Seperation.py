@@ -45,8 +45,8 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     # dist correlation
     dist = np.zeros(c_ac.cellnum)
     for i,cc in enumerate(c_ac.acn):
-        c_loc = c_ac.Cell_Locs[cc]
-        c_dist = np.sqrt(c_loc['X']^2+c_loc['Y']^2)
+        cc_loc = c_ac.Cell_Locs[cc]
+        c_dist = np.sqrt(cc_loc['X']*cc_loc['X']+cc_loc['Y']*cc_loc['Y'])
         dist[i] = c_dist
     del c_ac # save memory
     # get cell seperator and all cell embeddings.
@@ -111,6 +111,7 @@ for i,c_loc in tqdm(enumerate(cell_seperation_dic)):
     ax.set_xlabel('UMAP 1')
     ax.set_ylabel('UMAP 2')
     ax.set_zlabel('UMAP 3')
+    ax.set_title('Eye-Preference Labeled Neuron Embeddings')
     azim_list = [30,60,120,150,210,240,300,330]
     for i,c_azim in enumerate(azim_list):
         ax.view_init(elev=25, azim=c_azim)
@@ -130,6 +131,7 @@ for i,c_loc in tqdm(enumerate(cell_seperation_dic)):
     ax.set_xlabel('UMAP 1')
     ax.set_ylabel('UMAP 2')
     ax.set_zlabel('UMAP 3')
+    ax.set_title('Distance Labeled Neuron Embeddings')
     azim_list = [30,60,120,150,210,240,300,330]
     for i,c_azim in enumerate(azim_list):
         ax.view_init(elev=25, azim=c_azim)
@@ -162,6 +164,7 @@ for i,c_loc in tqdm(enumerate(cell_seperation_dic)):
     ax.set_xlabel('UMAP 1')
     ax.set_ylabel('UMAP 2')
     ax.set_zlabel('UMAP 3')
+    ax.set_title('Orientation-Preference Labeled Neuron Embeddings')
     azim_list = [30,60,120,150,210,240,300,330]
     for i,c_azim in enumerate(azim_list):
         ax.view_init(elev=25, azim=c_azim)

@@ -9,6 +9,8 @@ import matplotlib.cm as cm
 from mpl_toolkits import mplot3d
 from matplotlib.animation import FuncAnimation
 from Cell_Tools.Cell_Visualization import Cell_Weight_Visualization
+from mpl_toolkits.mplot3d import proj3d
+from matplotlib.patches import FancyArrowPatch
 
 
 def Plot_3D_With_Labels(data,labels,ncol = 2,use_legend = True):
@@ -52,3 +54,17 @@ def Plot_Multi_Subgraphs(graph_frame,acd,shape = (4,4),add_word = 'Class'):
         ax[i//shape[0],i%shape[0]].axis('off')
         ax[i//shape[0],i%shape[0]].set_title(f'{add_word} {int(c_graph_name)}')
     return fig,ax
+
+class Arrow3D(FancyArrowPatch):
+    def __init__(self, xs, ys, zs, *args, **kwargs):
+        super().__init__((0,0), (0,0), *args, **kwargs)
+        self._verts3d = xs, ys, zs
+
+    def do_3d_projection(self, renderer=None):
+        xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
+        return np.min(zs)
+    # USAGE EXAMPLE:
+        # arw = Arrow3D([xs1[0],xs1[2]],[ys1[0],ys1[2]],[zs1[0],zs1[2]], arrowstyle="->", color="purple", lw = 3, mutation_scale=25)
+        # ax.add_artist(arw)

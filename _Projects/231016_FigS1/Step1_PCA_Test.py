@@ -226,25 +226,32 @@ plt.show()
 #%%######################### VECTOR ANAYISIS ##################################
 #%% 1.Vector Generation
 # This part will generate vector of 
+raw_pc_vecs = {}
 u = coords_stim[:,:20] # vector of all stim infos.
 LE_locs = np.where((all_stim_label>0)*(all_stim_label<9)*(all_stim_label%2 == 1))[0] # LE Stim Frames
-LE_vec = u[LE_locs,1:4].mean(0)
-LE_vec = LE_vec/np.linalg.norm(LE_vec)
+LE_vec = u[LE_locs,:].mean(0)
+raw_pc_vecs['LE'] = LE_vec
+LE_vec = LE_vec[1:4]/np.linalg.norm(LE_vec[1:4])
 RE_locs = np.where((all_stim_label>0)*(all_stim_label<9)*(all_stim_label%2 == 0))[0] # RE Stim Frames
-RE_vec = u[RE_locs,1:4].mean(0)
-RE_vec = RE_vec/np.linalg.norm(RE_vec)
+RE_vec = u[RE_locs,:].mean(0)
+raw_pc_vecs['RE'] = RE_vec
+RE_vec = RE_vec[1:4]/np.linalg.norm(RE_vec[1:4])
 Orien0_locs = np.where((all_stim_label==9))[0]
-Orien0_vec = u[Orien0_locs,1:4].mean(0)
-Orien0_vec = Orien0_vec/np.linalg.norm(Orien0_vec)
+Orien0_vec = u[Orien0_locs,:].mean(0)
+raw_pc_vecs['Orien0'] = Orien0_vec
+Orien0_vec = Orien0_vec[1:4]/np.linalg.norm(Orien0_vec[1:4])
 Orien45_locs = np.where((all_stim_label==11))[0]
-Orien45_vec = u[Orien45_locs,1:4].mean(0)
-Orien45_vec = Orien45_vec/np.linalg.norm(Orien45_vec)
+Orien45_vec = u[Orien45_locs,:].mean(0)
+raw_pc_vecs['Orien45'] = Orien45_vec
+Orien45_vec = Orien45_vec[1:4]/np.linalg.norm(Orien45_vec[1:4])
 Orien90_locs = np.where((all_stim_label==13))[0]
-Orien90_vec = u[Orien90_locs,1:4].mean(0)
-Orien90_vec = Orien90_vec/np.linalg.norm(Orien90_vec)
+Orien90_vec = u[Orien90_locs,:].mean(0)
+raw_pc_vecs['Orien90'] = Orien90_vec
+Orien90_vec = Orien90_vec[1:4]/np.linalg.norm(Orien90_vec[1:4])
 Orien135_locs = np.where((all_stim_label==15))[0]
-Orien135_vec = u[Orien135_locs,1:4].mean(0)
-Orien135_vec = Orien135_vec/np.linalg.norm(Orien135_vec)
+Orien135_vec = u[Orien135_locs,:].mean(0)
+raw_pc_vecs['Orien135'] = Orien135_vec
+Orien135_vec = Orien135_vec[1:4]/np.linalg.norm(Orien135_vec[1:4])
 # print different angles.
 LR_angle = np.arccos(np.dot(LE_vec,RE_vec))*180/np.pi
 HV_angle = np.arccos(np.dot(Orien0_vec,Orien90_vec))*180/np.pi
@@ -257,12 +264,15 @@ print(f'Orien 45 and 135 have Angle {AO_angle:.2f}')
 print(f'Orien 0 and 45 have Angle {HA_angle:.2f}')
 print(f'Orien and OD have Angle {Orien_OD_angle:.2f}')
 #%% 2.Combine vectors to get OD axis and Orientation plane.
-OD_vec = LE_vec*len(LE_locs)-RE_vec*len(RE_locs)
-OD_vec = OD_vec/np.linalg.norm(OD_vec)
-HV_vec = Orien0_vec*len(Orien0_vec)-Orien90_vec*len(Orien90_vec)
-HV_vec = HV_vec/np.linalg.norm(HV_vec)
-AO_vec = Orien45_vec*len(Orien45_vec)-Orien135_vec*len(Orien135_vec)
-AO_vec = AO_vec/np.linalg.norm(AO_vec)
+OD_vec = raw_pc_vecs['LE']*len(LE_locs)-raw_pc_vecs['RE']*len(RE_locs)
+raw_pc_vecs['OD'] = OD_vec
+OD_vec = OD_vec[1:4]/np.linalg.norm(OD_vec[1:4])
+HV_vec = raw_pc_vecs['Orien0']*len(Orien0_locs)-raw_pc_vecs['Orien90']*len(Orien90_locs)
+raw_pc_vecs['HV'] = HV_vec
+HV_vec = HV_vec[1:4]/np.linalg.norm(HV_vec[1:4])
+AO_vec = raw_pc_vecs['Orien45']*len(Orien45_locs)-raw_pc_vecs['Orien135']*len(Orien135_locs)
+raw_pc_vecs['AO'] = AO_vec
+AO_vec = AO_vec[1:4]/np.linalg.norm(AO_vec[1:4])
 # calculate all distance of all OD trails to the given axis.
 dist_distribution = []
 all_LE_vecs = u[LE_locs,1:4]
@@ -293,6 +303,9 @@ errors = b - A * fit
 residual = np.linalg.norm(errors)
 orien_norm_vec = np.array([float(fit[0]),float(fit[1]),-1])
 orien_norm_vec = orien_norm_vec/np.linalg.norm(orien_norm_vec)
+raw_pc_vecs['Orien_Normal_PC234'] = orien_norm_vec
+raw_pc_vecs['Plane_fits'] = fit
+ot.Save_Variable(work_path,'All_Vectors',raw_pc_vecs)
 #%% 3. get all stim maps' embedding on given space.
 c_OD_map = np.array(ac.OD_t_graphs['OD'].loc['t_value']).reshape(-1, 1)
 c_OD_coords = model.transform(c_OD_map.T)
@@ -351,7 +364,7 @@ ax.set_xlabel('PC 2')
 ax.set_ylabel('PC 3')
 ax.set_zlabel('PC 4')
 ax.set_title('Orientation prefered distribution-PCA')
-# from Plot_Tools import Arrow3D
+from Plot_Tools import Arrow3D
 arw1 = Arrow3D([0,-OD_vec[0]*20],[0,-OD_vec[1]*20],[0,-OD_vec[2]*20], arrowstyle="->", color="black", lw = 2, mutation_scale=25)
 arw1b = Arrow3D([0,-c_OD_vec[0]*20],[0,-c_OD_vec[1]*20],[0,-c_OD_vec[2]*20], arrowstyle="->", color="black", lw = 2, mutation_scale=25,alpha = 0.5)
 arw2 = Arrow3D([0,HV_vec[0]*20],[0,HV_vec[1]*20],[0,HV_vec[2]*20], arrowstyle="->", color="red", lw = 2, mutation_scale=25)

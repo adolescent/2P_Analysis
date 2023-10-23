@@ -80,8 +80,9 @@ def Label_Event_Cutter(input_series):# input series must be 1/0 frame!
 def Random_Series_Generator(series_len,event_length):
     combined_series = np.zeros(series_len)
     for j,c_length in enumerate(event_length):
-        c_start_loc = np.random.randint(series_len-event_length.max())
-        while combined_series[c_start_loc:c_start_loc+int(c_length)].sum()!=0:# make no stack.
+        c_start_loc = np.random.randint(series_len-event_length.max()-2)
+        while combined_series[c_start_loc:c_start_loc+int(c_length)+2].sum()!=0:# make no stack.
             c_start_loc = np.random.randint(series_len-event_length.max())
-        combined_series[c_start_loc:c_start_loc+int(c_length)] = 1
+
+        combined_series[c_start_loc+1:c_start_loc+int(c_length)+1] = 1
     return combined_series

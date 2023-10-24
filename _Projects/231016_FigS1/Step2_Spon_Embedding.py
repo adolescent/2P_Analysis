@@ -321,7 +321,34 @@ for i in tqdm(range(N)):
 #%% KS Test
 from scipy.stats import kstest
 # Assuming you have the population distribution stored in 'population' and the sample in 'sample'
-population = all_orien_nearest_gap_s.flatten()
-sample = np.array(orien_nearest_gap)
+population = all_od_nearest_gap_s.flatten()
+sample = np.array(od_nearest_gap)
 
-stats.ks_2samp(sample,np.random.choice(population,len(sample)))
+# stats.ks_2samp(sample,np.random.choice(population,len(sample)))
+stats.ks_2samp(sample,population)
+#%% Weibull distribution fit of waiting time.
+all_repeats = (predicted_spon_frame>0)
+all_lens,all_locs = All_Start_Time(all_repeats)
+all_waittime = np.zeros(len(all_locs)-1)
+for i in range(len(all_locs)-1):
+    all_waittime[i] = all_locs[i+1]-all_locs[i]
+
+# Fit weib disp and show disp graph,
+params = stats.exponweib.fit(all_waittime,floc = 1)
+x = np.linspace(0, 100, 100)
+pdf_fitted = stats.exponweib.pdf(x, *params)
+fig, ax = plt.subplots()
+ax.hist(all_waittime, bins=30, density=True, alpha=1, label='Data')
+# plt.plot(x, stats.gamma.pdf(x, a=shape, loc=loc, scale=scale))
+ax.plot(x, pdf_fitted, 'r-', label='Fitted')
+ax.set_title('Spontaneous wait time distribution')
+plt.legend()
+plt.show()
+stats.kstest(all_waittime,'exponweib',args = params)
+#%% QQ Plot
+fig, ax = plt.subplots()
+stats.probplot(all_waittime, dist=stats.exponweib,sparams = params, plot=ax, rvalue=True)
+ax.set_title('QQ plot of data vs. exponential distribution')
+ax.set_xlabel('Theoretical quantiles')
+ax.set_ylabel('Sample quantiles')
+plt.show()

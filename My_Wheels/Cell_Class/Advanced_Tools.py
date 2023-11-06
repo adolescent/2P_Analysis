@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn import svm
 from sklearn.model_selection import cross_val_score
+from itertools import groupby
 
 
 def Z_PCA(Z_frame,sample = 'Cell'):
@@ -67,7 +68,7 @@ def Average_Each_Label(Z_Frame,Labels):
         all_response.loc[c_label,:]=c_frame.mean()
     
     return all_response
-############# Tools for series cut and recombine.
+############# Tools for series cut and count.
 def Label_Event_Cutter(input_series):# input series must be 1/0 frame!
     indices_on = np.where(input_series == True)[0]
     cutted_events = np.split(indices_on, np.where(np.diff(indices_on) != 1)[0]+1)
@@ -76,7 +77,49 @@ def Label_Event_Cutter(input_series):# input series must be 1/0 frame!
         all_event_length[i] = len(c_series)
     return cutted_events,all_event_length
 
+# simplyfied version of Label_Event_Cutter, can use directly for interval calculation.
+def All_Start_Time(input_series):
+    true_indices = np.where(input_series)[0]
+    # Find consecutive sequences of True values and their starting indices
+    sequences_len = []
+    start_index = []
+    for k, g in groupby(enumerate(true_indices), lambda ix : ix[0] - ix[1]):
+        true_sequence = [x[1] for x in g]
+        sequences_len.append(len(true_sequence))
+        start_index.append(true_sequence[0])
+    # Print the consecutive sequences of True values and their starting indices
+    return sequences_len,start_index
 
+
+def Event_Counter(series): # this function is used to count true list number.
+    count = 0
+    consecutive_count = 0
+    for value in series:
+        if value:
+            consecutive_count += 1
+        else:
+            if consecutive_count > 0:
+                count += 1
+            consecutive_count = 0
+    if consecutive_count > 0:
+        count += 1
+    return count
+
+def Wait_Time_Distribution(start_time):
+    wait_times = np.zeros(len(start_time)-1)
+    start_time = np.array(start_time)
+    for i in range(len(wait_times)):
+        c_time = start_time[i]
+        if i == 0:
+            c_dist = start_time[i+1]-c_time
+        else:
+            time_before =  start_time[i-1]
+            time_after = start_time[i+1]
+            c_dist = min(c_time-time_before,time_after-c_time)
+        wait_times[i] = c_dist
+    return wait_times
+
+################ Tools for shuffle.
 def Random_Series_Generator(series_len,event_length):
     combined_series = np.zeros(series_len)
     for j,c_length in enumerate(event_length):
@@ -86,3 +129,30 @@ def Random_Series_Generator(series_len,event_length):
 
         combined_series[c_start_loc+1:c_start_loc+int(c_length)+1] = 1
     return combined_series
+
+def Spon_Shuffler(spon_frame):
+    shuffled_frame = np.zeros(shape = spon_frame.shape) # output will be an np array, be very careful.
+    for i in range(spon_frame.shape[1]):
+        c_series = np.array(spon_frame.iloc[:,i])
+        np.random.shuffle(c_series)
+        shuffled_frame[:,i] = c_series
+    return shuffled_frame
+
+def Shuffle_Multi_Trains(input_series): # the input here must be 0 as null, 1,2,3 as different network types.
+    all_stim_types = list(set(input_series))
+    all_stim_types.remove(0)
+    series_len = len(input_series)
+    shuffled_series = np.zeros(series_len)
+    for i,c_stim in enumerate(all_stim_types):
+        cc_stim_train = input_series == c_stim
+        cc_len,_ = All_Start_Time(cc_stim_train)
+        cc_len = np.array(cc_len)
+        for j,c_length in enumerate(cc_len):
+            c_start_loc = np.random.randint(series_len-cc_len.max())
+            while shuffled_series[c_start_loc:c_start_loc+int(c_length)].sum()!=0:# make no stack.
+                c_start_loc = np.random.randint(series_len-cc_len.max())
+            shuffled_series[c_start_loc:c_start_loc+int(c_length)] = c_stim
+
+    return shuffled_series
+
+

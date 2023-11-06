@@ -40,14 +40,14 @@ if reducer == False:
 stim_embeddings = reducer.embedding_ # get spon embeddigs.
 # adjust stim-frame-align train to make data better.
 all_stim_labelv2 = copy.deepcopy(all_stim_label)
-jump_next = 0
-for i in range(len(all_stim_labelv2)-1):
-    if jump_next == 1:
-        jump_next = 0
-        continue
-    if all_stim_labelv2[i]>0 and all_stim_labelv2[i+1] == 0: # extend the end of each stim.
-        all_stim_labelv2[i+1] = all_stim_labelv2[i]
-        jump_next = 1
+# jump_next = 0
+# for i in range(len(all_stim_labelv2)-1):
+#     if jump_next == 1:
+#         jump_next = 0
+#         continue
+#     if all_stim_labelv2[i]>0 and all_stim_labelv2[i+1] == 0: # extend the end of each stim.
+#         all_stim_labelv2[i+1] = all_stim_labelv2[i]
+#         jump_next = 1
 #%% Embedding spontaneous data, and perform SVM classification.
 spon_embeddings = reducer.transform(spon_series)
 # and we tran an SVM based on stim data

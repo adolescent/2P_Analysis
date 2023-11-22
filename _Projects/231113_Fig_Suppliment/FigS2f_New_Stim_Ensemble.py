@@ -145,4 +145,132 @@ fig2.tight_layout()
 plt.show()
 
 #%%################# METHOD 2, STIM TRAIN ANALYSIS ##########################
+'''
+This part will try to generate strength plot of all known network and 3 label network.
+'''
+#%% Step1, get all tuning index response.
+
 thres = -99 # below thres will be set as 0.
+thresed_all_spon_response = copy.deepcopy(spon_series)
+thresed_all_spon_response[thresed_all_spon_response<thres] = 0
+def Submap_mask_Generator(input_map):
+    c_A_response = input_map.loc['A_reponse',:]
+    c_B_response = input_map.loc['B_response',:]
+    c_submap = (c_A_response-c_B_response)# Raw-0 submaps.
+    weighted_mask = c_submap/c_submap.sum()
+    return weighted_mask
+
+Score_Frame = pd.DataFrame(0.0,index = range(len(thresed_all_spon_response)),columns=['L','R','Orien0','Orien45','Orien90','Orien135','Red','Green','Blue'])
+LE_mask = Submap_mask_Generator(ac.OD_t_graphs['L-0'])
+Score_Frame['L'] = np.dot(thresed_all_spon_response,LE_mask)
+RE_mask = Submap_mask_Generator(ac.OD_t_graphs['R-0'])
+Score_Frame['R']  = np.dot(thresed_all_spon_response,RE_mask)
+Orien0_mask = Submap_mask_Generator(ac.Orien_t_graphs['Orien0-0'])
+Score_Frame['Orien0']  = np.dot(thresed_all_spon_response,Orien0_mask)
+Orien45_mask = Submap_mask_Generator(ac.Orien_t_graphs['Orien45-0'])
+Score_Frame['Orien45']  = np.dot(thresed_all_spon_response,Orien45_mask)
+Orien90_mask = Submap_mask_Generator(ac.Orien_t_graphs['Orien90-0'])
+Score_Frame['Orien90']  = np.dot(thresed_all_spon_response,Orien90_mask)
+Orien135_mask = Submap_mask_Generator(ac.Orien_t_graphs['Orien135-0'])
+Score_Frame['Orien135']  = np.dot(thresed_all_spon_response,Orien135_mask)
+Red_mask = Submap_mask_Generator(ac.Color_t_graphs['Red-0'])
+Score_Frame['Red']  = np.dot(thresed_all_spon_response,Red_mask)
+Green_mask = Submap_mask_Generator(ac.Color_t_graphs['Green-0'])
+Score_Frame['Green']  = np.dot(thresed_all_spon_response,Green_mask)
+Blue_mask = Submap_mask_Generator(ac.Color_t_graphs['Blue-0'])
+Score_Frame['Blue']  = np.dot(thresed_all_spon_response,Blue_mask)
+ot.Save_Variable(work_path,'Stim_Map_Score',Score_Frame)
+#%% step2, try to sort graph, see the difference.
+score_thres = 0.5 # below this score will be set as Null.
+Score_Frame_Sorted = copy.deepcopy(Score_Frame)
+# Score_Frame_Sorted['Strength'] = np.array(thresed_all_spon_response.sum(1))
+# Score_Frame_Sorted = Score_Frame_Sorted.sort_values(['Strength'], ascending=[False])
+# Score_Frame_Sorted = Score_Frame_Sorted.drop('Strength',axis = 1)
+Score_Frame_Sorted['Eye Score'] = Score_Frame.iloc[:,:2].max(1)
+Score_Frame_Sorted['Orien Score'] = Score_Frame.iloc[:,2:6].max(1)
+Score_Frame_Sorted['Color Score'] = Score_Frame.iloc[:,6:].max(1)
+Score_Frame_Sorted['Response'] = np.array(thresed_all_spon_response.mean(1))
+Score_Frame_Sorted = Score_Frame_Sorted[['Eye Score','Orien Score','Color Score']]
+Score_Frame_Sorted['Sorting Index'] = 0.0
+all_response = np.array(thresed_all_spon_response.mean(1))
+for i in range(len(Score_Frame_Sorted)):
+    c_umap_label = predicted_spon_label[i]
+    # max_tuning = Score_Frame_Sorted.loc[i,:].max()
+    # if max_tuning < score_thres:
+    #     Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]
+    # else:
+    #     max_type = Score_Frame_Sorted.loc[i,:].idxmax()
+    #     if max_type == 'Eye Score':
+    #         Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]+30 # OD+3 
+    #     elif max_type == 'Orien Score':
+    #         Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]+20 # Orien+2 
+    #     elif max_type == 'Color Score':
+    #         Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]+10 # Color+2 
+    if c_umap_label>0 and c_umap_label<9:# OD repeats
+        Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]+30
+    elif c_umap_label>8 and c_umap_label<17:
+        Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]+20
+    elif c_umap_label>16:
+        Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]+10
+    else:
+        Score_Frame_Sorted.loc[i,'Sorting Index'] = all_response[i]
+
+
+Score_Frame_Sorted['Response'] = np.array(thresed_all_spon_response.mean(1))
+Score_Frame_Sorted = Score_Frame_Sorted.sort_values(['Sorting Index'], ascending=[False])
+# Score_Frame_Sorted = Score_Frame_Sorted.sort_values(['Response'], ascending=[False])
+Score_Frame_Sorted = Score_Frame_Sorted.drop('Sorting Index',axis = 1)
+#%% 3. Plot all orientation score.
+thres_similar = 0.2 # this thres is similarity with stim patterns.
+corr_matrix_all = np.zeros(shape = (22,len(spon_series)),dtype = 'f8')#0-7OD,8-15Ori,16-21Col
+for i,c_frame in tqdm(enumerate(np.array(spon_series))):
+    for j in range(22):
+        cc_stimmap = stim_response_matrix.loc[:,j+1]
+        c_r,_ = pearsonr(c_frame,cc_stimmap)
+        corr_matrix_all[j,i] = c_r
+# plot tuning score 
+plt.clf()
+plt.cla()
+fig, ax = plt.subplots(figsize=(4,12),dpi = 180)
+sns.heatmap(Score_Frame_Sorted,center = 0,vmax = 3,ax = ax,yticklabels=False)
+# and add umap class information.
+sorted_index = Score_Frame_Sorted.index
+all_best_corr = corr_matrix_all.max(0)
+for i,c_label in enumerate(predicted_spon_label):
+    phy_loc = np.where(sorted_index == i)[0][0]
+    c_max_corr = all_best_corr[i]
+    if c_max_corr<thres_similar and c_label>0:
+        ax.scatter(x = [3],y = [phy_loc],s=0.5,color = 'black')
+    else:
+        if c_label>0 and c_label<9:
+            ax.scatter(x = [3],y = [phy_loc],s=0.5,color = 'y')
+        elif c_label>8 and c_label<17:
+            ax.scatter(x = [3],y = [phy_loc],s=0.5,color = 'g')
+        elif c_label>16:
+            ax.scatter(x = [3],y = [phy_loc],s=0.5,color = 'b')
+# ax.scatter(x = [3,3],y = [300,2505],s=3,color = 'y',label = 'Eye Repeat')
+ax.set_title('Tuning Scores')
+# sns.move_legend(ax,  "upper left", bbox_to_anchor=(1,0.8))
+# calculate umap propotion of all response frames.
+positive_ids = np.array(Score_Frame_Sorted[Score_Frame_Sorted['Response']>1].index)
+umap_nums = (predicted_spon_label[positive_ids]>0).sum()
+print(f'UMAP Seperated Stim Cell Number {umap_nums} / {len(positive_ids)}, with propotion {umap_nums*100/len(positive_ids):.2f}')
+#%%4. Example of Response good, but umap ignored frame.
+example_frame = Score_Frame_Sorted.index[1243]
+example_frame2 = Score_Frame_Sorted.index[1244]
+cc_spon = spon_series.iloc[example_frame,:]
+cc_spon2 = spon_series.iloc[example_frame2,:]
+cc_spon_graph = ac.Generate_Weighted_Cell(cc_spon)
+cc_spon_graph2 = ac.Generate_Weighted_Cell(cc_spon2)
+
+value_max = 6
+value_min = -3
+plt.clf()
+plt.cla()
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4,8),dpi = 180)
+cbar_ax = fig.add_axes([.97, .25, .05, .5])
+sns.heatmap(cc_spon_graph,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(cc_spon_graph2,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+fig.suptitle('Example of UMAP Unclassified Frame')
+fig.tight_layout()
+plt.show()

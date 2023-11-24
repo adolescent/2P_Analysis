@@ -174,3 +174,5 @@ for i,c_loc in tqdm(enumerate(cell_seperation_dic)):
     animation.save(f'{cc_path}\\Orientation_Plot_3D.gif', writer='pillow')
     # set bar manually.
     
+
+

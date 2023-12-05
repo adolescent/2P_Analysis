@@ -9,10 +9,11 @@ class UMAP_Analyzer(object):
     
     name = r'UMAP Recover Stim map processing tools'
 
-    def __init__(self) -> None:
+    def __init__(self,ac,umap_model,spon_frame) -> None:
         pass
 
-
+    def Classify_Train(self,method = 'Stim',od = True,orien = True,color = True):
+        pass
 
 
 

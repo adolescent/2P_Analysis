@@ -68,3 +68,4 @@ class Arrow3D(FancyArrowPatch):
     # USAGE EXAMPLE:
         # arw = Arrow3D([xs1[0],xs1[2]],[ys1[0],ys1[2]],[zs1[0],zs1[2]], arrowstyle="->", color="purple", lw = 3, mutation_scale=25)
         # ax.add_artist(arw)
+

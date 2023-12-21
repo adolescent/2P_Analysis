@@ -23,6 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
+import random
 
 def Select_Frame(frame,label,used_id = [1,3,5,7]):
     frame = np.array(frame)# avoid pd frame bugs,
@@ -66,7 +67,7 @@ class UMAP_Analyzer(object):
         if method == 'Spon' or method == 'Compare':
             try:
                 self.spon_label
-            except NameError:
+            except AttributeError:
                 print('SVM prediction seems not be done.')
                 self.Train_SVM_Classifier()
         # find data for process, and save structure.
@@ -157,17 +158,89 @@ class UMAP_Analyzer(object):
             self.compare_recover['Green'] = Green_compare
             self.compare_recover['Blue'] = Blue_compare
             
-            
-            
-            
-    
-            
+                   
+    def Similarity_Compare_All(self,id_lists = [1,3,5,7]): 
+        real_corr = []
+        random_corr = []
+        for i,c_id in enumerate(id_lists):
+            cid_stim_frame,_ = Select_Frame(self.stim_frame,self.stim_label,used_id=[c_id])
+            cid_spon_frame,_ = Select_Frame(self.spon_frame,self.spon_label,used_id=[c_id])
+            if len(cid_spon_frame) == 0: # no match on spon situation.
+                continue
+            c_pattern = cid_stim_frame.mean(0)
+            for j,c_frame in enumerate(cid_spon_frame):
+                c_r,_ = stats.pearsonr(c_pattern,c_frame)
+                real_corr.append(c_r)
+                # rand select a single spon frame.
+                rand_frameid = random.randint(0,len(self.spon_frame))
+                rand_r,_ = stats.pearsonr(c_pattern,np.array(self.spon_frame)[rand_frameid,:])
+                random_corr.append(rand_r)
+        return real_corr,random_corr
 
 
-    def Similarity_Compare_All(self,pattern,all_frame,label_id,wanted_label): # this will return all similarity vs pattern of all id given. random select given here too.
-        pass
-    def Similarity_Compare_Combine(self,pattern,all_frame,label_id,wanted_label): # this will return avr similarity, only one value will be given.
-        pass
+    def Average_Corr_Core(self,id_list = [1,3,5,7]):# generate single map avr and random. Will return real and random average corr.
+        used_spon,_ = Select_Frame(self.spon_frame,self.spon_label,id_list)
+        spon_num = len(used_spon)
+        if spon_num>0:
+            random_indices = np.random.choice(np.array(self.spon_frame).shape[0], size=spon_num, replace=False)
+            template,_ = Select_Frame(self.stim_frame,self.stim_label,id_list)
+            template_avr = template.mean(0)
+            used_spon_avr = used_spon.mean(0)
+            random_selected = np.array(self.spon_frame)[random_indices].mean(0)
+            real_corr,_ = stats.pearsonr(template_avr,used_spon_avr)
+            rand_corr,_ = stats.pearsonr(template_avr,random_selected)
+            return real_corr,rand_corr,spon_num
+        else:
+            return 0,0,spon_num
+
+
+
+    def Similarity_Compare_Average(self,od = True,orien = True,color = True):# average graph.
+        try: # if recover map not generate, generate here.
+            self.compare_recover
+        except AttributeError:
+            self.Get_Stim_Spon_Compare()
+        self.Avr_Similarity = pd.DataFrame(columns=['PearsonR','Network','Data','MapType'])
+        if od == True:
+            LE_corr,LE_corr_shuffle,LE_corr_Num = self.Average_Corr_Core([1,3,5,7])
+            if LE_corr_Num != 0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [LE_corr,'LE','Real Data','OD']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [LE_corr_shuffle,'LE','Shuffle','OD']
+            RE_corr,RE_corr_shuffle,RE_corr_Num = self.Average_Corr_Core([2,4,6,8])
+            if RE_corr_Num != 0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [RE_corr,'RE','Real Data','OD']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [RE_corr_shuffle,'RE','Shuffle','OD']
+        if orien == True:
+            Orien0_corr,Orien0_corr_shuffle,Orien0_corr_num = self.Average_Corr_Core([9])
+            if Orien0_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien0_corr,'Orien0','Real Data','Orien']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien0_corr_shuffle,'Orien0','Shuffle','Orien']
+            Orien45_corr,Orien45_corr_shuffle,Orien45_corr_num = self.Average_Corr_Core([11])
+            if Orien45_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien45_corr,'Orien45','Real Data','Orien']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien45_corr_shuffle,'Orien45','Shuffle','Orien']
+            Orien90_corr,Orien90_corr_shuffle,Orien90_corr_num = self.Average_Corr_Core([13])
+            if Orien90_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien90_corr,'Orien90','Real Data','Orien']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien90_corr_shuffle,'Orien90','Shuffle','Orien']
+            Orien135_corr,Orien135_corr_shuffle,Orien135_corr_num = self.Average_Corr_Core([15])
+            if Orien135_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien135_corr,'Orien135','Real Data','Orien']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Orien135_corr_shuffle,'Orien135','Shuffle','Orien']
+        if color == True:
+            Red_corr,Red_corr_shuffle,Red_corr_num = self.Average_Corr_Core([17])
+            if Red_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Red_corr,'Red','Real Data','Color']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Red_corr_shuffle,'Red','Shuffle','Color']
+            Green_corr,Green_corr_shuffle,Green_corr_num = self.Average_Corr_Core([19])
+            if Green_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Green_corr,'Green','Real Data','Color']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Green_corr_shuffle,'Green','Shuffle','Color']
+            Blue_corr,Blue_corr_shuffle,Blue_corr_num = self.Average_Corr_Core([21])
+            if Blue_corr_num !=0:
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Blue_corr,'Blue','Real Data','Color']
+                self.Avr_Similarity.loc[len(self.Avr_Similarity)] = [Blue_corr_shuffle,'Blue','Shuffle','Color']
+
 
 
 if __name__ == '__main__':

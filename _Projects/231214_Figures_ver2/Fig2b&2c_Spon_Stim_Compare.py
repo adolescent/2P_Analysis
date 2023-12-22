@@ -83,6 +83,7 @@ for i,c_cond in enumerate(['OD','Orientation','Color']):
 plt.clf()
 plt.cla()
 fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(3,5),dpi = 180)
+axes.axhline(y = 0,color='gray', linestyle='--')
 sns.violinplot(data=distribution_frame, x="Response Pattern", y="Pearson R",order = ['OD','Orientation','Color'],hue = 'Data',split=True, inner="quart",ax = axes,dodge= True)
 axes.set_title('Spontaneous Repeat Similarity',size = 10)
 axes.legend_.remove()

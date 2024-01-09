@@ -154,7 +154,7 @@ class Stim_Cells(Cell):
     def T_Calculator_Core(self,cr_response,A_set,B_set,used_frame = [4,5]):
         # This function will generate single t test. Input all cell CR Resposne and Generated Subdic
         # Cycle all graphs.
-        ttest_frame = pd.DataFrame(columns = self.acn,index = ['t_value','p_value','A_reponse','B_response'])
+        ttest_frame = pd.DataFrame(columns = self.acn,index = ['t_value','p_value','A_response','B_response','CohenD'])
         # concat all response.
         for i,cc in enumerate(self.acn):
             cc_response = cr_response[cc]
@@ -174,7 +174,8 @@ class Stim_Cells(Cell):
             c_t,c_p = ttest_ind(used_A_response,used_B_response)
             A_avr = used_A_response.mean()
             B_avr = used_B_response.mean()
-            ttest_frame[cc] = [c_t,c_p,A_avr,B_avr]
+            c_d = c_t/np.sqrt(len(used_A_response))
+            ttest_frame[cc] = [c_t,c_p,A_avr,B_avr,c_d]
         return ttest_frame
         
             
@@ -269,21 +270,21 @@ class Stim_Cells(Cell):
         if self.odrun != False:
             ODs = self.OD_t_graphs
             for i,c_od in enumerate(OD_stims):
-                c_t_graph = ODs[c_od].loc['t_value',:]
+                c_t_graph = ODs[c_od].loc['CohenD',:]
                 self.all_cell_tunings.loc[c_od,:] = c_t_graph
                 c_p_graph = ODs[c_od].loc['p_value',:]
                 self.all_cell_tunings_p_value.loc[c_od,:] = c_p_graph
         if self.orienrun != False:
             Oriens = self.Orien_t_graphs
             for i,c_orien in enumerate(Orien_stims):
-                c_t_graph = Oriens[c_orien].loc['t_value',:]
+                c_t_graph = Oriens[c_orien].loc['CohenD',:]
                 self.all_cell_tunings.loc[c_orien,:] = c_t_graph
                 c_p_graph = Oriens[c_orien].loc['p_value',:]
                 self.all_cell_tunings_p_value.loc[c_orien,:] = c_p_graph
         if self.colorrun != False:
             Colors = self.Color_t_graphs
             for i,c_color in enumerate(Color_stims):
-                c_t_graph = Colors[c_color].loc['t_value',:]
+                c_t_graph = Colors[c_color].loc['CohenD',:]
                 self.all_cell_tunings.loc[c_color,:] = c_t_graph
                 c_p_graph = Colors[c_color].loc['p_value',:]
                 self.all_cell_tunings_p_value.loc[c_color,:] = c_p_graph

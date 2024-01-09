@@ -1,11 +1,8 @@
 '''
-This graph shows the umap embedded stim and spon frames.
+This graph follow the method we use on fig 2a, but the reducer is trained on spon data directly.
 
-Here we use class method to avoid dump repeatance.
-
-Example location: L76_18M_220902
+As we have class here, it might be easier to show.
 '''
-
 #%%
 from Cell_Class.Stim_Calculators import Stim_Cells
 from Cell_Class.Format_Cell import Cell
@@ -34,23 +31,19 @@ expt_folder = r'D:\_All_Spon_Datas_V1\L76_18M_220902'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 ac.wp = expt_folder
 spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
+# Train reducer on spon data.
 
-# load reducer, if not exist, generate a new one.
-reducer = ot.Load_Variable_v2(expt_folder,'All_Stim_UMAP_3D_20comp.pkl')
-if reducer == False:
-    raise ValueError('No reducer file, you need to generate it first.')
-#%%#################### STEP1, GET EMBEDDING SERIES ###############################
-# do svm prediction and get stim-spon embeddings.
-analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = False,orien = True,color = True,isi = True)
+reducer_unsu = umap.UMAP(n_components=3,n_neighbors=20)
+reducer_unsu.fit(spon_series)
+#%%###################### STEP1, DO UNSUPERVISED EMBEDDING ################################################
+analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer_unsu,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
 analyzer.Train_SVM_Classifier()
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label
 spon_embed = analyzer.spon_embeddings
 spon_label = analyzer.spon_label
 
-
-
-#%%#################### STEP2, PLOT ALL EMBEDDING GRAPHS ###################################
+#%%############################## STEP2, PLOT RESULTS ##############################################
 
 # This time we plot only od and orientation graphs, with other situation in gray alpha 0.5.
 import matplotlib.cm as cm
@@ -105,11 +98,9 @@ for i in range(2):
         axes[j,i].set_xlabel('UMAP 1')
         axes[j,i].set_ylabel('UMAP 2')
         axes[j,i].set_zlabel('UMAP 3')
-        axes[j,i].axes.set_xlim3d(left=1, right=14) 
-        axes[j,i].axes.set_ylim3d(bottom=2, top=14) 
-        axes[j,i].axes.set_zlim3d(bottom=5, top=15) 
-
-         
+        axes[j,i].axes.set_xlim3d(left=0, right=10) 
+        axes[j,i].axes.set_ylim3d(bottom=-6, top=6) 
+        axes[j,i].axes.set_zlim3d(bottom=4, top=10) 
 axes[0,0].set_title('Stimulus Embedding in UMAP Space',size = 14)
 axes[0,1].set_title('Spontaneous Embedding in UMAP Space',size = 14)
 
@@ -197,4 +188,25 @@ plt.subplots_adjust(left=0.1, right=0.95,top = 0.93,bottom=0.1)
 fig.suptitle('Stimulus & Spon Embeddings',size = 24,x = 0.5,y = 1)
 plt.tight_layout()
 # plt.show()
+#%%##################### STEP3, COMPARE SEVERAL MAPS ##################################
+analyzer.Get_Stim_Spon_Compare()
+compare_graphs = analyzer.compare_recover # use RE,orien90,red.
 
+value_max = 3
+value_min = -1
+font_size = 11
+plt.clf()
+plt.cla()
+fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(5,8),dpi = 180)
+cbar_ax = fig.add_axes([.97, .3, .03, .3])
+
+sns.heatmap(compare_graphs['RE'],center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(compare_graphs['Orien90'],center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(compare_graphs['Red'],center = 0,xticklabels=False,yticklabels=False,ax = axes[2],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+
+axes[0].set_title('Right Eye Stimulus               Right Eye Recovered',size = font_size)
+axes[1].set_title('Orientation 90 Stimulus        Orientation 90 Recovered',size = font_size)
+axes[2].set_title('Red Stimulus                           Red Recovered',size = font_size)
+plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.05, hspace=None)
+fig.tight_layout()
+plt.show()

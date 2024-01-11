@@ -28,7 +28,7 @@ from Cell_Class.UMAP_Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
-all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Datas_V1'))
+all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Data_V1'))
 all_path_dic.pop(4)
 all_path_dic.pop(6)
 #%%########################## STEP1, GET ALL NETWORK FREQUENCY #########################
@@ -48,7 +48,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     shuffle_times = 10
     repeat_freq_s = np.zeros(shape = (shuffle_times,3),dtype = 'f8')# save in sequence od,orien,color.
     for j in range(shuffle_times):# shuffle
-        spon_frame_s = Spon_Shuffler(c_spon_frame)
+        spon_frame_s = Spon_Shuffler(c_spon_frame,method='phase')
         spon_embedding_s = c_reducer.transform(spon_frame_s)
         c_spon_label_s = SVC_Fit(c_analyzer.svm_classifier,data = spon_embedding_s,thres_prob = 0)
         tc_analyzer_s = Series_TC_info(input_series=c_spon_label_s)

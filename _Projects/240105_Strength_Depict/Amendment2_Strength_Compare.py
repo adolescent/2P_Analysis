@@ -202,16 +202,60 @@ def Tuning_By_Type(ac,p_thres = [0.01,0.01,0.001]):
         c_p = ac_tuning_p[cc]
         c_od_max = c_response[:2].idxmax()
         c_od_max_value = c_response[c_od_max]
-        if ac_tuning_p[cc][c_od_max]>p_thres[0]:
+        if ac_tuning_p[cc][c_od_max]>p_thres[0] or c_od_max_value<0:
             tuned_frame.loc[len(tuned_frame),:] = [cc,'Eye','No_Tuning',c_od_max_value]
         else:
             tuned_frame.loc[len(tuned_frame),:] = [cc,'Eye',c_od_max,c_od_max_value]
-            
         c_orien_max = c_response[3:11].idxmax()
         c_orien_max_value = c_response[c_orien_max]
-        tuned_frame.loc[len(tuned_frame),:] = [cc,'Orien',c_orien_max,c_orien_max_value]
+        if ac_tuning_p[cc][c_orien_max]>p_thres[1] or c_orien_max_value<0:
+            tuned_frame.loc[len(tuned_frame),:] = [cc,'Orien','No_Tuning',c_orien_max_value]
+        else:
+            tuned_frame.loc[len(tuned_frame),:] = [cc,'Orien',c_orien_max,c_orien_max_value]
         c_color_max = c_response[11:17].idxmax()
         c_color_max_value = c_response[c_color_max]
-        tuned_frame.loc[len(tuned_frame),:] = [cc,'Color',c_color_max,c_color_max_value]
+        if ac_tuning_p[cc][c_color_max]>p_thres[2] or c_color_max_value<0:
+            tuned_frame.loc[len(tuned_frame),:] = [cc,'Color','No_Tuning',c_color_max_value]
+        else:
+            tuned_frame.loc[len(tuned_frame),:] = [cc,'Color',c_color_max,c_color_max_value]
     return tuned_frame
+tuned_frames = Tuning_By_Type(ac,p_thres=[0.01,0.01,0.001])
+# seperate cell by spon index, and see tuning difference.
+od_tunes = tuned_frames.groupby('Tune_Type').get_group('Eye').reset_index(drop = True)
+orien_tunes = tuned_frames.groupby('Tune_Type').get_group('Orien').reset_index(drop = True)
+color_tunes = tuned_frames.groupby('Tune_Type').get_group('Color').reset_index(drop = True)
+# seperate cell to 2 groups, spon cell and stim cell.
+all_cell_strength['Spon_Cell'] = all_cell_strength['Spon_Ratio']>1
+od_tunes['Spon_Cell'] = all_cell_strength['Spon_Cell']
+orien_tunes['Spon_Cell'] = all_cell_strength['Spon_Cell']
+color_tunes['Spon_Cell'] = all_cell_strength['Spon_Cell']
 
+# and plot 2 part of cells in different property.
+plt.clf()
+plt.cla()
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(7,5), gridspec_kw={'width_ratios': [1,1,1]},sharey= True)
+sns.boxplot(data = od_tunes,x = 'Spon_Cell',y = 'Best_Tune_Value',ax = axes[0],width = 0.5,showfliers = True)
+sns.boxplot(data = orien_tunes,x = 'Spon_Cell',y = 'Best_Tune_Value',ax = axes[1],width = 0.5,showfliers = True)
+sns.boxplot(data = color_tunes,x = 'Spon_Cell',y = 'Best_Tune_Value',ax = axes[2],width = 0.5,showfliers = True)
+# titles
+for i in range(3):
+    axes[i].set_xticklabels(['Stim Cell','Spon Cell'])
+axes[0].title.set_text('OD Tuning')
+axes[1].title.set_text('Orien Tuning')
+axes[2].title.set_text('Color Tuning')
+# p values and p locations 
+_,od_p = stats.ttest_ind(list(od_tunes[od_tunes['Spon_Cell']== True]['Best_Tune_Value']),list(od_tunes[od_tunes['Spon_Cell']== False]['Best_Tune_Value']))
+_,orien_p = stats.ttest_ind(list(orien_tunes[orien_tunes['Spon_Cell']== True]['Best_Tune_Value']),list(orien_tunes[orien_tunes['Spon_Cell']== False]['Best_Tune_Value']))
+_,color_p = stats.ttest_ind(list(color_tunes[color_tunes['Spon_Cell']== True]['Best_Tune_Value']),list(color_tunes[color_tunes['Spon_Cell']== False]['Best_Tune_Value']))
+axes[0].text(0.4,4.5, f'p = {od_p:.5f}', fontsize=10)
+axes[1].text(0.4,4.5, f'p = {orien_p:.5f}', fontsize=10)
+axes[2].text(0.4,4.5, f'p = {color_p:.5f}', fontsize=10)
+# legends
+axes[1].yaxis.set_visible(False)
+axes[2].yaxis.set_visible(False)
+axes[0].set_xlabel('')
+axes[2].set_xlabel('')
+axes[0].set_ylabel('Tuning Cohen D')
+# axes[0].set_ylim(-1,5)
+
+fig.tight_layout()

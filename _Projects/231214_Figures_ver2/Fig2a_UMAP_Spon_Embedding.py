@@ -30,7 +30,7 @@ from Cell_Class.UMAP_Classifier_Analyzer import *
 
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
-expt_folder = r'D:\_All_Spon_Datas_V1\L76_18M_220902'
+expt_folder = r'D:\_All_Spon_Data_V1\L76_18M_220902'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 ac.wp = expt_folder
 spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
@@ -41,7 +41,8 @@ if reducer == False:
     raise ValueError('No reducer file, you need to generate it first.')
 #%%#################### STEP1, GET EMBEDDING SERIES ###############################
 # do svm prediction and get stim-spon embeddings.
-analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = False,orien = True,color = True,isi = True)
+# spon_s = Spon_Shuffler(spon_series,method='phase')
+analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
 analyzer.Train_SVM_Classifier()
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label

@@ -131,7 +131,7 @@ def Random_Series_Generator(series_len,event_length):
         combined_series[c_start_loc+1:c_start_loc+int(c_length)+1] = 1
     return combined_series
 
-def Spon_Shuffler(spon_frame,method = 'all'):# 'all' or 'phase'
+def Spon_Shuffler(spon_frame,method = 'phase'):# 'all' or 'phase'
     shuffled_frame = np.zeros(shape = spon_frame.shape) # output will be an np array, be very careful.
     if method == 'all':
         for i in range(spon_frame.shape[1]):

@@ -10,6 +10,8 @@ from sklearn import svm
 from sklearn.model_selection import cross_val_score
 from itertools import groupby
 from scipy.fft import fft, ifft
+from scipy.fftpack import rfft, irfft
+import copy
 
 
 def Z_PCA(Z_frame,sample = 'Cell'):
@@ -131,7 +133,7 @@ def Random_Series_Generator(series_len,event_length):
         combined_series[c_start_loc+1:c_start_loc+int(c_length)+1] = 1
     return combined_series
 
-def Spon_Shuffler(spon_frame,method = 'phase'):# 'all' or 'phase'
+def Spon_Shuffler(spon_frame,method = 'phase',filter_para = (0.005,0.3),fps = 1.301):# 'all' or 'phase'
     shuffled_frame = np.zeros(shape = spon_frame.shape) # output will be an np array, be very careful.
     if method == 'all':
         for i in range(spon_frame.shape[1]):
@@ -139,21 +141,36 @@ def Spon_Shuffler(spon_frame,method = 'phase'):# 'all' or 'phase'
             np.random.shuffle(c_series)
             shuffled_frame[:,i] = c_series
     elif method == 'phase':# do phase shuffle
+        # codes below from https://stackoverflow.com/questions/39543002/returning-a-real-valued-phase-scrambled-timeseries
         for i in range(spon_frame.shape[1]):
             c_series = np.array(spon_frame.iloc[:,i])
-            fft_result = fft(c_series)
-            magnitude = np.abs(fft_result)
-            phase = np.angle(fft_result)
-            np.random.shuffle(phase)
-            modified_fft_result = magnitude * np.exp(1j * phase)
-            modified_series = ifft(modified_fft_result)
-            # to avoid head-tail bug, we add a 100 len pad for shuffle.
-            padding_length = 100  # Length of zero-padding
-            modified_fft_result_padded = np.concatenate((modified_fft_result, np.zeros(padding_length)))
-            modified_fft_result_padded = np.concatenate((np.zeros(padding_length),modified_fft_result_padded))
-            modified_series = ifft(modified_fft_result_padded)
-            shuffled_frame[:,i] = modified_series[padding_length:-padding_length]
-
+            fs = rfft(c_series)
+            power = fs[1:-1:2]**2 + fs[2::2]**2 # strength
+            phase = np.arctan2(fs[2::2], fs[1:-1:2]) # in radius
+            shuffled_phase = copy.deepcopy(phase)
+            start_freq = int(len(power)*filter_para[0]/(fps/2))
+            end_freq = int(len(power)*filter_para[1]/(fps/2))
+            # shuffle phase of unfilted part only.
+            middle_part_phase = copy.deepcopy(phase[start_freq:end_freq])
+            np.random.shuffle(middle_part_phase)
+            shuffled_phase[start_freq:end_freq] = middle_part_phase
+            fsrp = np.sqrt(power[:, np.newaxis]) * np.c_[np.cos(shuffled_phase), np.sin(shuffled_phase)]
+            fsrp = np.r_[fs[0], fsrp.ravel(), fs[-1]]
+            modified_series = irfft(fsrp)
+            shuffled_frame[:,i] = modified_series
+            # fft_result = fft(c_series)
+            # magnitude = np.abs(fft_result)
+            # phase = np.angle(fft_result)
+            # np.random.shuffle(phase)
+            # modified_fft_result = magnitude * np.exp(1j * phase)
+            # modified_series = ifft(modified_fft_result)
+            # # to avoid head-tail bug, we add a 100 len pad for shuffle.
+            # # padding_length = 100  # Length of zero-padding
+            # # modified_fft_result_padded = np.concatenate((modified_fft_result, np.zeros(padding_length)))
+            # # modified_fft_result_padded = np.concatenate((np.zeros(padding_length),modified_fft_result_padded))
+            # # modified_series = ifft(modified_fft_result_padded)
+            # # shuffled_frame[:,i] = modified_series[padding_length:-padding_length]
+            # shuffled_frame[:,i] = modified_series
     return shuffled_frame
 
 def Shuffle_Multi_Trains(input_series): # the input here must be 0 as null, 1,2,3 as different network types.

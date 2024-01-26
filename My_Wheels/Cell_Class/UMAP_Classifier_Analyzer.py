@@ -54,9 +54,9 @@ class UMAP_Analyzer(object):
         self.spon_embeddings = self.umap_model.transform(self.spon_frame)
 
 
-    def Train_SVM_Classifier(self,predict = True):
+    def Train_SVM_Classifier(self,predict = True,C = 1):
 
-        self.svm_classifier,self.svm_fitscore = SVM_Classifier(embeddings=self.stim_embeddings,label = self.stim_label)
+        self.svm_classifier,self.svm_fitscore = SVM_Classifier(embeddings=self.stim_embeddings,label = self.stim_label,C = C)
         if predict == True:
             self.spon_label = SVC_Fit(self.svm_classifier,data = self.spon_embeddings,thres_prob = 0)
         else:
@@ -121,7 +121,7 @@ class UMAP_Analyzer(object):
             
         return func_map
 
-    def Get_Stim_Spon_Compare(self,od = True,orien = True,color = True):
+    def Get_Stim_Spon_Compare(self,od = True,orien = True,color = True): # this method will return a compare graph of stim and recovered.
         self.stim_recover = self.Get_Func_Maps(method = 'Stim',od = od,orien = orien,color = color)
         self.spon_recover = self.Get_Func_Maps(method = 'Spon',od = od,orien = orien,color = color)
         self.compare_recover = {}

@@ -157,7 +157,7 @@ def Spon_Shuffler(spon_frame,method = 'phase',filter_para = (0.005,0.3),fps = 1.
             fsrp = np.sqrt(power[:, np.newaxis]) * np.c_[np.cos(shuffled_phase), np.sin(shuffled_phase)]
             fsrp = np.r_[fs[0], fsrp.ravel(), fs[-1]]
             modified_series = irfft(fsrp)
-            shuffled_frame[:,i] = modified_series
+            shuffled_frame[:,i] = modified_series[:shuffled_frame.shape[0]]# avoid 1 diff problem.
             # fft_result = fft(c_series)
             # magnitude = np.abs(fft_result)
             # phase = np.angle(fft_result)

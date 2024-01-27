@@ -98,13 +98,16 @@ plt.show()
 
 
 #%%########################## 2. STRENGTH DECAY ALL POINTS ############################################
+# you can change model to get different prediction.
 all_spon_strength = pd.DataFrame(columns = ['Strength','Type','Loc'])
 for i,cloc in tqdm(enumerate(all_path_dic)):
     cloc_name = cloc.split('\\')[-1]
     ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
     c_spon = ot.Load_Variable(cloc,'Spon_Before.pkl')
-    c_model = ot.Load_Variable(cloc,'All_Stim_UMAP_3D_20comp.pkl')
-    c_analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon)
+    # c_model = ot.Load_Variable(cloc,'All_Stim_UMAP_3D_20comp.pkl')
+    c_model = ot.Load_Variable(cloc,'Orien_UMAP_3D_20comp.pkl')
+    # c_analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon)
+    c_analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color=False)
     c_analyzer.Train_SVM_Classifier(C=1)
     c_spon_series = c_analyzer.spon_label
     c_spon_response = np.array(c_spon.mean(1))
@@ -117,7 +120,9 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # spon_offs = np.where(c_spon_series==0)[0]
     # avr_spon_on = c_spon.iloc[spon_ons,:].mean(1)
     # avr_spon_off = c_spon.iloc[spon_offs,:].mean(1)
-ot.Save_Variable(work_path,'All_Spon_Strength',all_spon_strength)
+# ot.Save_Variable(work_path,'All_Spon_Strength',all_spon_strength)
+ot.Save_Variable(work_path,'All_Spon_Strength_G16_model',all_spon_strength)
+
 #%% Plot 
 on_series = np.array(all_spon_strength.groupby('Type').get_group('Classified Spontaneous')['Strength'])
 off_series = np.array(all_spon_strength.groupby('Type').get_group('Unclassified Spontaneous')['Strength'])

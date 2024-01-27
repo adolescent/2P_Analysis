@@ -39,16 +39,23 @@ spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
 reducer = ot.Load_Variable_v2(expt_folder,'All_Stim_UMAP_3D_20comp.pkl')
 if reducer == False:
     raise ValueError('No reducer file, you need to generate it first.')
+
+import warnings
+warnings.filterwarnings("ignore")
 #%%#################### STEP1, GET EMBEDDING SERIES ###############################
 # do svm prediction and get stim-spon embeddings.
 # spon_s = Spon_Shuffler(spon_series,method='phase')
 analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
-analyzer.Train_SVM_Classifier()
+analyzer.Train_SVM_Classifier(C=1)
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label
 spon_embed = analyzer.spon_embeddings
 spon_label = analyzer.spon_label
 
+# New operation,all shuffles.
+spon_s = Spon_Shuffler(spon_series)
+spon_s_embeddings = reducer.transform(spon_s)
+spon_label_s = SVC_Fit(analyzer.svm_classifier,spon_s_embeddings,thres_prob=0)
 
 
 #%%#################### STEP2, PLOT ALL EMBEDDING GRAPHS ###################################
@@ -63,12 +70,12 @@ import colorsys
 
 plt.clf()
 plt.cla()
-fig,axes = plt.subplots(nrows=3, ncols=2,figsize = (9,14),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,axes = plt.subplots(nrows=3, ncols=3,figsize = (14,14),dpi = 180,subplot_kw=dict(projection='3d'))
 # Line 0: OD graphs, only OD colorized
 # Line 1: Orien graphs, only Orientation colorized
 # Line 2: Color graphs, only hue colorized
 for i in range(3):
-    for j in range(2):
+    for j in range(3):
         axes[i,j].grid(False)
         axes[i,j].grid(False)
 #### plot OD graphs with only od color bar.
@@ -77,6 +84,7 @@ od_azim = 240
 ## part stim
 axes[0,0].view_init(elev=od_elev, azim=od_azim)
 axes[0,1].view_init(elev=od_elev, azim=od_azim)
+axes[0,2].view_init(elev=od_elev, azim=od_azim)
 rest_stim,_ = Select_Frame(stim_embed,stim_label,used_id=list(range(9,23))+[0])
 axes[0,0].scatter3D(rest_stim[:,0],rest_stim[:,1],rest_stim[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
 LE_stim,_ = Select_Frame(stim_embed,stim_label,used_id=[1,3,5,7])
@@ -90,6 +98,14 @@ LE_spon,_ = Select_Frame(spon_embed,spon_label,used_id=[1,3,5,7])
 axes[0,1].scatter3D(LE_spon[:,0],LE_spon[:,1],LE_spon[:,2],s = 1,c = [1,0,0])
 RE_spon,_ = Select_Frame(spon_embed,spon_label,used_id=[2,4,6,8])
 axes[0,1].scatter3D(RE_spon[:,0],RE_spon[:,1],RE_spon[:,2],s = 1,c = [0,1,0])
+## part shuffle
+rest_shuffle,_ = Select_Frame(spon_s_embeddings,spon_label_s,used_id=list(range(9,23))+[0])
+axes[0,2].scatter3D(rest_shuffle[:,0],rest_shuffle[:,1],rest_shuffle[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
+LE_shuffle,_ = Select_Frame(spon_s_embeddings,spon_label_s,used_id=[1,3,5,7])
+axes[0,2].scatter3D(LE_shuffle[:,0],LE_shuffle[:,1],LE_shuffle[:,2],s = 1,c = [1,0,0])
+RE_shuffle,_ = Select_Frame(spon_s_embeddings,spon_label_s,used_id=[2,4,6,8])
+axes[0,2].scatter3D(RE_shuffle[:,0],RE_shuffle[:,1],RE_shuffle[:,2],s = 1,c = [0,1,0])
+
 ## and color bar here.
 cax_a = fig.add_axes([0.965, 0.72, 0.02, 0.15])
 color_seta = np.array([[1,0,0],[0,1,0]])
@@ -101,7 +117,7 @@ c_bar_a.set_ticks(np.arange(0,2,1)+0.5)
 c_bar_a.set_ticklabels(['LE','RE'])
 c_bar_a.ax.tick_params(size=0)
 ## limit and title.
-for i in range(2):
+for i in range(3):
     for j in range(3):
         axes[j,i].set_xlabel('UMAP 1')
         axes[j,i].set_ylabel('UMAP 2')
@@ -113,12 +129,14 @@ for i in range(2):
          
 axes[0,0].set_title('Stimulus Embedding in UMAP Space',size = 14)
 axes[0,1].set_title('Spontaneous Embedding in UMAP Space',size = 14)
+axes[0,2].set_title('Shuffled Embedding in UMAP Space',size = 14)
 
 ##### Orientation on line 2.
 orien_elev = 55
 orien_azim = 30
 axes[1,0].view_init(elev=orien_elev, azim=orien_azim)
 axes[1,1].view_init(elev=orien_elev, azim=orien_azim)
+axes[1,2].view_init(elev=orien_elev, azim=orien_azim)
 ## generate color set and color bar.
 color_setb = np.zeros(shape = (8,3))
 for i,c_orien in enumerate(np.arange(0,180,22.5)):
@@ -147,19 +165,29 @@ axes[1,0].scatter3D(orien_stim[:,0],orien_stim[:,1],orien_stim[:,2],s = 1,c = or
 ## part spon
 rest_spon,_ = Select_Frame(spon_embed,spon_label,used_id=list(range(17,23))+list(range(0,9)))
 orien_spon,orien_spon_id = Select_Frame(spon_embed,spon_label,used_id=list(range(9,17)))
-# get color system of stim.
+# get color system of spon.
 orien_color_spon = np.zeros(shape = (len(orien_spon_id),3),dtype='f8')
 for i,c_id in enumerate(orien_spon_id):
     orien_color_spon[i,:] = color_setb[int(c_id)-9,:]
 axes[1,1].scatter3D(rest_spon[:,0],rest_spon[:,1],rest_spon[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
 axes[1,1].scatter3D(orien_spon[:,0],orien_spon[:,1],orien_spon[:,2],s = 1,c = orien_color_spon)
-
+## part shuffle
+rest_shuffle,_ = Select_Frame(spon_s_embeddings,spon_label_s,used_id=list(range(17,23))+list(range(0,9)))
+orien_shuffle,orien_shuffle_id = Select_Frame(spon_s_embeddings,spon_label_s,used_id=list(range(9,17)))
+# get color system of spon.
+orien_color_shuffle = np.zeros(shape = (len(orien_shuffle_id),3),dtype='f8')
+for i,c_id in enumerate(orien_shuffle_id):
+    orien_color_shuffle[i,:] = color_setb[int(c_id)-9,:]
+axes[1,2].scatter3D(rest_shuffle[:,0],rest_shuffle[:,1],rest_shuffle[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
+axes[1,2].scatter3D(orien_shuffle[:,0],orien_shuffle[:,1],orien_shuffle[:,2],s = 1,c = orien_color_shuffle)
 
 ##### Color on line 3.
 color_elev = 25
 color_azim = 220
 axes[2,0].view_init(elev=color_elev, azim=color_azim)
 axes[2,1].view_init(elev=color_elev, azim=color_azim)
+axes[2,2].view_init(elev=color_elev, azim=color_azim)
+
 ## generate color set and color bar.
 color_setc = np.array([[1,0,0],[1,1,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1]])
 cax_c = fig.add_axes([0.965, 0.1, 0.02, 0.15])
@@ -187,11 +215,18 @@ for i,c_id in enumerate(color_spon_id):
     hue_color_spon[i,:] = color_setc[int(c_id)-17,:]
 axes[2,1].scatter3D(rest_color_spon[:,0],rest_color_spon[:,1],rest_color_spon[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
 axes[2,1].scatter3D(color_spon[:,0],color_spon[:,1],color_spon[:,2],s = 1,c = hue_color_spon)
-
+## part shuffle
+rest_color_shuffle,_ = Select_Frame(spon_s_embeddings,spon_label_s,used_id=list(range(0,17)))
+color_shuffle,color_shuffle_id = Select_Frame(spon_s_embeddings,spon_label_s,used_id=list(range(17,23)))
+hue_color_shuffle = np.zeros(shape = (len(color_shuffle_id),3),dtype='f8')
+for i,c_id in enumerate(color_shuffle_id):
+    hue_color_shuffle[i,:] = color_setc[int(c_id)-17,:]
+axes[2,2].scatter3D(rest_color_shuffle[:,0],rest_color_shuffle[:,1],rest_color_shuffle[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
+axes[2,2].scatter3D(color_shuffle[:,0],color_shuffle[:,1],color_shuffle[:,2],s = 1,c = hue_color_shuffle)
 
 #### global adjust.
 for i in range(3):
-    for j in range(2):
+    for j in range(3):
         axes[i,j].set_box_aspect(aspect=None, zoom=0.86)
 
 plt.subplots_adjust(left=0.1, right=0.95,top = 0.93,bottom=0.1)

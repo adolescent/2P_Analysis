@@ -167,7 +167,7 @@ for i,cloc in enumerate(all_path_dic):
         all_on_parts = pd.concat([all_on_parts,on_parts])
         all_off_parts = pd.concat([all_off_parts,off_parts])
 
-#%% sort and plot.
+#%% sort and plot Heatmaps
 all_on_parts['Best_Angle'] = all_on_parts.idxmax(1)
 on_parts_sorted = all_on_parts.sort_values(by=['Best_Angle'])
 on_parts_sorted  = on_parts_sorted.drop(['Best_Angle'],axis = 1)

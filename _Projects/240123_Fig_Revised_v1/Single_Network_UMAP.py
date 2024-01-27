@@ -188,7 +188,7 @@ analyzer_orien_s.Train_SVM_Classifier(C = 1)
 spon_embeddings_s = analyzer_orien_s.spon_embeddings
 spon_ids_s = analyzer_orien_s.spon_label
 
-#%%Plot Stim and Spon Compare G16 Graphs,with Shuffle included.
+#%%Plot Stim and Spon Compare Embeddings,with Shuffle included.
 import matplotlib.colors as mcolors
 import matplotlib as mpl
 import colorsys
@@ -264,7 +264,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     g16_frames,g16_ids = c_ac.Combine_Frame_Labels(od = False,color = False)
     model_orien = umap.UMAP(n_components=3,n_neighbors=20)
     model_orien.fit(g16_frames)
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame)
+    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od = False,color= False)
     c_analyzer.Train_SVM_Classifier(C = 1)
     c_analyzer.Similarity_Compare_Average(od = False,color = False)
     c_recover_similar = c_analyzer.Avr_Similarity

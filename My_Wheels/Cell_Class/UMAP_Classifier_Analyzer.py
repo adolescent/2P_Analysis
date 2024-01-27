@@ -172,7 +172,7 @@ class UMAP_Analyzer(object):
                 c_r,_ = stats.pearsonr(c_pattern,c_frame)
                 real_corr.append(c_r)
                 # rand select a single spon frame.
-                rand_frameid = random.randint(0,len(self.spon_frame))
+                rand_frameid = random.randint(0,len(self.spon_frame)-1) # avoid out of boundary.
                 rand_r,_ = stats.pearsonr(c_pattern,np.array(self.spon_frame)[rand_frameid,:])
                 random_corr.append(rand_r)
         return real_corr,random_corr

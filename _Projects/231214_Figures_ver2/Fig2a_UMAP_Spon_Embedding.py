@@ -31,6 +31,7 @@ from Cell_Class.UMAP_Classifier_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
 expt_folder = r'D:\_All_Spon_Data_V1\L76_18M_220902'
+# expt_folder = r'D:\\_All_Spon_Data_V1\\L76_SM_Run03bug_210721'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 ac.wp = expt_folder
 spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
@@ -122,9 +123,9 @@ for i in range(3):
         axes[j,i].set_xlabel('UMAP 1')
         axes[j,i].set_ylabel('UMAP 2')
         axes[j,i].set_zlabel('UMAP 3')
-        axes[j,i].axes.set_xlim3d(left=1, right=14) 
-        axes[j,i].axes.set_ylim3d(bottom=2, top=14) 
-        axes[j,i].axes.set_zlim3d(bottom=5, top=15) 
+        # axes[j,i].axes.set_xlim3d(left=1, right=14) 
+        # axes[j,i].axes.set_ylim3d(bottom=2, top=14) 
+        # axes[j,i].axes.set_zlim3d(bottom=5, top=15) 
 
          
 axes[0,0].set_title('Stimulus Embedding in UMAP Space',size = 14)

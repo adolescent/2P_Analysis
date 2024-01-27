@@ -27,7 +27,7 @@ from Cell_Class.Advanced_Tools import *
 from Cell_Class.UMAP_Classifier_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
-all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Datas_V1'))
+all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Data_V1'))
 all_path_dic.pop(4)
 all_path_dic.pop(6)
 

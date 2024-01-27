@@ -32,7 +32,7 @@ all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Data_V1'))
 all_path_dic.pop(4)
 all_path_dic.pop(6)
 #%%########################## STEP1, GET ALL NETWORK FREQUENCY #########################
-spon_repeat_count = pd.DataFrame(columns=['Loc','Network','Repeat_Freq','Data'])
+spon_repeat_count = pd.DataFrame(columns=['Loc','Network','Repeat_Freq','Repeat_Frame','Data'])
 for i,c_loc in tqdm(enumerate(all_path_dic)):
     c_loc_last = c_loc.split('\\')[-1]
     # calculate real network repeat freq.
@@ -44,23 +44,28 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     c_spon_series = c_analyzer.spon_label
     tc_analyzer = Series_TC_info(input_series=c_spon_series)
     c_od_freq,c_orien_freq,c_color_freq = tc_analyzer.Freq_Estimation(type='Event')
+    c_od_num,c_orien_num,c_color_num = tc_analyzer.Freq_Estimation(type='Frame')
     # and shuffle network repeat freq.
     shuffle_times = 10
     repeat_freq_s = np.zeros(shape = (shuffle_times,3),dtype = 'f8')# save in sequence od,orien,color.
+    repeat_num_s = np.zeros(shape = (shuffle_times,3),dtype = 'f8')
     for j in range(shuffle_times):# shuffle
         spon_frame_s = Spon_Shuffler(c_spon_frame,method='phase')
         spon_embedding_s = c_reducer.transform(spon_frame_s)
         c_spon_label_s = SVC_Fit(c_analyzer.svm_classifier,data = spon_embedding_s,thres_prob = 0)
         tc_analyzer_s = Series_TC_info(input_series=c_spon_label_s)
         c_od_freq_s,c_orien_freq_s,c_color_freq_s = tc_analyzer_s.Freq_Estimation(type='Event')
+        c_od_num_s,c_orien_num_s,c_color_num_s = tc_analyzer_s.Freq_Estimation(type='Frame')
         repeat_freq_s[j,:] = [c_od_freq_s,c_orien_freq_s,c_color_freq_s]
+        repeat_num_s[j,:] = [c_od_num_s,c_orien_num_s,c_color_num_s]
     repeat_freq_s = repeat_freq_s.mean(0)
-    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Eye',c_od_freq,'Real']
-    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Orien',c_orien_freq,'Real']
-    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Color',c_color_freq,'Real']
-    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Eye',repeat_freq_s[0],'Shuffle']
-    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Orien',repeat_freq_s[1],'Shuffle']
-    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Color',repeat_freq_s[2],'Shuffle']
+    repeat_num_s = repeat_num_s.mean(0)
+    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Eye',c_od_freq,c_od_num,'Real']
+    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Orien',c_orien_freq,c_orien_num,'Real']
+    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Color',c_color_freq,c_color_num,'Real']
+    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Eye',repeat_freq_s[0],repeat_num_s[0],'Shuffle']
+    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Orien',repeat_freq_s[1],repeat_num_s[1],'Shuffle']
+    spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Color',repeat_freq_s[2],repeat_num_s[2],'Shuffle']
 #%%####################### FIG 2E ,VISUALIZATION ###########################
 plt.clf()
 plt.cla()

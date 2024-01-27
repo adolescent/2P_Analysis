@@ -25,7 +25,7 @@ from Cell_Class.Advanced_Tools import *
 from Cell_Class.UMAP_Classifier_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
-expt_folder = r'D:\_All_Spon_Datas_V1\L76_18M_220902'
+expt_folder = r'D:\_All_Spon_Data_V1\L76_18M_220902'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 ac.wp = expt_folder
 spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')

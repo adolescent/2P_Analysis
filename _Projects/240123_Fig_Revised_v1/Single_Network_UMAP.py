@@ -58,7 +58,7 @@ g16_embeddings = analyzer_orien.stim_embeddings
 g16_ids = analyzer_orien.stim_label
 spon_embeddings = analyzer_orien.spon_embeddings
 spon_ids = analyzer_orien.spon_label
-#%% 3. Plot Stim and Spon Compare G16 Graphs.
+#%% 3. Plot Stim and Spon Compare G16 Scatters.
 import matplotlib.colors as mcolors
 import matplotlib as mpl
 import colorsys
@@ -155,7 +155,31 @@ axes.set_title('Spontaneous Repeat Similarity',size = 10)
 axes.legend_.remove()
 plt.tight_layout()
 plt.show()
+#%% 5.5 Recovered Graph - vertical
+value_max = 2
+value_min = -1
+font_size = 12
+plt.clf()
+plt.cla()
+fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(10,5),dpi = 180)
+cbar_ax = fig.add_axes([.99, .15, .02, .7])
+sns.heatmap(analyzer_orien.stim_recover['Orien0'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,0],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.spon_recover['Orien0'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,0],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.stim_recover['Orien45'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,1],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.spon_recover['Orien45'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,1],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.stim_recover['Orien90'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,2],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.spon_recover['Orien90'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,2],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.stim_recover['Orien135'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,3],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+sns.heatmap(analyzer_orien.spon_recover['Orien135'][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,3],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
 
+
+axes[0,0].set_title('Orientation0',size = font_size)
+axes[0,1].set_title('Orientation45',size = font_size)
+axes[0,2].set_title('Orientation90',size = font_size)
+axes[0,3].set_title('Orientation135',size = font_size)
+plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.05, hspace=None)
+fig.tight_layout()
+plt.show()
 
 #%% 6. Add shuffled results.
 shuffled_spon = Spon_Shuffler(c_spon)
@@ -164,13 +188,13 @@ analyzer_orien_s.Train_SVM_Classifier(C = 1)
 spon_embeddings_s = analyzer_orien_s.spon_embeddings
 spon_ids_s = analyzer_orien_s.spon_label
 
-#Plot Stim and Spon Compare G16 Graphs,with Shuffle included.
+#%%Plot Stim and Spon Compare G16 Graphs,with Shuffle included.
 import matplotlib.colors as mcolors
 import matplotlib as mpl
 import colorsys
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=3,figsize = (14,6),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=3, ncols=1,figsize = (8,12),dpi = 180,subplot_kw=dict(projection='3d'))
 ## limit and title.
 orien_elev = 20
 orien_azim = 100
@@ -190,7 +214,7 @@ for i,c_orien in enumerate(np.arange(0,180,22.5)):
     c_lightness = 0.5
     c_saturation = 1
     color_setb[i,:] = colorsys.hls_to_rgb(c_hue, c_lightness, c_saturation)
-cax_b = fig.add_axes([0.99, 0.4, 0.02, 0.3])
+cax_b = fig.add_axes([0.15, 0.4, 0.02, 0.3])
 custom_cmap = mcolors.ListedColormap(color_setb)
 bounds = np.arange(0,202.5,22.5)
 norm = mpl.colors.BoundaryNorm(bounds, custom_cmap.N)
@@ -263,7 +287,7 @@ ax.set_xticklabels(['Real Data','Random Select'],size = 7)
 ax.set_ylabel('Pearson R')
 plt.show()
 
-#%% ########################## ALL REPEAT FREQUENCY STATS ###################################
+#%% ########################## ALL REPEAT FREQUENCY STATS ###############################
 spon_repeat_count = pd.DataFrame(columns=['Loc','Network','Repeat_Freq','Repeat_Num','Data'])
 for i,c_loc in tqdm(enumerate(all_path_dic)):
     c_loc_last = c_loc.split('\\')[-1]
@@ -272,7 +296,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     g16_frames,g16_ids = c_ac.Combine_Frame_Labels(od = False,color = False)
     model_orien = umap.UMAP(n_components=3,n_neighbors=20)
     model_orien.fit(g16_frames)
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame)
+    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od= False,color= False)
     c_analyzer.Train_SVM_Classifier(C = 1)
     c_analyzer.Similarity_Compare_Average()
     c_spon_series = c_analyzer.spon_label
@@ -295,4 +319,62 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     spon_repeat_count.loc[len(spon_repeat_count),:] = [c_loc_last,'Orientation',c_orien_freq_s,c_orien_num_s,'Shuffle']
 
 #%% visualization
+plt.clf()
+plt.cla()
+# set graph
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (2.5,5),dpi = 180)
+ax.axhline(y = 0,color='gray', linestyle='--')
+sns.boxplot(data = spon_repeat_count,hue = 'Data',y = 'Repeat_Num',x = 'Network',ax = ax,showfliers = False,width = 0.5)
+ax.set_title('Stim-like Ensemble Repeat Frequency',size = 10)
+ax.set_xlabel('')
+ax.set_ylabel('Repeat Frequency(Hz)')
+ax.legend(title = 'Network',fontsize = 8)
+# ax.set_xticklabels(['Real Data','Random Select'],size = 7)
+plt.show()
+#%% Plot all stats subplots together.
+plt.clf()
+plt.cla()
+# set graph
+fig,ax = plt.subplots(nrows=1, ncols=4,figsize = (14,6),dpi = 180)
+title_fontsize = 14
+for i in range(4):
+    ax[i].xaxis.label.set_size(title_fontsize)
+    ax[i].yaxis.label.set_size(title_fontsize)
     
+
+# fig1, example location repeat similarity
+ax[0].axhline(y = 0,color='gray', linestyle='--')
+sns.violinplot(data=distribution_frame, x="Response Pattern", y="Pearson R",order = ['Orientation'],hue = 'Data',split=True, inner="quart",ax = ax[0],dodge= True,width=0.5,xtickslabele = False)
+ax[0].set_title('Orientation Repeats In Spon',size = title_fontsize)
+ax[0].get_xaxis().set_visible(False)
+ax[0].legend(title='')
+# ax[0].legend_.remove()
+
+# fig2, all location's orientation similarity
+ax[1].axhline(y = 0,color='gray', linestyle='--')
+sns.boxplot(data = all_recover_similarity,x = 'Data',y = 'PearsonR',hue = 'Network',ax = ax[1],showfliers = False)
+ax[1].set_title('Averaged Repeats Similarity',size = title_fontsize)
+ax[1].set_xlabel('')
+ax[1].legend(title = 'Network')
+ax[1].set_xticklabels(['Real Data','Random Select'],size = 7)
+ax[1].set_ylabel('Pearson R')
+
+# fig3, repeat event frequency
+ax[2].axhline(y = 0,color='gray', linestyle='--')
+sns.boxplot(data = spon_repeat_count,hue = 'Data',y = 'Repeat_Freq',x = 'Network',ax = ax[2],showfliers = False,width = 0.5)
+ax[2].set_title('Orientation Repeat Frequency',size = title_fontsize)
+ax[2].set_xlabel('')
+ax[2].set_ylabel('Event Frequency(Hz)')
+ax[2].legend(title = '',fontsize = 8)
+ax[2].get_xaxis().set_visible(False)
+
+# fig4, repeat frame num frequency
+ax[3].axhline(y = 0,color='gray', linestyle='--')
+sns.boxplot(data = spon_repeat_count,hue = 'Data',y = 'Repeat_Num',x = 'Network',ax = ax[3],showfliers = False,width = 0.5)
+ax[3].set_title('Orientation Repeat Proportion',size = title_fontsize)
+ax[3].set_xlabel('')
+ax[3].set_ylabel('Frame Proportion')
+ax[3].legend(title = '',fontsize = 8)
+ax[3].get_xaxis().set_visible(False)
+
+fig.tight_layout()

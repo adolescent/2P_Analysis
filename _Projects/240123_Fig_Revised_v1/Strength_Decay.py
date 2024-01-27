@@ -105,7 +105,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     c_spon = ot.Load_Variable(cloc,'Spon_Before.pkl')
     c_model = ot.Load_Variable(cloc,'All_Stim_UMAP_3D_20comp.pkl')
     c_analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon)
-    c_analyzer.Train_SVM_Classifier()
+    c_analyzer.Train_SVM_Classifier(C=1)
     c_spon_series = c_analyzer.spon_label
     c_spon_response = np.array(c_spon.mean(1))
     for j in range(len(c_spon_series)):
@@ -117,7 +117,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # spon_offs = np.where(c_spon_series==0)[0]
     # avr_spon_on = c_spon.iloc[spon_ons,:].mean(1)
     # avr_spon_off = c_spon.iloc[spon_offs,:].mean(1)
-
+ot.Save_Variable(work_path,'All_Spon_Strength',all_spon_strength)
 #%% Plot 
 on_series = np.array(all_spon_strength.groupby('Type').get_group('Classified Spontaneous')['Strength'])
 off_series = np.array(all_spon_strength.groupby('Type').get_group('Unclassified Spontaneous')['Strength'])
@@ -133,7 +133,7 @@ ax[0].text(-0.4,0.3,f'Response Diff={(np.median(on_series)-np.median(off_series)
 # ymax=decay_response[2676]
 sns.lineplot(y = np.array(range(len(decay_off)))/len(decay_off),x = decay_off,ax = ax[0])
 # add an end point for on frames.
-sns.lineplot(y = np.append(np.array(range(len(decay_on)))/len(decay_on),1),x = np.append(decay_on,decay_response.min()),ax = ax[0])
+sns.lineplot(y = np.append(np.array(range(len(decay_on)))/len(decay_on),1),x = np.append(decay_on,decay_off.min()),ax = ax[0])
 # sns.lineplot(y = np.array(range(len(decay_off)))/len(decay_off),x = decay_off,ax = ax)
 # sns.lineplot(y = np.array(range(len(decay_ensemble)))/len(decay_ensemble),x = decay_ensemble,ax = ax)
 # ax.set_xlim(524,-20)

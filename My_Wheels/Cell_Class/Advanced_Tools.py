@@ -171,6 +171,12 @@ def Spon_Shuffler(spon_frame,method = 'phase',filter_para = (0.005,0.3),fps = 1.
             # # modified_series = ifft(modified_fft_result_padded)
             # # shuffled_frame[:,i] = modified_series[padding_length:-padding_length]
             # shuffled_frame[:,i] = modified_series
+    elif method == 'dim': # with all cell train unchanged, only change the dim sequence.
+        array = np.array(spon_frame).T
+        num_rows,_ = array.shape
+        indices = np.arange(num_rows)
+        np.random.shuffle(indices)
+        shuffled_frame = (array[indices, :]).T
     return shuffled_frame
 
 def Shuffle_Multi_Trains(input_series): # the input here must be 0 as null, 1,2,3 as different network types.

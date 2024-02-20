@@ -14,8 +14,8 @@ from scipy.fftpack import rfft, irfft
 import copy
 
 
-def Z_PCA(Z_frame,sample = 'Cell'):
-    pca = PCA()
+def Z_PCA(Z_frame,sample = 'Cell',pcnum = 20):
+    pca = PCA(n_components = pcnum)
     data = np.array(Z_frame)
     if sample == 'Cell':
         data = data.T# Use cell as sample and frame as feature.

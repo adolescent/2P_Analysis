@@ -40,7 +40,7 @@ def Remove_ISI(Z_frame,label):# remove label of raw id -1 and
 def SVM_Classifier(embeddings,label,C = 10):
     classifier = svm.SVC(C = C,probability=True)
     scores = cross_val_score(classifier,embeddings, list(label), cv=5)
-    print(f'Score of 5 fold SVC on OD unsupervised : {scores.mean()*100:.2f}%')
+    print(f'Score of 5 fold SVC on unsupervised : {scores.mean()*100:.2f}%')
     classifier.fit(embeddings,list(label))
     return classifier,scores.mean()
 

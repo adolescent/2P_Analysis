@@ -28,6 +28,20 @@ def Z_PCA(Z_frame,sample = 'Cell',pcnum = 20):
     point_coords = pca.transform(data)# in n_sample*n_feature,out n_sample*n_comp
     return PC_Comps,point_coords,pca
 
+def PCNum_Determine(Z_frame,sample = 'Frame',thres = 0.7):
+    # if sample == 'Frame':
+    pc_num = Z_frame.shape[1]
+    # else:
+        # pc_num = Z_frame.shape[0]
+    _,_,c_model = Z_PCA(Z_frame,sample,pc_num)
+    vars = c_model.explained_variance_ratio_
+    accomulated_vars = np.cumsum(vars)
+    least_loc = np.where(accomulated_vars>thres)[0][0]
+    PC_num = least_loc+1
+    print(f'We Need {PC_num} PCs to explain {thres} VARs.')
+    return PC_num
+
+
 def Remove_ISI(Z_frame,label):# remove label of raw id -1 and 
     frame_num = label.shape[1]
     non_isi = label.loc['Raw_ID'] != -1

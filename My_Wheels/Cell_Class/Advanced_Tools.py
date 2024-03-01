@@ -149,15 +149,18 @@ def Random_Series_Generator(series_len,event_length):
 
 def Spon_Shuffler(spon_frame,method = 'phase',filter_para = (0.005,0.3),fps = 1.301):# 'all' or 'phase'
     shuffled_frame = np.zeros(shape = spon_frame.shape) # output will be an np array, be very careful.
+    spon_frame = np.array(spon_frame)
     if method == 'all':
         for i in range(spon_frame.shape[1]):
-            c_series = np.array(spon_frame.iloc[:,i])
+            # c_series = np.array(spon_frame.iloc[:,i])
+            c_series = spon_frame[:,i]
             np.random.shuffle(c_series)
             shuffled_frame[:,i] = c_series
     elif method == 'phase':# do phase shuffle
         # codes below from https://stackoverflow.com/questions/39543002/returning-a-real-valued-phase-scrambled-timeseries
         for i in range(spon_frame.shape[1]):
-            c_series = np.array(spon_frame.iloc[:,i])
+            # c_series = np.array(spon_frame.iloc[:,i])
+            c_series = spon_frame[:,i]
             fs = rfft(c_series)
             power = fs[1:-1:2]**2 + fs[2::2]**2 # strength
             phase = np.arctan2(fs[2::2], fs[1:-1:2]) # in radius

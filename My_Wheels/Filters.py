@@ -145,6 +145,15 @@ def Signal_Filter(
         raise IOError('filter design not finished yet.')
         
     return filtedData
+
+
+def Signal_Filter_v2(series,HP_freq,LP_freq,fps,keep_DC = True,order = 5):
+    fitted_series = 0
+    straight_power = float(series.mean())
+
+
+    return fitted_series
+
 #%% Windows slip
 def Window_Average(
         data_matrix,

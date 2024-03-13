@@ -159,7 +159,7 @@ def Spike2_Reader(smr_name,stream_channel = '0'):
     """
     
     exported_channel = {}
-    reader = neo.io.Spike2IO(filename=(smr_name))
+    reader = neo.io.Spike2IO(filename=(smr_name),try_signal_grouping=False)
     smr_data = reader.read(lazy=False)[0]
     all_trains = smr_data.segments[0].analogsignals
     

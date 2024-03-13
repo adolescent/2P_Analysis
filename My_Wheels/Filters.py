@@ -96,7 +96,7 @@ def Signal_Filter(
         data_train,
         order = 5,
         filter_design = 'butter',
-        filter_para = (0.1,0.9),method = 'pad',padtype='odd'
+        filter_para = (0.1,0.9),method = 'pad',padtype='odd',dc_keep = True
         ):
     '''
     Filt Signal and return filted train.
@@ -136,7 +136,8 @@ def Signal_Filter(
             filtedData = signal.filtfilt(b, a, data_train_win,method = method,padtype = padtype)
             
         if HP_prop != False:
-            filtedData = filtedData+straight_power
+            if dc_keep == True:
+                filtedData = filtedData+straight_power
         
     elif filter_design == 'Fourier':
         print('FFT method developing..')
@@ -148,11 +149,16 @@ def Signal_Filter(
 
 
 def Signal_Filter_v2(series,HP_freq,LP_freq,fps,keep_DC = True,order = 5):
-    fitted_series = 0
-    straight_power = float(series.mean())
+    DC_power = float(series.mean())
+    nyquist = 0.5 * fps
+    low = LP_freq / nyquist
+    high = HP_freq / nyquist
+    b, a = signal.butter(order, [low, high], btype='bandpass')
+    filtered_data = signal.filtfilt(b, a, series,method = 'pad',padtype='odd')
+    if keep_DC == True:
+        filtered_data += DC_power
 
-
-    return fitted_series
+    return filtered_data
 
 #%% Windows slip
 def Window_Average(

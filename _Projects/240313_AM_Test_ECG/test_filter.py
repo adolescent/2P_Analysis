@@ -25,9 +25,9 @@ ecg_down = np.mean(ecg_down, axis=1)
 used_time = [230,250]
 fps = 10000/binsize
 # a = Signal_Filter(ecg_down,order = 5,filter_para = (40*2/fps,False))
-a = Signal_Filter(ecg_down,order = 3,filter_para = (False,20*2/fps),dc_keep=False)
-a = Signal_Filter(a,order = 3,filter_para = (0.5*2/fps,False),dc_keep=False)
-# a = Signal_Filter_v2(ecg_down,order = 5,HP_freq=10,LP_freq=0.05,fps=fps,keep_DC=False)
+# a = Signal_Filter(ecg_down,order = 3,filter_para = (False,20*2/fps),dc_keep=False)
+# a = Signal_Filter(a,order = 3,filter_para = (0.5*2/fps,False),dc_keep=False)
+a = Signal_Filter_v2(ecg_down,order = 5,HP_freq=1,LP_freq=30,fps=fps,keep_DC=False)
 used_frame = a[int(used_time[0]*fps):int(used_time[1]*fps)]
 
 

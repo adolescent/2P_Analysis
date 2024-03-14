@@ -153,12 +153,20 @@ def Signal_Filter_v2(series,HP_freq,LP_freq,fps,keep_DC = True,order = 5):
     nyquist = 0.5 * fps
     low = LP_freq / nyquist
     high = HP_freq / nyquist
-    b, a = signal.butter(order, [low, high], btype='bandpass')
-    filtered_data = signal.filtfilt(b, a, series,method = 'pad',padtype='odd')
-    if keep_DC == True:
-        filtered_data += DC_power
+    # do low pass first.
+    if LP_freq != False:
+        b, a = signal.butter(order, low, 'lowpass')
+        filtedData = signal.filtfilt(b, a,series,method = 'pad',padtype ='odd')
+    if HP_freq != False:
+        b, a = signal.butter(order, high, 'highpass')
+        filtedData = signal.filtfilt(b, a,filtedData,method = 'pad',padtype ='odd')
 
-    return filtered_data
+    # b, a = signal.butter(order, [low, high], btype='bandpass')
+    # filtered_data = signal.filtfilt(b, a, series,method = 'pad',padtype='odd')
+    if keep_DC == True:
+        filtedData += DC_power
+
+    return filtedData
 
 #%% Windows slip
 def Window_Average(

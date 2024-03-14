@@ -170,6 +170,7 @@ for i,c_start in enumerate([OD_starts,Orien_starts,Color_starts]):
         axes[i,j],_,c_r2 = Weibul_Fit_Plotter(axes[i,j],np.array(c_waittime_disp).astype('f8'),vmax[j])
         waittime_mean_frame.loc[len(waittime_mean_frame),:] = [network_seq[i],network_seq[j],c_waittime_disp.mean(),c_waittime_disp.std(),c_r2]
         axes[i,j].text(vmax[j]*0.6,0.08,f'R2 = {c_r2:.3f}')
+        axes[i,j].text(vmax[j]*0.6,0.06,f'n = {len(c_waittime_disp)}')
 
 fig.suptitle('Network Waittime',size = 18,y = 0.97)
 

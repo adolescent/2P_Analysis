@@ -129,7 +129,24 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
 ot.Save_Variable(wp,'All_Network_Waittime',all_network_waittime)
 #%% ######################### PLOT 3*3 Graphs ############################
 from sklearn.metrics import r2_score
-# all start times
+all_network_waittime_all_animal = ot.Load_Variable(wp,'All_Network_Waittime.pkl')
+all_network_waittime_all_animal['Animal'] = 'Undefined'
+all_locname = list(set(all_network_waittime_all_animal['Loc']))
+all_locname.sort()
+L76_locs = all_locname[:4]
+L85_locs = all_locname[4:6]
+L91_locs = all_locname[6:]
+for i in tqdm(range(len(all_network_waittime_all_animal))):
+    c_loc = all_network_waittime_all_animal.loc[i,'Loc']
+    if c_loc in L76_locs:
+        all_network_waittime_all_animal.loc[i,'Animal'] = 'L76'
+    elif c_loc in L85_locs:
+        all_network_waittime_all_animal.loc[i,'Animal'] = 'L85'
+    elif c_loc in L91_locs:
+        all_network_waittime_all_animal.loc[i,'Animal'] = 'L91'
+
+#%% all start times
+all_network_waittime = all_network_waittime_all_animal
 OD_starts = all_network_waittime['Net_Before'] == 'OD'
 Orien_starts = all_network_waittime['Net_Before'] == 'Orien'
 Color_starts = all_network_waittime['Net_Before'] == 'Color'
@@ -160,20 +177,31 @@ waittime_mean_frame = pd.DataFrame(columns = ['Start_Net','End_Net','Mean','std'
 
 plt.clf()
 plt.cla()
-fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(8,7),dpi = 180, sharex='col',sharey='row')
+fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(10,7),dpi = 180, sharex='col',sharey='row')
 network_seq = ['OD','Orien','Color']
 vmax = [100,75,80]
 
 for i,c_start in enumerate([OD_starts,Orien_starts,Color_starts]):
     for j,c_end in enumerate([OD_ends,Orien_ends,Color_ends]):
         c_waittime_disp = all_network_waittime.loc[c_start&c_end,'Waittime']
+        # c_waittime_disp = all_network_waittime.loc[c_start&c_end,:]
         axes[i,j],_,c_r2 = Weibul_Fit_Plotter(axes[i,j],np.array(c_waittime_disp).astype('f8'),vmax[j])
-        waittime_mean_frame.loc[len(waittime_mean_frame),:] = [network_seq[i],network_seq[j],c_waittime_disp.mean(),c_waittime_disp.std(),c_r2]
-        axes[i,j].text(vmax[j]*0.6,0.08,f'R2 = {c_r2:.3f}')
+        # axes[i,j].hist(c_waittime_disp.groupby('Animal').get_group('L76')['Waittime'],bins=20, density=True, alpha=0.7,range=[0, vmax[j]],label = 'L76')
+        # axes[i,j].hist(c_waittime_disp.groupby('Animal').get_group('L85')['Waittime'],bins=20, density=True, alpha=0.7,range=[0, vmax[j]],label = 'L85')
+        # axes[i,j].hist(c_waittime_disp.groupby('Animal').get_group('L91')['Waittime'],bins=20, density=True, alpha=0.7,range=[0, vmax[j]],label = 'L91')
+        # waittime_mean_frame.loc[len(waittime_mean_frame),:] = [network_seq[i],network_seq[j],c_waittime_disp.mean(),c_waittime_disp.std(),c_r2]
+        axes[i,j].text(vmax[j]*0.6,0.075,f'R2 = {c_r2:.3f}')
         axes[i,j].text(vmax[j]*0.6,0.06,f'n = {len(c_waittime_disp)}')
+        # L76_meanwaittime = c_waittime_disp.groupby('Animal').get_group('L76')['Waittime'].mean()
+        # L85_meanwaittime = c_waittime_disp.groupby('Animal').get_group('L85')['Waittime'].mean()
+        # L91_meanwaittime = c_waittime_disp.groupby('Animal').get_group('L91')['Waittime'].mean()
+        # axes[i,j].text(vmax[j]*0.4,0.045,f'L76 Mean={L76_meanwaittime:.4f}')
+        # axes[i,j].text(vmax[j]*0.4,0.06,f'L85 Mean={L85_meanwaittime:.4f}')
+        # axes[i,j].text(vmax[j]*0.4,0.03,f'L91 Mean={L91_meanwaittime:.4f}')
+
 
 fig.suptitle('Network Waittime',size = 18,y = 0.97)
-
+axes[0,2].legend()
 axes[2,0].set_xlabel('To OD',size = 12)
 axes[2,1].set_xlabel('To Orientation',size = 12)
 axes[2,2].set_xlabel('To Color',size = 12)

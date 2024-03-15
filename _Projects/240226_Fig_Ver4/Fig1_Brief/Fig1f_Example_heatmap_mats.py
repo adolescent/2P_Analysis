@@ -206,3 +206,33 @@ fig.tight_layout()
 plt.subplots_adjust(left=None, bottom=None, right=0.88, top=None, hspace=None)
 plt.show()
 
+
+
+#%% ################### Ammend 1 - Plot PC Weights on Graphs, Comparing spon #########################
+
+pcnum = 10
+spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=spon_series,sample='Frame',pcnum=pcnum)
+spon_pc_coords = spon_coords[4700:5200,:]
+# sns.heatmap(spon_pc_coords.T,center = 0)
+
+plt.clf()
+plt.cla()
+vmax = 4
+vmin = -3
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(9,4),dpi = 180,sharex=True)
+fig.tight_layout()
+cbar_ax_1 = fig.add_axes([.98, .6, .015, .3])
+cbar_ax_2 = fig.add_axes([.98, .17, .015, .3])
+sns.heatmap(sorted_spon_response.iloc[4700:5200,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar_ax=cbar_ax_1)
+sns.heatmap(spon_pc_coords.T,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = 50,vmin = -50,cbar_ax=cbar_ax_2)
+
+
+axes[0].set_title('Cells Response in Spontaneous Response')
+axes[1].set_title('PCA Weights in Spontaneous Response')
+axes[0].set_ylabel('Cells')
+axes[1].set_ylabel('PCs')
+axes[1].set_xlabel('Frames')
+axes[1].set_xticks([0,100,200,300,400,500])
+axes[1].set_xticklabels([0,100,200,300,400,500])
+fig.tight_layout()
+plt.show()

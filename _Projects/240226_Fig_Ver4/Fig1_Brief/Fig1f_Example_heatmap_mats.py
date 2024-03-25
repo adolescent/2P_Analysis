@@ -224,15 +224,82 @@ fig.tight_layout()
 cbar_ax_1 = fig.add_axes([.98, .6, .015, .3])
 cbar_ax_2 = fig.add_axes([.98, .17, .015, .3])
 sns.heatmap(sorted_spon_response.iloc[4700:5200,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar_ax=cbar_ax_1)
-sns.heatmap(spon_pc_coords.T,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = 50,vmin = -50,cbar_ax=cbar_ax_2)
+sns.heatmap(spon_pc_coords.T[1:],center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = 20,vmin = -20,cbar_ax=cbar_ax_2)
+# sns.heatmap(abs(spon_pc_coords.T[1:]),center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = 20,vmin = 0,cbar_ax=cbar_ax_2)
+# sns.lineplot(abs(spon_pc_coords.T[1:]).mean(0),ax = axes[1])
 
 
 axes[0].set_title('Cells Response in Spontaneous Response')
 axes[1].set_title('PCA Weights in Spontaneous Response')
 axes[0].set_ylabel('Cells')
-axes[1].set_ylabel('PCs')
-axes[1].set_xlabel('Frames')
+# axes[1].set_ylabel('PCs')
+axes[1].set_ylabel('Mean Weights')
 axes[1].set_xticks([0,100,200,300,400,500])
 axes[1].set_xticklabels([0,100,200,300,400,500])
+# axes[1].set_ylim(0,8)
+axes[1].set_xlabel('Frames')
+axes[1].set_yticks(np.arange(0,9)+0.5)
+axes[1].set_yticklabels(range(2,11))
 fig.tight_layout()
 plt.show()
+
+#%% ############ Ammend 1 - Plot Cell PC Weights on Graphs ########################
+
+pcnum = 10
+spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=spon_series,sample='Cell',pcnum=pcnum)
+spon_pc_coords_cell = spon_pcs[:,4700:5200]
+# sns.heatmap(spon_pc_coords.T,center = 0)
+
+plt.clf()
+plt.cla()
+vmax = 4
+vmin = -3
+fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(9,6),dpi = 180,sharex=True)
+fig.tight_layout()
+cbar_ax_1 = fig.add_axes([.98, .72, .015, .2])
+cbar_ax_2 = fig.add_axes([.98, .4, .015, .2])
+cbar_ax_3 = fig.add_axes([.98, .1, .015, .2])
+
+sns.heatmap(sorted_spon_response.iloc[4700:5200,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar_ax=cbar_ax_1)
+sns.heatmap(spon_pc_coords.T[1:],center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = 20,vmin = -20,cbar_ax=cbar_ax_2)
+# sns.heatmap(abs(spon_pc_coords.T[1:]),center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = 20,vmin = 0,cbar_ax=cbar_ax_2)
+# sns.lineplot(abs(spon_pc_coords.T[1:]).mean(0),ax = axes[1])
+sns.heatmap(spon_pc_coords_cell[:],center = 0,xticklabels=False,yticklabels=False,ax = axes[2],cbar_ax=cbar_ax_3)
+
+axes[0].set_title('Cells Response in Spontaneous Response')
+axes[1].set_title('Frame PCA Weights in Spontaneous Response')
+axes[2].set_title('Cell PCA Weights in Spontaneous Response')
+axes[0].set_ylabel('Cells')
+axes[1].set_ylabel('Frame PCs')
+axes[1].set_yticks(np.arange(0,9)+0.5)
+axes[1].set_yticklabels(range(2,11))
+axes[2].set_ylabel('Cell PCs')
+axes[2].set_yticks(np.arange(0,10)+0.5)
+axes[2].set_yticklabels(range(1,11))
+# axes[1].set_ylabel('Mean Weights')
+axes[1].set_xticks([0,100,200,300,400,500])
+axes[1].set_xticklabels([0,100,200,300,400,500])
+# axes[1].set_ylim(0,8)
+axes[2].set_xlabel('Frames')
+
+fig.tight_layout()
+
+plt.show()
+
+#%% Plot mean value comare here.
+plt.clf()
+plt.cla()
+vmax = 4
+vmin = -3
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(9,4),dpi = 180,sharex=True)
+fig.tight_layout()
+cbar_ax_1 = fig.add_axes([.99, .63, .015, .2])
+
+sns.heatmap(sorted_spon_response.iloc[4700:5200,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar_ax=cbar_ax_1)
+axes[1].plot(abs(spon_pc_coords[:,1:]).mean(1)/abs(spon_pc_coords[:,1:]).mean(1).max(),label = 'Frame PC')
+axes[1].plot(abs(spon_pc_coords_cell).mean(0)/abs(spon_pc_coords_cell).mean(0).max(),label = 'Cell PC')
+
+axes[0].set_title('Cells Response in Spontaneous Response')
+axes[1].set_title('Normalized PC weight in Spontaneous Response')
+axes[1].legend()
+fig.tight_layout()

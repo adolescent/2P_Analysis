@@ -8,7 +8,7 @@ This class will generate item based coding method, we give in data with calculat
 import OS_Tools_Kit as ot
 import numpy as np
 import pandas as pd
-from Filters import Signal_Filter
+from Filters import Signal_Filter,Signal_Filter_v2
 import matplotlib.pyplot as plt
 from Decorators import Timer
 import cv2
@@ -60,7 +60,7 @@ class Cell(object):
         return self.cellnum
     
     @Timer
-    def Get_Z_Frames(self,mode = 'Z_Score'):# Generate Z scored data of each frame. It is the most important part of this class. All following analysis are based on them.
+    def Get_Z_Frames(self):# Generate Z scored data of each frame. It is the most important part of this class. All following analysis are based on them.
         if hasattr(self,'Z_Frames'):
             print('Z Score have already been done. ')
             return self.Z_Frames
@@ -77,6 +77,26 @@ class Cell(object):
                 c_frame[cc] = clipped_z_train
             self.Z_Frames[c_run] = c_frame
         return self.Z_Frames
+    
+    def Get_dFF_Frames(self,runname,prop = 0.1,start = 0,stop = 99999):
+        # get f matrix first.
+        real_stop = min(len(self.all_cell_dic[1][runname]),stop)
+        F_frames_all = np.zeros(shape = (real_stop-start,len(self.acn)),dtype='f8')
+        for i,cc in enumerate(self.acn):
+            c_series_raw = self.all_cell_dic[cc][runname][start:real_stop]
+            c_series_filted = Signal_Filter_v2(c_series_raw,order=5,HP_freq=self.filter_para[0],LP_freq=self.filter_para[1],fps = self.fps)
+            F_frames_all[:,i] = c_series_filted
+        # then calculate dF/F matrix.
+        dFF_matrix = np.zeros(shape = F_frames_all.shape,dtype='f8')
+        for i in range(F_frames_all.shape[1]):
+            c_F_series = F_frames_all[:,i]
+            base_num = int(len(c_F_series)*prop)
+            base_id = np.argpartition(c_F_series, base_num)[:base_num]
+            base = c_F_series[base_id].mean()
+            c_dff_series = (c_F_series-base)/base
+            dFF_matrix[:,i] = c_dff_series
+        return dFF_matrix
+
     
     def Get_Cell_Loc(self): # This extract cell location alone, save space.
         if hasattr(self,'Cell_Locs'):

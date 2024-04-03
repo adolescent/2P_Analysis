@@ -108,3 +108,6 @@ for frame in tqdm(frames):
 
 writer.close() #close the writer
 cv2.destroyAllWindows()
+
+
+

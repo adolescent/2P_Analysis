@@ -110,4 +110,115 @@ axes[2].set_xticklabels([0,100,200,300,400,500],fontsize = 8)
 fig.tight_layout()
 plt.show()
 
-#%% ####################### Fig 1D Ver 2, Annotate Stimulus onto Graphs. ##############
+#%% ####################### Fig 1D Ver 2, Annotate Repeat ID onto Graphs. ##############
+used_orien_ids = np.array(ac.Stim_Frame_Align['Run007']['Original_Stim_Train'][1000:1650])
+
+pcnum = 10
+spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=spon_series,sample='Frame',pcnum=pcnum)
+analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 0,orien = 1,color = 0,isi = True)
+analyzer.Train_SVM_Classifier(C=1)
+spon_label = analyzer.spon_label
+used_spon_label = spon_label[4700:5350]
+
+# then,get orientation colorbars.
+import matplotlib.cm as cm
+from mpl_toolkits import mplot3d
+import matplotlib.colors as mcolors
+import matplotlib as mpl
+import colorsys
+color_setb = np.zeros(shape = (8,3))
+for i,c_orien in enumerate(np.arange(0,180,22.5)):
+    c_hue = c_orien/180
+    c_lightness = 0.5
+    c_saturation = 1
+    color_setb[i,:] = colorsys.hls_to_rgb(c_hue, c_lightness, c_saturation)
+
+# rectify colors, get 0-8 ids. 0 as no stim, 1-8 as 8 oriens.
+rect_orien = np.zeros(shape = used_orien_ids.shape,dtype='i4')
+rect_spon = np.zeros(shape = used_spon_label.shape,dtype='i4')
+rect_spon_colors = np.zeros(shape = (len(rect_spon),3))
+for i,c_id in enumerate(used_orien_ids):
+    if c_id == -1 or c_id == 0:
+        rect_orien[i] = 0
+    elif c_id <9:
+        rect_orien[i] = c_id
+    else:
+        rect_orien[i] = c_id-8
+for i,c_id in enumerate(used_spon_label):
+    if c_id != 0:
+        rect_spon[i] = c_id-8
+    else:
+        rect_spon[i] = 0
+# get colors.
+on_orien_colors = np.zeros(shape = (np.sum(rect_orien>0),3))
+on_orien_locs = []
+on_spon_colors = np.zeros(shape = (np.sum(rect_spon>0),3))
+on_spon_locs = []
+counter = 0
+for i,c_id in enumerate(rect_orien):
+    if c_id>0:
+        on_orien_locs.append(i)
+        on_orien_colors[counter,:] = color_setb[int(c_id-1)]
+        counter += 1
+counter = 0
+for i,c_id in enumerate(rect_spon):
+    if c_id>0:
+        on_spon_locs.append(i)
+        on_spon_colors[counter,:] = color_setb[int(c_id-1)]
+        counter += 1
+
+
+#%% Add dots on example graphs.
+plt.clf()
+plt.cla()
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12,7),dpi = 180)
+cbar_ax = fig.add_axes([0.99, .35, .01, .3])
+label_size = 14
+title_size = 18
+vmax = 4
+vmin = -2
+# core graphs
+sns.heatmap((sorted_stim_response.iloc[1000:1650,:].T),center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar_ax= cbar_ax)
+sns.heatmap(sorted_spon_response.iloc[4700:5350,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = vmax,vmin = vmin,cbar_ax= cbar_ax,cbar_kws={'label': 'Z Scored Activity'})
+cbar_ax.yaxis.label.set_size(label_size)
+
+# titles
+axes[0].set_title('Stim-induced Response',size = title_size)
+axes[1].set_title('Spontaneous Response',size = title_size)
+axes[1].set_xlabel(f'Time (s)',size = label_size)
+axes[1].set_ylabel(f'Cells',size = label_size)
+axes[0].set_ylabel(f'Cells',size = label_size)
+
+# annotate cell number on it.
+for i in range(2):
+    # axes[i].set_yticks([0,100,200,300,400,500])
+    axes[i].set_yticks([0,180,360,524])
+    # axes[i].set_yticklabels([0,100,200,300,400,500],rotation = 90,fontsize = 7)
+    axes[i].set_yticklabels([0,180,360,524],rotation = 90,fontsize = 8)
+    axes[i].set_ylim(550,0)
+fps = 1.301
+axes[1].set_xticks([0*fps,100*fps,200*fps,300*fps,400*fps,500*fps])
+axes[1].set_xticklabels([0,100,200,300,400,500],fontsize = 8)
+
+# draw repeat points on stim graphs.
+axes[0].scatter(np.array(on_orien_locs)+1,np.ones(len(on_orien_locs))*530, s=2, color=on_orien_colors ,alpha = 0.7) 
+axes[1].scatter(np.array(on_spon_locs)+1,np.ones(len(on_spon_locs))*530, s=2, color=on_spon_colors ,alpha = 0.7)
+# axes[1].scatter(np.arange(650)+1,np.ones(len(rect_spon))*530, s=5, color=rect_spon_colors,alpha = 0.4) 
+# axes[1].scatter(0,530,s = 10)
+# fig.tight_layout()
+
+# add a color bar onto overall graph.
+cax_b = fig.add_axes([1.07, .35, .01, .3])
+custom_cmap = mcolors.ListedColormap(color_setb)
+bounds = np.arange(0,202.5,22.5)
+norm = mpl.colors.BoundaryNorm(bounds, custom_cmap.N)
+c_bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=custom_cmap),cax=cax_b, label='Orientation')
+c_bar.set_ticks(np.arange(0,180,22.5)+11.25)
+c_bar.set_ticklabels(np.arange(0,180,22.5))
+c_bar.ax.tick_params(size=0)
+cax_b.yaxis.label.set_size(label_size)
+
+fig.tight_layout()
+plt.show()
+
+

@@ -78,8 +78,8 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # pcnum = PCNum_Determine(c_spon,sample='Frame',thres = 0.5)
     
     pcnum = 10
-    spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=pcnum)
-    g16_embed = spon_models.transform(c_spon_dff)
+    spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon_dff,sample='Frame',pcnum=pcnum)
+    g16_embed = spon_models.transform(c_orien_dff)
     spon_embed_s = spon_models.transform(spon_s_phase)
 
     spon_range_per_dim = np.std(spon_coords, axis=0)

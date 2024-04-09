@@ -33,7 +33,7 @@ spon_series = np.array(ot.Load_Variable(wp,'Spon_Before.pkl'))
 all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Data_V1'))
 all_path_dic.pop(4)
 all_path_dic.pop(6)
-#%% Get averate responses.
+# Get averate responses.
 thres = 2
 avr_response = spon_series.mean(1)
 
@@ -51,7 +51,7 @@ plotable_avr = avr_response[used_part[0]:used_part[1]]
 plotable_avr[plotable_avr<0] = 0
 axes[1].plot(plotable_avr)
 
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks,peak_widths
 peaks, _ = find_peaks(plotable_avr, height=0,distance=3)
 axes[1].plot(peaks, plotable_avr[peaks], "x")
 
@@ -105,7 +105,8 @@ ax.set_ylabel('Peak Heights')
 # ax.legend(loc = 'lower right')
 # ax.legend('')
 
-#%% Compare global ensemble with weibull distribution.
+#%% P3 Compare global ensemble with weibull distribution.
+
 waittime_thres = 0
 waittime_frame = pd.DataFrame(columns = ['Loc','Waittime'])
 for i,cloc in tqdm(enumerate(all_path_dic)):
@@ -152,7 +153,8 @@ ax.text(vmax*0.6,0.05,f'Median = {c_median}')
 
 ax.set_title('Global Ensemble Waittime',size = 14)
 
-#%% Height compare with orien repeats.
+#%% P4 Height compare with orien repeats.
+####### This part have better functions now.
 Thres0_heights = all_peak_height[all_peak_height['Thres'] == 0.0]
 global_spon_heights = pd.DataFrame(index = range(len(Thres0_heights)),columns=['Loc','Strength','Ensemble Type'])
 global_spon_heights['Loc'] = Thres0_heights['Loc']
@@ -189,3 +191,109 @@ ax.set_xlabel('Ensemble Type',size = 10)
 ax.set_ylabel('Mean Z',size = 10)
 ax.set_title('Strength Compare of Ensembles',size = 12)
 fig.tight_layout()
+
+
+#%% P5 0 thres global - spon recovered overlapping.
+dist_lim = 2 # if spon repeat event have dist in lim, regard as an overlap.
+global_ensemble_thres = 0 # only ensemble above this regard as a peak.
+
+all_peak_width_strength = pd.DataFrame(columns = ['Loc','Peak_Height','Peak_Width'])
+all_ensemble_overlapping = pd.DataFrame(columns = ['Loc','Series_Len','Global','PCA_Find','Overlapping','Network'])
+non_repeat_ensemble = pd.DataFrame(columns = ['Loc','Series_Len','Global','Non Repeat Num'])
+non_repeat_peak_heights = pd.DataFrame(columns = ['Loc','Height'])
+
+for i,cloc in tqdm(enumerate(all_path_dic)):
+    cloc_name = cloc.split('\\')[-1]
+    c_spon = np.array(ot.Load_Variable(cloc,'Spon_Before.pkl'))
+    thres_avr = c_spon.mean(1)
+    thres_avr[thres_avr<0] = 0 
+    peaks,_ = find_peaks(thres_avr, height=global_ensemble_thres,distance=3)
+    peak_heights = thres_avr[peaks]
+    c_peak_widths_info = peak_widths(thres_avr,peaks,rel_height=0.5)
+    c_peak_widths = c_peak_widths_info[0]
+    # save all peaks info all peak width dic.
+    for j,c_peak in enumerate(peaks):
+        all_peak_width_strength.loc[len(all_peak_width_strength),:] = [cloc,peak_heights[j],c_peak_widths[j]]
+    
+    # get all global on series here. Use left and right edges.
+    global_on_series = np.zeros(len(thres_avr))
+    for j,c_peak in enumerate(peaks):
+        global_on_series[round(c_peak_widths_info[2][j]):round(c_peak_widths_info[3][j])] = 1
+    # and read in all repeat infos.  
+    cloc_repeats = ot.Load_Variable(cloc,'All_Spon_Repeats_PCA10.pkl')
+    od_repeats = cloc_repeats['OD']>0
+    od_events,_ = Label_Event_Cutter(od_repeats)
+    od_overlapping = 0
+    for j,c_od in enumerate(od_events):
+        if global_on_series[c_od].sum()>0:
+            od_overlapping +=1
+    orien_repeats = cloc_repeats['Orien']>0
+    orien_events,_ = Label_Event_Cutter(orien_repeats)
+    orien_overlapping = 0
+    for j,c_orien in enumerate(orien_events):
+        if global_on_series[c_orien].sum()>0:
+            orien_overlapping +=1
+    color_repeats = cloc_repeats['Color']>0
+    color_events,_ = Label_Event_Cutter(color_repeats)
+    color_overlapping = 0
+    for j,c_color in enumerate(color_events):
+        if global_on_series[c_color].sum()>0:
+            color_overlapping +=1
+    # save counts.
+    all_ensemble_overlapping.loc[len(all_ensemble_overlapping),:] = [cloc_name,len(thres_avr),len(peaks),len(od_events),od_overlapping,'OD']
+    all_ensemble_overlapping.loc[len(all_ensemble_overlapping),:] = [cloc_name,len(thres_avr),len(peaks),len(orien_events),orien_overlapping,'Orien']
+    all_ensemble_overlapping.loc[len(all_ensemble_overlapping),:] = [cloc_name,len(thres_avr),len(peaks),len(color_events),color_overlapping,'Color']
+        
+    # Finally, calculate non repeat prop.
+    non_repeat_num = 0
+    for j,c_peak in enumerate(peaks):
+        c_repeat_slice = cloc_repeats.iloc[round(c_peak_widths_info[2][j]):round(c_peak_widths_info[3][j]),:] 
+        if np.array(c_repeat_slice).sum() == 0:
+            non_repeat_num += 1
+            c_peak_strength = peak_heights[j]
+            non_repeat_peak_heights.loc[len(non_repeat_peak_heights)] = [cloc_name,c_peak_strength]
+    non_repeat_ensemble.loc[len(non_repeat_ensemble),:] = [cloc_name,len(thres_avr),len(peaks),non_repeat_num]
+
+    
+#%% Plot all scatter between height and width.
+plt.clf()
+plt.cla()
+all_peak_width_strength['Peak_Width_Sec'] = all_peak_width_strength['Peak_Width']/1.301
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 144)
+sns.scatterplot(data = all_peak_width_strength,x = 'Peak_Width_Sec',y = 'Peak_Height',hue = 'Loc',legend = False,s = 2,ax = ax)
+r,_ = stats.pearsonr(all_peak_width_strength['Peak_Width_Sec'],all_peak_width_strength['Peak_Height'])
+ax.set_xlabel('Peak Width (s)',size = 12)
+ax.set_ylabel('Peak Height (Z Score)',size = 12)
+ax.set_title('All Location Global Ensembles',size = 16)
+ax.set_ylim(0,3.5)
+ax.set_xlim(0,8)
+ax.text(5,3,f'Pearon R = {r:.3f}')
+
+fig.tight_layout()
+#%% Plot overlappings
+all_ensemble_overlapping['Prop_Global'] = all_ensemble_overlapping['Overlapping']/all_ensemble_overlapping['Global']
+all_ensemble_overlapping['Prop_PCA'] = all_ensemble_overlapping['Overlapping']/all_ensemble_overlapping['PCA_Find']
+
+plt.clf()
+plt.cla()
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3,5),dpi = 144)
+# sns.boxplot(data = all_ensemble_overlapping,x = 'Network',y = 'Prop_PCA',hue = 'Network',legend = False,width = 0.5,ax = ax,showfliers = False)
+sns.boxplot(data = all_ensemble_overlapping,x = 'Network',y = 'Prop_Global',hue = 'Network',legend = False,width = 0.5,ax = ax,showfliers = False)
+ax.set_title('Overlapping with PCA Ensemble')
+ax.set_xlabel('Network')
+ax.set_ylabel('Overlapped Propotion')
+ax.set_ylim(0,1)
+fig.tight_layout()
+
+#%% Show non repeat infos.
+non_repeat_ensemble['Non Repeat Prop'] = non_repeat_ensemble['Non Repeat Num']/non_repeat_ensemble['Global']
+non_repeat_prop = non_repeat_ensemble['Non Repeat Prop'].mean()
+print(f'Non Repeat Prop: {non_repeat_prop}')
+
+
+plt.clf()
+plt.cla()
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3,5),dpi = 144)
+sns.histplot(data = Thres0_heights,x = 'Peak_Height',alpha = 0.7,ax = ax)
+sns.histplot(data = non_repeat_peak_heights,x = 'Height',alpha = 0.7,ax = ax )
+ax.set_title('All Ensemble vs Non-Repeat Ensemble',size = 12)

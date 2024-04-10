@@ -39,7 +39,7 @@ class Cell(object):
         if orien != False:
             self.orienrun = '1-'+str(1000+orien)[1:]
         else:
-            self.orienrun == False
+            self.orienrun = False
         if od != False:
             self.odrun = '1-'+str(1000+od)[1:]
         else:
@@ -70,7 +70,8 @@ class Cell(object):
             c_frame = pd.DataFrame(columns = self.acn,index = range(frame_num))
             for j,cc in enumerate(self.acn):# cycle of cells. All Cell shall be in the same data frame.
                 c_train = self.all_cell_dic[cc][c_run]
-                filted_c_train = Signal_Filter(c_train,order = 5,filter_para = (self.filter_para[0]*2/self.fps,self.filter_para[1]*2/self.fps))
+                # filted_c_train = Signal_Filter(c_train,order = 5,filter_para = (self.filter_para[0]*2/self.fps,self.filter_para[1]*2/self.fps))
+                filted_c_train = Signal_Filter_v2(series = c_train,HP_freq=self.filter_para[0],LP_freq=self.filter_para[1],fps = self.fps)
                 dff_train = (filted_c_train-filted_c_train.mean())/filted_c_train.mean()
                 z_train = dff_train/dff_train.std()
                 clipped_z_train = np.clip(z_train,-self.clip_std,self.clip_std)

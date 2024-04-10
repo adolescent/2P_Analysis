@@ -87,7 +87,10 @@ def Graph_Packer_Cut(data_folder_lists,save_folder,graph_shape = (512,512),cutsi
         run_name_dic[c_folder_name] = []
         # except last one
         for j in range(subfile_num-1):
-            c_filename = c_folder_name+'_'+str(j+1)+'.tif'
+            if j<9:
+                c_filename = c_folder_name+'_0'+str(j+1)+'.tif'
+            else:
+                c_filename = c_folder_name+'_'+str(j+1)+'.tif'
             whole_c_filename = ot.join(save_folder,c_filename)
             run_name_dic[c_folder_name].append(whole_c_filename)
             c_tif_struct = np.zeros(shape = (cutsize,graph_shape[0],graph_shape[1]),dtype='u2')
@@ -96,7 +99,10 @@ def Graph_Packer_Cut(data_folder_lists,save_folder,graph_shape = (512,512),cutsi
                 c_tif_struct[k%cutsize,:,:] = c_graph
             tif.imwrite(whole_c_filename,c_tif_struct)
         # add last one.
-        last_filename = c_folder_name+'_'+str(subfile_num)+'.tif'
+        if subfile_num<10:
+            last_filename = c_folder_name+'_0'+str(subfile_num)+'.tif'
+        else:
+            last_filename = c_folder_name+'_'+str(subfile_num)+'.tif'
         whole_last_filename = ot.join(save_folder,last_filename) 
         run_name_dic[c_folder_name].append(whole_last_filename)
         c_tif_struct = np.zeros(shape = (len(c_tif_name)-cutsize*(subfile_num-1),graph_shape[0],graph_shape[1]),dtype='u2')

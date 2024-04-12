@@ -44,8 +44,14 @@ import pywt
 
 sampling_rate = 1000  # Hz
 desired_frequencies = [30, 10, 5, 0.2]  # Hz
+# desired_frequencies = [1,2,3]
+# desired_frequencies = [1,2,3]
 scales = pywt.scale2frequency('morl', desired_frequencies)*sampling_rate
 coefficients, frequencies = pywt.cwt(eeg_file[2250000:2750000,2], scales, 'morl')
+
+# desired_frequencies2 = np.linspace(1,3,20)
+# scales2 = pywt.scale2frequency('morl', desired_frequencies2)*sampling_rate
+# coefficients2, frequencies2 = pywt.cwt(eeg_file[2250000:2750000,2], scales2, 'morl')
 
 plt.clf()
 plt.cla()
@@ -92,3 +98,27 @@ all_example_dic['Body_Temp'] = temperature_data
 all_example_dic['Mouse_Ox'] = useful_oc_data
 all_example_dic['runspeed'] = runspeed
 ot.Save_Variable(wp,'All_Example_Infos',all_example_dic)
+
+#%% get eeg freq by 1 Hz.
+binsize = 10
+used_eeg = eeg_file[:,2].reshape(-1,binsize).mean(1)
+
+all_freq = np.arange(0.5,30.5,0.5)
+sampling_rate = 1000/binsize  # Hz
+scales = pywt.scale2frequency('morl', all_freq)*sampling_rate
+coefficients, frequencies = pywt.cwt(used_eeg, scales, 'morl')
+#%%
+delta_band = (0.5,4)
+theta_band = (4,7)
+alpha_band = (8,13)
+beta_band = (13,30)
+def Get_Band_Power(coefficients,all_freq,used_band):
+    start_line = np.where(all_freq>=used_band[0])[0][0]
+    end_line = np.where(all_freq<=used_band[1])[0][-1]
+    band_power = coefficients[start_line:end_line,:].mean(0)
+    return band_power
+
+delta_power = Get_Band_Power(coefficients,all_freq,delta_band)
+theta_power = Get_Band_Power(coefficients,all_freq,theta_band)
+
+# ot.Save_Variable('','Temp_EEG',coefficients)

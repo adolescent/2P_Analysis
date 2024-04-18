@@ -14,9 +14,9 @@ import pywt
 from tqdm import tqdm
 
 
-wp = r'I:\20240412_EEG'
+wp = r'D:\_Test_Datas_OI_EEG_ETC\_EEG_TestData'
 
-eeg_file = np.array(ot.Spike2_Reader(ot.join(wp,'2.smr'))['Channel_Data'])
+eeg_file = np.array(ot.Spike2_Reader(ot.join(wp,'Elect-20240418_iso_test02_GND.smr'))['Channel_Data'])
 fps = 10000
 
 #%%
@@ -24,7 +24,7 @@ fps = 10000
 binsize = 10
 real_fps = fps/binsize
 
-winsize = 60 # seconds
+winsize = 90 # seconds
 step =  1# seconds
 win_pointnum = winsize*real_fps
 step_pointnum = step*real_fps
@@ -34,7 +34,7 @@ bin_num = len(eeg_file)//binsize
 used_eeg = eeg_file[:bin_num*binsize].reshape(bin_num,binsize).mean(1)
 
 
-def Transfer_Into_Freq(input_matrix,freq_bin = 0.5,fps = 1.301):
+def Transfer_Into_Freq(input_matrix,freq_bin = 0.5,fps = 1.301,norm = True):
     input_matrix = np.array(input_matrix)
     # get raw frame spectrums.
     all_specs = np.zeros(shape = ((input_matrix.shape[0]// 2)-1,input_matrix.shape[1]),dtype = 'f8')
@@ -42,7 +42,8 @@ def Transfer_Into_Freq(input_matrix,freq_bin = 0.5,fps = 1.301):
         c_series = input_matrix[:,i]
         c_fft = np.fft.fft(c_series)
         power_spectrum = np.abs(c_fft)[1:input_matrix.shape[0]// 2] ** 2
-        power_spectrum = power_spectrum/power_spectrum.sum()
+        if norm == True:
+            power_spectrum = power_spectrum/power_spectrum.sum()
         all_specs[:,i] = power_spectrum
     
     binnum = int(fps/(2*freq_bin))
@@ -60,7 +61,7 @@ slided_ffts = np.zeros(shape = (int(real_fps/(2*freq_bin)),winnum),dtype = 'f8')
 
 for i in tqdm(range(winnum)):
     c_win = used_eeg[int(i*step_pointnum):int(i*step_pointnum+win_pointnum)]
-    slided_ffts[:,i] = Transfer_Into_Freq(c_win.reshape(-1,1),freq_bin,real_fps).flatten()
+    slided_ffts[:,i] = Transfer_Into_Freq(c_win.reshape(-1,1),freq_bin,real_fps,norm = False).flatten()
 
 # get each band's power.
 delta_power = slided_ffts[1:8,:].sum(0)
@@ -78,25 +79,29 @@ plt.cla()
 plt.clf()
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20,4),dpi = 180)
-sns.heatmap(slided_ffts[:30,:],center = 0,vmax=0.15,ax = ax,xticklabels=False,yticklabels=False,)
+# sns.heatmap(slided_ffts[:30,:],center = 0,vmax=0.15,ax = ax,xticklabels=False,yticklabels=False,)
+sns.heatmap(slided_ffts[:120,:],center = 0,ax = ax,vmax = 2000000,xticklabels=False,yticklabels=False,)
 ax.invert_yaxis()
 
 ax.set_title('FFT Power Spectrum')
 # ax.set_yticks(np.linspace(0,60,11))
 # ax.set_yticklabels(np.linspace(0,60,11)*0.5)
-ax.set_yticks(np.linspace(0,30,7))
-ax.set_yticklabels(np.linspace(0,30,7)*0.5)
+ax.set_yticks(np.linspace(0,120,13))
+ax.set_yticklabels(np.linspace(0,120,13)*0.5)
 ax.set_ylabel('Freq. Power Propotion')
 
 
 # ax.set_xticks(np.linspace(0,330,12)*60/step)
 # ax.set_xticklabels(np.linspace(0,330,12))
-ax.set_xlabel('Time(min)')
+ax.set_xticks(np.linspace(0,5,6)*60/step)
+ax.set_xticklabels(np.linspace(0,5,6)*60)
+ax.set_xlabel('Time(s)')
 #%% plot each band power.
 plt.cla()
 plt.clf()
 fig, axes = plt.subplots(nrows=6, ncols=1, figsize=(30,15),dpi = 180,sharex= True)
-sns.heatmap(slided_ffts[:30,:],center = 0,vmax=0.15,ax = axes[0],xticklabels=False,yticklabels=False,cbar=False)
+# sns.heatmap(slided_ffts[:30,:],center = 0,vmax=0.15,ax = axes[0],xticklabels=False,yticklabels=False,cbar=False)
+sns.heatmap(slided_ffts[:30,:],center = 0,ax = axes[0],xticklabels=False,yticklabels=False,cbar=False)
 axes[1].plot(theta_power/delta_power,color=plt.cm.tab10(0))
 axes[2].plot(delta_power,color=plt.cm.tab10(1))
 axes[3].plot(theta_power,color=plt.cm.tab10(2))
@@ -104,9 +109,9 @@ axes[4].plot(alpha_power,color=plt.cm.tab10(3))
 axes[5].plot(beta_power,color=plt.cm.tab10(4))
 
 
-axes[5].set_xticks(np.linspace(0,50,11)*60/step)
-axes[5].set_xticklabels(np.linspace(0,50,11))
-axes[5].set_xlabel('Time(minutes)')
+axes[5].set_xticks(np.linspace(0,35,8)*60/step)
+axes[5].set_xticklabels(np.linspace(0,35,8)*60)
+axes[5].set_xlabel('Time(s)')
 
 axes[0].set_yticks(np.linspace(0,30,7))
 axes[0].set_yticklabels(np.linspace(0,30,7)*0.5)

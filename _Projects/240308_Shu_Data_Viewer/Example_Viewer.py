@@ -97,6 +97,7 @@ all_example_dic['Pupil_Size'] = puil_size_data
 all_example_dic['Body_Temp'] = temperature_data
 all_example_dic['Mouse_Ox'] = useful_oc_data
 all_example_dic['runspeed'] = runspeed
+all_example_dic['PadMovement'] = pad_move_data
 ot.Save_Variable(wp,'All_Example_Infos',all_example_dic)
 
 #%% get eeg freq by 1 Hz.

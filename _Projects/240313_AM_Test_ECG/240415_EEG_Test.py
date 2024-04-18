@@ -1,6 +1,6 @@
 '''
-We keep the possibility of wavelet usage, but we use slide window FFT here.
-
+Previous EEG Tests.
+From .smr to power spectrum.
 '''
 
 
@@ -14,38 +14,15 @@ import pywt
 from tqdm import tqdm
 
 
-wp = r'D:\_Shu_Data\#244_Py_Data'
+wp = r'I:\20240412_EEG'
 
-eeg_file = np.load(ot.join(wp,'EEG_Python.npy'))[:,2] # only channel 3 is eeg.
-all_example_dic = ot.Load_Variable(wp,'All_Example_Infos.pkl')
+eeg_file = np.array(ot.Spike2_Reader(ot.join(wp,'2.smr'))['Channel_Data'])
+fps = 10000
 
+#%%
 
-
-#%% ##########################WAVELET METHOD, DECREPTED######################
-## this is very costy and memory eating.
-# binsize = 10
-# used_eeg = eeg_file[:,2].reshape(-1,binsize).mean(1)
-
-# all_freq = np.arange(0.5,30.5,0.5)
-# sampling_rate = 1000/binsize  # Hz
-# scales = pywt.scale2frequency('morl', all_freq)*sampling_rate
-# coefficients, frequencies = pywt.cwt(used_eeg, scales, 'morl')
-# delta_band = (0.5,4)
-# theta_band = (4,7)
-# alpha_band = (8,13)
-# beta_band = (13,30)
-# def Get_Band_Power(coefficients,all_freq,used_band):
-#     start_line = np.where(all_freq>=used_band[0])[0][0]
-#     end_line = np.where(all_freq<=used_band[1])[0][-1]
-#     band_power = coefficients[start_line:end_line,:].mean(0)
-#     return band_power
-
-# delta_power = Get_Band_Power(coefficients,all_freq,delta_band)
-# theta_power = Get_Band_Power(coefficients,all_freq,theta_band)
-
-#%% ############################# SLIDE WINDOW FFT METHOD. ##########################
-binsize = 1
-real_fps = 1000/binsize
+binsize = 10
+real_fps = fps/binsize
 
 winsize = 60 # seconds
 step =  1# seconds
@@ -96,33 +73,30 @@ all_power['Delta'] = delta_power # 0.5-4Hz
 all_power['Theta'] = theta_power # 4-7Hz
 all_power['Alpha'] = alpha_power # 8-13Hz
 all_power['Beta'] = beta_power # 13-30Hz
-
-ot.Save_Variable(wp,'FFT_Power_fq500Hz_0.5scalar_bin1',all_power)
 #%% Plot all band power spectrum and each band's power.
 plt.cla()
 plt.clf()
 
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(40,4),dpi = 180)
-sns.heatmap(slided_ffts[:60,:],center = 0,vmax=0.15,ax = ax,xticklabels=False,yticklabels=False,)
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20,4),dpi = 180)
+sns.heatmap(slided_ffts[:30,:],center = 0,vmax=0.15,ax = ax,xticklabels=False,yticklabels=False,)
 ax.invert_yaxis()
 
 ax.set_title('FFT Power Spectrum')
 # ax.set_yticks(np.linspace(0,60,11))
 # ax.set_yticklabels(np.linspace(0,60,11)*0.5)
-ax.set_yticks(np.linspace(0,60,7))
-ax.set_yticklabels(np.linspace(0,60,7)*0.5)
+ax.set_yticks(np.linspace(0,30,7))
+ax.set_yticklabels(np.linspace(0,30,7)*0.5)
 ax.set_ylabel('Freq. Power Propotion')
 
 
-ax.set_xticks(np.linspace(0,330,12)*60/step)
-ax.set_xticklabels(np.linspace(0,330,12))
-ax.set_xlabel('Time(s)')
-
+# ax.set_xticks(np.linspace(0,330,12)*60/step)
+# ax.set_xticklabels(np.linspace(0,330,12))
+ax.set_xlabel('Time(min)')
 #%% plot each band power.
 plt.cla()
 plt.clf()
 fig, axes = plt.subplots(nrows=6, ncols=1, figsize=(30,15),dpi = 180,sharex= True)
-sns.heatmap(slided_ffts[:60,:],center = 0,vmax=0.15,ax = axes[0],xticklabels=False,yticklabels=False,cbar=False)
+sns.heatmap(slided_ffts[:30,:],center = 0,vmax=0.15,ax = axes[0],xticklabels=False,yticklabels=False,cbar=False)
 axes[1].plot(theta_power/delta_power,color=plt.cm.tab10(0))
 axes[2].plot(delta_power,color=plt.cm.tab10(1))
 axes[3].plot(theta_power,color=plt.cm.tab10(2))
@@ -130,17 +104,15 @@ axes[4].plot(alpha_power,color=plt.cm.tab10(3))
 axes[5].plot(beta_power,color=plt.cm.tab10(4))
 
 
-axes[5].set_xticks(np.linspace(0,330,12)*60/step)
-axes[5].set_xticklabels(np.linspace(0,330,12))
-axes[5].set_xlabel('Time(s)')
+axes[5].set_xticks(np.linspace(0,50,11)*60/step)
+axes[5].set_xticklabels(np.linspace(0,50,11))
+axes[5].set_xlabel('Time(minutes)')
 
-axes[0].set_yticks(np.linspace(0,60,7))
-axes[0].set_yticklabels(np.linspace(0,60,7)*0.5)
+axes[0].set_yticks(np.linspace(0,30,7))
+axes[0].set_yticklabels(np.linspace(0,30,7)*0.5)
 axes[0].set_ylabel('Freq. Power Propotion')
 axes[1].set_ylabel('Theta/Delta Ratio')
 axes[2].set_ylabel('Delta Band')
-axes[3].set_ylabel('Delta Band')
+axes[3].set_ylabel('Theta Band')
 axes[4].set_ylabel('Alpha Band')
 axes[5].set_ylabel('Beta Band')
-
-

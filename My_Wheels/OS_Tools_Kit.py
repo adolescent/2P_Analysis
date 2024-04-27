@@ -44,7 +44,7 @@ def mkdir(path,mute = False):
         os.mkdir(path)
         return True
 #%% Function2: Get File Name
-def Get_File_Name(path,file_type = '.tif'):
+def Get_File_Name(path,file_type = '.tif',keyword = ''):
     """
     Get all file names of specific type.
 
@@ -54,6 +54,8 @@ def Get_File_Name(path,file_type = '.tif'):
         Root path you want to cycle.
     file_type : (str), optional
         File type you want to get. The default is '.tif'.
+    keyword : (str), optional
+        Key word you need to screen file. Just leave '' if you need all files.
 
     Returns
     -------
@@ -63,11 +65,11 @@ def Get_File_Name(path,file_type = '.tif'):
     """
     Name_Lists=[]
     for root, dirs, files in os.walk(path):
-        for file in files:
-            if root == path:#只遍历根目录，不操作子目录的文件
-                if os.path.splitext(file)[1] == file_type:
+        for file in files:# walk all files in folder and subfolders.
+            if root == path:# We look only files in root folder, subfolder ignored.
+                if (os.path.splitext(file)[1] == file_type) and (keyword in file):# we need the file have required extend name and keyword contained.
                     Name_Lists.append(os.path.join(root, file))
-                    
+
     return Name_Lists
 #%% Function3: Save a Variable to binary data type.
 def Save_Variable(save_folder,name,variable,extend_name = '.pkl'):
@@ -205,29 +207,36 @@ def Last_Saved_name(path,file_type = '.txt'):
     return last_file_name
 
 #%% Function7 Get sub folders name
-def Get_Sub_Folders(current_folder):
+def Get_Subfolders(root_path,keyword = '',method = 'Whole'):
     '''
     Input a path, return sub folders. Absolute path.
 
     Parameters
     ----------
-    current_folder : (str)
+    root_path : (str)
         The path you want to operate.
+    keyword : (str),optional
+        If keyword given, only folder have keyword will return.
+    method : ('Whole' or 'Relative')
+        Determine whether we return only relative file path or the whole path.
 
     Returns
     -------
-    sub_folders : (list)
+    subfolder_paths : (list)
         List of all subfolders. Absolute path provided to simplify usage.
 
     '''
-    all_subfolders = os.listdir(current_folder)
-    for i in range(len(all_subfolders)-1,-1,-1):
-        current_sf = all_subfolders[i]
-        # Then remove file names
-        if len(current_sf.split('.')) == 2:# meaning this is a file, have extend name.
-            all_subfolders.pop(i)
-    sub_folders = List_Tools.List_Annex([current_folder], all_subfolders)
-    return sub_folders
+    all_path = []
+    for root, dirs, files in os.walk(root_path):
+        if root == root_path:
+            for dir_name in dirs:
+                if keyword in dir_name:
+                    if method == 'Whole':
+                        all_path.append(os.path.join(root, dir_name))
+                    elif method == 'Relative':
+                        all_path.append(dir_name)
+    return all_path
+
 #%% Function8, Return upper folder.
 def CDdotdot(file_name):
     '''

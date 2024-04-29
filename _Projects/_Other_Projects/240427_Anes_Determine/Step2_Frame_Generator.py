@@ -24,7 +24,7 @@ all_para_dic = ot.Load_Variable(ot.join(c_path,'_Processing'),'All_Bio_Paras_1Hz
 # Just Assume the last time of Ox as the last time of pad.
 pad_len = len(all_para_dic['Pad_Movement'])
 ox_len = len(all_para_dic['Ox'])
-ox_start_time = pad_len-ox_len
+ox_start_time = 2280
 # cut all series to ox len, EEG as the least.
 eeg_10hz = all_para_dic['EEG']['Sepctrum'][:20].mean(0)[ox_start_time:]
 series_len = len(eeg_10hz)

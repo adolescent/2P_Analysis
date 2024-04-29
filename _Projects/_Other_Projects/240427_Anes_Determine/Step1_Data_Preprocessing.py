@@ -234,12 +234,12 @@ if __name__ == '__main__':
     # Okap = One_Key_Anes_Process(wp)
     # Okap.Do_Preprocess()
     # a = Okap.All_Bio_Index
-    all_folders = ot.Get_Subfolders(r'D:\#Shu_Data\TailPinch\ChatFlox_Cre','#')
-    # all_folders = ot.Get_Subfolders(r'D:\#Shu_Data\Data_SpontaneousWakeUp','#')
+    # all_folders = ot.Get_Subfolders(r'D:\#Shu_Data\TailPinch\ChatFlox_Cre','#')
+    all_folders = ot.Get_Subfolders(r'D:\#Shu_Data\Data_SpontaneousWakeUp','#')
     # all_folders.pop(0) # as #243 done.
     # all_folders.pop(0) # as #244 done.
     # for i,c_path in enumerate(all_folders):
-    c_path = all_folders[-1]
+    c_path = all_folders[2]
     Okap = One_Key_Anes_Process(c_path)
     Okap.Do_Preprocess(time_from = 'Pad',eeg_method = 'smr')
     # a = ot.Load_Variable(ot.join(all_folders[-3],'_Processing'),'All_Bio_Paras_1Hz.pkl')

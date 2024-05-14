@@ -15,6 +15,7 @@ import copy
 
 
 def Z_PCA(Z_frame,sample = 'Cell',pcnum = 20):
+    # INPUT FRAME SHALL BE IN SIZE (N_Frame,N_Cell)
     pca = PCA(n_components = pcnum)
     data = np.array(Z_frame)
     if sample == 'Cell':

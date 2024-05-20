@@ -13,11 +13,9 @@ import seaborn as sns
 import pandas as pd
 from tqdm import tqdm
 import cv2
-from Kill_Cache import kill_all_cache
+# from Kill_Cache import kill_all_cache
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
-import umap
-import umap.plot
 from scipy.stats import pearsonr
 import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels

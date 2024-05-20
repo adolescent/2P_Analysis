@@ -23,7 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -61,7 +61,7 @@ cloc = all_path_dic[2]
 ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
 c_spon = ot.Load_Variable_v2(cloc,'Spon_Before.pkl')
 c_model = ot.Load_Variable(cloc,'Orien_UMAP_3D_20comp.pkl')
-analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color = False)
+analyzer = Classify_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color = False)
 analyzer.Train_SVM_Classifier(C = 1)
 spon_labels = analyzer.spon_label
 stim_labels = analyzer.stim_label
@@ -153,7 +153,7 @@ for i,cloc in enumerate(all_path_dic):
     ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
     c_spon = ot.Load_Variable_v2(cloc,'Spon_Before.pkl')
     c_model = ot.Load_Variable(cloc,'Orien_UMAP_3D_20comp.pkl')
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color = False)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color = False)
     analyzer.Train_SVM_Classifier(C = 1)
     spon_labels = analyzer.spon_label
     stim_labels = analyzer.stim_label

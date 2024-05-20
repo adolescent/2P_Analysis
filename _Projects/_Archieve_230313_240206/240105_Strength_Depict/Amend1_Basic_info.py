@@ -24,7 +24,7 @@ from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Filters import Signal_Filter
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig1'
@@ -84,7 +84,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
             blue_num += 1
 
     ## part 2, spon freq parts.
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = True,orien = True,color = True,isi = True)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = True,orien = True,color = True,isi = True)
     analyzer.Train_SVM_Classifier()
     spon_label = analyzer.spon_label
     spon_num = np.sum(spon_label>0)
@@ -130,7 +130,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
             o45_num +=1 
         elif c_ao_response['t_value']<0 and c_ao_response['p_value']<thres:
             o135_num +=1
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,orien = True,color = False,isi = True)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,orien = True,color = False,isi = True)
     analyzer.Train_SVM_Classifier()
     spon_label = analyzer.spon_label
     spon_num = np.sum(spon_label>0)

@@ -22,7 +22,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
 expt_folder = r'D:\_All_Spon_Data_V1\L76_18M_220902'
@@ -33,7 +33,7 @@ spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
 reducer = ot.Load_Variable_v2(expt_folder,'All_Stim_UMAP_3D_20comp.pkl')
 
 #%%############################# STEP1, GET COMPARE GRAPHS #########################
-analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
 analyzer.Train_SVM_Classifier()
 analyzer.Get_Stim_Spon_Compare()
 compare_graphs = analyzer.compare_recover

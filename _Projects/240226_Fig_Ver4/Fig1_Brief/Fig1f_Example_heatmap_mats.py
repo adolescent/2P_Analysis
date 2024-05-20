@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -42,7 +42,7 @@ spon_shuffle = Spon_Shuffler(spon_series,method='phase')
 spon_shuffle_frame = pd.DataFrame(spon_shuffle,columns = spon_series.columns,index = spon_series.index)
 #%% then get best corr locations.
 c_model = ot.Load_Variable(wp,'Orien_UMAP_3D_20comp.pkl')
-analyzer = UMAP_Analyzer(ac=ac,spon_frame=spon_series,umap_model=c_model,od = 0,orien=1,color=0)
+analyzer = Classify_Analyzer(ac=ac,spon_frame=spon_series,umap_model=c_model,od = 0,orien=1,color=0)
 analyzer.Train_SVM_Classifier()
 orien1575_spon_locs = np.where(analyzer.spon_label == 16)[0]
 corrs = np.zeros(len(orien1575_spon_locs))

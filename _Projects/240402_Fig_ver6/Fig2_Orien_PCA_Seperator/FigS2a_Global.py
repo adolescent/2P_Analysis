@@ -21,7 +21,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -168,7 +168,7 @@ for i,cloc in enumerate(all_path_dic):
     c_ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
     c_spon = np.array(ot.Load_Variable(cloc,'Spon_Before.pkl'))
     spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=10)
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0,orien = 1,color = 0,isi = True)
+    c_analyzer = Classify_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0,orien = 1,color = 0,isi = True)
     c_analyzer.Train_SVM_Classifier(C=1)
     spon_label = c_analyzer.spon_label
     all_events,_ = Label_Event_Cutter(spon_label>0)

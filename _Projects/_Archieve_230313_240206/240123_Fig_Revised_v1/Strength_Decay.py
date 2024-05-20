@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -48,7 +48,7 @@ response_ensemble = c_spon>1
 response_ensemble = response_ensemble.sum(1) # this method have some problems..
 decay_ensemble = np.sort(response_ensemble)[::-1]
 # get all model classified id.
-analyzer = UMAP_Analyzer(ac = ac,umap_model = c_model,spon_frame = c_spon)
+analyzer = Classify_Analyzer(ac = ac,umap_model = c_model,spon_frame = c_spon)
 analyzer.Train_SVM_Classifier()
 spon_train = analyzer.spon_label
 spon_ons = np.where(spon_train>0)[0]
@@ -107,7 +107,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # c_model = ot.Load_Variable(cloc,'All_Stim_UMAP_3D_20comp.pkl')
     c_model = ot.Load_Variable(cloc,'Orien_UMAP_3D_20comp.pkl')
     # c_analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon)
-    c_analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color=False)
+    c_analyzer = Classify_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon,od = False,color=False)
     c_analyzer.Train_SVM_Classifier(C=1)
     c_spon_series = c_analyzer.spon_label
     c_spon_response = np.array(c_spon.mean(1))

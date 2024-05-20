@@ -26,7 +26,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
@@ -46,7 +46,7 @@ warnings.filterwarnings("ignore")
 #%%#################### STEP1, GET EMBEDDING SERIES ###############################
 # do svm prediction and get stim-spon embeddings.
 # spon_s = Spon_Shuffler(spon_series,method='phase')
-analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=reducer,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
 analyzer.Train_SVM_Classifier(C=1)
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label

@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -51,7 +51,7 @@ model_var_ratio = np.array(spon_models.explained_variance_ratio_)
 print(f'{pcnum} PCs explain Spontaneous VAR {model_var_ratio[:pcnum].sum()*100:.1f}%')
 
 # train svm and get orientation coords.
-analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 0,orien = 1,color = 0,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 0,orien = 1,color = 0,isi = True)
 analyzer.Train_SVM_Classifier(C=1)
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label
@@ -213,7 +213,7 @@ spon_pcs_s,spon_coords_s,spon_models_s = Z_PCA(Z_frame=spon_s,sample='Frame',pcn
 model_var_ratio_s = np.array(spon_models_s.explained_variance_ratio_)
 print(f'{pcnum} PCs explain Spontaneous VAR {model_var_ratio_s[:pcnum].sum()*100:.1f}%')
 
-analyzer_s = UMAP_Analyzer(ac = ac,umap_model=spon_models_s,spon_frame=spon_s,od = 0,orien = 1,color = 0,isi = True)
+analyzer_s = Classify_Analyzer(ac = ac,umap_model=spon_models_s,spon_frame=spon_s,od = 0,orien = 1,color = 0,isi = True)
 analyzer_s.Train_SVM_Classifier(C=1)
 stim_embed = analyzer_s.stim_embeddings
 stim_label = analyzer_s.stim_label

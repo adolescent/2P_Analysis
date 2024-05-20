@@ -27,7 +27,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -52,7 +52,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # Use spontaneous embedded pca model.
     spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=pcnum)
     # orientation trains
-    analyzer_orien = UMAP_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
+    analyzer_orien = Classify_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
     analyzer_orien.Train_SVM_Classifier()
     spon_label_orien = analyzer_orien.spon_label
     # save all 3 trains into a pd frame.

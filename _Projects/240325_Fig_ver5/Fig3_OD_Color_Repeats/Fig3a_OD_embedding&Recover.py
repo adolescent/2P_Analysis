@@ -18,7 +18,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -67,7 +67,7 @@ model_var_ratio = np.array(spon_models.explained_variance_ratio_)
 print(f'{pcnum} PCs explain Spontaneous VAR {model_var_ratio[:pcnum].sum()*100:.1f}%')
 
 # and fit model to find spon response.
-analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 1,orien = 0,color = 0,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 1,orien = 0,color = 0,isi = True)
 analyzer.Train_SVM_Classifier(C=1)
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label

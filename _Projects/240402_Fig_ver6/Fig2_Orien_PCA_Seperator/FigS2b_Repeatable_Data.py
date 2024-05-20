@@ -26,7 +26,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -85,11 +85,11 @@ ax[1].set_title('0812 PC explained Variance',size = 14)
 fig.tight_layout()
 #%% Compare orientation seperation and recovered maps.
 
-analyzer1 = UMAP_Analyzer(ac = ac1,umap_model=spon_models1,spon_frame=spon_series1,od = 0,orien = 1,color = 0,isi = True)
+analyzer1 = Classify_Analyzer(ac = ac1,umap_model=spon_models1,spon_frame=spon_series1,od = 0,orien = 1,color = 0,isi = True)
 analyzer1.Train_SVM_Classifier(C=1)
 spon_label1 = analyzer1.spon_label
 
-analyzer2 = UMAP_Analyzer(ac = ac2,umap_model=spon_models2,spon_frame=spon_series2,od = 0,orien = 1,color = 0,isi = True)
+analyzer2 = Classify_Analyzer(ac = ac2,umap_model=spon_models2,spon_frame=spon_series2,od = 0,orien = 1,color = 0,isi = True)
 analyzer2.Train_SVM_Classifier(C=1)
 spon_label2 = analyzer2.spon_label
 

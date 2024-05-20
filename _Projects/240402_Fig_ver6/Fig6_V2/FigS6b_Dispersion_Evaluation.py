@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -50,7 +50,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     
     pcnum = 10
     spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=pcnum)
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
     analyzer.Train_SVM_Classifier()
     g16_embed = analyzer.stim_embeddings
     spon_embed_s = spon_models.transform(spon_s_phase)

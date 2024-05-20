@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -53,7 +53,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # all_PCNums.append(pcnum)
     spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=pcnum)
     explained_var.append(spon_models.explained_variance_ratio_.sum())
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 1,orien = 0)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 1,orien = 0)
     analyzer.Train_SVM_Classifier()
     # similarity calculator
     analyzer.Similarity_Compare_Average(od = 0,color = 1,orien = 0)

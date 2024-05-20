@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -55,7 +55,7 @@ g16_pcs,g16_coords,g16_models = Z_PCA(Z_frame=g16_frames,sample='Frame',pcnum=pc
 model_var_ratio = np.array(g16_models.explained_variance_ratio_)
 print(f'{pcnum} PCs explain G16 VAR {model_var_ratio[:pcnum].sum()*100:.1f}%')
 # 2. Use Analyzer to generate spon labels 
-analyzer = UMAP_Analyzer(ac = ac,umap_model=g16_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
+analyzer = Classify_Analyzer(ac = ac,umap_model=g16_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
 analyzer.Train_SVM_Classifier()
 spon_label = analyzer.spon_label
 # 3. try phase shuffle and dim shuffle. 
@@ -216,7 +216,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     all_g16_explained_VAR.append(model_var_ratio[:pcnum].sum())
     print(f'{pcnum} PCs explain G16 VAR {model_var_ratio[:pcnum].sum()*100:.1f}%')
     # analyzer = UMAP_Analyzer(ac = ac,umap_model=g16_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=g16_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=g16_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
     analyzer.Train_SVM_Classifier()
     analyzer.Similarity_Compare_Average(od = 0,color = 0,orien = 1)
     all_orien_corrs = analyzer.Avr_Similarity

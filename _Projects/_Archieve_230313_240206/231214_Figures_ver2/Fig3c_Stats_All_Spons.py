@@ -23,7 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\2401_Amendments\Fig3_New'
@@ -110,7 +110,7 @@ for i,cloc in enumerate(all_path_dic):
     ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
     c_spon = ot.Load_Variable(cloc,'Spon_Before.pkl')
     c_model = ot.Load_Variable(cloc,'All_Stim_UMAP_3D_20comp.pkl')
-    analyzer = UMAP_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon)
+    analyzer = Classify_Analyzer(ac = ac,umap_model=c_model,spon_frame=c_spon)
     analyzer.Train_SVM_Classifier()
     spon_label = analyzer.spon_label
     c_Corr_Matrix = pd.DataFrame(0.0,index=range(len(c_spon)),columns=range(180))

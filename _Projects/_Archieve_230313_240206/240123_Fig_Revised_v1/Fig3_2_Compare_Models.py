@@ -23,7 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 import warnings
 warnings.filterwarnings("ignore")
@@ -42,9 +42,9 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     c_ac = ot.Load_Variable_v2(c_loc,'Cell_Class.pkl')
     c_model_mix = ot.Load_Variable(c_loc,'All_Stim_UMAP_3D_20comp.pkl')
     c_model_g16 = ot.Load_Variable(c_loc,'Orien_UMAP_3D_20comp.pkl')
-    analyzer_mix = UMAP_Analyzer(ac = c_ac,umap_model=c_model_mix,spon_frame=c_spon_frame,od = True,orien = True,color = True)
+    analyzer_mix = Classify_Analyzer(ac = c_ac,umap_model=c_model_mix,spon_frame=c_spon_frame,od = True,orien = True,color = True)
     analyzer_mix.Train_SVM_Classifier()
-    analyzer_g16 = UMAP_Analyzer(ac = c_ac,umap_model=c_model_g16,spon_frame=c_spon_frame,od = False,orien = True,color = False)
+    analyzer_g16 = Classify_Analyzer(ac = c_ac,umap_model=c_model_g16,spon_frame=c_spon_frame,od = False,orien = True,color = False)
     analyzer_g16.Train_SVM_Classifier()
     spon_label_mix = analyzer_mix.spon_label
     spon_label_g16 = analyzer_g16.spon_label

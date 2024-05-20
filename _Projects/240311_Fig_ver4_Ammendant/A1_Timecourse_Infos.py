@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -54,15 +54,15 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     # Use spontaneous embedded pca model.
     spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=pcnum)
     # orientation trains
-    analyzer_orien = UMAP_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
+    analyzer_orien = Classify_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
     analyzer_orien.Train_SVM_Classifier()
     spon_label_orien = analyzer_orien.spon_label
     # od trains
-    analyzer_od = UMAP_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 1, color = 0,orien = 0)
+    analyzer_od = Classify_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 1, color = 0,orien = 0)
     analyzer_od.Train_SVM_Classifier()
     spon_label_od = analyzer_od.spon_label
     # color trains
-    analyzer_color = UMAP_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 1,orien = 0)
+    analyzer_color = Classify_Analyzer(ac = c_ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 1,orien = 0)
     analyzer_color.Train_SVM_Classifier()
     spon_label_color = analyzer_color.spon_label
     # save all 3 trains into a pd frame.

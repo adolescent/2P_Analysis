@@ -24,7 +24,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
 all_path_dic = list(ot.Get_Sub_Folders(r'D:\_All_Spon_Data_V1'))
@@ -38,7 +38,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     c_spon_frame = ot.Load_Variable(c_loc,'Spon_Before.pkl')
     c_ac = ot.Load_Variable_v2(c_loc,'Cell_Class.pkl')
     c_reducer = ot.Load_Variable(c_loc,'All_Stim_UMAP_3D_20comp.pkl')
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=c_reducer,spon_frame=c_spon_frame)
+    c_analyzer = Classify_Analyzer(ac = c_ac,umap_model=c_reducer,spon_frame=c_spon_frame)
     c_analyzer.Similarity_Compare_Average()
     c_recover_similar = c_analyzer.Avr_Similarity
     c_recover_similar['Location'] = c_loc_last

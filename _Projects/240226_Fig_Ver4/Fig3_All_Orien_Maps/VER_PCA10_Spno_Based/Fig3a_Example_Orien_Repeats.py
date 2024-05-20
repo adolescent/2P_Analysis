@@ -25,7 +25,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 work_path = r'D:\_Path_For_Figs\240228_Figs_v4\Fig3'
@@ -64,7 +64,7 @@ ac = ot.Load_Variable_v2(example_loc,'Cell_Class.pkl')
 c_spon = np.array(ot.Load_Variable_v2(example_loc,'Spon_Before.pkl'))
 spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=c_spon,sample='Frame',pcnum=pc_num)
 # c_oriens_stimon,c_oriens_stimon_ids = ac.Combine_Frame_Labels(od = 0,orien = 1,color = 0,isi = 0)
-analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0,orien = 1,color = 0,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0,orien = 1,color = 0,isi = True)
 analyzer.Train_SVM_Classifier(C=1)
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label

@@ -25,7 +25,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -54,7 +54,7 @@ print(f'{pcnum} PCs (Shuffled) explain Spontaneous VAR {model_var_ratio_s[:pcnum
 
 
 # and fit model to find spon response.
-analyzer = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 0,orien = 1,color = 0,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=spon_series,od = 0,orien = 1,color = 0,isi = True)
 analyzer.Train_SVM_Classifier(C=1)
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label
@@ -62,7 +62,7 @@ spon_embed = analyzer.spon_embeddings
 spon_label = analyzer.spon_label
 
 # fit shuffled model here.
-analyzer_s = UMAP_Analyzer(ac = ac,umap_model=spon_models_s,spon_frame=spon_s,od = 0,orien = 1,color = 0,isi = True)
+analyzer_s = Classify_Analyzer(ac = ac,umap_model=spon_models_s,spon_frame=spon_s,od = 0,orien = 1,color = 0,isi = True)
 analyzer_s.Train_SVM_Classifier(C=1)
 stim_embed_s = analyzer_s.stim_embeddings
 stim_label_s = analyzer_s.stim_label

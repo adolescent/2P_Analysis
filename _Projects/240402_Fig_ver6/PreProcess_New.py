@@ -23,7 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -45,19 +45,19 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
     c_repeat_frame = pd.DataFrame(0,columns = ['OD','Orien','Color'],index = range(len(c_spon)))
 
     # Orien
-    analyzer_orien = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
+    analyzer_orien = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 0,orien = 1)
     analyzer_orien.Train_SVM_Classifier()
     orien_labels = analyzer_orien.spon_label
     c_repeat_frame.loc[:,'Orien'] = orien_labels
 
     #OD
-    analyzer_od = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 1, color = 0,orien = 0)
+    analyzer_od = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 1, color = 0,orien = 0)
     analyzer_od.Train_SVM_Classifier()
     od_labels = analyzer_od.spon_label
     c_repeat_frame.loc[:,'OD'] = od_labels
 
     #Color
-    analyzer_color = UMAP_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 1,orien = 0)
+    analyzer_color = Classify_Analyzer(ac = ac,umap_model=spon_models,spon_frame=c_spon,od = 0, color = 1,orien = 0)
     analyzer_color.Train_SVM_Classifier()
     color_labels = analyzer_color.spon_label
     c_repeat_frame.loc[:,'Color'] = color_labels

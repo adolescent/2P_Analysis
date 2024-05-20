@@ -22,7 +22,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -43,7 +43,7 @@ import warnings
 warnings.filterwarnings("ignore")
 #%% #############################STEP0, GENERATE EXAMPLE LOCS ####################
 
-analyzer_orien = UMAP_Analyzer(ac = c_ac,umap_model = c_model,spon_frame = c_spon,orien = True,od = False,color = False)
+analyzer_orien = Classify_Analyzer(ac = c_ac,umap_model = c_model,spon_frame = c_spon,orien = True,od = False,color = False)
 analyzer_orien.Train_SVM_Classifier(C = 1)
 g16_embeddings = analyzer_orien.stim_embeddings
 g16_ids = analyzer_orien.stim_label
@@ -177,7 +177,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     # trian reducer with only G16 data.
     g16_frames,g16_ids = c_ac.Combine_Frame_Labels(od = False,color = False)
     
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od = False,color = False)
+    c_analyzer = Classify_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od = False,color = False)
     c_analyzer.Train_SVM_Classifier(C = 1)
     c_analyzer.Similarity_Compare_Average(od = False,color = False)
     c_recover_similar = c_analyzer.Avr_Similarity
@@ -207,7 +207,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     c_ac = ot.Load_Variable_v2(c_loc,'Cell_Class.pkl')
     g16_frames,g16_ids = c_ac.Combine_Frame_Labels(od = False,color = False)
     model_orien = ot.Load_Variable(c_loc,'Orien_UMAP_3D_20comp.pkl')
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od= False,color= False)
+    c_analyzer = Classify_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od= False,color= False)
     c_analyzer.Train_SVM_Classifier(C = 1)
     c_analyzer.Similarity_Compare_Average()
     c_spon_series = c_analyzer.spon_label

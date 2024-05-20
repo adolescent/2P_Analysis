@@ -23,7 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 
 
@@ -52,7 +52,7 @@ model_orien.fit(g16_frames)
 # spon_embeddings = model_orien.transform(c_spon)
 # od_embeddings = model_orien.transform(od_frames)
 #%% 2. Use Analyzer get Recover Map and classify IDs.
-analyzer_orien = UMAP_Analyzer(ac = ac,umap_model = model_orien,spon_frame = c_spon,orien = True,od = False,color = False)
+analyzer_orien = Classify_Analyzer(ac = ac,umap_model = model_orien,spon_frame = c_spon,orien = True,od = False,color = False)
 analyzer_orien.Train_SVM_Classifier(C = 1)
 g16_embeddings = analyzer_orien.stim_embeddings
 g16_ids = analyzer_orien.stim_label
@@ -183,7 +183,7 @@ plt.show()
 
 #%% 6. Add shuffled results.
 shuffled_spon = Spon_Shuffler(c_spon)
-analyzer_orien_s = UMAP_Analyzer(ac = ac,umap_model = model_orien,spon_frame = shuffled_spon,orien = True,od = False,color = False)
+analyzer_orien_s = Classify_Analyzer(ac = ac,umap_model = model_orien,spon_frame = shuffled_spon,orien = True,od = False,color = False)
 analyzer_orien_s.Train_SVM_Classifier(C = 1)
 spon_embeddings_s = analyzer_orien_s.spon_embeddings
 spon_ids_s = analyzer_orien_s.spon_label
@@ -264,7 +264,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     g16_frames,g16_ids = c_ac.Combine_Frame_Labels(od = False,color = False)
     model_orien = umap.UMAP(n_components=3,n_neighbors=20)
     model_orien.fit(g16_frames)
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od = False,color= False)
+    c_analyzer = Classify_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od = False,color= False)
     c_analyzer.Train_SVM_Classifier(C = 1)
     c_analyzer.Similarity_Compare_Average(od = False,color = False)
     c_recover_similar = c_analyzer.Avr_Similarity
@@ -296,7 +296,7 @@ for i,c_loc in tqdm(enumerate(all_path_dic)):
     g16_frames,g16_ids = c_ac.Combine_Frame_Labels(od = False,color = False)
     model_orien = umap.UMAP(n_components=3,n_neighbors=20)
     model_orien.fit(g16_frames)
-    c_analyzer = UMAP_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od= False,color= False)
+    c_analyzer = Classify_Analyzer(ac = c_ac,umap_model=model_orien,spon_frame=c_spon_frame,od= False,color= False)
     c_analyzer.Train_SVM_Classifier(C = 1)
     c_analyzer.Similarity_Compare_Average()
     c_spon_series = c_analyzer.spon_label

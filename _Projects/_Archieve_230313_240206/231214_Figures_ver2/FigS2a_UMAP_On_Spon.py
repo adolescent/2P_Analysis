@@ -23,7 +23,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Cell_Class.UMAP_Classifier_Analyzer import *
+from Classifier_Analyzer import *
 
 
 work_path = r'D:\_Path_For_Figs\_2312_ver2\Fig2'
@@ -36,7 +36,7 @@ spon_series = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
 reducer_unsu = umap.UMAP(n_components=3,n_neighbors=20)
 reducer_unsu.fit(spon_series)
 #%%###################### STEP1, DO UNSUPERVISED EMBEDDING ################################################
-analyzer = UMAP_Analyzer(ac = ac,umap_model=reducer_unsu,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
+analyzer = Classify_Analyzer(ac = ac,umap_model=reducer_unsu,spon_frame=spon_series,od = True,orien = True,color = True,isi = True)
 analyzer.Train_SVM_Classifier()
 stim_embed = analyzer.stim_embeddings
 stim_label = analyzer.stim_label

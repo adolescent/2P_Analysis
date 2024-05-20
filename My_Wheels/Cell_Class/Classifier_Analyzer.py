@@ -40,18 +40,18 @@ def Select_Frame(frame,label,used_id = [1,3,5,7]):
 
 
 
-class UMAP_Analyzer(object):
+class Classify_Analyzer(object):
     
     name = r'UMAP Recover Stim map processing tools'
 
-    def __init__(self,ac,umap_model,spon_frame,od = True,orien = True,color = True,isi = True) -> None:
+    def __init__(self,ac,model,spon_frame,od = True,orien = True,color = True,isi = True) -> None:
         self.ac = ac
-        self.umap_model = umap_model
+        self.model = model
         self.spon_frame = spon_frame
         # some basic cut and embeddings
         self.stim_frame,self.stim_label = ac.Combine_Frame_Labels(od = od,orien = orien,color = color,isi = isi)
-        self.stim_embeddings = self.umap_model.transform(self.stim_frame)
-        self.spon_embeddings = self.umap_model.transform(self.spon_frame)
+        self.stim_embeddings = self.model.transform(self.stim_frame)
+        self.spon_embeddings = self.model.transform(self.spon_frame)
 
 
     def Train_SVM_Classifier(self,predict = True,C = 1):

@@ -121,7 +121,7 @@ class Cell(object):
                 annotate_graph = cv2.putText(annotate_graph,str(cc),(cc_loc['X']+7,cc_loc['Y']+7),cv2.FONT_HERSHEY_DUPLEX,0.3,(255,0,0),1,cv2.LINE_AA)
         return annotate_graph
     
-    def Generate_Weighted_Cell(self,weight,on_avr = False): # Actually is a direct usage of cell weight visualization
+    def Generate_Weighted_Cell(self,weight): # Actually is a direct usage of cell weight visualization
         visualized_graph = Cell_Weight_Visualization(weight,acd = self.all_cell_dic)
         return visualized_graph
     

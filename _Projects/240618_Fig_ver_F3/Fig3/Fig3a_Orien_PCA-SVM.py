@@ -1,8 +1,3 @@
-'''
-This part will show the similar repeat of V2 Orientation response. All 3 locations have orientation, so we can do this the same as V1
-
-'''
-
 #%%
 from Cell_Class.Stim_Calculators import Stim_Cells
 from Cell_Class.Format_Cell import Cell
@@ -25,19 +20,19 @@ from Classifier_Analyzer import *
 import warnings
 warnings.filterwarnings("ignore")
 
-wp = r'D:\_All_Spon_Data_V2\L76_6B_220211_No_OD'
-save_path = r'D:\_Path_For_Figs\240520_Figs_ver_F1\Fig6_V2_Spon'
+wp = r'D:\_All_Spon_Data_V1\L76_18M_220902'
+save_path = r'D:\_Path_For_Figs\240520_Figs_ver_F1\Fig3_PCA_SVM_OD_Color'
 ac = ot.Load_Variable(wp,'Cell_Class.pkl')
 spon_series = ot.Load_Variable(wp,'Spon_Before.pkl')
 
-#%% 
+#%%
 '''
-Step0, Plot Example Location's Orientation model.
+Step 0, first we need to generate the model, including svm ones
 '''
-spon_series = np.array(spon_series)
-# pcnum = PCNum_Determine(spon_series,sample='Frame',thres = 0.5)
-pcnum = 10
 
+spon_series = np.array(spon_series)
+pcnum = 10
+g16_frames,g16_labels = ac.Combine_Frame_Labels(od = 0,color = 0,orien = 1)
 spon_pcs,spon_coords,spon_models = Z_PCA(Z_frame=spon_series,sample='Frame',pcnum=pcnum)
 model_var_ratio = np.array(spon_models.explained_variance_ratio_)
 print(f'{pcnum} PCs explain Spontaneous VAR {model_var_ratio[:pcnum].sum()*100:.1f}%')
@@ -50,19 +45,9 @@ stim_label = analyzer.stim_label
 spon_embed = analyzer.spon_embeddings
 spon_label = analyzer.spon_label
 
-#%% Plot PCA VARs.
-plt.clf()
-plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,4),dpi = 144)
-sns.barplot(y = model_var_ratio*100,x = np.arange(1,11),ax = ax)
-ax.set_xlabel('PC',size = 12)
-ax.set_ylim(0,22)
-ax.set_ylabel('Explained Variance (%)',size = 12)
-ax.set_title('Each PC explained Variance',size = 14)
-
 #%%
 '''
-Fig 6A , example of PCA embeddings, Orientation.
+Fig 3A , example of PCA embeddings, Orientation.
 '''
 # for convenient, plot all graphs seperately.
 import matplotlib.cm as cm
@@ -77,14 +62,13 @@ def Plot_Colorized_Oriens(axes,embeddings,labels,pcs=[4,1,2],color_sets = np.zer
     orien_colors = np.zeros(shape = (len(orien_id),3),dtype='f8')
     for i,c_id in enumerate(orien_id):
         orien_colors[i,:] = color_sets[int(c_id)-9,:]
-    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1)
+    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7])
     axes.scatter3D(orien[:,0],orien[:,1],orien[:,2],s = 1,c = orien_colors)
     return axes
-
 #%% P1 Plot color bar here.
 # fig,ax = plt.subplots(figsize = (2,4),dpi = 180)
 color_setb = np.zeros(shape = (8,3))
-fig = plt.figure(figsize = (2,4),dpi = 180)
+fig = plt.figure(figsize = (3,2),dpi = 180)
 for i,c_orien in enumerate(np.arange(0,180,22.5)):
     c_hue = c_orien/180
     c_lightness = 0.5
@@ -98,24 +82,27 @@ c_bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=custom_cmap),cax=cax_
 c_bar.set_ticks(np.arange(0,180,22.5)+11.25)
 c_bar.set_ticklabels(np.arange(0,180,22.5))
 c_bar.ax.tick_params(size=0)
+c_bar.ax.tick_params(labelsize=8)
+c_bar.set_label(label='Orientation',size=10)
+
 #%% P2 Plot embedded 3d scatters. Change as you need.
 plt.clf()
 plt.cla()
-plotted_pcs = [1,2,3]
+plotted_pcs = [4,1,2]
 u = spon_embed
 fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 180,subplot_kw=dict(projection='3d'))
 orien_elev = 25
-orien_azim = 150
+orien_azim = 170
 # set axes
 ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
 ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
 ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
 ax.grid(False)
 ax.view_init(elev=orien_elev, azim=orien_azim)
-ax.set_box_aspect(aspect=None, zoom=0.84) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=0.9) # shrink graphs
 ax.axes.set_xlim3d(left=-20, right=30)
-ax.axes.set_ylim3d(bottom=-30, top=20)
-ax.axes.set_zlim3d(bottom=30, top=-20)
+ax.axes.set_ylim3d(bottom=-30, top=30)
+ax.axes.set_zlim3d(bottom=20, top=-20)
 tmp_planes = ax.zaxis._PLANES 
 ax.zaxis._PLANES = ( tmp_planes[2], tmp_planes[3], 
                         tmp_planes[0], tmp_planes[1], 
@@ -131,17 +118,12 @@ ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
 fig.tight_layout()
+
 #%%
 '''
-Fig 6B-1, Recovered graph similarity between Orientation.
+Fig 3B, we get recovered graph and compare it with real stim graph
 '''
-analyzer.Get_Stim_Spon_Compare(od = False,color = False)
-stim_graphs = analyzer.stim_recover
-spon_graphs = analyzer.spon_recover
-graph_lists = ['Orien0','Orien45','Orien90','Orien135']
-analyzer.Similarity_Compare_Average(od = False,color = False)
-all_corr = analyzer.Avr_Similarity
-#%% Plot Color bar first
+# plot colorbar first.
 value_max = 2
 value_min = -1
 
@@ -159,29 +141,36 @@ g.collections[0].colorbar.set_ticklabels([value_min,0,value_max])
 g.collections[0].colorbar.ax.tick_params(labelsize=8)
 plt.show()
 
+#%% Then plot Raw and Recovered Graph seperetly with No Title.
+analyzer.Get_Stim_Spon_Compare(od = False,color = False)
+stim_graphs = analyzer.stim_recover
+spon_graphs = analyzer.spon_recover
+graph_lists = ['Orien0','Orien45','Orien90','Orien135']
+analyzer.Similarity_Compare_Average(od = False,color = False)
+all_corr = analyzer.Avr_Similarity
 
-#%%
-# Plot Spon and Stim Seperetly.
+# Plot Spon and Stim graph seperetly.
 plt.clf()
 plt.cla()
 # cbar_ax = fig.add_axes([.92, .45, .01, .2])
-value_max = 2
-value_min = -1
-
 font_size = 16
 fig,axes = plt.subplots(nrows=1, ncols=4,figsize = (14,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+
 fig.tight_layout()
 # axes[0].set_ylabel('Spontaneous',rotation=90,size = font_size)
 #%% print R values here.
 for i,c_graph in enumerate(graph_lists):
     print(f'Graph {c_graph}, R = {all_corr.iloc[i*2,0]:.3f}')
 
-#%% Old Codes
+
+#%% Old graphs
+# font_size = 16
+# fig,axes = plt.subplots(nrows=2, ncols=4,figsize = (14,7),dpi = 180)
 # for i,c_map in enumerate(graph_lists):
-#     sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-#     sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True,cbar_kws={'label': 'Z Scored Activity'})
+#     sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+#     sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True,cbar_kws={'label': 'Z Scored Activity'})
 #     axes[0,i].set_title(c_map,size = font_size)
 
 # axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
@@ -193,26 +182,6 @@ for i,c_graph in enumerate(graph_lists):
 # plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 14)
 # plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 14)
 # plt.figtext(0.18+dist*3, height, f'R2 = {all_corr.iloc[6,0]:.3f}',size = 14)
-# cbar_ax.yaxis.label.set_size(12)
+# # cbar_ax.yaxis.label.set_size(12)
 # # fig.tight_layout()
-
 # plt.show()
-
-
-#%%
-'''
-Fig 6B-2, Orientation Repeat Similarity. This is generated in Fig v4, but easily redone.
-'''
-all_repeat_similarity = ot.Load_Variable(r'D:\_Path_For_Figs\240520_Figs_ver_F1\Fig6_V2_Spon','Orien_Repeat_Similarity.pkl')
-plt.clf()
-plt.cla()
-# set graph
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3,5),dpi = 180)
-ax.axhline(y = 0,color='gray', linestyle='--')
-sns.barplot(data = all_repeat_similarity,x = 'Data_Type',y = 'Corr',hue = 'Network',ax = ax,capsize=.2,width = 0.6)
-ax.set_title('Orientation Event Similarity',size = 10)
-ax.set_xlabel('')
-ax.set_ylabel('Pearson R')
-ax.legend(title = '',fontsize = 6)
-ax.set_xticklabels(['Real Data','Random Select'],size = 7)
-plt.show()

@@ -146,21 +146,30 @@ graph_lists = ['LE','RE']
 analyzer.Similarity_Compare_Average(od = True,color = False,orien = False)
 all_corr = analyzer.Avr_Similarity
 
+# Plot Stim and Spon Seperately.
 plt.clf()
 plt.cla()
 value_max = 2
 value_min = -1
-font_size = 14
-fig,axes = plt.subplots(nrows=2, ncols=2,figsize = (7,7),dpi = 180)
-# cbar_ax = fig.add_axes([.94, .45, .02, .2])
+font_size = 16
+fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (7,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar = False,square=True)
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar = False,square=True,cbar_kws={'label': 'Z Scored Activity'})
-    axes[0,i].set_title(c_map,size = font_size)
-dist = 0.44
-height = 0.479
-plt.figtext(0.23, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 12)
-plt.figtext(0.23+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 12)
-# cbar_ax.yaxis.label.set_size(12)
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+fig.tight_layout()
+#%% print R values here.
+for i,c_graph in enumerate(graph_lists):
+    print(f'Graph {c_graph}, R = {all_corr.iloc[i*2,0]:.3f}')
+    
+#%% Old graphs
+# cbar_ax = fig.add_axes([.94, .45, .02, .2])
+# for i,c_map in enumerate(graph_lists):
+#     sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar = False,square=True)
+#     sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar = False,square=True,cbar_kws={'label': 'Z Scored Activity'})
+#     axes[0,i].set_title(c_map,size = font_size)
+# dist = 0.44
+# height = 0.479
+# plt.figtext(0.23, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 12)
+# plt.figtext(0.23+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 12)
+# # cbar_ax.yaxis.label.set_size(12)
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)

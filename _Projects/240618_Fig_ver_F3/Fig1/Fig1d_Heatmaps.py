@@ -102,8 +102,8 @@ plt.clf()
 plt.cla()
 
 fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10,8),dpi = 180)
-sns.heatmap((sorted_stim_response .iloc[1000:1650,:].T),center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar= False,cmap = 'bwr')
-sns.heatmap(sorted_spon_response.iloc[4700:5350,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = vmax,vmin = vmin,cbar= False,cmap = 'bwr')
+sns.heatmap((sorted_stim_response .iloc[1000:1650,:].T),center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = vmax,vmin = vmin,cbar= False,cmap = 'bwr')
+sns.heatmap(sorted_spon_response.iloc[4700:5350,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar= False,cmap = 'bwr')
 sns.heatmap(sorted_shuffle_response.iloc[4700:5350,:].T,center = 0,xticklabels=False,yticklabels=False,ax = axes[2],vmax = vmax,vmin = vmin,cbar= False,cmap = 'bwr')
 # cbar_ax.yaxis.label.set_size(label_size)
 
@@ -111,26 +111,26 @@ xticks = np.array([0,100,200,300,400,500])
 axes[2].set_xticks(xticks)
 axes[2].set_xticklabels([0,100,200,300,400,500])
 from matplotlib.patches import Rectangle
-axes[0].add_patch(Rectangle((175,0), 6, 520, fill=False, edgecolor='blue', lw=1,alpha = 0.8))
-axes[1].add_patch(Rectangle((461,0), 6, 520, fill=False, edgecolor='blue', lw=1,alpha = 0.8))
+axes[1].add_patch(Rectangle((175,0), 6, 520, fill=False, edgecolor='blue', lw=1,alpha = 0.8))
+axes[0].add_patch(Rectangle((461,0), 6, 520, fill=False, edgecolor='blue', lw=1,alpha = 0.8))
 # axes[1].add_patch(Rectangle((536,0), 6, 520, fill=False, edgecolor='red', lw=1,alpha = 0.8))
 axes[2].add_patch(Rectangle((461,0), 6, 520, fill=False, edgecolor='blue', lw=1,alpha = 0.8))
 
-axes[0].set_title('Stim-induced Response',size = title_size)
-axes[1].set_title('Spontaneous Response',size = title_size)
+axes[1].set_title('Stim-induced Response',size = title_size)
+axes[0].set_title('Spontaneous Response',size = title_size)
 axes[2].set_title('Shuffled Spontaneous Response',size = title_size)
 
 axes[2].set_xlabel(f'Time (s)',size = label_size)
-axes[2].set_ylabel(f'Cells',size = label_size)
-axes[1].set_ylabel(f'Cells',size = label_size)
-axes[0].set_ylabel(f'Cells',size = label_size)
+# axes[2].set_ylabel(f'Cells',size = label_size)
+# axes[1].set_ylabel(f'Cells',size = label_size)
+# axes[0].set_ylabel(f'Cells',size = label_size)
 
 # annotate cell number on it.
-for i in range(3):
-    # axes[i].set_yticks([0,100,200,300,400,500])
-    axes[i].set_yticks([0,180,360,524])
-    # axes[i].set_yticklabels([0,100,200,300,400,500],rotation = 90,fontsize = 7)
-    axes[i].set_yticklabels([0,180,360,524],rotation = 90,fontsize = 8)
+# for i in range(3):
+#     # axes[i].set_yticks([0,100,200,300,400,500])
+#     axes[i].set_yticks([0,180,360,524])
+#     # axes[i].set_yticklabels([0,100,200,300,400,500],rotation = 90,fontsize = 7)
+#     axes[i].set_yticklabels([0,180,360,524],rotation = 90,fontsize = 8)
 
 fps = 1.301
 axes[2].set_xticks([0*fps,100*fps,200*fps,300*fps,400*fps,500*fps])
@@ -181,8 +181,8 @@ plt.show()
 
 fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(5,8),dpi = 180)
 fig.tight_layout()
-sns.heatmap(stim_recover_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar= False,square=True)
-sns.heatmap(spon_recover_map,center=0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = vmax,vmin = vmin,cbar= False,square=True)
+sns.heatmap(spon_recover_map,center=0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = vmax,vmin = vmin,cbar= False,square=True)
+sns.heatmap(stim_recover_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = vmax,vmin = vmin,cbar= False,square=True)
 sns.heatmap(shuffle_recover_map,center=0,xticklabels=False,yticklabels=False,ax = axes[2],vmax = vmax,vmin = vmin,cbar= False,square=True)
 
 # axes[0].set_title('Stim-induced Response',size = 11)
@@ -240,26 +240,26 @@ plt.show()
 #%%
 plt.cla()
 plt.clf()
-fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(5,5),dpi = 180,sharex= True)
-sns.heatmap(orien_freqs[:30,:].T,center = 0,vmax=0.2,ax = ax[0],xticklabels=False,yticklabels=False,cbar_kws={'label': 'Prop.'},cmap = 'bwr',cbar = False)
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4,5),dpi = 180,sharex= True)
+sns.heatmap(spon_freqs[:30,:].T,center = 0,vmax=0.2,ax = ax,xticklabels=False,yticklabels=False,cbar_kws={'label': 'Prop.'},cmap = 'bwr',cbar = False)
 # sns.heatmap(spon_freqs[:40,:].T,center = 0,vmax=0.15,ax = ax,cbar_ax= cbar_ax,xticklabels=False,yticklabels=False,cbar_kws={'label': 'Spectral Density'})
 #plot global powers.
-plotable_power = pd.DataFrame(orien_freqs[:30,:].T).melt(var_name='Freq',value_name='Prop.')
+plotable_power = pd.DataFrame(spon_freqs[:30,:].T).melt(var_name='Freq',value_name='Prop.')
 # set ticks.
-ax[0].set_yticks([0,180,360,524])
+# ax.set_yticks([0,180,360,524])
 # axes[i].set_yticklabels([0,100,200,300,400,500],rotation = 90,fontsize = 7)
-ax[0].set_yticklabels([0,180,360,524],rotation = 90,fontsize = 10)
-ax[1].set_xticks([0,10,20,30])
-ax[1].set_xticklabels([0,0.1,0.2,0.3])
+# ax.set_yticklabels([0,180,360,524],rotation = 90,fontsize = 10)
+ax.set_xticks([0,10,20,30])
+ax.set_xticklabels([0,0.1,0.2,0.3])
 # set legend.
-ax[0].set_ylabel('Cell',size = 12)
-ax[1].set_xlabel('Frequency(Hz)',size = 12)
-sns.lineplot(data = plotable_power,x='Freq',y='Prop.',ax = ax[1])
+# ax.set_ylabel('Cell',size = 12)
+ax.set_xlabel('Frequency(Hz)',size = 12)
+# sns.lineplot(data = plotable_power,x='Freq',y='Prop.',ax = ax[1])
 # ax[1].set_yticks([0.02,0.04,0.06])
 # ax[1].set_yticklabels([2,4,6])
 
-for i in range(2):
-    ax[i].yaxis.set_label_coords(-0.1, 0.5)
+# for i in range(2):
+ax.yaxis.set_label_coords(-0.1, 0.5)
 # ax.set_title('Orientation Stimulus Power Spectrum',size = 14)
 # ax[0].set_title('Spontaneous Activity Power Spectrum',size = 12)
 fig.tight_layout()

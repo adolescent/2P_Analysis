@@ -77,7 +77,7 @@ def Plot_Colorized_Oriens(axes,embeddings,labels,pcs=[4,1,2],color_sets = np.zer
     orien_colors = np.zeros(shape = (len(orien_id),3),dtype='f8')
     for i,c_id in enumerate(orien_id):
         orien_colors[i,:] = color_sets[int(c_id)-9,:]
-    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
+    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1)
     axes.scatter3D(orien[:,0],orien[:,1],orien[:,2],s = 1,c = orien_colors)
     return axes
 
@@ -120,14 +120,16 @@ tmp_planes = ax.zaxis._PLANES
 ax.zaxis._PLANES = ( tmp_planes[2], tmp_planes[3], 
                         tmp_planes[0], tmp_planes[1], 
                         tmp_planes[4], tmp_planes[5])
-# ax = Plot_Colorized_Oriens(ax,spon_embed,np.zeros(len(spon_embed)),plotted_pcs,color_setb)
+ax = Plot_Colorized_Oriens(ax,spon_embed,np.zeros(len(spon_embed)),plotted_pcs,color_setb)
 # ax = Plot_Colorized_Oriens(ax,stim_embed,stim_label,plotted_pcs,color_setb)
-ax = Plot_Colorized_Oriens(ax,spon_embed,spon_label,plotted_pcs,color_setb)
+# ax = Plot_Colorized_Oriens(ax,spon_embed,spon_label,plotted_pcs,color_setb)
 # ax = Plot_Colorized_Oriens(ax,spon_s_embeddings,spon_label_s,plotted_pcs,color_setb)
-ax.set_title('Classified Spontaneous in PCA Space',size = 10)
+# ax.set_title('Classified Spontaneous in PCA Space',size = 10)
 # ax.set_title('Orientation Stimulus in PCA Space',size = 10)
 # ax.set_title('Shuffled Spontaneous in PCA Space',size = 10)
-
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_zticks([])
 fig.tight_layout()
 #%%
 '''
@@ -139,33 +141,62 @@ spon_graphs = analyzer.spon_recover
 graph_lists = ['Orien0','Orien45','Orien90','Orien135']
 analyzer.Similarity_Compare_Average(od = False,color = False)
 all_corr = analyzer.Avr_Similarity
+#%% Plot Color bar first
+value_max = 2
+value_min = -1
 
 plt.clf()
 plt.cla()
+data = [[value_min, value_max], [value_min, value_max]]
+# Create a heatmap
+fig, ax = plt.subplots(figsize = (2,1),dpi = 300)
+# fig2, ax2 = plt.subplots()
+g = sns.heatmap(data, center=0,ax = ax,vmax = value_max,vmin = value_min,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "vertical"})
+# Hide the heatmap itself by setting the visibility of its axes
+ax.set_visible(False)
+g.collections[0].colorbar.set_ticks([value_min,0,value_max])
+g.collections[0].colorbar.set_ticklabels([value_min,0,value_max])
+g.collections[0].colorbar.ax.tick_params(labelsize=8)
+plt.show()
+
+
+#%%
+# Plot Spon and Stim Seperetly.
+plt.clf()
+plt.cla()
+# cbar_ax = fig.add_axes([.92, .45, .01, .2])
 value_max = 2
 value_min = -1
+
 font_size = 16
-fig,axes = plt.subplots(nrows=2, ncols=4,figsize = (14,7),dpi = 180)
-cbar_ax = fig.add_axes([.92, .45, .01, .2])
-
+fig,axes = plt.subplots(nrows=1, ncols=4,figsize = (14,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True,cbar_kws={'label': 'Z Scored Activity'})
-    axes[0,i].set_title(c_map,size = font_size)
+    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+fig.tight_layout()
+# axes[0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+#%% print R values here.
+for i,c_graph in enumerate(graph_lists):
+    print(f'Graph {c_graph}, R = {all_corr.iloc[i*2,0]:.3f}')
 
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
-plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
-dist = 0.195
-height = 0.485
-plt.figtext(0.18, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 14)
-plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 14)
-plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 14)
-plt.figtext(0.18+dist*3, height, f'R2 = {all_corr.iloc[6,0]:.3f}',size = 14)
-cbar_ax.yaxis.label.set_size(12)
-# fig.tight_layout()
+#%% Old Codes
+# for i,c_map in enumerate(graph_lists):
+#     sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+#     sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True,cbar_kws={'label': 'Z Scored Activity'})
+#     axes[0,i].set_title(c_map,size = font_size)
 
-plt.show()
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+# plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
+# dist = 0.195
+# height = 0.485
+# plt.figtext(0.18, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 14)
+# plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 14)
+# plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 14)
+# plt.figtext(0.18+dist*3, height, f'R2 = {all_corr.iloc[6,0]:.3f}',size = 14)
+# cbar_ax.yaxis.label.set_size(12)
+# # fig.tight_layout()
+
+# plt.show()
 
 
 #%%

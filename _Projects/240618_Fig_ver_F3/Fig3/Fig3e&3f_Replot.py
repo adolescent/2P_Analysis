@@ -67,7 +67,7 @@ plt.show()
 
 #%%
 '''
-Fig 3e, we stat repeat freq. and repeat similarities. on a single graph.
+Fig 3E, Plot Repeat Graph Similarity here.
 '''
 
 real_orien_avr = orien_similar[orien_similar['Data_Type']=='Real Data'].groupby('Loc')['Corr'].mean()
@@ -77,28 +77,35 @@ plotable = pd.DataFrame([real_orien_avr,real_od_avr],columns = real_od_avr.index
 plt.clf()
 plt.cla()
 # set graph
-fig,ax = plt.subplots(nrows=2, ncols=1,figsize = (4.5,6),dpi = 180)
-sns.scatterplot(data = plotable,x = 'Orien',y = 'OD',ax = ax[0],hue = 'Loc',legend=False)
-ax[0].set_ylim(0,1)
-ax[0].set_xlim(0,1)
-ax[0].set_ylabel('OD Similarity')
-ax[0].set_xlabel('Orientation Similarity')
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,3),dpi = 180)
+sns.scatterplot(data = plotable,x = 'Orien',y = 'OD',ax = ax,hue = 'Loc',legend=False)
+ax.set_ylim(0,1)
+ax.set_xlim(0,1)
+ax.set_ylabel('OD Similarity')
+ax.set_xlabel('Orientation Similarity')
+ax.set_yticks(np.linspace(0,1,5))
+ax.set_xticks(np.linspace(0,1,5))
 
-
+#%%
+'''
+Fig 3F, Plot Repeat Graph Event Frequency Here.
+'''
 real_orien_freq = orien_freq[orien_freq['Data_Type']=='Real_Data'].groupby('Loc')['Freq'].mean()
 real_od_freq = od_freq[od_freq['Data_Type']=='Real_Data'].groupby('Loc')['Freq'].mean()
 plotable_freq = pd.DataFrame([real_orien_freq,real_od_freq],columns = real_od_avr.index,index = ['Orien','OD']).T
-sns.scatterplot(data = plotable_freq,x = 'Orien',y = 'OD',ax = ax[1],hue = 'Loc',legend=False)
-ax[1].set_ylabel('OD Freq (Hz)')
-ax[1].set_xlabel('Orientation Freq (Hz)')
-ax[1].set_xlim(0.06,0.16)
-ax[1].set_ylim(0.02,0.1)
 
-ax[1].set_yticks([0.02,0.06,0.10])
-ax[1].set_xticks([0.08,0.12,0.16])
-ax[0].set_yticks(np.linspace(0,1,5))
-ax[0].set_xticks(np.linspace(0,1,5))
+plt.clf()
+plt.cla()
+# set graph
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,3),dpi = 180)
+sns.scatterplot(data = plotable_freq,x = 'Orien',y = 'OD',ax = ax,hue = 'Loc',legend=False)
+ax.set_ylabel('OD Freq (Hz)')
+ax.set_xlabel('Orientation Freq (Hz)')
+ax.set_xlim(0.06,0.16)
+ax.set_ylim(0.02,0.1)
 
-plt.tight_layout()
+ax.set_yticks([0,0.04,0.08,0.12])
+ax.set_xticks([0,0.05,0.10,0.15,0.20])
+
 
 plt.show()

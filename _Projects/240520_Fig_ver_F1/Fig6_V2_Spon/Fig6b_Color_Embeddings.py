@@ -79,7 +79,7 @@ def Plot_Colorized_Color(axes,embeddings,labels,pcs=[2,5,6],color_sets = np.arra
     color_colors = np.zeros(shape = (len(color_ids),3),dtype='f8')
     for i,c_id in enumerate(color_ids):
         color_colors[i,:] = color_sets[int(c_id)-17,:]
-    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 0.1)
+    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1)
     axes.scatter3D(color[:,0],color[:,1],color[:,2],s = 1,c = color_colors)
     return axes
 #%% Plot parts
@@ -127,14 +127,18 @@ ax.zaxis._PLANES = ( tmp_planes[2], tmp_planes[3],
     
 
 # ax = Plot_Colorized_Color(ax,stim_embed,stim_label,plotted_pcs,color_setb)
-# ax = Plot_Colorized_Color(ax,spon_embed,np.zeros(len(spon_label)),plotted_pcs,color_setb)
-ax = Plot_Colorized_Color(ax,spon_embed,spon_label,plotted_pcs,color_setb)
+ax = Plot_Colorized_Color(ax,spon_embed,np.zeros(len(spon_label)),plotted_pcs,color_setb)
+# ax = Plot_Colorized_Color(ax,spon_embed,spon_label,plotted_pcs,color_setb)
 # ax[2] = Plot_Colorized_Color(ax[2],spon_s_embeddings,spon_label_s,plotted_pcs,color_setb)
 
 # set title
 # ax.set_title('Color Stimulus in PCA Space',size = 10)
-ax.set_title('Classified Spontaneous in PCA Space',size = 10)
+# ax.set_title('Classified Spontaneous in PCA Space',size = 10)
 # ax.set_title('Spontaneous in PCA Space',size = 10)
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_zticks([])
+fig.tight_layout()
 
 #%%
 '''
@@ -147,23 +151,60 @@ graph_lists = ['Red','Green','Blue']
 analyzer.Similarity_Compare_Average(od = False,color = True,orien = False)
 all_corr = analyzer.Avr_Similarity
 
-plt.clf()
-plt.cla()
+#%%
+# plot colorbar first.
 value_max = 3
 value_min = -1
-font_size = 14
-fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (8.5,6),dpi = 180)
-cbar_ax = fig.add_axes([.94, .45, .02, .2])
-for i,c_map in enumerate(graph_lists):
-    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True,cbar_kws={'label': 'Z Scored Activity'})
-    axes[0,i].set_title(c_map,size = font_size)
 
-dist = 0.275
-height = 0.48
-plt.figtext(0.18, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 12)
-plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 12)
-plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 12)
-cbar_ax.yaxis.label.set_size(12)
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+plt.clf()
+plt.cla()
+data = [[value_min, value_max], [value_min, value_max]]
+# Create a heatmap
+fig, ax = plt.subplots(figsize = (2,1),dpi = 300)
+# fig2, ax2 = plt.subplots()
+g = sns.heatmap(data, center=0,ax = ax,vmax = value_max,vmin = value_min,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "vertical"})
+# Hide the heatmap itself by setting the visibility of its axes
+ax.set_visible(False)
+g.collections[0].colorbar.set_ticks([value_min,0,value_max])
+g.collections[0].colorbar.set_ticklabels([value_min,0,value_max])
+g.collections[0].colorbar.ax.tick_params(labelsize=8)
+plt.show()
+#%% Then plot Raw and Recovered Graph seperetly with No Title.
+# Plot Spon and Stim graph seperetly.
+plt.clf()
+plt.cla()
+# cbar_ax = fig.add_axes([.92, .45, .01, .2])
+font_size = 16
+fig,axes = plt.subplots(nrows=1, ncols=3,figsize = (10.5,4),dpi = 180)
+for i,c_map in enumerate(graph_lists):
+    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+
+fig.tight_layout()
+# axes[0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+
+#%% print R values here.
+for i,c_graph in enumerate(graph_lists):
+    print(f'Graph {c_graph}, R = {all_corr.iloc[i*2,0]:.3f}')
+
+
+#%%
+# plt.clf()
+# plt.cla()
+# value_max = 3
+# value_min = -1
+# font_size = 14
+# fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (8.5,6),dpi = 180)
+# cbar_ax = fig.add_axes([.94, .45, .02, .2])
+# for i,c_map in enumerate(graph_lists):
+#     sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+#     sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True,cbar_kws={'label': 'Z Scored Activity'})
+#     axes[0,i].set_title(c_map,size = font_size)
+
+# dist = 0.275
+# height = 0.48
+# plt.figtext(0.18, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 12)
+# plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 12)
+# plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 12)
+# cbar_ax.yaxis.label.set_size(12)
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)

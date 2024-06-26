@@ -141,7 +141,7 @@ g.collections[0].colorbar.set_ticklabels([value_min,0,value_max])
 g.collections[0].colorbar.ax.tick_params(labelsize=8)
 plt.show()
 
-#%% Then plot recovered graph.
+#%% Then plot Raw and Recovered Graph seperetly with No Title.
 analyzer.Get_Stim_Spon_Compare(od = False,color = False)
 stim_graphs = analyzer.stim_recover
 spon_graphs = analyzer.spon_recover
@@ -149,27 +149,39 @@ graph_lists = ['Orien0','Orien45','Orien90','Orien135']
 analyzer.Similarity_Compare_Average(od = False,color = False)
 all_corr = analyzer.Avr_Similarity
 
+# Plot Spon and Stim graph seperetly.
 plt.clf()
 plt.cla()
-
-font_size = 16
-fig,axes = plt.subplots(nrows=2, ncols=4,figsize = (14,7),dpi = 180)
 # cbar_ax = fig.add_axes([.92, .45, .01, .2])
-
+font_size = 16
+fig,axes = plt.subplots(nrows=1, ncols=4,figsize = (14,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True,cbar_kws={'label': 'Z Scored Activity'})
-    axes[0,i].set_title(c_map,size = font_size)
+    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
 
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
-plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
-dist = 0.195
-height = 0.485
-plt.figtext(0.18, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 14)
-plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 14)
-plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 14)
-plt.figtext(0.18+dist*3, height, f'R2 = {all_corr.iloc[6,0]:.3f}',size = 14)
-# cbar_ax.yaxis.label.set_size(12)
-# fig.tight_layout()
-plt.show()
+fig.tight_layout()
+# axes[0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+#%% print R values here.
+for i,c_graph in enumerate(graph_lists):
+    print(f'Graph {c_graph}, R = {all_corr.iloc[i*2,0]:.3f}')
+
+
+#%% Old graphs
+# font_size = 16
+# fig,axes = plt.subplots(nrows=2, ncols=4,figsize = (14,7),dpi = 180)
+# for i,c_map in enumerate(graph_lists):
+#     sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+#     sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True,cbar_kws={'label': 'Z Scored Activity'})
+#     axes[0,i].set_title(c_map,size = font_size)
+
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+# plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
+# dist = 0.195
+# height = 0.485
+# plt.figtext(0.18, height, f'R2 = {all_corr.iloc[0,0]:.3f}',size = 14)
+# plt.figtext(0.18+dist, height, f'R2 = {all_corr.iloc[2,0]:.3f}',size = 14)
+# plt.figtext(0.18+dist*2, height, f'R2 = {all_corr.iloc[4,0]:.3f}',size = 14)
+# plt.figtext(0.18+dist*3, height, f'R2 = {all_corr.iloc[6,0]:.3f}',size = 14)
+# # cbar_ax.yaxis.label.set_size(12)
+# # fig.tight_layout()
+# plt.show()

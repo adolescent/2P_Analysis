@@ -73,9 +73,12 @@ ax.axes.set_ylim3d(bottom=-30, top=30)
 ax.axes.set_zlim3d(bottom=30, top=-30)
 ax.scatter3D(u[:,0],u[:,1],u[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1,linewidth = 0)
 # ax.set_title('Shuffled in PCA Space',size = 10)
-ax.set_xticks(np.arange(-40,50,20))
-ax.set_yticks(np.arange(-30,50,20))
-ax.set_zticks(np.arange(-30,40,20))
+# ax.set_xticks(np.arange(-40,50,20))
+# ax.set_yticks(np.arange(-30,50,20))
+# ax.set_zticks(np.arange(-30,40,20))
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_zticks([])
 fig.tight_layout()
 
 
@@ -166,14 +169,16 @@ plt.clf()
 plt.cla()
 fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (7,4),dpi = 180)
 # cbar_ax = fig.add_axes([1, .45, .02, .2])
-sns.heatmap(hv_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = value_max,vmin = value_min,cbar = False,square=True)
+sns.heatmap(-hv_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = value_max,vmin = value_min,cbar = False,square=True)
 sns.heatmap(ao_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = value_max,vmin = value_min,cbar = False,square=True)
-axes[0].set_title('H-V',size = 14)
-axes[1].set_title('A-O',size = 14)
+axes[0].set_title('90°-0°',size = 14)
+axes[1].set_title('45°-135°',size = 14)
 fig.tight_layout()
 
-hv_r,_ = stats.pearsonr(spon_pcs[1,:],hv_resp)
+hv_r,_ = stats.pearsonr(spon_pcs[1,:],-hv_resp)
 ao_r,_ = stats.pearsonr(spon_pcs[4,:],ao_resp)
+print(f'HV Corr:{hv_r:.3f};AO Corr:{ao_r:.3f};')
+
 #%%
 '''
 Figs 2F, Correlation of PC comps with shuffle This will be done on stats file.

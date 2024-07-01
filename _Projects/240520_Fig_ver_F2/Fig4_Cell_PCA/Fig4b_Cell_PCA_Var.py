@@ -48,10 +48,17 @@ plotable['PC'] = plotable['PC']+1
 
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,4),dpi = 180)
+fontsize = 14
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,4),dpi = 300)
 sns.barplot(data = plotable,y = 'Explained VAR Ratio',x = 'PC',ax = ax,capsize=0.2)
 ax.set_xlabel('PC',size = 12)
 ax.set_ylabel('Explained Ratio(%)',size = 12)
 # ax.set_title('Each PC explained Variance',size = 14)
 ax.set_ylim(0,7)
+ax.set_ylabel('')
+ax.set_xlabel('')
 
+ax.set_yticks([0,2,4,6,8])
+ax.set_yticklabels([0,2,4,6,8],fontsize = fontsize)
+ax.set_xticks([0,4,9,14,19])
+ax.set_xticklabels([1,5,10,15,20],fontsize = fontsize)

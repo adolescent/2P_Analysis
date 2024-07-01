@@ -31,7 +31,7 @@ wp = r'D:\_All_Spon_Data_V1\L76_18M_220902'
 ac = ot.Load_Variable(wp,'Cell_Class.pkl')
 spon_series = ot.Load_Variable(wp,'Spon_Before.pkl')
 
-# savepath = r'D:\_Path_For_Figs\240614_Figs_ver_F2\Fig2'
+savepath = r'D:\_GoogleDrive_Files\#Figs\240627_Figs_FF1\Fig2'
 
 #%%
 '''
@@ -58,20 +58,20 @@ u = spon_coords_s[:,:3]
 
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (7,4),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 300,subplot_kw=dict(projection='3d'))
 orien_elev = 25
 orien_azim = 50
 # set axes
-ax.set_xlabel(f'PC 1')
-ax.set_ylabel(f'PC 2')
-ax.set_zlabel(f'PC 3')
+# ax.set_xlabel(f'PC 1')
+# ax.set_ylabel(f'PC 2')
+# ax.set_zlabel(f'PC 3')
 ax.grid(False)
 ax.view_init(elev=orien_elev, azim=orien_azim)
-ax.set_box_aspect(aspect=None, zoom=0.8) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=1) # shrink graphs
 ax.axes.set_xlim3d(left=-40, right=40)
 ax.axes.set_ylim3d(bottom=-30, top=30)
 ax.axes.set_zlim3d(bottom=30, top=-30)
-ax.scatter3D(u[:,0],u[:,1],u[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1,linewidth = 0)
+ax.scatter3D(u[:,0],u[:,1],u[:,2],s = 20,c = [0.7,0.7,0.7],alpha = 1,lw = 0)
 # ax.set_title('Shuffled in PCA Space',size = 10)
 # ax.set_xticks(np.arange(-40,50,20))
 # ax.set_yticks(np.arange(-30,50,20))
@@ -80,7 +80,7 @@ ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
 fig.tight_layout()
-
+# fig.savefig(ot.join(savepath,'Fig2B_Spon_Embedding.svg'))
 
 #%% Plot PCA explained VARs.
 plt.clf()
@@ -113,7 +113,8 @@ data = [[vmin, vmax], [vmin, vmax]]
 # Create a heatmap
 fig, ax = plt.subplots(figsize = (2,1),dpi = 300)
 # fig2, ax2 = plt.subplots()
-g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "vertical"})
+# g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "horizontal"},cmap = 'gist_gray')
+g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "horizontal"})
 # Hide the heatmap itself by setting the visibility of its axes
 ax.set_visible(False)
 g.collections[0].colorbar.set_ticks([vmin,0,vmax])
@@ -127,14 +128,14 @@ plt.cla()
 value_max = 0.1
 value_min = -0.1
 font_size = 13
-fig,axes = plt.subplots(nrows=2, ncols=5,figsize = (12,6),dpi = 180)
+fig,axes = plt.subplots(nrows=2, ncols=5,figsize = (12,6),dpi = 300)
 # cbar_ax = fig.add_axes([1, .45, .01, .2])
 for i in tqdm(range(10)):
     c_pc = spon_pcs_s[i,:]
     c_pc_graph = ac.Generate_Weighted_Cell(c_pc)
     # sns.heatmap(c_pc_graph,center = 0,xticklabels=False,yticklabels=False,ax = axes[i//5,i%5],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True,cmap = cmaps.pinkgreen_light)
     sns.heatmap(c_pc_graph,center = 0,xticklabels=False,yticklabels=False,ax = axes[i//5,i%5],vmax = value_max,vmin = value_min,cbar= False,square=True,cmap = 'gist_gray')
-    axes[i//5,i%5].set_title(f'PC {i+1}',size = font_size)
+    # axes[i//5,i%5].set_title(f'PC {i+1}',size = font_size)
 
 fig.tight_layout()
 
@@ -158,8 +159,8 @@ fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (7,4),dpi = 180)
 # cbar_ax = fig.add_axes([1, .45, .02, .2])
 sns.heatmap(ac.Generate_Weighted_Cell(spon_pcs[1,:]),center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = value_max,vmin = value_min,cbar=False,square=True,cmap = 'gist_gray')
 sns.heatmap(ac.Generate_Weighted_Cell(spon_pcs[4,:]),center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = value_max,vmin = value_min,cbar=False,square=True,cmap = 'gist_gray')
-axes[0].set_title('PC2',size = 14)
-axes[1].set_title('PC5',size = 14)
+# axes[0].set_title('PC2',size = 14)
+# axes[1].set_title('PC5',size = 14)
 fig.tight_layout()
 
 #%% and plot functional map parts
@@ -171,8 +172,8 @@ fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (7,4),dpi = 180)
 # cbar_ax = fig.add_axes([1, .45, .02, .2])
 sns.heatmap(-hv_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[0],vmax = value_max,vmin = value_min,cbar = False,square=True)
 sns.heatmap(ao_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[1],vmax = value_max,vmin = value_min,cbar = False,square=True)
-axes[0].set_title('90°-0°',size = 14)
-axes[1].set_title('45°-135°',size = 14)
+# axes[0].set_title('90°-0°',size = 14)
+# axes[1].set_title('45°-135°',size = 14)
 fig.tight_layout()
 
 hv_r,_ = stats.pearsonr(spon_pcs[1,:],-hv_resp)
@@ -219,7 +220,13 @@ value_max = 0.8
 value_min = 0
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (5,4),dpi = 180)
-sns.heatmap(all_corrs,center = 0,annot=True,cmap = 'bwr', fmt=".2f",ax = ax,vmax = value_max,vmin = value_min,cbar=False)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 300)
+sns.heatmap(all_corrs,center = 0,annot=True,cmap = 'bwr', fmt=".2f",ax = ax,vmax = value_max,vmin = value_min,cbar=False,annot_kws={"size": 12})
+
+# ax.set_xticks([])
+# ax.set_yticks([])
+ax.set_xticks(np.arange(0,10)+0.5)
+ax.set_xticklabels(np.arange(1,11),fontsize = 12)
+
 plt.show()
 

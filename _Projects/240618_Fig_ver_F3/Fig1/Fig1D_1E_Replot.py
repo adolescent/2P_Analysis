@@ -31,7 +31,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 expt_folder = r'D:\_All_Spon_Data_V1\L76_18M_220902'
-save_path = r'D:\_Path_For_Figs\240618_Figs_ver_F3\Fig1_Brief'
+save_path = r'D:\_GoogleDrive_Files\#Figs\240627_Figs_FF1\Fig1'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 c_spon = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
 
@@ -63,18 +63,19 @@ for match in matches:
 #%% Plot parts
 plt.cla()
 plt.clf()
+fontsize = 20
 # annotate cell and title.
-cols = ['{} Response'.format(col) for col in ['Spontaneous','Stimulus Evoked']]
+# cols = ['{} Response'.format(col) for col in ['Spontaneous','Stimulus Evoked']]
 rows = ['Cell {}'.format(row) for row in cell_example_list]
-fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(13, 8),sharey = 'row',sharex = 'col',dpi = 180)
+fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(12, 6),sharey = 'row',sharex = 'col',dpi = 300)
 # plt.setp(axes.flat, xlabel='X-label', ylabel='Y-label') # this is x and y label.
 
 ## Suptitle of Each Columns
 pad = 5 # in points
-for ax, col in zip(axes[0], cols):
-    ax.annotate(col, xy=(0.5, 1), xytext=(0, pad),
-                xycoords='axes fraction', textcoords='offset points',
-                 ha='center', va='baseline',size = 20,weight = 'normal')
+# for ax, col in zip(axes[0], cols):
+#     ax.annotate(col, xy=(0.5, 1), xytext=(0, pad),
+#                 xycoords='axes fraction', textcoords='offset points',
+#                  ha='center', va='baseline',size = 20,weight = 'normal')
     
 ## Title of each row.
 # for ax, row in zip(axes[:,0], rows):
@@ -110,32 +111,32 @@ for i,cc in enumerate(cell_example_list): # i cells
     axes[i,1].yaxis.set_visible(False)
     axes[i,0].xaxis.set_visible(False)
     axes[i,1].xaxis.set_visible(False)
-    axes[i,0].set_ylabel('dF/F',size = 14)
+    # axes[i,0].set_ylabel('dF/F',size = 14)
     axes[i,0].yaxis.set_label_coords(-0.04, 0.5) # align y labels.
 
     if i ==2: # lase row
         axes[i,0].xaxis.set_visible(True)
         axes[i,1].xaxis.set_visible(True)
-        axes[i,0].set_xlabel('Time (s)',size = 14)
-        axes[i,1].set_xlabel('Time (s)',size = 14)
+        # axes[i,0].set_xlabel('Time (s)',size = 14)
+        # axes[i,1].set_xlabel('Time (s)',size = 14)
 
 # Set x label into seconds.
 axes[2,0].set_xticks(np.arange(2300,2420,20)*1.301)
-axes[2,0].set_xticklabels(np.arange(2300,2420,20))
+axes[2,0].set_xticklabels(np.arange(2300,2420,20),fontsize = fontsize)
 axes[2,1].set_xticks(np.arange(920,1040,20)*1.301)
-axes[2,1].set_xticklabels(np.arange(920,1040,20))
+axes[2,1].set_xticklabels(np.arange(920,1040,20),fontsize = fontsize)
 
 
 # for seperate adjust of y label.
 axes[0,0].set(ylim = (-0.2,3))
 axes[0,0].set_yticks([0,1,2,3])
-axes[0,0].set_yticklabels([0,1,2,3])
+axes[0,0].set_yticklabels([0,1,2,3],fontsize = fontsize)
 axes[1,0].set(ylim = (-0.2,2))
 axes[1,0].set_yticks([0,1,2])
-axes[1,0].set_yticklabels([0,1,2])
+axes[1,0].set_yticklabels([0,1,2],fontsize = fontsize)
 axes[2,0].set(ylim = (-0.2,1.5))
 axes[2,0].set_yticks([0,1,1.5])
-axes[2,0].set_yticklabels([0,1,1.5])
+axes[2,0].set_yticklabels([0,1,1.5],fontsize = fontsize)
 fig.tight_layout()
 # plt.show()
-# fig.savefig(ot.join(save_path,'1C_dFF_Stim_Spon_Compare.svg'))
+fig.savefig(ot.join(save_path,'Fig1DE_Example_Cell.svg'))

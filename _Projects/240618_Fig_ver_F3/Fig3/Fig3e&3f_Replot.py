@@ -77,14 +77,18 @@ plotable = pd.DataFrame([real_orien_avr,real_od_avr],columns = real_od_avr.index
 plt.clf()
 plt.cla()
 # set graph
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,3),dpi = 180)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,3),dpi = 300)
 sns.scatterplot(data = plotable,x = 'Orien',y = 'OD',ax = ax,hue = 'Loc',legend=False)
 ax.set_ylim(0,1)
 ax.set_xlim(0,1)
-ax.set_ylabel('OD Similarity')
-ax.set_xlabel('Orientation Similarity')
+# ax.set_ylabel('OD Similarity')
+# ax.set_xlabel('Orientation Similarity')
+ax.set_ylabel('')
+ax.set_xlabel('')
 ax.set_yticks(np.linspace(0,1,5))
 ax.set_xticks(np.linspace(0,1,5))
+ax.set_yticklabels(np.linspace(0,1,5),fontsize = 14)
+ax.set_xticklabels(np.linspace(0,1,5),fontsize = 14)
 
 #%%
 '''
@@ -99,13 +103,16 @@ plt.cla()
 # set graph
 fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,3),dpi = 180)
 sns.scatterplot(data = plotable_freq,x = 'Orien',y = 'OD',ax = ax,hue = 'Loc',legend=False)
-ax.set_ylabel('OD Freq (Hz)')
-ax.set_xlabel('Orientation Freq (Hz)')
+# ax.set_ylabel('OD Freq (Hz)')
+# ax.set_xlabel('Orientation Freq (Hz)')
+ax.set_ylabel('')
+ax.set_xlabel('')
 ax.set_xlim(0.06,0.16)
 ax.set_ylim(0.02,0.1)
 
 ax.set_yticks([0,0.04,0.08,0.12])
 ax.set_xticks([0,0.05,0.10,0.15,0.20])
-
+ax.set_yticklabels([0,0.04,0.08,0.12],fontsize = 14)
+ax.set_xticklabels([0,0.05,0.10,0.15,0.20],fontsize = 14)
 
 plt.show()

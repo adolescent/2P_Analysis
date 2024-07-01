@@ -86,7 +86,7 @@ plt.clf()
 plt.cla()
 data = [[value_min, value_max], [value_min, value_max]]
 # Create a heatmap
-fig, ax = plt.subplots(figsize = (2,1),dpi = 300)
+fig, ax = plt.subplots(figsize = (2,1),dpi = 600)
 # fig2, ax2 = plt.subplots()
 g = sns.heatmap(data, center=center,ax = ax,vmax = value_max,vmin = value_min,cbar_kws={"aspect": 5,"shrink": 1,"orientation": 'horizontal'},cmap = used_cmap)
 # Hide the heatmap itself by setting the visibility of its axes
@@ -99,8 +99,9 @@ plt.show()
 #%% real graph
 plt.clf()
 plt.cla()
+fontsize = 16
 
-fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(17,6),dpi = 180)
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(17,5),dpi = 300)
 # cbar_ax = fig.add_axes([.92, .35, .01, .3])
 heatmap_data_orien = orien_plotable.pivot(index='OrienA_bin', columns='OrienB_bin', values='Corr')
 heatmap_data_od = od_plotable.pivot(index='OD_A_bin', columns='OD_B_bin', values='Corr')
@@ -119,18 +120,18 @@ g3.set_facecolor('gray')
 # sns.heatmap(heatmap_data, cbar=True,square= True,ax = ax,cbar_ax=cbar_ax)
 ## legends here.
 # orientation
-axes[0].set_xlabel('Distance X')
-axes[0].set_ylabel('Distance Y')
-axes[0].set_title('Correlation vs Distance')
+# axes[0].set_xlabel('Distance X')
+# axes[0].set_ylabel('Distance Y')
+# axes[0].set_title('Correlation vs Distance')
 # axes[0].set_xticks([0,6,12,18,24,30])
 axes[0].set_xticks([0,4,8,12,16,20])
-axes[0].set_xticklabels([0,90,180,270,360,450])
+axes[0].set_xticklabels([0,90,180,270,360,450],fontsize = fontsize)
 axes[0].set_yticks([0,4,8,12,16,20])
-axes[0].set_yticklabels([0,90,180,270,360,450])
+axes[0].set_yticklabels([0,90,180,270,360,450],fontsize = fontsize)
 # od
-axes[1].set_xlabel('OD Tuning A')
-axes[1].set_ylabel('OD Tuning B')
-axes[1].set_title('Correlation vs OD Tuning')
+# axes[1].set_xlabel('OD Tuning A')
+# axes[1].set_ylabel('OD Tuning B')
+# axes[1].set_title('Correlation vs OD Tuning')
 
 # od_ticks = [0,5,10,15,20,24,29]
 od_ticks = [0,4,8,12,16,19]
@@ -138,9 +139,9 @@ od_ticks_label = []
 for i,c_group in enumerate(od_ticks):
     od_ticks_label.append(np.round(od_bins[c_group],2))
 axes[1].set_xticks(od_ticks)
-axes[1].set_xticklabels(od_ticks_label)
+axes[1].set_xticklabels(od_ticks_label,fontsize = fontsize)
 axes[1].set_yticks(od_ticks)
-axes[1].set_yticklabels(od_ticks_label)
+axes[1].set_yticklabels(od_ticks_label,fontsize = fontsize)
 # add 0 lines on OD.
 sns.lineplot(x=[0,0], y=[od_ticks_label[0],od_ticks_label[-1]],color = 'black',ax = axes[1])
 
@@ -149,16 +150,18 @@ orien_ticks_label = []
 for i,c_group in enumerate(orien_ticks):
     orien_ticks_label.append(c_group*9)
 axes[2].set_xticks(orien_ticks)
-axes[2].set_xticklabels(orien_ticks_label)
+axes[2].set_xticklabels(orien_ticks_label,fontsize = fontsize)
 axes[2].set_yticks(orien_ticks)
-axes[2].set_yticklabels(orien_ticks_label)
-axes[2].set_xlabel('Orientation A')
-axes[2].set_ylabel('Orientation B')
-axes[2].set_title('Correlation vs Orientation Tuning')
+axes[2].set_yticklabels(orien_ticks_label,fontsize = fontsize)
+# axes[2].set_xlabel('Orientation A')
+# axes[2].set_ylabel('Orientation B')
+# axes[2].set_title('Correlation vs Orientation Tuning')
 # fig.tight_layout()
 for i in range(3):
     # axes[i].xaxis.set_label_position('top') 
     # axes[i].xaxis.tick_top()
     axes[i].invert_yaxis()
+
+fig.tight_layout()
 plt.show()
 

@@ -69,23 +69,41 @@ We can also make a graph of tuning colored.
 plotable_data = ac_strength
 plt.clf()
 plt.cla()
-fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5,6),dpi = 180,sharex= False)
+fontsize = 14
+
+fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4,5),dpi = 300,sharex= False)
+fig.subplots_adjust(hspace=0.4)
 
 pivoted_df = plotable_data.pivot(index=['Loc', 'Cell'], columns='In_Run', values=['dFF'])
 pivoted_df = pivoted_df['dFF']
 axes[0].plot([0,2],[0,2],color = 'gray', linestyle = '--')
-scatter = sns.scatterplot(data=pivoted_df,x = 'Spontaneous',y = 'Stimulus_ON',s = 3,ax = axes[0],linewidth = 0,alpha = 0.7,legend=False,hue= 'Loc')
+scatter = sns.scatterplot(data=pivoted_df,x = 'Spontaneous',y = 'Stimulus_ON',s = 3,ax = axes[0],linewidth = 0,alpha = 0.8,legend=False)
 axes[0].set_xlim(0,2)
 axes[0].set_ylim(0,2)
-axes[0].set_yticks([0,0.5,1,1.5,2])
+
 # axes[1].title.set_text('Cell dF/F Distribution')
-axes[0].set_xlabel('Spontaneous dF/F')
-axes[0].set_ylabel('Stimulus ON dF/F')
+# axes[0].set_xlabel('Spontaneous dF/F')
+# axes[0].set_ylabel('Stimulus ON dF/F')
 # axes[0].xaxis.tick_top()
 # axes[0].xaxis.set_label_position('top') 
 
-hists = sns.histplot(plotable_data,x = 'dFF',ax = axes[1],hue = 'In_Run', stat="density",bins = np.linspace(0,2,50),alpha = 0.7)
+hists = sns.histplot(plotable_data,x = 'dFF',ax = axes[1],hue = 'In_Run', stat='percent',bins = np.linspace(0,2,25),alpha = 0.8,common_norm=False,edgecolor='none')
 axes[1].set_xlim(0,2)
-axes[1].legend(['Stimulus ON', 'Spontaneous'],prop = { "size": 10 })
-axes[1].set_xlabel('dF/F')
-fig.tight_layout()
+axes[1].legend(['Stimulus ON', 'Spontaneous'],prop = { "size": 14 })
+
+axes[0].set_yticks([0,0.5,1,1.5,2])
+axes[0].set_yticklabels([0,0.5,1,1.5,2],fontsize = fontsize)
+axes[1].set_yticks([0,20,40,60])
+axes[1].set_yticklabels([0,20,40,60],fontsize = fontsize)
+for i in range(2):
+    axes[i].set_xticks([0,0.5,1,1.5,2])
+    axes[i].set_xticklabels([0,0.5,1,1.5,2],fontsize = fontsize)
+
+
+axes[0].set_xlabel('')
+axes[1].set_xlabel('')
+axes[0].set_ylabel('')
+axes[1].set_ylabel('')
+
+# fig.tight_layout()
+

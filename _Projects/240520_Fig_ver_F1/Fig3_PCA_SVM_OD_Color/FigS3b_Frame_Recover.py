@@ -69,30 +69,51 @@ for i,c_map in tqdm(enumerate(graph_lists)):
     c_stim_avr = np.clip(c_stim_avr,(c_stim_avr.mean()-clip_std*c_stim_avr.std()),(c_stim_avr.mean()+clip_std*c_stim_avr.std()))
     all_stim_maps[c_map] = c_stim_avr 
     all_spon_recover_maps[c_map] = c_spon_avr
-#%% Plot Frame Similar maps.
+#%% 
+'''
+Plot part, Plot Orientation Frame Repeat Maps.
+'''
+# Bars First
+plt.clf()
+plt.cla()
+vmax = 5
+vmin = -4
+data = [[vmin, vmax], [vmin, vmax]]
+# Create a heatmap
+fig, ax = plt.subplots(figsize = (2,1),dpi = 300)
+# fig2, ax2 = plt.subplots()
+# g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "horizontal"},cmap = 'gist_gray')
+g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "horizontal"})
+# Hide the heatmap itself by setting the visibility of its axes
+ax.set_visible(False)
+g.collections[0].colorbar.set_ticks([vmin,0,vmax])
+g.collections[0].colorbar.set_ticklabels([vmin,0,vmax])
+g.collections[0].colorbar.ax.tick_params(labelsize=8)
+plt.show()
+#%%
 frame_corrs = []
 plt.clf()
 plt.cla()
 value_max = 4
 value_min = -4
 font_size = 16
-fig,axes = plt.subplots(nrows=2, ncols=4,figsize = (14,6),dpi = 180)
-cbar_ax = fig.add_axes([.99, .15, .02, .7])
+fig,axes = plt.subplots(nrows=2, ncols=4,figsize = (14,9),dpi = 300)
+# cbar_ax = fig.add_axes([.99, .15, .02, .7])
 
 for i,c_map in enumerate(graph_lists):
     plotable_c_stim = all_stim_maps[c_map]
     plotable_c_stim = plotable_c_stim/plotable_c_stim.std()
-    sns.heatmap(plotable_c_stim,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+    sns.heatmap(plotable_c_stim,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
 
     plotable_c_spon = all_spon_recover_maps[c_map]
     plotable_c_spon = plotable_c_spon/plotable_c_spon.std()
     c_corr,_ = stats.pearsonr(all_spon_recover_maps[c_map][20:492,20:492].flatten(),all_stim_maps[c_map][20:492,20:492].flatten())
     frame_corrs.append(c_corr)
-    sns.heatmap(plotable_c_spon,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-    axes[0,i].set_title(c_map,size = font_size)
+    sns.heatmap(plotable_c_spon,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    # axes[0,i].set_title(c_map,size = font_size)
 
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
 plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
 fig.tight_layout()
 plt.show()
@@ -158,21 +179,21 @@ plt.cla()
 value_max = 4
 value_min = -4
 font_size = 16
-fig,axes = plt.subplots(nrows=2, ncols=2,figsize = (6,6),dpi = 180)
-cbar_ax = fig.add_axes([.99, .15, .02, .7])
+fig,axes = plt.subplots(nrows=2, ncols=2,figsize = (7,9),dpi = 300)
+# cbar_ax = fig.add_axes([.99, .15, .02, .7])
 for i,c_map in enumerate(graph_lists):
     plotable_c_stim = all_stim_maps[c_map]
     plotable_c_stim = plotable_c_stim/plotable_c_stim.std()
-    sns.heatmap(plotable_c_stim,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+    sns.heatmap(plotable_c_stim,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
     plotable_c_spon = all_spon_recover_maps[c_map]
     plotable_c_spon = plotable_c_spon/plotable_c_spon.std()
     c_corr,_ = stats.pearsonr(all_spon_recover_maps[c_map][20:492,20:492].flatten(),all_stim_maps[c_map][20:492,20:492].flatten())
     frame_corrs.append(c_corr)
-    sns.heatmap(plotable_c_spon,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-    axes[0,i].set_title(c_map,size = font_size)
+    sns.heatmap(plotable_c_spon,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    # axes[0,i].set_title(c_map,size = font_size)
 
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
 plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
 fig.tight_layout()
 plt.show()
@@ -226,22 +247,22 @@ plt.cla()
 value_max = 5
 value_min = -4
 font_size = 16
-fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (9,6),dpi = 180)
-cbar_ax = fig.add_axes([.99, .15, .02, .7])
+fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (10.5,9),dpi = 300)
+# cbar_ax = fig.add_axes([.99, .15, .02, .7])
 for i,c_map in enumerate(graph_lists):
     plotable_c_stim = all_stim_maps[c_map]
     plotable_c_stim = plotable_c_stim/plotable_c_stim.std()
-    sns.heatmap(plotable_c_stim,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+    sns.heatmap(plotable_c_stim,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
 
     plotable_c_spon = all_spon_recover_maps[c_map]
     plotable_c_spon = plotable_c_spon/plotable_c_spon.std()
     c_corr,_ = stats.pearsonr(all_spon_recover_maps[c_map][20:492,20:492].flatten(),all_stim_maps[c_map][20:492,20:492].flatten())
     frame_corrs.append(c_corr)
-    sns.heatmap(plotable_c_spon,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-    axes[0,i].set_title(c_map,size = font_size)
+    sns.heatmap(plotable_c_spon,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    # axes[0,i].set_title(c_map,size = font_size)
 
-axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
-axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
+# axes[1,0].set_ylabel('Stimulus',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('Spontaneous',rotation=90,size = font_size)
 plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
 fig.tight_layout()
 plt.show()

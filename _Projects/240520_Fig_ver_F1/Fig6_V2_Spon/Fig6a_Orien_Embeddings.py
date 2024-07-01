@@ -53,12 +53,19 @@ spon_label = analyzer.spon_label
 #%% Plot PCA VARs.
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,4),dpi = 144)
+fontsize = 12
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3.3,4),dpi = 300)
 sns.barplot(y = model_var_ratio*100,x = np.arange(1,11),ax = ax)
-ax.set_xlabel('PC',size = 12)
+# ax.set_xlabel('PC',size = 12)
 ax.set_ylim(0,22)
-ax.set_ylabel('Explained Variance (%)',size = 12)
-ax.set_title('Each PC explained Variance',size = 14)
+# ax.set_ylabel('Explained Variance (%)',size = 12)
+# ax.set_title('Each PC explained Variance',size = 14)
+ax.set_yticks([0,5,10,15,20])
+ax.set_yticklabels([0,5,10,15,20],fontsize = fontsize)
+ax.set_xticks(np.arange(0,10,1))
+ax.set_xticklabels(np.arange(1,11,1),fontsize = fontsize)
+
+
 
 #%%
 '''
@@ -77,8 +84,8 @@ def Plot_Colorized_Oriens(axes,embeddings,labels,pcs=[4,1,2],color_sets = np.zer
     orien_colors = np.zeros(shape = (len(orien_id),3),dtype='f8')
     for i,c_id in enumerate(orien_id):
         orien_colors[i,:] = color_sets[int(c_id)-9,:]
-    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1)
-    axes.scatter3D(orien[:,0],orien[:,1],orien[:,2],s = 1,c = orien_colors)
+    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 20,lw=0,c = [0.7,0.7,0.7],alpha = 1)
+    axes.scatter3D(orien[:,0],orien[:,1],orien[:,2],s = 20,lw=0,c = orien_colors)
     return axes
 
 #%% P1 Plot color bar here.
@@ -103,16 +110,16 @@ plt.clf()
 plt.cla()
 plotted_pcs = [1,2,3]
 u = spon_embed
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 300,subplot_kw=dict(projection='3d'))
 orien_elev = 25
 orien_azim = 150
 # set axes
-ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
-ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
-ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
+# ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
+# ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
+# ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
 ax.grid(False)
 ax.view_init(elev=orien_elev, azim=orien_azim)
-ax.set_box_aspect(aspect=None, zoom=0.84) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=1) # shrink graphs
 ax.axes.set_xlim3d(left=-20, right=30)
 ax.axes.set_ylim3d(bottom=-30, top=20)
 ax.axes.set_zlim3d(bottom=30, top=-20)
@@ -171,7 +178,7 @@ value_min = -1
 font_size = 16
 fig,axes = plt.subplots(nrows=1, ncols=4,figsize = (14,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
 fig.tight_layout()
 # axes[0].set_ylabel('Spontaneous',rotation=90,size = font_size)
 #%% print R values here.

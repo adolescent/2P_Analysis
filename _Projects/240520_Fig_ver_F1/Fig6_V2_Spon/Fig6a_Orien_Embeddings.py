@@ -54,18 +54,22 @@ spon_label = analyzer.spon_label
 plt.clf()
 plt.cla()
 fontsize = 12
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3.3,4),dpi = 300)
-sns.barplot(y = model_var_ratio*100,x = np.arange(1,11),ax = ax)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,6),dpi = 300)
+sns.barplot(x = model_var_ratio*100,y = np.arange(1,11),ax = ax,orient = 'h')
 # ax.set_xlabel('PC',size = 12)
-ax.set_ylim(0,22)
+ax.set_xlim(0,22)
 # ax.set_ylabel('Explained Variance (%)',size = 12)
 # ax.set_title('Each PC explained Variance',size = 14)
-ax.set_yticks([0,5,10,15,20])
-ax.set_yticklabels([0,5,10,15,20],fontsize = fontsize)
-ax.set_xticks(np.arange(0,10,1))
-ax.set_xticklabels(np.arange(1,11,1),fontsize = fontsize)
-
-
+# ax.set_yticks([0,5,10,15,20])
+# ax.set_yticklabels([0,5,10,15,20],fontsize = fontsize)
+# ax.set_xticks(np.arange(0,10,1))
+# ax.set_xticklabels(np.arange(1,11,1),fontsize = fontsize)
+ax.set_yticks([])
+ax.set_xticks([])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+ax.spines['left'].set_visible(False)
 
 #%%
 '''

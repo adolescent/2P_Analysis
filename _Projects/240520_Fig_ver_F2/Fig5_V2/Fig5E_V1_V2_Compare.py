@@ -78,7 +78,7 @@ plt.clf()
 plt.cla()
 fontsize = 12
 # set graph
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (2,5),dpi = 300)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (2,3.5),dpi = 300)
 sns.barplot(data = plotable,x = 'Map_Type',y = 'Corr',ax = ax,hue = 'Brain Area',capsize = 0.2,hue_order = ['V1','V2'],width = 0.5)
 
 ax.legend(fontsize=fontsize)

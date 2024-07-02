@@ -209,7 +209,7 @@ all_corrs = pd.DataFrame(0.0,columns = pc_list,index = networks)
 
 # fill it with pearsonr
 for i,c_pc in enumerate(pc_list):
-    c_pc_response = spon_pcs_s[i,:]
+    c_pc_response = spon_pcs[i,:]
     for j,c_net in enumerate(networks):
         c_stim_response = all_response[j]
         c_r,_ = stats.pearsonr(c_pc_response,c_stim_response)
@@ -220,13 +220,14 @@ value_max = 0.8
 value_min = 0
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 300)
-sns.heatmap(all_corrs,center = 0,annot=True,cmap = 'bwr', fmt=".2f",ax = ax,vmax = value_max,vmin = value_min,cbar=False,annot_kws={"size": 12})
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (5,8),dpi = 300)
+sns.heatmap(all_corrs.T,center = 0,annot=True,cmap = 'bwr', fmt=".2f",ax = ax,vmax = value_max,vmin = value_min,cbar=False,annot_kws={"size": 14})
 
 # ax.set_xticks([])
 # ax.set_yticks([])
-ax.set_xticks(np.arange(0,10)+0.5)
-ax.set_xticklabels(np.arange(1,11),fontsize = 12)
-
+ax.set_yticks(np.arange(0,10)+0.5)
+ax.set_yticklabels(np.arange(1,11),fontsize = 14)
+ax.set_xticklabels(['OD','0°-90°','45°-135°','Red','Blue'],fontsize = 14)
+ax.xaxis.tick_top()
 plt.show()
 

@@ -112,8 +112,8 @@ for i,c_map in enumerate([heatmap_data_od,heatmap_data_orien,heatmap_data_dist])
 
     
 g1 = sns.heatmap(heatmap_data_dist, center =center,vmax = vmax,square= True,ax = axes[0],cbar=False,xticklabels=False,yticklabels=False,cmap=used_cmap,vmin = vmin)
-g2 = sns.heatmap(heatmap_data_od, center =center,vmax = vmax,square= True,ax = axes[1],cbar=False,xticklabels=False,yticklabels=False,cmap=used_cmap,vmin = vmin)
-g3 = sns.heatmap(heatmap_data_orien, center =center,vmax = vmax,square= True,ax = axes[2],cbar=False,xticklabels=False,yticklabels=False,cmap=used_cmap,vmin = vmin)
+g2 = sns.heatmap(heatmap_data_od, center =center,vmax = vmax,square= True,ax = axes[2],cbar=False,xticklabels=False,yticklabels=False,cmap=used_cmap,vmin = vmin)
+g3 = sns.heatmap(heatmap_data_orien, center =center,vmax = vmax,square= True,ax = axes[1],cbar=False,xticklabels=False,yticklabels=False,cmap=used_cmap,vmin = vmin)
 g1.set_facecolor('gray')
 g2.set_facecolor('gray')
 g3.set_facecolor('gray')
@@ -138,10 +138,10 @@ od_ticks = [0,4,8,12,16,19]
 od_ticks_label = []
 for i,c_group in enumerate(od_ticks):
     od_ticks_label.append(np.round(od_bins[c_group],2))
-axes[1].set_xticks(od_ticks)
-axes[1].set_xticklabels(od_ticks_label,fontsize = fontsize)
-axes[1].set_yticks(od_ticks)
-axes[1].set_yticklabels(od_ticks_label,fontsize = fontsize)
+axes[2].set_xticks(od_ticks)
+axes[2].set_xticklabels(od_ticks_label,fontsize = fontsize)
+axes[2].set_yticks(od_ticks)
+axes[2].set_yticklabels(od_ticks_label,fontsize = fontsize)
 # add 0 lines on OD.
 sns.lineplot(x=[0,0], y=[od_ticks_label[0],od_ticks_label[-1]],color = 'black',ax = axes[1])
 
@@ -149,10 +149,10 @@ orien_ticks = [0,4,8,12,16,20]
 orien_ticks_label = []
 for i,c_group in enumerate(orien_ticks):
     orien_ticks_label.append(c_group*9)
-axes[2].set_xticks(orien_ticks)
-axes[2].set_xticklabels(orien_ticks_label,fontsize = fontsize)
-axes[2].set_yticks(orien_ticks)
-axes[2].set_yticklabels(orien_ticks_label,fontsize = fontsize)
+axes[1].set_xticks(orien_ticks)
+axes[1].set_xticklabels(orien_ticks_label,fontsize = fontsize)
+axes[1].set_yticks(orien_ticks)
+axes[1].set_yticklabels(orien_ticks_label,fontsize = fontsize)
 # axes[2].set_xlabel('Orientation A')
 # axes[2].set_ylabel('Orientation B')
 # axes[2].set_title('Correlation vs Orientation Tuning')

@@ -54,7 +54,7 @@ model_var_ratio_s = np.array(spon_model_s.explained_variance_ratio_)
 print(f'{pcnum} PCs explain Spontaneous VAR {model_var_ratio_s[:pcnum].sum()*100:.1f}%')
 
 #%% Plot raw embeddings of previous 3 PCs.
-u = spon_coords_s[:,:3]
+u = spon_coords[:,:3]
 
 plt.clf()
 plt.cla()

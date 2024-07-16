@@ -148,9 +148,9 @@ ax = Plot_Colorized_Color(ax,spon_embed,np.zeros(len(spon_label)),plotted_pcs,co
 # ax.set_title('Color Stimulus in PCA Space',size = 10)
 # ax.set_title('Classified Spontaneous in PCA Space',size = 10)
 # ax.set_title('Spontaneous in PCA Space',size = 10)
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_zticks([])
+# ax.set_xticks([])
+# ax.set_yticks([])
+# ax.set_zticks([])
 fig.tight_layout()
 
 #%%

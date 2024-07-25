@@ -113,7 +113,12 @@ tmp_planes = ax.zaxis._PLANES
 ax.zaxis._PLANES = (tmp_planes[2], tmp_planes[3], 
                     tmp_planes[0], tmp_planes[1], 
                     tmp_planes[4], tmp_planes[5])
-sc = ax.scatter3D(c_pc_coords[:,OD_PCs[0]], c_pc_coords[:,OD_PCs[1]], c_pc_coords[:,OD_PCs[2]],s = 20,lw=0,c = np.array(ac_ods),cmap = 'bwr',vmin = -2,vmax = 1.5)
+sc = ax.scatter3D(c_pc_coords[:,OD_PCs[0]], c_pc_coords[:,OD_PCs[1]], c_pc_coords[:,OD_PCs[2]],s = 20,lw=0,c = np.array(ac_ods),cmap = 'bwr',vmin = -2,vmax = 1.5,alpha = 0.5)
+
+# Then We Plot vector of OD on the given graph.
+used_od_vec = 2*OD_vec[OD_PCs]
+ax.quiver(0, 0, 0, used_od_vec[0],used_od_vec[1], used_od_vec[2], color='black', linewidth=2)
+
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
@@ -182,7 +187,15 @@ for i in range(len(ac_oriens)):
         orien_color[i,:] = [0.7,0.7,0.7]
     else:
         orien_color[i,:] = color_setb[int(float(ac_oriens.iloc[i][5:])/22.5),:]
-ax.scatter3D(c_pc_coords[:,Orien_PCs[0]],c_pc_coords[:,Orien_PCs[1]],c_pc_coords[:,Orien_PCs[2]],s = 20,lw=0,c = orien_color)
+ax.scatter3D(c_pc_coords[:,Orien_PCs[0]],c_pc_coords[:,Orien_PCs[1]],c_pc_coords[:,Orien_PCs[2]],s = 20,lw=0,c = orien_color,alpha = 0.5)
+
+
+# Plot HV and AO vecs
+used_hv_vec = HV_vec[Orien_PCs]
+ax.quiver(0, 0, 0, used_hv_vec[0],used_hv_vec[1], used_hv_vec[2], color='red', linewidth=2)
+used_ao_vec = AO_vec[Orien_PCs]
+ax.quiver(0, 0, 0, used_ao_vec[0],used_ao_vec[1], used_ao_vec[2], color='blue', linewidth=2)
+
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])

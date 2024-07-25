@@ -96,8 +96,11 @@ plt.cla()
 fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (12,5),dpi = 180)
 # sns.histplot(data = plotable,hue = 'Loc',x = 'OD_Color',ax = ax,alpha = 0.5,common_norm=False,stat='percent',cbar=False)
 # sns.stripplot(data=plotable, x="Network_Type", y="Prop.",hue = 'Loc')
-sns.barplot(data=plotable, x="Network_Type", y="Prop.",capsize=0.2,width=0.5,palette=["C0", "C1", "C2", "C0", "C1", "C2","C0", "C1", "C2",])
+sns.barplot(data=plotable, x="Network_Type", y="Prop.",capsize=0.2,width=0.5,palette=["C0", "C1", "C2", "C0", "C1", "C2","C0", "C1", "C2"])
 #%% Do some stat test 
 real = all_prop_frame.groupby('Network_Type').get_group('Orien_Color')
 shuffle = all_prop_frame.groupby('Network_Type').get_group('Orien_Color_S')
 t,p = stats.ttest_rel(real['Prop.'],shuffle['Prop.'])
+
+
+

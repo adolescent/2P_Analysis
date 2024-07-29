@@ -66,8 +66,8 @@ o157_resp = ac.Orien_t_graphs['Orien157.5-0'].loc['CohenD']
 
 o0_frame = ac.Generate_Weighted_Cell(o0_resp)
 o0_blured = Graph_Filler(ac_locs,o0_resp)
-exp_o0_shuffle = ac.Generate_Weighted_Cell(orien_shuffled[0][0])
-exp_o0_shuffle_blured = Graph_Filler(ac_locs,orien_shuffled[0][0])
+exp_o0_shuffle = ac.Generate_Weighted_Cell(orien_shuffled[1][0])
+exp_o0_shuffle_blured = Graph_Filler(ac_locs,orien_shuffled[1][0])
 
 #%% Plot example parts
 plotable = exp_o0_shuffle
@@ -88,7 +88,7 @@ data = [[vmin, vmax], [vmin, vmax]]
 # Create a heatmap
 fig, ax = plt.subplots(figsize = (2,1),dpi = 600)
 # fig2, ax2 = plt.subplots()
-g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 10,"shrink": 1,"orientation": "horizontal"},cmap='gist_gray')
+g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "vertical"},cmap='gist_gray')
 # Hide the heatmap itself by setting the visibility of its axes
 ax.set_visible(False)
 g.collections[0].colorbar.set_ticks([vmin,0,vmax])

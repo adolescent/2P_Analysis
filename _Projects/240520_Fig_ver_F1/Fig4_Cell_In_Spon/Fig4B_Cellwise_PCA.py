@@ -235,8 +235,8 @@ plt.cla()
 font_size = 12
 fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (10.5,9),dpi = 300)
 # cbar_ax = fig.add_axes([.97, .15, .02, .7])
-all_pc_axes = [OD_vec_map,HV_vec_map,AO_vec_map]
-all_stim_graphs = [OD_stimmap,HV_stimmap,AO_stimmap]
+all_pc_axes = [HV_vec_map,AO_vec_map,OD_vec_map]
+all_stim_graphs = [HV_stimmap,AO_stimmap,OD_stimmap]
 
 
 for i,c_map in enumerate(graph_lists):

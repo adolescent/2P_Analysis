@@ -69,13 +69,18 @@ ac_ods = c_ac.all_cell_tunings.loc['OD',:]
 LE_cells = np.where(c_ac.all_cell_tunings.loc['Best_Eye',:]=='LE')[0] # this is absolute id.
 RE_cells = np.where(c_ac.all_cell_tunings.loc['Best_Eye',:]=='RE')[0] # this is absolute id.
 OD_vec = Vector_Caculator(c_pc_coords,LE_cells,RE_cells)
+LE_vec = Vector_Caculator(c_pc_coords,LE_cells)
+RE_vec = Vector_Caculator(c_pc_coords,RE_cells)
 Orien0_cells = np.where(ac_oriens == 'Orien0')[0]
 Orien90_cells = np.where(ac_oriens == 'Orien90')[0]
 HV_vec = Vector_Caculator(c_pc_coords,Orien0_cells,Orien90_cells)
+H_vec = Vector_Caculator(c_pc_coords,Orien0_cells)
+V_vec = Vector_Caculator(c_pc_coords,Orien90_cells)
 Orien45_cells = np.where(ac_oriens == 'Orien45')[0]
 Orien135_cells = np.where(ac_oriens == 'Orien135')[0]
 AO_vec = Vector_Caculator(c_pc_coords,Orien45_cells,Orien135_cells)
-
+A_vec = Vector_Caculator(c_pc_coords,Orien45_cells)
+O_vec = Vector_Caculator(c_pc_coords,Orien135_cells)
 #%%
 '''
 Fig 4CA, We scatter OD Graphs.
@@ -116,8 +121,11 @@ ax.zaxis._PLANES = (tmp_planes[2], tmp_planes[3],
 sc = ax.scatter3D(c_pc_coords[:,OD_PCs[0]], c_pc_coords[:,OD_PCs[1]], c_pc_coords[:,OD_PCs[2]],s = 20,lw=0,c = np.array(ac_ods),cmap = 'bwr',vmin = -2,vmax = 1.5,alpha = 0.5)
 
 # Then We Plot vector of OD on the given graph.
-used_od_vec = 2*OD_vec[OD_PCs]
-ax.quiver(0, 0, 0, used_od_vec[0],used_od_vec[1], used_od_vec[2], color='black', linewidth=2)
+mag = 2
+used_od_vec = -OD_vec[OD_PCs]*mag
+used_le_vec = LE_vec[OD_PCs]
+used_re_vec = RE_vec[OD_PCs]
+ax.quiver(used_le_vec[0],used_le_vec[1],used_le_vec[2], used_od_vec[0],used_od_vec[1], used_od_vec[2], color='black', linewidth=2)
 
 ax.set_xticks([])
 ax.set_yticks([])
@@ -187,14 +195,20 @@ for i in range(len(ac_oriens)):
         orien_color[i,:] = [0.7,0.7,0.7]
     else:
         orien_color[i,:] = color_setb[int(float(ac_oriens.iloc[i][5:])/22.5),:]
-ax.scatter3D(c_pc_coords[:,Orien_PCs[0]],c_pc_coords[:,Orien_PCs[1]],c_pc_coords[:,Orien_PCs[2]],s = 20,lw=0,c = orien_color,alpha = 0.5)
+ax.scatter3D(c_pc_coords[:,Orien_PCs[0]],c_pc_coords[:,Orien_PCs[1]],c_pc_coords[:,Orien_PCs[2]],s = 20,lw=0,c = orien_color,alpha = 0.4)
 
 
 # Plot HV and AO vecs
-used_hv_vec = HV_vec[Orien_PCs]
-ax.quiver(0, 0, 0, used_hv_vec[0],used_hv_vec[1], used_hv_vec[2], color='red', linewidth=2)
-used_ao_vec = AO_vec[Orien_PCs]
-ax.quiver(0, 0, 0, used_ao_vec[0],used_ao_vec[1], used_ao_vec[2], color='blue', linewidth=2)
+mag_hv = 1
+used_hv_vec = HV_vec[Orien_PCs]*mag_hv 
+used_h_vec = H_vec[Orien_PCs]
+used_v_vec = V_vec[Orien_PCs]
+ax.quiver(used_v_vec[0],used_v_vec[1],used_v_vec[2], used_hv_vec[0],used_hv_vec[1], used_hv_vec[2], color='red', linewidth=2)
+mag_ao = 2
+used_ao_vec = AO_vec[Orien_PCs]*mag_ao
+used_a_vec = A_vec[Orien_PCs]
+used_o_vec = O_vec[Orien_PCs]
+ax.quiver(used_o_vec[0],used_o_vec[1],used_o_vec[2], used_ao_vec[0],used_ao_vec[1], used_ao_vec[2], color='blue', linewidth=2)
 
 ax.set_xticks([])
 ax.set_yticks([])

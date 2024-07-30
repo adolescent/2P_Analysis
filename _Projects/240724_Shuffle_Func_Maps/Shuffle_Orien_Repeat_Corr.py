@@ -70,7 +70,7 @@ exp_o0_shuffle = ac.Generate_Weighted_Cell(orien_shuffled[1][0])
 exp_o0_shuffle_blured = Graph_Filler(ac_locs,orien_shuffled[1][0])
 
 #%% Plot example parts
-plotable = exp_o0_shuffle
+plotable = exp_o0_shuffle_blured
 vmax = 3
 vmin = -2
 

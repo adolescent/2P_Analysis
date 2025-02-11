@@ -19,20 +19,60 @@ import umap.plot
 from Kill_Cache import kill_all_cache
 import copy
 
-wp = r'D:\#Shu_Data\UMAP_Pinch_Spon_Compare'
+#%%
+pinch_folder = r'E:\临时存储20240819\全参数监测tailpinch\NewData'
+spon_folder = r'E:\临时存储20240819\全参数监测自然觉醒\RawData'
+spon_subfolders = ot.Get_Subfolders(spon_folder)
+pinch_subfolders = ot.Get_Subfolders(pinch_folder)
 
 
-pinch_frames = ot.Load_Variable(r'D:\#Shu_Data\TailPinch\ChatFlox_Cre\_Stats_All_Points','Normalized_All_Raw_Parameters.pkl')
-spon_frames = ot.Load_Variable(r'D:\#Shu_Data\Data_SpontaneousWakeUp\_Stats_All_Points','Normalized_All_Raw_Parameters.pkl')
-# all_frames = ot.Load_Variable(wp,'All_Raw_Parameters.pkl')
-# all_case = list(set(all_frames['Case']))
+for i,cloc in tqdm(enumerate(spon_subfolders)):
+    cloc_name = cloc.split('\\')[-1]
+    cc_frame = ot.Load_Variable_v2(ot.Get_File_Name(cloc,'.pkl')[-1])['All_Frames']
+    cc_frame =  (cc_frame-cc_frame.mean(0))/cc_frame.std(0)
+    cc_frame['Time']=list(range(len(cc_frame)))
+    cc_frame['Case'] = cloc_name
+    if i ==0:
+        all_spon_frame = copy.deepcopy(cc_frame)
+    else:
+        all_spon_frame = pd.concat([all_spon_frame,cc_frame])
 
-# concat frames, keep only common paras
-pinch_frames['Type'] = 'Pinch'
-spon_frames['Type'] = 'Spon'
-all_frames = pd.concat([pinch_frames,spon_frames])
+for i,cloc in tqdm(enumerate(pinch_subfolders)):
+    cloc_name = cloc.split('\\')[-1]
+    cc_frame = ot.Load_Variable_v2(ot.Get_File_Name(cloc,'.pkl')[-1])['All_Frames']
+    cc_frame =  (cc_frame-cc_frame.mean(0))/cc_frame.std(0)
+    cc_frame['Time']=list(range(len(cc_frame)))
+    cc_frame['Case'] = cloc_name
+    if i ==0:
+        all_pinch_frame = copy.deepcopy(cc_frame)
+    else:
+        all_pinch_frame = pd.concat([all_pinch_frame,cc_frame])
+
+all_pinch_frame['Type'] = 'Pinch'
+all_spon_frame['Type'] = 'Spon'
+all_frames = pd.concat([all_pinch_frame,all_spon_frame])
 all_frames = all_frames.dropna(how='any',axis = 1)
 all_case = list(set(all_frames['Case']))
+
+#%% 
+# wp = r'D:\#Shu_Data\UMAP_Pinch_Spon_Compare'
+
+
+# pinch_frames = ot.Load_Variable(r'D:\#Shu_Data\TailPinch\ChatFlox_Cre\_Stats_All_Points','Normalized_All_Raw_Parameters.pkl')
+# spon_frames = ot.Load_Variable(r'D:\#Shu_Data\Data_SpontaneousWakeUp\_Stats_All_Points','Normalized_All_Raw_Parameters.pkl')
+# # spon_frames = ot.Load_Variable(r'E:\临时存储20240819\全参数监测自然觉醒\RawData\20240708_#1085\All_Params_1Hz_#1085.pkl')
+# # spon_frames = spon_frames['All_Frames']
+# # spon_frames = (spon_frames-spon_frames.mean(0))/spon_frames.std(0)
+
+# # all_frames = ot.Load_Variable(wp,'All_Raw_Parameters.pkl')
+# # all_case = list(set(all_frames['Case']))
+
+# # concat frames, keep only common paras
+# pinch_frames['Type'] = 'Pinch'
+# spon_frames['Type'] = 'Spon'
+# all_frames = pd.concat([pinch_frames,spon_frames])
+# all_frames = all_frames.dropna(how='any',axis = 1)
+# all_case = list(set(all_frames['Case']))
 #%% down sample data, umap is a slow calculation, we can use 10s as a bin.
 bin_width = 10
 
@@ -52,18 +92,39 @@ n_comp = 2
 
 kill_all_cache(r'C:\ProgramData\anaconda3\envs\umapzr')
 reducer = umap.UMAP(n_components=n_comp,n_neighbors=n_nei)
+# reducer = umap.UMAP(n_components=n_comp,n_neighbors=n_nei,min_dist=0.2)
 # data_frames = down_all_frames.groupby('Case').get_group(all_case[3])
 umapable_frames = copy.deepcopy(down_all_frames)
+# umapable_frames = umapable_frames[umapable_frames['Type']=='Spon']
 umapable_frames = umapable_frames.drop(columns=['Case', 'Time','Type'])
 # data_frames = data_frames.drop('Time',axis = 1)
 reducer.fit(np.array(umapable_frames))
-ot.Save_Variable(wp,'UMAP_2D_1000N',reducer)
+# ot.Save_Variable(wp,'UMAP_2D_1000N',reducer)
+# scatters = reducer.transform(np.array(down_all_frames.drop(columns = ['Case','Time','Type'])))
+#%% Plot all time data point of a single pooint.
+scatters = reducer.transform(all_frames[all_frames['Case']==all_case[0]].drop(columns = ['Case','Time','Type']))
+#%% Plot single location's all response.
+All_Loc_Embeddings = pd.DataFrame(columns = ['UMAP1','UMAP2','Time'])
+All_Loc_Embeddings['UMAP1'] = scatters[:,0]
+All_Loc_Embeddings['UMAP2'] = scatters[:,1]
+All_Loc_Embeddings['Time'] = list(range(len(scatters)))
+
+plt.clf()
+plt.cla()
+plotable_data = All_Loc_Embeddings
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (12,10),dpi = 180,sharex= True)
+sns.scatterplot(data = plotable_data,x = 'UMAP1',y = 'UMAP2',hue = 'Time',ax = ax,s = 3,palette = 'hsv',linewidth = 0)
+ax.set_xlabel('UMAP 1',size = 14)
+ax.set_ylabel('UMAP 2',size = 14)
+# ax.set_title(f'UMAP Embedding of Spontaneous Wakeup',size = 20)
+fig.savefig(ot.join(wp,'All_Embedding_Pinch.svg'))
 #%%
 '''
 Till here, calculation is done. We will Visualize the data.
 
 '''
-scatters = reducer.embedding_
+# scatters = reducer.embedding_
+scatters = reducer.transform(down_all_frames.drop(columns = ['Case','Time','Type']))
 All_Loc_Embeddings = pd.DataFrame(columns = ['Case','UMAP1','UMAP2','Time','Type'])
 All_Loc_Embeddings['Case'] = down_all_frames['Case']
 All_Loc_Embeddings['Time'] = down_all_frames['Time']
@@ -83,8 +144,10 @@ All_Loc_Embeddings['UMAP2'] = All_Loc_Embeddings['UMAP2'].astype('f8')
 plt.clf()
 plt.cla()
 plotable_data = All_Loc_Embeddings[All_Loc_Embeddings['Case'] != '20240129_#243_chat-flox']
-plotable_data = plotable_data[plotable_data['Type']=='Spon']
-# plotable_data = plotable_data[plotable_data['Type']=='Pinch']
+# plotable_data = plotable_data[plotable_data['Type']=='Spon']
+plotable_data = plotable_data[plotable_data['Type']=='Pinch']
+# plotable_data = plotable_data[plotable_data['Case']=='20240708_#1085']
+
 
 fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (12,10),dpi = 180,sharex= True)
 sns.scatterplot(data = plotable_data,x = 'UMAP1',y = 'UMAP2',hue = 'Time',ax = ax,s = 3,palette = 'hsv',linewidth = 0)
@@ -94,6 +157,9 @@ sns.scatterplot(data = plotable_data,x = 'UMAP1',y = 'UMAP2',hue = 'Time',ax = a
 ax.set_xlabel('UMAP 1',size = 14)
 ax.set_ylabel('UMAP 2',size = 14)
 ax.set_title(f'UMAP Embedding of Spontaneous Wakeup',size = 20)
+# ax.set_xlim(-5,15)
+# ax.set_ylim(-3,15)
+
 
 fig.savefig(ot.join(wp,'All_Embedding_Spon.svg'))
 

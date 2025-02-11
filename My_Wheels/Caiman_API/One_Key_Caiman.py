@@ -402,10 +402,10 @@ class One_Key_Caiman(object):
         
 #%% Test run part.       
 if __name__ == '__main__' :
-    day_folder = r'D:\ZR\_Temp_Data\222222_L76_Test'
-    run_lists = [4,5,6]
+    day_folder = r'D:\ZR\_Data_Temp\_Temp_Data\222222_L76_Test'
+    run_lists = [5]
     plt.switch_backend('webAgg')
-    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-004',boulder = (20,20,20,20))
+    Okc = One_Key_Caiman(day_folder, run_lists,align_base = '1-005',boulder = (20,20,20,20))
     #Okc.Do_Caiman()
     Okc.Motion_Corr_All()
     #Okc.global_avr = cv2.imread(r'G:\Test_Data\2P\220630_L76_2P\_CAIMAN\Summarize\Global_Average_cai.tif',-1)

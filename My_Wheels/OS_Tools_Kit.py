@@ -243,6 +243,9 @@ def Get_Subfolders(root_path,keyword = '',method = 'Whole'):
                     elif method == 'Relative':
                         all_path.append(dir_name)
     return all_path
+def Get_Sub_Folders(root_path):
+    all_path = Get_Subfolders(root_path)
+    return all_path
 
 #%% Function8, Return upper folder.
 def CDdotdot(file_name):

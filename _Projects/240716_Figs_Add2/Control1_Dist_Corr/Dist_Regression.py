@@ -1,3 +1,8 @@
+'''
+This script will regress distance on cell-wise correlation, this will verify that not all corr is caused by spacial distance.
+'''
+
+
 #%% 
 from Cell_Class.Stim_Calculators import Stim_Cells
 from Cell_Class.Format_Cell import Cell
@@ -19,32 +24,50 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.colors as mcolors
 import colorsys
 import matplotlib as mpl
+from scipy.stats import linregress
+
 
 import warnings
 warnings.filterwarnings("ignore")
 
 wp = r'D:\_Path_For_Figs\240520_Figs_ver_F1\Fig4_Cell_In_Spon'
 all_pair_corrs = ot.Load_Variable(wp,'All_Pair_Corrs.pkl')
+all_loc_dic = list(all_pair_corrs.keys())
+#%% For each network, let's regress distance.
+'''
+Step0, we generate distance regressed data.
+'''
+fit_infos = pd.DataFrame(columns = ['Loc','Intercept','Slope','R2'])
+all_reg_corrs = {}
 
-
+for i,cloc in tqdm(enumerate(all_loc_dic)):
+    cloc_name = cloc.split('\\')[-1]
+    c_corr = copy.deepcopy(all_pair_corrs[cloc_name])
+    dists = c_corr['Dist']
+    real_corr = c_corr['Corr']
+    # do 1d regression and r2 estimation
+    result = linregress(dists,real_corr)
+    predicts = result.intercept + result.slope*dists
+    r2 = result.rvalue**2
+    fit_infos.loc[len(fit_infos)] = [cloc_name,result.intercept,result.slope,r2]
+    regressed_corr = real_corr-predicts
+    c_corr['Corr_Dist_Reg'] = regressed_corr
+    all_reg_corrs[cloc_name] = c_corr
 #%%
 '''
-Fig 4C, we average all locations, and return the good ratio of pairwise correlation.
+Step1, we do the same analysis as Fig 4.
 '''
 
-center = 0.37
-vmax = 0.5
-vmin = 0.2
-used_cmap = 'inferno'
+
 n_bin = 21
 
-all_locname = list(all_pair_corrs.keys())
+all_locname = list(all_reg_corrs.keys())
 # example_loc = all_pair_corrs[all_locname[4]]
 for i,cloc in enumerate(all_locname):
     if i == 0:
-        example_loc = copy.deepcopy(all_pair_corrs[all_locname[i]])
+        example_loc = copy.deepcopy(all_reg_corrs[all_locname[i]])
     else:
-        example_loc = pd.concat([example_loc,all_pair_corrs[all_locname[i]]])
+        example_loc = pd.concat([example_loc,all_reg_corrs[all_locname[i]]])
 
 example_loc['OrienA_bin'] = pd.cut(example_loc['OrienA'], bins=np.linspace(0,180,n_bin), right=False)
 example_loc['OrienB_bin'] = pd.cut(example_loc['OrienB'], bins=np.linspace(0,180,n_bin), right=False)
@@ -74,11 +97,16 @@ example_loc_sym['OrienB_bin'] = example_loc_sym['OrienA_bin']
 example_loc_sym['OrienA_bin'] = temp
 example_loc = pd.concat([example_loc,example_loc_sym])
 
-orien_plotable = example_loc.groupby(['OrienA_bin', 'OrienB_bin'], as_index=False)['Corr'].mean()
-od_plotable = example_loc.groupby(['OD_A_bin', 'OD_B_bin'], as_index=False)['Corr'].mean()
-dist_plotable = example_loc.groupby(['DistX_bin','DistY_bin'], as_index=False)['Corr'].mean()
+orien_plotable = example_loc.groupby(['OrienA_bin', 'OrienB_bin'], as_index=False)['Corr_Dist_Reg'].mean()
+od_plotable = example_loc.groupby(['OD_A_bin', 'OD_B_bin'], as_index=False)['Corr_Dist_Reg'].mean()
+dist_plotable = example_loc.groupby(['DistX_bin','DistY_bin'], as_index=False)['Corr_Dist_Reg'].mean()
 #%% Plot parts
 # bar first
+fontsize = 16
+center = 0.05
+vmax = 0.15
+vmin = 0
+used_cmap = 'inferno'
 
 value_max = vmax
 value_min = vmin
@@ -95,17 +123,16 @@ g.collections[0].colorbar.set_ticks([value_min,value_max])
 g.collections[0].colorbar.set_ticklabels([value_min,value_max])
 g.collections[0].colorbar.ax.tick_params(labelsize=8)
 plt.show()
-
-#%% real graph
+#%% Real graph
 plt.clf()
 plt.cla()
-fontsize = 16
+
 
 fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(17,5),dpi = 300)
 # cbar_ax = fig.add_axes([.92, .35, .01, .3])
-heatmap_data_orien = orien_plotable.pivot(index='OrienA_bin', columns='OrienB_bin', values='Corr')
-heatmap_data_od = od_plotable.pivot(index='OD_A_bin', columns='OD_B_bin', values='Corr')
-heatmap_data_dist = dist_plotable.pivot(index='DistX_bin', columns='DistY_bin', values='Corr')
+heatmap_data_orien = orien_plotable.pivot(index='OrienA_bin', columns='OrienB_bin', values='Corr_Dist_Reg')
+heatmap_data_od = od_plotable.pivot(index='OD_A_bin', columns='OD_B_bin', values='Corr_Dist_Reg')
+heatmap_data_dist = dist_plotable.pivot(index='DistX_bin', columns='DistY_bin', values='Corr_Dist_Reg')
 for i,c_map in enumerate([heatmap_data_od,heatmap_data_orien,heatmap_data_dist]):
     c_map.columns = [str(bin.left) for bin in c_map.columns]
     c_map.index = [str(bin.left) for bin in c_map.index]
@@ -164,4 +191,38 @@ for i in range(3):
 
 fig.tight_layout()
 plt.show()
+
+#%%
+'''
+Step2, we get the OD-Orien 2D linear model, and get r2.
+'''
+
+for i,cloc in enumerate(all_loc_dic):
+    c_corr = all_reg_corrs[cloc]
+    if i == 0:
+        all_reg_corrs_concat = copy.deepcopy(c_corr)
+    else:
+        all_reg_corrs_concat = pd.concat([all_reg_corrs_concat,c_corr])
+#%% scatter plot
+plotable = copy.deepcopy(all_reg_corrs_concat)
+# plotable = all_reg_corrs[cloc]
+# plotable['OD_Diff'] = abs(plotable['OD_Diff'])
+plt.clf()
+plt.cla()
+fig, ax = plt.subplots(figsize = (6,4),dpi = 300)
+sns.histplot(data = plotable,x = 'OD_Diff',y = 'Corr_Dist_Reg',ax = ax,bins = 30)
+ax.set_ylim(-0.4,0.4)
+ax.set_xlim(0,3)
+#%% and we get R2 of OD-Orien 2D linear model.
+from sklearn.linear_model import LinearRegression
+model_r2 = []
+for i,cloc in tqdm(enumerate(all_loc_dic)):
+    c_corr = copy.deepcopy(all_reg_corrs[cloc])
+    reg_corr = c_corr['Corr_Dist_Reg']
+    OD_diff = c_corr['OD_Diff']
+    Orien_diff = c_corr['Orien_Diff']
+    X = np.array([OD_diff,Orien_diff]).T
+    reg = LinearRegression().fit(X,reg_corr)
+    r2 = reg.score(X,reg_corr)
+    model_r2.append(r2)
 

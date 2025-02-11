@@ -53,12 +53,24 @@ spon_label = analyzer.spon_label
 #%% Plot PCA VARs.
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,4),dpi = 144)
-sns.barplot(y = model_var_ratio*100,x = np.arange(1,11),ax = ax)
-ax.set_xlabel('PC',size = 12)
-ax.set_ylim(0,30)
-ax.set_ylabel('Explained Variance (%)',size = 12)
-ax.set_title('Each PC explained Variance',size = 14)
+fontsize = 12
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,6),dpi = 300)
+sns.barplot(x = model_var_ratio*100,y = np.arange(1,11),ax = ax,orient = 'h')
+# ax.set_xlabel('PC',size = 12)
+ax.set_xlim(0,30)
+# ax.set_ylabel('Explained Variance (%)',size = 12)
+# ax.set_title('Each PC explained Variance',size = 14)
+# ax.set_yticks([0,10,20,30])
+# ax.set_yticklabels([0,10,20,30],fontsize = fontsize)
+# ax.set_xticks(np.arange(0,10,1))
+# ax.set_xticklabels(np.arange(1,11,1),fontsize = fontsize)
+
+ax.set_yticks([])
+ax.set_xticks([])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+ax.spines['left'].set_visible(False)
 
 
 #%%
@@ -79,8 +91,8 @@ def Plot_Colorized_Color(axes,embeddings,labels,pcs=[2,5,6],color_sets = np.arra
     color_colors = np.zeros(shape = (len(color_ids),3),dtype='f8')
     for i,c_id in enumerate(color_ids):
         color_colors[i,:] = color_sets[int(c_id)-17,:]
-    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7],alpha = 1)
-    axes.scatter3D(color[:,0],color[:,1],color[:,2],s = 1,c = color_colors)
+    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 20,lw=0,c = [0.7,0.7,0.7],alpha = 1)
+    axes.scatter3D(color[:,0],color[:,1],color[:,2],s = 20,lw=0,c = color_colors)
     return axes
 #%% Plot parts
 import matplotlib.cm as cm
@@ -89,15 +101,16 @@ import matplotlib.colors as mcolors
 import matplotlib as mpl
 import colorsys
 
-fig = plt.figure(figsize = (2,4),dpi = 180)
+fig = plt.figure(figsize = (2,2),dpi = 300)
 color_setb = np.array([[1,0,0],[1,1,0],[0,1,0],[0,1,1],[0,0,1],[1,0,1]])
 cax_b = fig.add_axes([-0.5, 0, 0.08, 0.9])
 custom_cmap = mcolors.ListedColormap(color_setb)
 bounds = np.arange(0,7,1)
 norm = mpl.colors.BoundaryNorm(bounds, custom_cmap.N)
-c_bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=custom_cmap),cax=cax_b, label='Best Color')
-c_bar.set_ticks(np.arange(0,6,1)+0.5)
-c_bar.set_ticklabels(['Red','Yellow','Green','Cyan','Blue','Purple'])
+c_bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=custom_cmap),cax=cax_b, label='')
+c_bar.set_ticks([])
+# c_bar.set_ticks(np.arange(0,6,1)+0.5)
+# c_bar.set_ticklabels(['Red','Yellow','Green','Cyan','Blue','Purple'])
 c_bar.ax.tick_params(size=0)
 
 #%% Plot graphs here.
@@ -106,15 +119,15 @@ elev = 15
 azim = 240
 zoom = 1
 
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 300,subplot_kw=dict(projection='3d'))
 
 # Grid Preparing
-ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
-ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
-ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
+# ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
+# ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
+# ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
 ax.grid(False)
 ax.view_init(elev=elev, azim=azim)
-ax.set_box_aspect(aspect=None, zoom=0.8) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=1) # shrink graphs
 ax.axes.set_xlim3d(left=-30, right=20)
 ax.axes.set_ylim3d(bottom=-20, top=20)
 ax.axes.set_zlim3d(bottom=-20, top=20)
@@ -135,9 +148,9 @@ ax = Plot_Colorized_Color(ax,spon_embed,np.zeros(len(spon_label)),plotted_pcs,co
 # ax.set_title('Color Stimulus in PCA Space',size = 10)
 # ax.set_title('Classified Spontaneous in PCA Space',size = 10)
 # ax.set_title('Spontaneous in PCA Space',size = 10)
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_zticks([])
+# ax.set_xticks([])
+# ax.set_yticks([])
+# ax.set_zticks([])
 fig.tight_layout()
 
 #%%
@@ -177,7 +190,7 @@ plt.cla()
 font_size = 16
 fig,axes = plt.subplots(nrows=1, ncols=3,figsize = (10.5,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
 
 fig.tight_layout()
 # axes[0].set_ylabel('Spontaneous',rotation=90,size = font_size)

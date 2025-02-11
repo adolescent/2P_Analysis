@@ -69,13 +69,18 @@ ac_ods = c_ac.all_cell_tunings.loc['OD',:]
 LE_cells = np.where(c_ac.all_cell_tunings.loc['Best_Eye',:]=='LE')[0] # this is absolute id.
 RE_cells = np.where(c_ac.all_cell_tunings.loc['Best_Eye',:]=='RE')[0] # this is absolute id.
 OD_vec = Vector_Caculator(c_pc_coords,LE_cells,RE_cells)
+LE_vec = Vector_Caculator(c_pc_coords,LE_cells)
+RE_vec = Vector_Caculator(c_pc_coords,RE_cells)
 Orien0_cells = np.where(ac_oriens == 'Orien0')[0]
 Orien90_cells = np.where(ac_oriens == 'Orien90')[0]
 HV_vec = Vector_Caculator(c_pc_coords,Orien0_cells,Orien90_cells)
+H_vec = Vector_Caculator(c_pc_coords,Orien0_cells)
+V_vec = Vector_Caculator(c_pc_coords,Orien90_cells)
 Orien45_cells = np.where(ac_oriens == 'Orien45')[0]
 Orien135_cells = np.where(ac_oriens == 'Orien135')[0]
 AO_vec = Vector_Caculator(c_pc_coords,Orien45_cells,Orien135_cells)
-
+A_vec = Vector_Caculator(c_pc_coords,Orien45_cells)
+O_vec = Vector_Caculator(c_pc_coords,Orien135_cells)
 #%%
 '''
 Fig 4CA, We scatter OD Graphs.
@@ -93,16 +98,17 @@ plt.cla()
 zoom = 1
 od_elev = 15
 od_azim = 75
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 300,subplot_kw=dict(projection='3d'))
 
 # Grid Preparing
 ax.view_init(elev=od_elev, azim=od_azim)
 plotted_pcs = OD_PCs
-ax.set_xlabel(f'PC {plotted_pcs[0]+1}',size = 12)
-ax.set_ylabel(f'PC {plotted_pcs[1]+1}',size = 12)
-ax.set_zlabel(f'PC {plotted_pcs[2]+1}',size = 12)
+# ax.set_xlabel(f'PC {plotted_pcs[0]+1}',size = 12)
+# ax.set_ylabel(f'PC {plotted_pcs[1]+1}',size = 12)
+# ax.set_zlabel(f'PC {plotted_pcs[2]+1}',size = 12)
+
 ax.grid(False)
-ax.set_box_aspect(aspect=None, zoom=0.9) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=zoom) # shrink graphs
 # ax[i].axes.set_xlim3d(left=-15, right=30)
 # ax[i].axes.set_ylim3d(bottom=-25, top=25)
 # ax[i].axes.set_zlim3d(bottom=-20, top=20)
@@ -112,7 +118,15 @@ tmp_planes = ax.zaxis._PLANES
 ax.zaxis._PLANES = (tmp_planes[2], tmp_planes[3], 
                     tmp_planes[0], tmp_planes[1], 
                     tmp_planes[4], tmp_planes[5])
-sc = ax.scatter3D(c_pc_coords[:,OD_PCs[0]], c_pc_coords[:,OD_PCs[1]], c_pc_coords[:,OD_PCs[2]],s = 2,c = np.array(ac_ods),cmap = 'bwr',vmin = -2,vmax = 1.5)
+sc = ax.scatter3D(c_pc_coords[:,OD_PCs[0]], c_pc_coords[:,OD_PCs[1]], c_pc_coords[:,OD_PCs[2]],s = 20,lw=0,c = np.array(ac_ods),cmap = 'bwr',vmin = -2,vmax = 1.5,alpha = 0.5)
+
+# Then We Plot vector of OD on the given graph.
+mag = 2
+used_od_vec = -OD_vec[OD_PCs]*mag
+used_le_vec = LE_vec[OD_PCs]
+used_re_vec = RE_vec[OD_PCs]
+ax.quiver(used_le_vec[0],used_le_vec[1],used_le_vec[2], used_od_vec[0],used_od_vec[1], used_od_vec[2], color='black', linewidth=2)
+
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
@@ -133,7 +147,7 @@ ax.set_visible(False)
 g.collections[0].colorbar.set_ticks([value_min,0,value_max])
 g.collections[0].colorbar.set_ticklabels([value_min,0,value_max])
 g.collections[0].colorbar.ax.tick_params(labelsize=8)
-g.collections[0].colorbar.set_label(label='OD Tuning',size=9)
+g.collections[0].colorbar.set_label(label='',size=9)
 plt.show()
 
 #%%
@@ -146,16 +160,16 @@ plt.clf()
 plt.cla()
 orien_elev = 15
 orien_azim = 240
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 300,subplot_kw=dict(projection='3d'))
 
 # Grid Preparing
 ax.view_init(elev=orien_elev, azim=orien_azim)
 plotted_pcs = Orien_PCs
-ax.set_xlabel(f'PC {plotted_pcs[0]+1}',size = 12)
-ax.set_ylabel(f'PC {plotted_pcs[1]+1}',size = 12)
-ax.set_zlabel(f'PC {plotted_pcs[2]+1}',size = 12)
+# ax.set_xlabel(f'PC {plotted_pcs[0]+1}',size = 12)
+# ax.set_ylabel(f'PC {plotted_pcs[1]+1}',size = 12)
+# ax.set_zlabel(f'PC {plotted_pcs[2]+1}',size = 12)
 ax.grid(False)
-ax.set_box_aspect(aspect=None, zoom=0.84) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=1) # shrink graphs
 # ax[i].axes.set_xlim3d(left=-15, right=30)
 # ax[i].axes.set_ylim3d(bottom=-25, top=25)
 # ax[i].axes.set_zlim3d(bottom=-20, top=20)
@@ -181,7 +195,21 @@ for i in range(len(ac_oriens)):
         orien_color[i,:] = [0.7,0.7,0.7]
     else:
         orien_color[i,:] = color_setb[int(float(ac_oriens.iloc[i][5:])/22.5),:]
-ax.scatter3D(c_pc_coords[:,Orien_PCs[0]],c_pc_coords[:,Orien_PCs[1]],c_pc_coords[:,Orien_PCs[2]],s = 2,c = orien_color)
+ax.scatter3D(c_pc_coords[:,Orien_PCs[0]],c_pc_coords[:,Orien_PCs[1]],c_pc_coords[:,Orien_PCs[2]],s = 20,lw=0,c = orien_color,alpha = 0.4)
+
+
+# Plot HV and AO vecs
+mag_hv = 1
+used_hv_vec = HV_vec[Orien_PCs]*mag_hv 
+used_h_vec = H_vec[Orien_PCs]
+used_v_vec = V_vec[Orien_PCs]
+ax.quiver(used_v_vec[0],used_v_vec[1],used_v_vec[2], used_hv_vec[0],used_hv_vec[1], used_hv_vec[2], color='red', linewidth=2)
+mag_ao = 2
+used_ao_vec = AO_vec[Orien_PCs]*mag_ao
+used_a_vec = A_vec[Orien_PCs]
+used_o_vec = O_vec[Orien_PCs]
+ax.quiver(used_o_vec[0],used_o_vec[1],used_o_vec[2], used_ao_vec[0],used_ao_vec[1], used_ao_vec[2], color='blue', linewidth=2)
+
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])

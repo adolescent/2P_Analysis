@@ -117,14 +117,23 @@ plotable['PC'] = plotable['PC']+1
 
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,4),dpi = 180)
+fontsize = 14
+
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (5,4),dpi = 300)
 sns.barplot(data = plotable,y = 'Explained VAR Ratio',x = 'PC',ax = ax,capsize=0.2)
-ax.set_xlabel('PC',size = 12)
-ax.set_ylabel('Explained Ratio(%)',size = 12)
+# ax.set_xlabel('PC',size = 12)
+# ax.set_ylabel('Explained Ratio(%)',size = 12)
 # ax.set_title('Each PC explained Variance',size = 14)
 ax.set_ylim(0,40)
-
 top10_sum = all_pc_var.sum(0)
+ax.set_yticks([0,10,20,30,40])
+ax.set_yticklabels([0,10,20,30,40],fontsize = fontsize)
+ax.set_xticks(np.arange(0,10))
+ax.set_xticklabels(np.arange(1,11),fontsize = fontsize)
+
+ax.set_ylabel('')
+ax.set_xlabel('')
+
 print(f'Top 10 PC explain VAR={top10_sum.mean():.4f}, std={top10_sum.std():.4f}')
 
 
@@ -144,10 +153,20 @@ plotable.iloc[len(real_best_corr):,1] = 'Shuffled PC'
 #%%
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,4),dpi = 180)
-sns.histplot(data = plotable,x = 'Best Corr',ax = ax,hue = 'Data Type', stat="density",common_norm=False,bins = np.linspace(0,0.8,15))
-# )
+fontsize = 12
+
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (4,6),dpi = 300)
+sns.histplot(data = plotable,x = 'Best Corr',ax = ax,hue = 'Data Type', stat="percent",common_norm=False,bins = np.linspace(0,0.8,15),edgecolor='none',alpha = 0.8,hue_order = ['Shuffled PC','Real PC'])
 # bins = [0,0.05,0.1,0.15,0.2,0.4,0.6,0.8]
 # ax.set_xlabel('PC',size = 12)
 # ax.set_ylabel('Explained Ratio(%)',size = 12)
 # ax.set_title('Each PC explained Variance',size = 14)
+
+ax.legend(['Real','Shuffled'],prop = { "size": fontsize })
+ax.set_ylabel('')
+ax.set_xlabel('')
+ax.set_yticks([0,20,40,60])
+ax.set_yticklabels([0,20,40,60],fontsize = fontsize)
+
+ax.set_xticks(np.arange(0,1,0.2))
+ax.set_xticklabels([0,0.2,0.4,0.6,0.8],fontsize = fontsize)

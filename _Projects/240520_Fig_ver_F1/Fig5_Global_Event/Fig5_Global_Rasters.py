@@ -45,34 +45,35 @@ ot.Save_Variable(savepath,'All_ON_Frames',all_spon_dics)
 c_ensemble = np.array(all_spon_dics[all_loc[2]].mean(1))[4700:5350]
 peaks,_ = find_peaks(c_ensemble,height = 0.1,distance = 5)
 
-label_size = 14
-title_size = 18
+label_size = 10
+# title_size = 18
 
 plt.clf()
 plt.cla()
-fig,axes = plt.subplots(nrows=2, ncols=1,figsize = (15,7),dpi = 180,sharex= True)
+fig,axes = plt.subplots(nrows=2, ncols=1,figsize = (12,6),dpi = 300,sharex= True)
 sns.heatmap(np.array(all_spon_dics[all_loc[2]].T)[:,4700:5350].astype('i4'),cbar=False,ax = axes[0],cmap = 'bwr',center = 0)
-axes[0].set_yticks([0,180,360,524])
-axes[0].set_yticklabels([0,180,360,524],rotation = 90,fontsize = 8)
-axes[0].set_ylabel(f'Cells',size = label_size)
+# axes[0].set_yticks([0,180,360,524])
+axes[0].set_yticks([])
+# axes[0].set_yticklabels([0,180,360,524],rotation = 90,fontsize = label_size)
+# axes[0].set_ylabel(f'Cells',size = label_size)
 
 
 axes[1].plot(c_ensemble)
 axes[1].plot(peaks, c_ensemble[peaks], "x")
 axes[1].plot(np.zeros_like(c_ensemble), "--", color="gray")
 
-
 fps = 1.301
 axes[1].set_xticks([0*fps,100*fps,200*fps,300*fps,400*fps,500*fps])
-axes[1].set_xticklabels([0,100,200,300,400,500],fontsize = 8)
-axes[1].set_ylabel(f'Event Size',size = label_size)
+axes[1].set_xticklabels([0,100,200,300,400,500],fontsize = label_size)
+axes[1].set_yticks(np.arange(0,1.2,0.2))
+axes[1].set_yticklabels([0,0.2,0.4,0.6,0.8,1],fontsize = label_size)
 
-axes[1].set_xlabel(f'Time (s)',size = label_size)
-
+# axes[1].set_ylabel(f'Event Size',size = label_size)
+# axes[1].set_xlabel(f'Time (s)',size = label_size)
 for i in range(2):
     axes[i].yaxis.set_label_coords(-0.04, 0.5)
 
-fig.tight_layout()
+# fig.tight_layout()
 plt.show()
 #%%
 '''
@@ -96,8 +97,10 @@ ot.Save_Variable(savepath,'All_ONOff_Peaks',all_peak_info)
 #%% Plotable Graphs
 plt.clf()
 plt.cla()
-fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (9,5),dpi = 180)
+fontsize = 12
 
+
+fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (9,5),dpi = 300)
 height_mid = np.median(all_peak_info['Peak_Height'])
 width_mid = np.median(all_peak_info['Peak_Width'])
 axes[0].axvline(x = height_mid,linestyle = '--',color = 'gray')
@@ -105,13 +108,21 @@ axes[1].axvline(x = width_mid,linestyle = '--',color = 'gray')
 axes[0].hist(all_peak_info['Peak_Height'],bins = np.linspace(0.1,1,30))
 axes[1].hist(all_peak_info['Peak_Width'],bins = np.linspace(0,10,21))
 
-axes[0].set_ylabel('Count')
-axes[0].set_xlabel('Event Scale')
-axes[1].set_xlabel('Peak Width (s)')
+# axes[0].set_ylabel('Count')
+# axes[0].set_xlabel('Event Scale')
+# axes[1].set_xlabel('Peak Width (s)')
 
 
 axes[1].set_xticks(np.arange(0,11,2)*1.301)
-axes[1].set_xticklabels(np.arange(0,11,2))
+axes[1].set_xticklabels(np.arange(0,11,2),fontsize = fontsize)
+axes[0].set_xticks([0,0.2,0.4,0.6,0.8,1])
+axes[0].set_xticklabels([0,0.2,0.4,0.6,0.8,1],fontsize = fontsize)
+axes[0].set_yticks([0,200,400,600])
+axes[0].set_yticklabels([0,200,400,600],fontsize = fontsize)
+axes[1].set_yticks([0,500,1000,1500,2000])
+axes[1].set_yticklabels([0,500,1000,1500,2000],fontsize = fontsize)
+
+
 
 print(f'Mid Scale:{height_mid:.3f}; Mid Width:{width_mid/1.301:.3f}s')
 
@@ -150,18 +161,22 @@ def Weibul_Fit_Plotter(ax,disp,x_max):
 
 plt.clf()
 plt.cla()
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5,5),dpi = 180, sharex='col',sharey='row')
+
+size = 14
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5,6),dpi = 300, sharex='col',sharey='row')
 vmax = 50
 c_median = np.median(all_waittime)
 ax.axvline(x = c_median,color = 'gray',linestyle = '--')
-
 ax,_,c_r2 = Weibul_Fit_Plotter(ax,all_waittime,vmax)
-ax.text(vmax*0.6,0.07,f'R2 = {c_r2:.3f}')
-ax.text(vmax*0.6,0.06,f'N repeat = {len(all_waittime)}')
-ax.text(vmax*0.6,0.05,f'Median = {c_median/1.301:.3f} s')
+# ax.text(vmax*0.6,0.07,f'R2 = {c_r2:.3f}')
+# ax.text(vmax*0.6,0.06,f'N repeat = {len(all_waittime)}')
+# ax.text(vmax*0.6,0.05,f'Median = {c_median/1.301:.3f} s')
 ax.set_xticks(np.arange(0,50,10)*1.301)
-ax.set_xticklabels(np.arange(0,50,10))
-ax.set_title('Global Ensemble Waittime',size = 14)
+ax.set_xticklabels(np.arange(0,50,10),fontsize = size)
+ax.set_yticks([0,0.05,0.1,0.15,0.2])
+ax.set_yticklabels([0,0.05,0.1,0.15,0.2],fontsize = size)
+
+# ax.set_title('Global Ensemble Waittime',size = 14)
 
 #%%
 '''
@@ -222,7 +237,8 @@ Fig 5D, Plot relationship between Peak width and peak height.
 
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (7,5),dpi = 180)
+fontsize = 12
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (7,5),dpi = 300)
 all_peak_info['Peak_Height'] = all_peak_info['Peak_Height'].astype('f8')
 all_peak_info['Peak_Width'] = all_peak_info['Peak_Width'].astype('f8')
 
@@ -231,11 +247,18 @@ sns.scatterplot(data = all_peak_info,x = 'Peak_Height',y = 'Peak_Width',ax = ax,
 # ax.legend(markerscale=3)
 ax.set_ylim(0,8)
 ax.set_xlim(0.05,1)
-ax.set_ylabel('Peak Width',size = 12)
-ax.set_xlabel('Event Scale',size = 12)
+# ax.set_ylabel('Peak Width',size = 12)
+# ax.set_xlabel('Event Scale',size = 12)
+ax.set_xticks([0,0.2,0.4,0.6,0.8,1])
+ax.set_xticklabels([0,0.2,0.4,0.6,0.8,1],fontsize = fontsize)
+ax.set_yticks([0,2,4,6,8])
+ax.set_yticklabels([0,2,4,6,8],fontsize = fontsize)
+ax.set_ylabel('')
+ax.set_xlabel('')
 
 r,p = stats.pearsonr(all_peak_info['Peak_Height'],all_peak_info['Peak_Width'])
 print(f'Pearson R:{r:.3f},p = {p:.5f}')
+
 
 #%%
 '''
@@ -272,8 +295,18 @@ for i,cloc in enumerate(all_path_dic):
 plotable = all_repeat_info[all_repeat_info['Type']=='All']
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,5),dpi = 180)
+fontsize = 10
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (5,5),dpi = 300)
 sns.lineplot(data = plotable,x = 'Thres',y = 'Ratio',ax = ax)
 ax.set_ylim(0,1)
-ax.set_ylabel('Classified Ratio',size = 12)
-ax.set_xlabel('Event Scale Threshold',size = 12)
+# ax.set_ylabel('Classified Ratio',size = 12)
+# ax.set_xlabel('Event Scale Threshold',size = 12)
+ax.set_xlabel('')
+ax.set_ylabel('')
+ax.set_xticks([0,0.2,0.4,0.6,0.8])
+ax.set_xticklabels([0,0.2,0.4,0.6,0.8],fontsize = fontsize)
+ax.set_yticks([0,0.2,0.4,0.6,0.8,1])
+ax.set_yticklabels([0,0.2,0.4,0.6,0.8,1],fontsize = fontsize)
+
+
+

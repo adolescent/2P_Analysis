@@ -207,27 +207,47 @@ hv_corr,_ = stats.pearsonr(HV_vec_response,c_ac.Orien_t_graphs['H-V'].loc['Cohen
 ao_corr,_ = stats.pearsonr(AO_vec_response,c_ac.Orien_t_graphs['A-O'].loc['CohenD'])
 
 #%% Plot Stim maps with PC axes
+#%% Plot bars seperetly.
+plt.clf()
+plt.cla()
+value_max = 1.5
+value_min = -1
+vmax = value_max
+vmin = value_min
+
+data = [[vmin, vmax], [vmin, vmax]]
+# Create a heatmap
+fig, ax = plt.subplots(figsize = (2,1),dpi = 300)
+# fig2, ax2 = plt.subplots()
+# g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "horizontal"},cmap = 'gist_gray')
+g = sns.heatmap(data, center=0,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": 5,"shrink": 1,"orientation": "horizontal"})
+# Hide the heatmap itself by setting the visibility of its axes
+ax.set_visible(False)
+g.collections[0].colorbar.set_ticks([vmin,0,vmax])
+g.collections[0].colorbar.set_ticklabels([vmin,0,vmax])
+g.collections[0].colorbar.ax.tick_params(labelsize=8)
+plt.show()
+#%%
 graph_lists = ['OD','HV','AO']
 plt.clf()
 plt.cla()
-value_max = 1.3
-value_min = -1
+
 font_size = 12
-fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (10,6),dpi = 180)
-cbar_ax = fig.add_axes([.97, .15, .02, .7])
-all_pc_axes = [OD_vec_map,HV_vec_map,AO_vec_map]
-all_stim_graphs = [OD_stimmap,HV_stimmap,AO_stimmap]
+fig,axes = plt.subplots(nrows=2, ncols=3,figsize = (10.5,9),dpi = 300)
+# cbar_ax = fig.add_axes([.97, .15, .02, .7])
+all_pc_axes = [HV_vec_map,AO_vec_map,OD_vec_map]
+all_stim_graphs = [HV_stimmap,AO_stimmap,OD_stimmap]
 
 
 for i,c_map in enumerate(graph_lists):
     c_pc_map = all_pc_axes[i]/all_pc_axes[i].max()
-    sns.heatmap(c_pc_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
+    sns.heatmap(c_pc_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[0,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
     c_stim_map = all_stim_graphs[i]/all_stim_graphs[i].max()
-    sns.heatmap(c_stim_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar_ax= cbar_ax,square=True)
-    axes[0,i].set_title(c_map,size = font_size)
+    sns.heatmap(c_stim_map,center = 0,xticklabels=False,yticklabels=False,ax = axes[1,i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    # axes[0,i].set_title(c_map,size = font_size)
 
-axes[0,0].set_ylabel('PCA Functional Axes',rotation=90,size = font_size)
-axes[1,0].set_ylabel('Stimulus Response',rotation=90,size = font_size)
+# axes[0,0].set_ylabel('PCA Functional Axes',rotation=90,size = font_size)
+# axes[1,0].set_ylabel('Stimulus Response',rotation=90,size = font_size)
 plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=None)
 fig.tight_layout()
 plt.show()
@@ -269,13 +289,20 @@ for i,cloc in enumerate(all_path_dic):
 #%% Plot angles.
 plt.clf()
 plt.cla()
+font_size = 12
 # set graph
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3,5),dpi = 180)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (2.5,5),dpi = 300)
 ax.axhline(y = 90,color='gray', linestyle='--')
-sns.barplot(data = all_angles,y = 'Angle',x = 'Axes',ax = ax,legend = True,width=0.5,palette="tab10")
+sns.barplot(data = all_angles,y = 'Angle',x = 'Axes',ax = ax,legend = True,width=0.5,palette="tab10",capsize=0.2)
 
 ax.set_ylim(40,130)
-ax.set_title('Functional Axes Included Angle',size = 12,y = 1.05)
-ax.set_xlabel('Axes Pair',size = 12)
-ax.set_ylabel('Angle',size = 12)
+# ax.set_title('Functional Axes Included Angle',size = 12,y = 1.05)
+# ax.set_xlabel('Axes Pair',size = 12)
+# ax.set_ylabel('Angle',size = 12)
+ax.set_xlabel('')
+ax.set_ylabel('')
+ax.set_xticks([])
+ax.set_yticks([30,60,90,120])
+ax.set_yticklabels([30,60,90,120],fontsize = font_size)
+
 plt.show()

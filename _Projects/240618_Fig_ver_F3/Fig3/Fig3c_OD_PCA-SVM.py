@@ -58,8 +58,8 @@ def Plot_Colorized_OD(axes,embeddings,labels,pcs=[2,3,5],color_sets = np.array([
     od_colors = np.zeros(shape = (len(od_ids),3),dtype='f8')
     for i,c_id in enumerate(od_ids):
         od_colors[i,:] = color_sets[int(c_id)%2,:]
-    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 1,c = [0.7,0.7,0.7])
-    axes.scatter3D(od[:,0],od[:,1],od[:,2],s = 1,c = od_colors)
+    axes.scatter3D(rest[:,0],rest[:,1],rest[:,2],s = 20,c = [0.7,0.7,0.7],alpha = 0.1,lw=0)
+    axes.scatter3D(od[:,0],od[:,1],od[:,2],s = 20,c = od_colors,lw=0)
     return axes
 #%% Plot parts
 import matplotlib.cm as cm
@@ -68,8 +68,8 @@ import matplotlib.colors as mcolors
 import matplotlib as mpl
 import colorsys
 #  OD color bars.
-fig = plt.figure(figsize = (3,2),dpi = 180)
-color_setb = np.array([[1,0,0],[0,1,0]])
+fig = plt.figure(figsize = (2,2),dpi = 180)
+color_setb = np.array([[1,0,0],[0,0,1]])
 cax_b = fig.add_axes([-0.5, 0, 0.08, 0.5])
 custom_cmap = mcolors.ListedColormap(color_setb)
 bounds = np.arange(0,3,1)
@@ -79,21 +79,21 @@ c_bar.set_ticks(np.arange(0,2,1)+0.5)
 c_bar.set_ticklabels(['LE','RE'])
 c_bar.ax.tick_params(size=0)
 c_bar.ax.tick_params(labelsize=8)
-c_bar.set_label(label='Best Eye',size=10)
+c_bar.set_label(label='',size=10)
 
 #%% Plot graphs here.
 plotted_pcs = [2,3,5]
 orien_elev = 15
 orien_azim = 150
 zoom = 1
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (8,4),dpi = 180,subplot_kw=dict(projection='3d'))
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (6,6),dpi = 300,subplot_kw=dict(projection='3d'))
 # Grid Preparing
-ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
-ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
-ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
+# ax.set_xlabel(f'PC {plotted_pcs[0]+1}')
+# ax.set_ylabel(f'PC {plotted_pcs[1]+1}')
+# ax.set_zlabel(f'PC {plotted_pcs[2]+1}')
 ax.grid(False)
 ax.view_init(elev=orien_elev, azim=orien_azim)
-ax.set_box_aspect(aspect=None, zoom=0.85) # shrink graphs
+ax.set_box_aspect(aspect=None, zoom=1) # shrink graphs
 ax.axes.set_xlim3d(left=-15, right=30)
 ax.axes.set_ylim3d(bottom=-20, top=20)
 ax.axes.set_zlim3d(bottom=-20, top=20)
@@ -106,8 +106,8 @@ ax.zaxis._PLANES = ( tmp_planes[2], tmp_planes[3],
     
 
 # ax = Plot_Colorized_OD(ax,stim_embed,stim_label,plotted_pcs,color_setb)
-# ax = Plot_Colorized_OD(ax,spon_embed,spon_label,plotted_pcs,color_setb)
-ax = Plot_Colorized_OD(ax,spon_embed,np.zeros(len(spon_label)),plotted_pcs,color_setb)
+ax = Plot_Colorized_OD(ax,spon_embed,spon_label,plotted_pcs,color_setb)
+# ax = Plot_Colorized_OD(ax,spon_embed,np.zeros(len(spon_label)),plotted_pcs,color_setb)
 # set title
 # ax.set_title('OD Stimulus in PCA Space',size = 10)
 ax.set_xticks([])
@@ -154,7 +154,7 @@ value_min = -1
 font_size = 16
 fig,axes = plt.subplots(nrows=1, ncols=2,figsize = (7,4),dpi = 180)
 for i,c_map in enumerate(graph_lists):
-    sns.heatmap(stim_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
+    sns.heatmap(spon_graphs[c_map][1],center = 0,xticklabels=False,yticklabels=False,ax = axes[i],vmax = value_max,vmin = value_min,cbar=False,square=True)
 fig.tight_layout()
 #%% print R values here.
 for i,c_graph in enumerate(graph_lists):

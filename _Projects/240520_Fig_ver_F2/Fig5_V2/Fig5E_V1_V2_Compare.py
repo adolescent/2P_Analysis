@@ -76,14 +76,19 @@ plotable = pd.concat([all_hue_similar,all_orien_similar],ignore_index = True)
 
 plt.clf()
 plt.cla()
+fontsize = 12
 # set graph
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (3,5),dpi = 180)
-sns.barplot(data = plotable,x = 'Map_Type',y = 'Corr',ax = ax,hue = 'Brain Area',capsize = 0.2,hue_order = ['V1','V2'],width = 0.7)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (2,3.5),dpi = 300)
+sns.barplot(data = plotable,x = 'Map_Type',y = 'Corr',ax = ax,hue = 'Brain Area',capsize = 0.2,hue_order = ['V1','V2'],width = 0.5)
 
-ax.legend(fontsize=8)
+ax.legend(fontsize=fontsize)
 ax.set_ylim(0,1)
-ax.set_ylabel('Pearson R')
-ax.set_xlabel('Network')
+ax.set_ylabel('')
+ax.set_xlabel('')
+ax.set_yticks([0,0.2,0.4,0.6,0.8,1])
+ax.set_yticklabels([0,0.2,0.4,0.6,0.8,1],fontsize = fontsize)
+ax.set_xticklabels(['Color','Orien'],fontsize = fontsize)
+# ax.legend(['Real PC', 'Shuffled PC'],prop = { "size": fontsize })
 
 #%% print welch test's result here. It might not be so reliable.
 v1_hues = all_hue_similar[all_hue_similar['Brain Area']=='V1']['Corr'].astype('f8')

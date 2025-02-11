@@ -27,7 +27,7 @@ from Cell_Class.Timecourse_Analyzer import *
 
 
 
-exp_path = r'D:\_All_Spon_Data_V1\L76_SM_Run03bug_210721'
+exp_path = r'D:\_DataTemp\_Fig_Datas\_All_Spon_Data_V1\L76_SM_Run03bug_210721'
 ac = ot.Load_Variable_v2(exp_path,'Cell_Class.pkl')
 sponrun =  ot.Load_Variable_v2(exp_path,'Spon_Before.pkl')
 start = sponrun.index[0]
@@ -98,8 +98,9 @@ ax[1].set_xticks([0,0.20,0.40,0.60])
 ax[1].set_xticklabels([0,0.20,0.40,0.60])
 
 #%% ###########################################
-example_cell_on = z_lp_on[43,3000:3300]
-example_cell_off = z_lp_off[43,3000:3300]
+# show peaks and waittimes distribution of all cells in current location.
+example_cell_on = z_lp_on[403,3000:3100]
+example_cell_off = z_lp_off[403,3000:3100]
 plt.plot(example_cell_on[150:250],alpha = 0.7)
 plt.plot(example_cell_off[150:250],alpha = 0.7)
 
@@ -108,10 +109,9 @@ from scipy.signal import find_peaks,peak_widths
 peaks_on, properties_on = find_peaks(example_cell_on, distance=3,height=-0.5) 
 peaks_off, properties_off = find_peaks(example_cell_off, distance=3,height=-0.5) 
 #%%
-plt.plot(example_cell_off)
-plt.plot(peaks_off,example_cell_off[peaks_off], "x")
-plt.show()
+plt.plot(example_cell_off,alpha = 0.7)
+plt.plot(example_cell_on,alpha = 0.7)
 
-plt.plot(example_cell_on)
-plt.plot(peaks_on,example_cell_on[peaks_on], "x")
+plt.plot(peaks_off,example_cell_off[peaks_off], "x")
+plt.plot(peaks_on,example_cell_on[peaks_on], "o",alpha = 0.5)
 plt.show()

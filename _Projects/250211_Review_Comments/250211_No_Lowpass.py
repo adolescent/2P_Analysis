@@ -27,7 +27,8 @@ from Cell_Class.Timecourse_Analyzer import *
 
 
 
-exp_path = r'D:\_DataTemp\_Fig_Datas\_All_Spon_Data_V1\L76_SM_Run03bug_210721'
+exp_path = r'D:\_All_Spon_Data_V1\L76_SM_Run03bug_210721'
+# exp_path = r'D:\_All_Spon_Data_V1\L76_18M_220902'
 ac = ot.Load_Variable_v2(exp_path,'Cell_Class.pkl')
 sponrun =  ot.Load_Variable_v2(exp_path,'Spon_Before.pkl')
 start = sponrun.index[0]
@@ -39,7 +40,7 @@ savepath = r'D:\ZR\_Data_Temp\_Article_Data\_Revised_Data'
 
 #%% #######################################################
 # Generate new unfilted Z frames.
-from Fix_Funcs import *
+from Review_Fix_Funcs import *
 z_lp_on = Z_refilter(ac,start,end,'1-001',0.005,0.3)
 z_lp_off = Z_refilter(ac,start,end,'1-001',0.005,False)
 vmax = 4
@@ -115,3 +116,24 @@ plt.plot(example_cell_on,alpha = 0.7)
 plt.plot(peaks_off,example_cell_off[peaks_off], "x")
 plt.plot(peaks_on,example_cell_on[peaks_on], "o",alpha = 0.5)
 plt.show()
+
+#%% Compare peak num and waittime (burst info do and undo)
+peak_counts = pd.DataFrame(0,index = ac.acn,columns = ['Peak_ON','Peak_Off'])
+for i,cc in enumerate(ac.acn):
+    c_on = z_lp_on[i,:]
+    c_off = z_lp_off[i,:]
+    peaks_on,_ = find_peaks(c_on, distance=3,height=-0.5) 
+    peaks_off,_ = find_peaks(c_off, distance=3,height=-0.5) 
+    peak_counts.loc[cc,:] = [len(peaks_on),len(peaks_off)]
+
+fig,ax = plt.subplots(ncols=1,nrows=1,figsize = (5,5),dpi = 300)
+sns.scatterplot(data = peak_counts,x = 'Peak_ON',y = 'Peak_Off',lw = 0,s = 3,ax = ax)
+ax.plot([1000,2300],[1000,2300],color=[0.4,0.4,0.4],linestyle='--')
+# ax.set_ylim(1400,2300)
+# ax.set_xlim(1000,1700)
+ax.set_ylabel('No LP')
+ax.set_xlabel('With LP')
+
+
+
+

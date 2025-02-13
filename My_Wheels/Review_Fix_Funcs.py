@@ -70,10 +70,11 @@ def FFT_Spectrum(series, fps,ticks = 0.01,plot = False):
 
 #%% F2, easy Z refilter & easy dff refilter
 
-def Z_refilter(ac,start,end,runname = '1-001',HP=0.005,LP=False,clip_value=10,fps = 1.301):
+def Z_refilter(ac,runname = '1-001',start=0,end=99999,HP=0.005,LP=False,clip_value=10,fps = 1.301):
+    end = min(len(ac.all_cell_dic[1][runname]),end)
     z_frame = np.zeros(shape = (len(ac),end-start),dtype='f8')
     for i,cc in tqdm(enumerate(ac.acn)):
-        c_r = ac.all_cell_dic[cc]['1-001'][start:end]
+        c_r = ac.all_cell_dic[cc][runname][start:end]
         filted = Signal_Filter_v2(c_r,HP,LP,fps)
         dff_train = (filted-filted.mean())/filted.mean()
         z_train = dff_train/dff_train.std()
@@ -128,10 +129,19 @@ def Burstiness_Index(series):
 #%% F4, Colorbar Generator
 import matplotlib.colors as mcolors
 import matplotlib as mpl
+import seaborn as sns
 
-def Cbar_Generate(vmax,vmin,cmap='bwr',figsize=(2,1),labelsize=8,aspect=10,shrink=1,dpi=600,orientation='horizontal'):
+def Cbar_Generate(vmin,vmax,center=0,cmap='bwr',figsize=(2,1),labelsize=8,aspect=10,shrink=1,dpi=600,orientation='horizontal'):
     data = [[vmin,vmax],[vmin,vmax]]
     # Create a heatmap
     fig, ax = plt.subplots(figsize = figsize,dpi = 600)
-
+    g = sns.heatmap(data, cmap=cmap, center=center,ax = ax,vmax = vmax,vmin = vmin,cbar_kws={"aspect": aspect,"shrink": shrink,"orientation": orientation})
+    ax.set_visible(False)
+    g.collections[0].colorbar.set_ticks([vmin,center,vmax])
+    g.collections[0].colorbar.set_ticklabels([vmin,center,vmax])
+    g.collections[0].colorbar.ax.tick_params(labelsize=8)
+    # g.collections[0].colorbar.aspect(50)
+    # Create colorbar
+    # fig.colorbar(ax2.collections[0], ax=ax, orientation='vertical')
+    fig.tight_layout()
     return fig,ax 

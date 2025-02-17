@@ -19,19 +19,19 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Classifier_Analyzer import *
+from Cell_Class.Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 from Review_Fix_Funcs import *
 from Filters import Signal_Filter_v2
 import warnings
 
-all_path_dic = list(ot.Get_Subfolders(r'D:\#Fig_Data\_All_Spon_Data_V1'))
+all_path_dic = list(ot.Get_Subfolders(r'D:\_DataTemp\_Fig_Datas\_All_Spon_Data_V1'))
 
 all_path_dic.pop(4)
 all_path_dic.pop(6)
-save_path = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\Fig1'
+save_path = r'G:\我的云端硬盘\#Figs\#250211_Revision1\Fig1'
 # if already done, skip step 1 and run this.
-# ac_strength = ot.Load_Variable(save_path,'1e_All_Cell_dFF.pkl')
+ac_strength = ot.Load_Variable(save_path,'1e_All_Cell_dFF.pkl')
 #%%
 '''
 Step1, we will get all dF/F ratio of all cells, and save them in folders.
@@ -62,7 +62,7 @@ for i,cloc in tqdm(enumerate(all_path_dic)):
 ot.Save_Variable(save_path,'1e_All_Cell_dFF',ac_strength)
 
 #%%
-# Done, plot parts.
+# Done, plot Fig NO
 
 
 plotable_data = ac_strength
@@ -104,7 +104,41 @@ axes[1].set_xlabel('')
 axes[0].set_ylabel('')
 axes[1].set_ylabel('')
 
-fig.savefig(ot.join(save_path,'Fig1NO_dFF_disp.png'),bbox_inches='tight')
+# fig.savefig(ot.join(save_path,'Fig1NO_dFF_disp.png'),bbox_inches='tight')
+#%% Part 2, plot Fig N only, ignore fig O.
+
+plotable_data = ac_strength
+plt.clf()
+plt.cla()
+fontsize = 14
+
+fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(4,3),dpi = 300,sharex= False)
+fig.subplots_adjust(hspace=0.4)
+
+pivoted_df = plotable_data.pivot(index=['Loc', 'Cell'], columns='In_Run', values=['dFF'])
+pivoted_df = pivoted_df['dFF']
+axes.plot([0,2],[0,2],color = 'gray', linestyle = '--')
+scatter = sns.scatterplot(data=pivoted_df,x = 'Spontaneous',y = 'Stimulus_ON',s = 3,ax = axes,linewidth = 0,alpha = 0.8,legend=False)
+axes.set_xlim(0,2)
+axes.set_ylim(0,2)
+
+# axes[1].title.set_text('Cell dF/F Distribution')
+# axes[0].set_xlabel('Spontaneous dF/F')
+# axes[0].set_ylabel('Stimulus ON dF/F')
+# axes[0].xaxis.tick_top()
+# axes[0].xaxis.set_label_position('top') 
+
+axes.set_yticks([0,0.5,1,1.5,2])
+axes.set_yticklabels([0,0.5,1,1.5,2],fontsize = fontsize)
+axes.set_xticks([0,0.5,1,1.5,2])
+axes.set_xticklabels([0,0.5,1,1.5,2],fontsize = fontsize)
+
+
+axes.set_xlabel('')
+axes.set_ylabel('')
+fig.savefig(ot.join(save_path,'Fig1N_Only.png'),bbox_inches='tight')
+
+
 #%%
 '''
 Fig 1P (Alternative), calculate each cell's stim-spon ratio, and get it's distribution
@@ -118,9 +152,16 @@ for i in range(cell_num):
     spon_stim_ratio[i] = c_spon/c_stim
 
 # plot part
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4,4),dpi = 300,sharex= False)
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4,3),dpi = 300,sharex= False)
 
 ax.axvline(x = spon_stim_ratio.mean(),linestyle='--',color = [0.7,0.7,0.7])
 sns.histplot(spon_stim_ratio,bins = np.linspace(0,2.5,26),ax = ax)
+
+ax.set_xlim(0,2.1)
+ax.set_yticks([0,300,600,900])
+ax.set_yticklabels([0,300,600,900],fontsize = fontsize)
+ax.set_xticks([0,0.5,1,1.5,2])
+ax.set_xticklabels([0,0.5,1,1.5,2],fontsize = fontsize)
+ax.set_ylabel('')
 
 fig.savefig(ot.join(save_path,'Fig1P_stat_stim_spon.png'),bbox_inches='tight')

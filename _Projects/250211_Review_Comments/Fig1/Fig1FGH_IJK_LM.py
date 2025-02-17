@@ -15,7 +15,7 @@ import scipy.stats as stats
 from Cell_Class.Plot_Tools import Plot_3D_With_Labels
 import copy
 from Cell_Class.Advanced_Tools import *
-from Classifier_Analyzer import *
+from Cell_Class.Classifier_Analyzer import *
 from Cell_Class.Timecourse_Analyzer import *
 from Review_Fix_Funcs import *
 from Filters import Signal_Filter_v2
@@ -23,8 +23,8 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-expt_folder = r'D:\#Fig_Data\_All_Spon_Data_V1\L76_18M_220902'
-savepath = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\Fig1'
+expt_folder = r'D:\_DataTemp\_Fig_Datas\_All_Spon_Data_V1\L76_18M_220902'
+savepath = r'G:\我的云端硬盘\#Figs\#250211_Revision1\Fig1'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 sponrun = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
 start = sponrun.index[0]
@@ -32,7 +32,7 @@ end = sponrun.index[-1]
 
 # generate new spon series, remove LP filter.
 # NOTE different shape!
-spon_series = Z_refilter(ac,start,end).T
+spon_series = Z_refilter(ac,'1-001',start,end).T
 
 #%%
 '''
@@ -40,7 +40,7 @@ Fig 1D/E/F, we generate original Heatmaps, without annotating.
 '''
 
 # get spon,stim,shuffle frames.
-orien_series = Z_refilter(ac,0,99999,ac.orienrun).T
+orien_series = Z_refilter(ac,ac.orienrun,0,99999).T
 spon_shuffle = Spon_Shuffler(spon_series,method='phase',filter_para=(0.005,0.65))
 # transfer them into pd frame, for further process.
 spon_series = pd.DataFrame(spon_series,columns = ac.acn,index = range(len(spon_series)))
@@ -73,7 +73,7 @@ plt.cla()
 vmax = 4
 vmin = -2
 fig_bar,ax_bar = Cbar_Generate(vmin,vmax)
-fig_bar.savefig(ot.join(savepath,'Fig1FGH_Bars.png') ,bbox_inches='tight')
+# fig_bar.savefig(ot.join(savepath,'Fig1FGH_Bars.png') ,bbox_inches='tight')
 #%% Plot no bar graphs
 plt.clf()
 plt.cla()
@@ -95,7 +95,7 @@ axes[2].set_xticklabels([0,100,200,300,400,500],fontsize = label_size)
 
 # fig.tight_layout()
 # plt.show()
-fig.savefig(ot.join(savepath,'Fig1FGH_Heatmap.png'), bbox_inches='tight')
+# fig.savefig(ot.join(savepath,'Fig1FGH_Heatmap.png'), bbox_inches='tight')
 
 #%%
 '''
@@ -129,7 +129,7 @@ sns.heatmap(shuffle_recover_map,center=0,xticklabels=False,yticklabels=False,ax 
 # axes[1].set_title('Stim-induced Response',size = 11)
 # axes[2].set_title('Shuffled Response',size = 11)
 fig.tight_layout()
-fig.savefig(ot.join(savepath,'Fig1IJK_Recovered.png'), bbox_inches='tight')
+# fig.savefig(ot.join(savepath,'Fig1IJK_Recovered.png'), bbox_inches='tight')
 
 plt.show()
 
@@ -166,7 +166,7 @@ plt.cla()
 vmax = 0.1
 vmin = 0
 fig_bar,ax_bar = Cbar_Generate(vmin,vmax,cmap='bwr',aspect=5)
-fig_bar.savefig(ot.join(savepath,'Fig1L_Bars.png'),bbox_inches='tight')
+# fig_bar.savefig(ot.join(savepath,'Fig1L_Bars.png'),bbox_inches='tight')
 #%% main plot here
 
 plt.cla()
@@ -174,7 +174,7 @@ plt.clf()
 fontsize = 14
 fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(4,5),dpi = 180,sharex= True)
 # cbar_ax = fig.add_axes([0.97, .6, .02, .15])
-sns.heatmap(spon_freqs[:60,:].T,center = 0,vmax=0.2,ax = ax[0],cbar=False,xticklabels=False,yticklabels=False,cmap = 'bwr')
+sns.heatmap(spon_freqs[:60,:].T,center = 0,vmax=vmax,ax = ax[0],cbar=False,xticklabels=False,yticklabels=False,cmap = 'bwr')
 # sns.heatmap(spon_freqs[:40,:].T,center = 0,vmax=0.15,ax = ax,cbar_ax= cbar_ax,xticklabels=False,yticklabels=False,cbar_kws={'label': 'Spectral Density'})
 #plot global powers.
 plotable_power = pd.DataFrame(spon_freqs[:60,:].T).melt(var_name='Freq',value_name='Prop.')
@@ -189,4 +189,4 @@ ax[1].set_ylabel('')
 ax[1].set_xlabel('')
 
 fig.tight_layout()
-fig.savefig(ot.join(savepath,'Fig1L_FFT_Power.png'),bbox_inches='tight')
+fig.savefig(ot.join(savepath,'Fig1L_FFT_Power_rescale.png'),bbox_inches='tight')

@@ -126,6 +126,49 @@ def Burstiness_Index(series):
     
     return burstiness_index
 
+def Rand_Series(event_num,series_length):
+
+    total_zeros = series_length - event_num
+    mandatory_zeros_between = event_num - 1
+    extra_zeros_needed = total_zeros - mandatory_zeros_between
+    def sample_stars_and_bars(stars, bins):
+        if bins <= 1:
+            return [stars]
+        dividers = sorted(np.random.choice(stars + bins - 1, bins - 1, replace=False))
+        gaps = []
+        prev = -1
+        for d in dividers:
+            gaps.append(d - prev - 1)
+            prev = d
+        gaps.append(stars + bins - 1 - prev - 1)
+        return gaps
+    gaps = sample_stars_and_bars(extra_zeros_needed, event_num + 1)
+
+    series = []
+    # Add pre-gap zeros
+    series.extend([0] * gaps[0])
+    series.append(1)
+
+    # Add internal gaps and ones
+    for i in range(1, event_num):
+        internal_zeros = gaps[i] + 1  # Mandatory 1 + extra
+        series.extend([0] * internal_zeros)
+        series.append(1)
+
+    # Add post-gap zeros
+    series.extend([0] * gaps[-1])
+
+    return series
+
+
+
+def Burstiness_Index_elife(series,N_shuffle=50):
+    # still, series must be 1/0 series.
+    event_num = series.sum()
+    series_length = len(series)
+
+
+
 #%% F4, Colorbar Generator
 import matplotlib.colors as mcolors
 import matplotlib as mpl

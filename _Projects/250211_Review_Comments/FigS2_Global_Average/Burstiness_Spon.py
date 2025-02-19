@@ -28,16 +28,20 @@ from Review_Fix_Funcs import *
 from Filters import Signal_Filter_v2
 import warnings
 
-all_path_dic = list(ot.Get_Subfolders(r'D:\_DataTemp\_Fig_Datas\_All_Spon_Data_V1'))
+all_path_dic = list(ot.Get_Subfolders(r'D:\#Fig_Data\_All_Spon_Data_V1'))
 
 all_path_dic.pop(4)
 all_path_dic.pop(6)
-save_path = r'G:\我的云端硬盘\#Figs\#250211_Revision1\FigS2'
+save_path = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\FigS2'
 
 #%% calculate burstiness of all cell
 from scipy.signal import find_peaks,peak_widths
 burstiness = pd.DataFrame(columns = ['Loc','Cell','Burstiness'])
+burstiness_rand = pd.DataFrame(columns = ['Loc','Cell','Burstiness'])
+waittime_v1 = pd.DataFrame(index = range(10000000),columns = ['Loc','Waittime'])
 freqs = []
+N_shuffle = 10
+counter=0
 for i,cloc in enumerate(all_path_dic):
     cloc_name = cloc.split('\\')[-1]
     ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
@@ -50,11 +54,60 @@ for i,cloc in enumerate(all_path_dic):
         peaks,_ = find_peaks(c_series, height=-0.5,distance=5,prominence=1) 
         c_raster = np.zeros(len(c_series))
         c_raster[peaks]=1
-        cc_bur = Burstiness_Index(c_raster)
+        waittimes = np.diff(np.where(c_raster==1)[0])
+        for k,c_waittime in enumerate(waittimes):
+            waittime_v1.loc[counter] = [cloc_name,c_waittime]
+            counter+=1
+        cc_bur = Burstiness_Index_JN(c_raster,winnum=160)
+        for k in range(N_shuffle):
+            c_raster_s = Rand_Series(int(c_raster.sum()),len(c_raster))
+            cc_bur_s = Burstiness_Index_JN(c_raster_s,winnum=160)
+            burstiness_rand.loc[len(burstiness_rand)] = [cloc_name,j+1,cc_bur_s]
         burstiness.loc[len(burstiness)] = [cloc_name,j+1,cc_bur]
         freqs.append(len(peaks)*1.301/len(c_spon))
 freqs = np.array(freqs)
-# ot.Save_Variable(save_path,'Burstiness',burstiness)
+ot.Save_Variable(save_path,'Burstiness_V1',burstiness)
+ot.Save_Variable(save_path,'Burstiness_V1_shuffle10',burstiness_rand)
+waittime_v1 = waittime_v1.dropna(how='any')
+ot.Save_Variable(save_path,'Waittime_V1',waittime_v1)
+
+#%% Do same calculation in V2.
+all_path_dic_v2 = list(ot.Get_Subfolders(r'D:\#Fig_Data\_All_Spon_Data_V2'))
+burstiness_v2 = pd.DataFrame(columns = ['Loc','Cell','Burstiness'])
+burstiness_rand_v2 = pd.DataFrame(columns = ['Loc','Cell','Burstiness'])
+waittime_v2 = pd.DataFrame(index = range(10000000),columns = ['Loc','Waittime'])
+freqs_v2 = []
+N_shuffle = 10
+counter=0
+for i,cloc in enumerate(all_path_dic_v2):
+    cloc_name = cloc.split('\\')[-1]
+    ac = ot.Load_Variable_v2(cloc,'Cell_Class.pkl')
+    c_spon = ot.Load_Variable(cloc,'Spon_Before.pkl')
+    spon_start = c_spon.index[0]
+    spon_end = c_spon.index[-1]
+    c_spon = Z_refilter(ac,'1-001',spon_start,spon_end).T
+    for j in range(len(ac)):
+        c_series = c_spon[:,j]
+        peaks,_ = find_peaks(c_series, height=-0.5,distance=5,prominence=1) 
+        c_raster = np.zeros(len(c_series))
+        c_raster[peaks]=1
+        waittimes = np.diff(np.where(c_raster==1)[0])
+        for k,c_waittime in enumerate(waittimes):
+            waittime_v2.loc[counter] = [cloc_name,c_waittime]
+            counter+=1
+        cc_bur = Burstiness_Index_JN(c_raster,winnum=160)
+        for k in range(N_shuffle):
+            c_raster_s = Rand_Series(int(c_raster.sum()),len(c_raster))
+            cc_bur_s = Burstiness_Index_JN(c_raster_s,winnum=160)
+            burstiness_rand_v2.loc[len(burstiness_rand_v2)] = [cloc_name,j+1,cc_bur_s]
+        burstiness_v2.loc[len(burstiness_v2)] = [cloc_name,j+1,cc_bur]
+        freqs_v2.append(len(peaks)*1.301/len(c_spon))
+freqs_v2 = np.array(freqs_v2)
+ot.Save_Variable(save_path,'Burstiness_V2',burstiness_v2)
+ot.Save_Variable(save_path,'Burstiness_V2_shuffle10',burstiness_rand_v2)
+waittime_v2 = waittime_v2.dropna(how='any')
+ot.Save_Variable(save_path,'Waittime_V2',waittime_v2)
+
 #%% Plot burstiness
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4,4),dpi = 300,sharex= False)

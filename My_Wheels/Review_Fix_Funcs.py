@@ -157,16 +157,39 @@ def Rand_Series(event_num,series_length):
 
     # Add post-gap zeros
     series.extend([0] * gaps[-1])
-
+    series = np.array(series)
     return series
-
 
 
 def Burstiness_Index_elife(series,N_shuffle=50):
     # still, series must be 1/0 series.
-    event_num = series.sum()
+    event_num = int(series.sum())
     series_length = len(series)
+    real_duration = np.diff(np.where(series==1)[0])
+    cv_r = real_duration.std()/real_duration.mean()
+    cv_s = np.zeros(N_shuffle)
+    for i in range(N_shuffle):
+        series_s = Rand_Series(event_num,series_length)
+        shuffle_duration = np.diff(np.where(series_s==1)[0])
+        cv_s[i] = (shuffle_duration.std())/shuffle_duration.mean()
+    cv_ms = np.sum((cv_s-cv_s.mean())**2)/N_shuffle
+    cv_s_mean = cv_s.mean()
+    # here comes a bug, this function will lead to negative in sqrt = =
+    bi = (cv_r-cv_s.mean())/np.sqrt(abs(cv_ms-cv_s_mean**2))
+    return bi
 
+def Burstiness_Index_JN(series,fraq = 0.15,winnum=300):
+    event_num = int(series.sum())
+    fraq_num = int(fraq*winnum)
+    series_length = len(series)
+    # real_duration = np.diff(np.where(series==1)[0])
+    winlen = series_length//winnum
+    win_response = np.reshape(series[:winnum*winlen],(winnum,winlen)).sum(1)
+    best_resp = np.sort(win_response)[-fraq_num:]
+    # get top percentage response's prop.
+    f_best = best_resp.sum()/event_num
+    bi = (f_best-fraq)/(1-fraq)
+    return bi
 
 
 #%% F4, Colorbar Generator

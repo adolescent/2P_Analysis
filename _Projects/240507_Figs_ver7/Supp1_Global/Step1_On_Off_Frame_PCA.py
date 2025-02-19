@@ -20,12 +20,13 @@ from tqdm import tqdm
 from scipy.stats import pearsonr
 import scipy.stats as stats
 from Cell_Class.Advanced_Tools import *
+from Review_Fix_Funcs import *
 from scipy.signal import find_peaks,peak_widths
 
 
-savepath = r'D:\_Path_For_Figs\230507_Figs_v7\Support_Global_Info'
-datapath = r'D:\_All_Spon_Data_V1'
-all_path_dic = list(ot.Get_Subfolders(r'D:\_All_Spon_Data_V1'))
+savepath = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\FigS2'
+datapath = r'D:\#Fig_Data\_All_Spon_Data_V1'
+all_path_dic = list(ot.Get_Subfolders(datapath))
 all_path_dic.pop(4)
 all_path_dic.pop(6)
 
@@ -69,11 +70,15 @@ ot.Save_Variable(savepath,'All_Event_SVM_Prop',all_repeat_info)
 plotable = all_repeat_info[all_repeat_info['Type']=='All']
 plt.clf()
 plt.cla()
-fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (7,5),dpi = 180)
+fig,ax = plt.subplots(nrows=1, ncols=1,figsize = (7,5),dpi = 300)
 sns.lineplot(data = plotable,x = 'Thres',y = 'Ratio',ax = ax)
 ax.set_ylim(0,1)
-ax.set_ylabel('Classified Ratio',size = 12)
-ax.set_xlabel('Event Scale Threshold',size = 12)
+# ax.set_ylabel('Classified Ratio',size = 12)
+# ax.set_xlabel('Event Scale Threshold',size = 12)
+ax.set_ylabel('')
+ax.set_xlabel('')
+
+fig.savefig(ot.join(savepath,'SVM_Classified_Ratio.png'),bbox_inches='tight')
 
 #%%
 '''

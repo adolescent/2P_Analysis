@@ -24,7 +24,7 @@ for i in range(4):
                 # c_color = matplotlib.colors.hsv_to_rgb([2/3,np.random.rand()/3,1])
                 c_color = matplotlib.colors.hsv_to_rgb([2/3,0,0.8])
                 ax.plot([i * 10 / 6 + 1, k * 10 / 6 + 1], [j * 10 / 6 + 1, l * 10 / 6 + 1],
-                        color=c_color, linewidth=2)
+                        color=c_color, linewidth=1)
 
 # Draw the 49 filled circles in gray color on top of the lines
 # circle_radius = 0.36  # Adjust the radius as needed
@@ -53,4 +53,4 @@ ax.set_axis_off()
 
 # Display the plot
 # plt.show()
-# plt.savefig('D:\_GoogleDrive_Files\#Figs\Model_Demo\Point_Only.png', transparent=True)
+# plt.savefig('D:\_GoogleDrive_Files\#Figs\#250211_Revision1\Fig6\Connection_Only_Thin.png', transparent=True)

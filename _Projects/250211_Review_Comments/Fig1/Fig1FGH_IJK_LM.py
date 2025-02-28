@@ -23,8 +23,8 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-expt_folder = r'D:\_DataTemp\_Fig_Datas\_All_Spon_Data_V1\L76_18M_220902'
-savepath = r'G:\我的云端硬盘\#Figs\#250211_Revision1\Fig1'
+expt_folder = r'D:\#Fig_Data\_All_Spon_Data_V1\L76_18M_220902'
+savepath = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\Fig1'
 ac = ot.Load_Variable_v2(expt_folder,'Cell_Class.pkl')
 sponrun = ot.Load_Variable(expt_folder,'Spon_Before.pkl')
 start = sponrun.index[0]

@@ -52,13 +52,24 @@ fontsize = 14
 fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(5,5),dpi=300)
 
 sns.barplot(data = plotable,x = 'Area',y='Burstiness',hue='Data_Type',width=0.5,capsize=0.15,ax = ax,legend=False,lw=1)
+# sns.stripplot(data = )
 ax.set_yticks([0,0.05,0.1])
 ax.set_yticklabels([0,0.05,0.1],fontsize = fontsize)
 ax.set_xticklabels(['V1','V2'],fontsize = fontsize)
 
 ax.set_ylabel('')
 ax.set_xlabel('')
-fig.savefig(ot.join(save_path,'Burstiness_Compare.png'),bbox_inches = 'tight')
+# fig.savefig(ot.join(save_path,'Burstiness_Compare.png'),bbox_inches = 'tight')
+#%% stats of burstiness in V1 and V2
+all_v1 = plotable.groupby(['Area','Data_Type']).get_group(('V1','Real'))
+all_v1_bur = all_v1.groupby('Loc')['Burstiness'].mean()
+all_v2 = plotable.groupby(['Area','Data_Type']).get_group(('V2','Real'))
+all_v2_bur = all_v2.groupby('Loc')['Burstiness'].mean()
+all_v1_s = plotable.groupby(['Area','Data_Type']).get_group(('V1','Shuffle'))
+all_v1_s_bur = all_v1_s.groupby('Loc')['Burstiness'].mean()
+all_v2_s = plotable.groupby(['Area','Data_Type']).get_group(('V2','Shuffle'))
+all_v2_s_bur = all_v2_s.groupby('Loc')['Burstiness'].mean()
+r,p = stats.ttest_rel(all_v1_bur,all_v1_s_bur)
 
 #%%
 '''
@@ -107,5 +118,5 @@ ax.set_xticklabels(np.arange(0,50,10))
 
 ax.set_title('Global Ensemble Waittime',size = 14)
 # fig.savefig(ot.join(save_path,'All_Loc_Waittime.png'),bbox_inches='tight')
-fig.savefig(ot.join(save_path,'All_Loc_Waittime.png'),bbox_inches='tight')
+# fig.savefig(ot.join(save_path,'All_Loc_Waittime.png'),bbox_inches='tight')
 

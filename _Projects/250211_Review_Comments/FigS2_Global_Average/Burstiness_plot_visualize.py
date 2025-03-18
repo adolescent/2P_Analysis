@@ -27,7 +27,7 @@ from Review_Fix_Funcs import *
 from Filters import Signal_Filter_v2
 import warnings
 
-save_path = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\FigS2'
+save_path = r'G:\我的云端硬盘\#Figs\#250211_Revision1\FigS2'
 
 burstiness = ot.Load_Variable_v2(save_path,'Burstiness_V1.pkl')
 burstiness_s = ot.Load_Variable_v2(save_path,'Burstiness_V1_shuffle10.pkl')
@@ -47,11 +47,25 @@ burstiness_comb_s['Data_Type'] = 'Shuffle'
 
 #%% plot part
 plotable = pd.concat([burstiness_comb,burstiness_comb_s])
+all_locs = list(set(plotable['Loc']))
+mean_scatter = pd.DataFrame(columns=['Loc','Burstiness','Area','Data_Type'])
+for i,cloc in enumerate(all_locs):
+    c_real = plotable.groupby(['Loc','Data_Type']).get_group((cloc,'Real'))
+    c_shuffle = plotable.groupby(['Loc','Data_Type']).get_group((cloc,'Shuffle'))
+    c_area = c_real.iloc[0,-2]
+    c_real_bi = c_real['Burstiness'].mean()
+    c_shuffle_bi = c_shuffle['Burstiness'].mean()
+    mean_scatter.loc[len(mean_scatter)] = [cloc,c_real_bi,c_area,'Real']
+    mean_scatter.loc[len(mean_scatter)] = [cloc,c_shuffle_bi,c_area,'Shuffle']
+    
 
 fontsize = 14
-fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(5,5),dpi=300)
+fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(3.5,5),dpi=300)
 
-sns.barplot(data = plotable,x = 'Area',y='Burstiness',hue='Data_Type',width=0.5,capsize=0.15,ax = ax,legend=False,lw=1)
+sns.stripplot(data=mean_scatter,x = 'Area',y='Burstiness',hue='Data_Type',color='black',s=3,ax=ax, dodge=True,legend=False,jitter=True,alpha=0.7)
+sns.barplot(data = plotable,x = 'Area',y='Burstiness',hue='Data_Type',width=0.75,capsize=0.15,ax = ax,legend=False,lw=1)
+
+ax.set_ylim(0,0.14)
 ax.set_yticks([0,0.05,0.1])
 ax.set_yticklabels([0,0.05,0.1],fontsize = fontsize)
 ax.set_xticklabels(['V1','V2'],fontsize = fontsize)
@@ -105,7 +119,8 @@ ax.text(vmax*0.6,0.05,f'Median = {c_median/1.301:.3f} s')
 ax.set_xticks(np.arange(0,50,10)*1.301)
 ax.set_xticklabels(np.arange(0,50,10))
 
-ax.set_title('Global Ensemble Waittime',size = 14)
+# ax.set_title('Global Ensemble Waittime',size = 14)
+
 # fig.savefig(ot.join(save_path,'All_Loc_Waittime.png'),bbox_inches='tight')
 fig.savefig(ot.join(save_path,'All_Loc_Waittime.png'),bbox_inches='tight')
 

@@ -29,7 +29,7 @@ all_path_dic.pop(6)
 '''
 Part 1, calculate global ensemble frequency. Stats for all location. This value is discribed in article.
 '''
-#%% Single Threshold ensemble estimation.
+# Single Threshold ensemble estimation.
 thres = 1
 all_spon_dics = {}
 for i,cloc in tqdm(enumerate(all_path_dic)):
@@ -113,8 +113,14 @@ for i in range(2):
     axes[i].yaxis.set_label_coords(-0.04, 0.5)
 
 fig.tight_layout()
-fig.savefig(ot.join(savepath,'FigS2AB_Global_Thresed'),bbox_inches='tight')
+# fig.savefig(ot.join(savepath,'FigS2AB_Global_Thresed'),bbox_inches='tight')
 plt.show()
+#%%##################### P1 Plus: Global Burstiness ##########################
+
+
+
+
+
 #%%######################### P2 Get ALL Peak Info ##############
 thres = 1
 all_on_frame = {}

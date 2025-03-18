@@ -23,7 +23,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-wp = r'G:\我的云端硬盘\#Figs\#250211_Revision1\Fig4'
+wp = r'D:\_GoogleDrive_Files\#Figs\#250211_Revision1\Fig4'
 all_pair_corrs = ot.Load_Variable(wp,'All_Pair_Corrs.pkl')
 
 #%%
@@ -94,7 +94,7 @@ g.collections[0].colorbar.set_ticks([value_min,value_max])
 g.collections[0].colorbar.set_ticklabels([value_min,value_max])
 g.collections[0].colorbar.ax.tick_params(labelsize=8)
 plt.show()
-fig.savefig(ot.join(wp,'Fig4E_Bars.png'),bbox_inches='tight')
+# fig.savefig(ot.join(wp,'Fig4E_Bars.png'),bbox_inches='tight')
 
 #%% real graph
 plt.clf()
@@ -124,10 +124,16 @@ g3.set_facecolor('gray')
 # axes[0].set_ylabel('Distance Y')
 # axes[0].set_title('Correlation vs Distance')
 # axes[0].set_xticks([0,6,12,18,24,30])
-axes[0].set_xticks([0,4,8,12,16,20])
-axes[0].set_xticklabels([0,90,180,270,360,450],fontsize = fontsize)
-axes[0].set_yticks([0,4,8,12,16,20])
-axes[0].set_yticklabels([0,90,180,270,360,450],fontsize = fontsize)
+pix_ratio = 830/512
+# axes[0].set_xticks([0,4,8,12,16,20])
+# axes[0].set_xticklabels([0,90,180,270,360,450],fontsize = fontsize)
+# axes[0].set_yticks([0,4,8,12,16,20])
+# axes[0].set_yticklabels([0,90,180,270,360,450],fontsize = fontsize)
+axes[0].set_xticks([0,200/(pix_ratio*22.5),400/(pix_ratio*22.5),600/(pix_ratio*22.5)])
+axes[0].set_xticklabels([0,200,400,600],fontsize = fontsize)
+axes[0].set_yticks([0,200/(pix_ratio*22.5),400/(pix_ratio*22.5),600/(pix_ratio*22.5)])
+axes[0].set_yticklabels([0,200,400,600],fontsize = fontsize)
+
 # od
 # axes[1].set_xlabel('OD Tuning A')
 # axes[1].set_ylabel('OD Tuning B')
